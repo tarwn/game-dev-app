@@ -10,6 +10,8 @@ using GDB.App.Security;
 using GDB.App.StartupConfiguration;
 using GDB.Business.Authentication;
 using GDB.Common.Authentication;
+using GDB.Common.Persistence;
+using GDB.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -34,6 +36,17 @@ namespace GDB.App
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configurations
+            services.AddScoped<DatabaseConnectionSettings>((services) => {
+                return new DatabaseConnectionSettings() { Database = _configuration.GetConnectionString("Database") };
+            });
+
+            // Data
+            services.AddScoped<IPersistence, DapperPersistence>();
+
+            // Business/Domain Logic
+            BusinessServiceConfiguration.Configure(services);
+
             // interactive security
             services.AddAntiforgery();
             services.AddAuthentication(SecurityConstants.CookieAuthScheme)
@@ -85,7 +98,8 @@ namespace GDB.App
                 services.AddDefaultCorrelationId();
 
                 // Health
-                services.AddHealthChecks();
+                services.AddHealthChecks()
+                    .AddCheck<DatabaseHealthCheck>("database");
 
                 // MVC 
                 services.AddControllersWithViews(options => {
