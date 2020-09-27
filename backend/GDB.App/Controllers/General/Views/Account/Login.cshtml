@@ -1,0 +1,23 @@
+﻿@model GDB.App.Controllers.General.Models.LoginModel
+@{
+    Layout = "../_Layout.cshtml";
+    TempData["title"] = "Login";
+}
+<h1>Login</h1>
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div>@ViewData["ErrorMessage"]</div>
+}
+<form method="post">
+    @Html.AntiForgeryToken()
+    @Html.Hidden("ReturnUrl", Model.ReturnUrl ?? "")
+    <label>
+        <span>Username</span>
+        @Html.TextBox("UserName")
+    </label>
+    <label>
+        <span>Password</span>
+        @Html.Password("Password")
+    </label>
+    <input type="submit" value="Log In" />
+</form>
