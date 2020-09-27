@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="dbup-sqlserver" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="$(ProjectDir)\..\..\database\migrations\*.sql">
+      <Link>migrations\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="migrations\" />
+  </ItemGroup>
+
+  <!-- 
+    These two properties ensure that:
+    1. "Debug" doesn't skip MSBuild for faster start
+    2. The Migration tool is rebuilt every time, to pick up any changes to the Migrations folder 
+    
+    Otherwise we would manually have to run a rebuild to pick up the embedded resource changes  
+  -->
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Message Text="### Cleaning Migration Tool ###" Importance="high" />
+    <Exec Command="dotnet clean $(ProjectPath)" />
+  </Target>
+</Project>

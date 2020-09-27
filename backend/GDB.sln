@@ -3,11 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.App", "GDB.App\GDB.App.csproj", "{08778FDF-7CD3-49F5-9BA4-A9661F0F27DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.App", "GDB.App\GDB.App.csproj", "{08778FDF-7CD3-49F5-9BA4-A9661F0F27DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Business", "GDB.Business\GDB.Business.csproj", "{97BF20B2-6D04-4DA3-AB63-EE5A85E25AB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Business", "GDB.Business\GDB.Business.csproj", "{97BF20B2-6D04-4DA3-AB63-EE5A85E25AB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Common", "GDB.Common\GDB.Common.csproj", "{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Common", "GDB.Common\GDB.Common.csproj", "{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Tools.DatabaseMigration", "GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj", "{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Persistence", "GDB.Persistence\GDB.Persistence.csproj", "{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.App.Tests", "GDB.App.Tests\GDB.App.Tests.csproj", "{D9E13B1D-EA66-417D-A6BC-5536C257A237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,18 @@ Global
 		{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

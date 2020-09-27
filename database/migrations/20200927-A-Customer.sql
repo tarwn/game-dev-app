@@ -1,0 +1,6 @@
+CREATE TABLE dbo.Customer (
+	Id int NOT NULL IDENTITY(1,1),
+	[Name] varchar(80) NOT NULL,
+
+	CONSTRAINT PK_Customer PRIMARY KEY CLUSTERED (Id ASC)
+);

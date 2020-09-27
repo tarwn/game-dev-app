@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GDB.Business\GDB.Business.csproj" />
     <ProjectReference Include="..\GDB.Common\GDB.Common.csproj" />
+    <ProjectReference Include="..\GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj" />
   </ItemGroup>
 
 </Project>

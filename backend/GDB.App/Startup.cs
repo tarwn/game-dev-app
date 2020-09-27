@@ -6,6 +6,7 @@ using CorrelationId;
 using CorrelationId.DependencyInjection;
 using GDB.App.ErrorHandling;
 using GDB.App.HealthChecks;
+using GDB.App.Security;
 using GDB.App.StartupConfiguration;
 using GDB.Business.Authentication;
 using GDB.Common.Authentication;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -23,6 +25,13 @@ namespace GDB.App
 {
     public class Startup
     {
+        private IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             // interactive security
@@ -49,16 +58,16 @@ namespace GDB.App
                 // Authorizations policies
                 services.AddAuthorization(options =>
                 {
-                    options.AddPolicy(SecurityConstants.Policy_InteractiveUserAccess, builder =>
+                    options.AddPolicy(Policies.InteractiveUserAccess, builder =>
                     {
                         builder.RequireAuthenticatedUser();
                         builder.AuthenticationSchemes.Add(SecurityConstants.CookieAuthScheme);
-                        builder.RequireClaim(SecurityConstants.Claim_SessionId);
-                        builder.RequireClaim(SecurityConstants.Claim_UserId);
-                        builder.RequireClaim(SecurityConstants.Claim_UserName);
+                        builder.RequireClaim(ClaimNames.SessionId);
+                        builder.RequireClaim(ClaimNames.UserId);
+                        builder.RequireClaim(ClaimNames.UserName);
                     });
 
-                    options.DefaultPolicy = options.GetPolicy(SecurityConstants.Policy_InteractiveUserAccess);
+                    options.DefaultPolicy = options.GetPolicy(Policies.InteractiveUserAccess);
                 });
 
                 // CORS policies
@@ -103,6 +112,13 @@ namespace GDB.App
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // -- Development tasks
+            if (env.IsDevelopment())
+            {
+                LocalDevelopmentTasks.MigrateDatabase(_configuration);
+            }
+
+            // -- Continue configuration
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
