@@ -1,17 +1,60 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <SpaRoot>..\..\frontend\</SpaRoot>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.9" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GDB.Business\GDB.Business.csproj" />
     <ProjectReference Include="..\GDB.Common\GDB.Common.csproj" />
+    <ProjectReference Include="..\GDB.Persistence\GDB.Persistence.csproj" />
     <ProjectReference Include="..\GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj" />
   </ItemGroup>
 
+  <!-- SPA Static Files linked in -->
+  <ItemGroup>
+    <Content Include="$(SpaRoot)public\**" Link="ClientApp\public\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- SPA Build Steps -->
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And '$(NCrunch)' != '1'">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+
+    <!-- Ensure yarn is installed -->
+    <Exec Command="yarn --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCodeYarn" />
+    </Exec>
+    <Error Condition="'$(ErrorCodeYarn)' != '0'" Text="Yarn is required to build and run this project. To continue, please install yarn from https://yarnpkg.com/, and then restart your command prompt or IDE." />
+
+    <Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
+  </Target>
+
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn run build" />
+
+    <!-- Include the newly-built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)public\**; $(SpaRoot)public-ssr\**" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>%(DistFiles.Identity)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 </Project>
