@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
@@ -8,6 +9,7 @@ using GDB.App.ErrorHandling;
 using GDB.App.HealthChecks;
 using GDB.App.Security;
 using GDB.App.StartupConfiguration;
+using GDB.App.StartupConfiguration.Settings;
 using GDB.Business.Authentication;
 using GDB.Common.Authentication;
 using GDB.Common.Persistence;
@@ -38,6 +40,7 @@ namespace GDB.App
         public void ConfigureServices(IServiceCollection services)
         {
             // Configurations
+            services.Configure<SentryOptions>(_configuration.GetSection("Sentry"));
             services.AddScoped<DatabaseConnectionSettings>((services) => {
                 return new DatabaseConnectionSettings() { Database = _configuration.GetConnectionString("Database") };
             });
@@ -227,10 +230,8 @@ namespace GDB.App
 
                     if (env.IsDevelopment())
                     {
-                        var port = LocalDevelopmentTasks.GetUnusedPort();
-                        LocalDevelopmentTasks.StartFrontendService("yarn", $"run dev --port {port}", "../../frontend");
-                        spa.Options.StartupTimeout = TimeSpan.FromMinutes(1);
-                        spa.UseProxyToSpaDevelopmentServer($"http://127.0.0.1:{port}");
+                        spa.Options.StartupTimeout = TimeSpan.FromSeconds(3);
+                        LocalDevelopmentTasks.StartFrontendService(spa, "../../frontend", "yarn", (port) => $"run dev --port {port}");
                     }
                 });
             }

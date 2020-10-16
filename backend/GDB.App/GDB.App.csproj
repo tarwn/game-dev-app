@@ -9,6 +9,8 @@
     <PackageReference Include="CorrelationId" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.9" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.9" />
+    <PackageReference Include="Sentry" Version="2.1.6" />
+    <PackageReference Include="Sentry.AspNetCore" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +25,9 @@
     <Content Include="$(SpaRoot)public\**" Link="ClientApp\public\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Middleware\" />
   </ItemGroup>
 
   <!-- SPA Build Steps -->

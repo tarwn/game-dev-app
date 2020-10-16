@@ -15,5 +15,11 @@ namespace GDB.App.Controllers.General
         {
             return View();
         }
+
+        [HttpGet("create")]
+        public IActionResult Create()
+        {
+            throw new Exception("Generated exception");
+        }
     }
 }
