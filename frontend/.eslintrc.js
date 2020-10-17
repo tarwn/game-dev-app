@@ -20,10 +20,12 @@ module.exports = {
     browser: true
   },
   ignorePatterns: [
-    '/public/build/',
+    '/public',
+    '/dist',
     'rollup.config.js',
     '.eslintrc.js',
-    'tsconfig.js'
+    'tsconfig.js',
+    'svelte.config.js'
   ],
   overrides: [
     {
