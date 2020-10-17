@@ -25,7 +25,8 @@ module.exports = {
     'rollup.config.js',
     '.eslintrc.js',
     'tsconfig.js',
-    'svelte.config.js'
+    'svelte.config.js',
+    'postcss.config.js'
   ],
   overrides: [
     {

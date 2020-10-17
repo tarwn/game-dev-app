@@ -3,17 +3,23 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import sveltePreprocess, { scss } from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
-import { argv } from "yargs";
 import copy from 'rollup-plugin-copy'
+import scss from 'rollup-plugin-scss'
+import sveltePreprocess from 'svelte-preprocess';
+import { argv } from "yargs";
 import del from "del";
+// import postcss from "postcss";
+// import autoprefixer from "autoprefixer";
+import sass from "sass";
 
 const production = !process.env.ROLLUP_WATCH;
 
 const config = {
   dest: "dist",
-  bundleName: "bundle.js"
+  bundleName: "bundle.js",
+  bundleCssName: "bundle.css",
+  baseCssName: "base.css"
 };
 
 del.sync(`${config.dest}/**`);
@@ -48,8 +54,12 @@ function transform(contents) {
   // const scriptTag = '<script type="module" defer src="/build/main.js"></script>';
   // const bundleTag = '<script defer src="/build/bundle.js"></script>';
   // return contents.toString().replace('__SCRIPT__', dynamicImports ? scriptTag : bundleTag);
-  const bundleTag = `<script defer src="/${config.bundleName}"></script>`;
-  return contents.toString().replace('__SCRIPT__', bundleTag);
+  const tags = [
+    `<link rel='stylesheet' href='/${config.baseCssName}'>`,
+    `<link rel='stylesheet' href='/${config.bundleCssName}'>`,
+    `<script defer src="/${config.bundleName}"></script>`
+  ];
+  return contents.toString().replace('__SCRIPT__', tags.join("\n"));
 }
 
 export default {
@@ -70,6 +80,19 @@ export default {
       copyOnce: true,
       flatten: false
     }),
+    scss({
+      output: `${config.dest}/base.css`,
+      include: ['src/styles/base.scss'],
+      sass,
+      watch: 'src/style',
+      failOnError: true,
+      // these options don't work, there's no compression, no sourcemap
+      //  rollup is convinced there can only be one input, svelte strips out
+      //  anything that's not immediately used, ...🤷‍♀️
+      // processor: css => postcss([autoprefixer()]),
+      // sourceMap: `${config.dest}/base.css.map`,
+      // sourceMapContents: true
+    }),
     svelte({
       // enable run-time checks when not in production
       dev: !production,
@@ -78,7 +101,12 @@ export default {
       css: css => {
         css.write('bundle.css');
       },
-      preprocess: sveltePreprocess({ postcss: true }),
+      preprocess: sveltePreprocess({
+        sass: {
+          implementation: "sass"
+        },
+        postcss: true
+      }),
     }),
 
     // If you have external dependencies installed from
@@ -100,9 +128,9 @@ export default {
     // the bundle has been generated
     !production && serve(),
 
-    // Watch the `public` directory and refresh the
+    // Watch the `dist` directory and refresh the
     // browser on changes when not in production
-    !production && livereload('dist'),
+    !production && livereload(config.dest),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify

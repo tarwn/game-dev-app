@@ -1,0 +1,43 @@
+@import "./variables";
+@import "./mixins/textCrop";
+
+html {
+  font-size: $font-size-base;
+}
+
+body{
+  background-color: $color-background-default;
+  color: $text-color-default;
+  margin: 0px;
+}
+
+h1, .h1 {
+  @include text-crop;
+  font-size: 2.5rem;
+}
+h2, .h2 {
+  @include text-crop;
+  font-size: 2rem;
+}
+h3, .h3 {
+  @include text-crop;
+  font-size: 1.75rem;
+}
+h4, .h4 {
+  @include text-crop;
+  font-size: 1.5rem;
+}
+h5, .h5 {
+  @include text-crop;
+  font-size: 1.25rem;
+}
+
+a, a:visited{
+  color: $color-accent-1;
+  text-decoration: underline;
+}
+a:hover{
+  color: $color-accent-1-darker;
+  text-decoration: none;
+}
+

@@ -10,12 +10,9 @@
   }
 </script>
 
-<style type="text/scss">
-  @import "./styles/_variables.scss";
-
-  h1 {
-    color: $color-primary;
-  }
+<style type="text/scss" global>
+  @import "normalize.css";
+  @import "./styles/base.scss";
 </style>
 
 <ErrorReporter on:dismiss={reloadApp} />

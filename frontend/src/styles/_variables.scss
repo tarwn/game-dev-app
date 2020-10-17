@@ -1,2 +1,69 @@
 
-$color-primary: red;
+$font-family: 'Raleway', 'Open Sans', sans-serif;
+
+// = Sizing
+// - Font Sizes
+$font-size-base: 16px;
+
+$font-size-smallest: 0.85rem;
+$font-size-small: 0.952em;
+$font-size-normal: 1rem;
+$font-size-larger: 1.2rem;
+
+$line-height-base: 1.5rem;
+
+// other important sizes
+//  touch targets should be min 48x48
+//  click should be min 24x24
+
+// - Spacing
+//   https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62
+$space-xs: 4px;
+$space-s: 8px;
+$space-m: 16px;
+$space-l: 32px;
+$space-xl: 64px;
+
+$space-stack-xs: 0 0 4px 0;
+$space-stack-s: 0 0 8px 0;
+$space-stack-m: 0 0 16px 0;
+$space-stack-l: 0 0 32px 0;
+$space-stack-xl: 0 0 64px 0;
+
+$space-inset-xs: 4px 4px 4px 4px;
+$space-inset-s: 8px 8px 8px 8px;
+$space-inset-m: 16px 16px 16px 16px;
+$space-inset-l: 32px 32px 32px 32px;
+$space-inset-xl: 64px 64px 64px 64px;
+
+$space-default: $space-m;
+$space-stack-default: $space-stack-m;
+$space-inset-default: $space-inset-m;
+
+// = Colors
+$cs_blue: #5bc0eb;          //      91, 192, 235
+$cs_green: #9bc53d;
+$cs_orange: #f0b83e;
+$cs_red: #c3423f;
+$cs_darkgrey: #404e4d;
+
+$cs_lightblue: #e3f4fc;
+
+$ws_white: #FFFFFF;
+$ws_lightgrey: #dddddd;
+$ws_medgrey: #86807C;
+$ws_darkgrey: #26201C;
+$ws_lightergrey: #fafbfc;
+
+$color-primary: $cs_green;
+$color-accent-1: $cs_blue;
+$color-accent-1-darker: darken($cs_blue, 10%);
+$color-accent-2: $cs_orange;
+
+$color-background-default: $ws_white;
+$color-background-dark: $cs_darkgrey;
+
+$text-color-default: $ws_darkgrey;
+$text-color-inverse: $ws_white;
+
+
