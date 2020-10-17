@@ -6,8 +6,17 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess, { scss } from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import { argv } from "yargs";
+import copy from 'rollup-plugin-copy'
+import del from "del";
 
 const production = !process.env.ROLLUP_WATCH;
+
+const config = {
+  dest: "dist",
+  bundleName: "bundle.js"
+};
+
+del.sync(`${config.dest}/**`);
 
 function serve() {
   let server;
@@ -19,7 +28,7 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      const options = ['run', 'start', '--', '--dev'];
+      const options = ['run', 'dev:server:start', '--', '--dev'];
       if (argv.port) {
         options.push("--port");
         options.push(argv.port);
@@ -35,15 +44,32 @@ function serve() {
   };
 }
 
+function transform(contents) {
+  // const scriptTag = '<script type="module" defer src="/build/main.js"></script>';
+  // const bundleTag = '<script defer src="/build/bundle.js"></script>';
+  // return contents.toString().replace('__SCRIPT__', dynamicImports ? scriptTag : bundleTag);
+  const bundleTag = `<script defer src="/${config.bundleName}"></script>`;
+  return contents.toString().replace('__SCRIPT__', bundleTag);
+}
+
 export default {
   input: 'src/main.ts',
   output: {
     sourcemap: true,
     format: 'iife',
     name: 'app',
-    file: 'public/build/bundle.js'
+    //dir: config.dest,
+    file: `${config.dest}/${config.bundleName}`
   },
   plugins: [
+    copy({
+      targets: [
+        { src: [`public/*`, "!*/(index.html)"], dest: config.dest },
+        { src: [`public/index.html`], dest: config.dest, rename: 'index.html', transform },
+      ],
+      copyOnce: true,
+      flatten: false
+    }),
     svelte({
       // enable run-time checks when not in production
       dev: !production,
@@ -76,7 +102,7 @@ export default {
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production && livereload('public'),
+    !production && livereload('dist'),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify

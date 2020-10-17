@@ -13,6 +13,8 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
+using System.Security.Policy;
 
 namespace GDB.App.StartupConfiguration
 {
@@ -23,8 +25,11 @@ namespace GDB.App.StartupConfiguration
             LocalDatabaseMigrator.Execute(configuration.GetConnectionString("Database"));
         }
 
-        internal static void StartFrontendService(ISpaBuilder spaBuilder, string workingDirectory, string exeToRun, Func<int, string> commandFromPort)
+        internal static void StartFrontendService(ISpaBuilder spaBuilder, string workingDirectory, string exeToRun, Func<int, string> commandFromPort, string textForServerStart)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Console.OutputEncoding = Encoding.Default;
+
             var port = GetUnusedPort();
 
             var completeArguments = $"{commandFromPort(port)}";
@@ -37,27 +42,41 @@ namespace GDB.App.StartupConfiguration
                 exeToRun = "cmd";
             }
 
+            var task = new TaskCompletionSource<Uri>();
+            var uri = new UriBuilder("http", "127.0.0.1", port).Uri;
+
             var processStartInfo = new ProcessStartInfo(exeToRun)
             {
                 Arguments = completeArguments,
                 UseShellExecute = false,
                 RedirectStandardInput = true,
-                RedirectStandardOutput = false,
+                RedirectStandardOutput = true,
                 RedirectStandardError = false,
                 WorkingDirectory = workingDirectory
             };
-            //processStartInfo.Environment["PORT"] = port.ToString();
+            processStartInfo.Environment["PORT"] = port.ToString();
             var process = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
+            process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+            {
+                Console.WriteLine(e.Data);
+                if (e.Data != null && e.Data.Contains(textForServerStart))
+                {
+                    task.SetResult(uri);
+                }
+            });
+            process.BeginOutputReadLine();
 
             // 127.0.0.1 vs localhost may resolve occasional 2 second delays in load times, haven't identified root cause
-            var uri = new UriBuilder("http", "127.0.0.1", port).Uri;
+            
             var timeout = spaBuilder.Options.StartupTimeout;
             // currently hardcoded wait instead of examining script output
-            var task = Task.Delay(timeout);
             spaBuilder.UseProxyToSpaDevelopmentServer(() =>
             {
-                return task.ContinueWith((t) => uri);
+                return task.Task.WithTimeout(timeout,
+                    $"The javascript server did not start listening for requests " +
+                    $"within the timeout period of {timeout.Seconds} seconds. " +
+                    $"Check the log output for error information.");
             });
         }
 
@@ -71,6 +90,37 @@ namespace GDB.App.StartupConfiguration
             {
                 socket.Bind(DefaultLoopbackEndpoint);
                 return ((IPEndPoint)socket.LocalEndPoint).Port;
+            }
+        }
+    }
+
+
+    // Copyright (c) .NET Foundation. All rights reserved.
+    // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+    // Source: https://github.com/dotnet/aspnetcore/blob/master/src/Middleware/SpaServices.Extensions/src/Util/TaskTimeoutExtensions.cs
+    internal static class TaskTimeoutExtensions
+    {
+        public static async Task WithTimeout(this Task task, TimeSpan timeoutDelay, string message)
+        {
+            if (task == await Task.WhenAny(task, Task.Delay(timeoutDelay)))
+            {
+                task.Wait(); // Allow any errors to propagate
+            }
+            else
+            {
+                throw new TimeoutException(message);
+            }
+        }
+
+        public static async Task<T> WithTimeout<T>(this Task<T> task, TimeSpan timeoutDelay, string message)
+        {
+            if (task == await Task.WhenAny(task, Task.Delay(timeoutDelay)))
+            {
+                return task.Result;
+            }
+            else
+            {
+                throw new TimeoutException(message);
             }
         }
     }

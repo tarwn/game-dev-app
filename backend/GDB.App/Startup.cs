@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -122,9 +123,16 @@ namespace GDB.App
                 // SPA
                 services.AddSpaStaticFiles(configuration =>
                 {
-                    configuration.RootPath = "ClientApp/public";
+                    configuration.RootPath = "ClientApp/dist";
                 });
             }
+
+            // Compression
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<GzipCompressionProvider>();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,6 +156,7 @@ namespace GDB.App
                 // only use HTTPS non-locally to preserver livereload port
                 app.UseHttpsRedirection();
             }
+            app.UseResponseCompression();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -175,7 +184,11 @@ namespace GDB.App
                 //  that does the right thing for now
                 app.Use(async (context, next) =>
                 {
-                    if (!context.User.Identity.IsAuthenticated)
+                    if (env.IsDevelopment() && context.Request.Path.Value.EndsWith(".js.map"))
+                    {
+                        await next();
+                    }
+                    else if (!context.User.Identity.IsAuthenticated)
                     {
                         await context.ChallengeAsync();
                     }
@@ -213,7 +226,7 @@ namespace GDB.App
                 });
                 app.UseSpa(spa =>
                 {
-                    spa.Options.SourcePath = "ClientApp/public";
+                    spa.Options.DefaultPage = "/index.html";
                     spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions()
                     {
                         OnPrepareResponse = ctx =>
@@ -230,8 +243,9 @@ namespace GDB.App
 
                     if (env.IsDevelopment())
                     {
-                        spa.Options.StartupTimeout = TimeSpan.FromSeconds(3);
-                        LocalDevelopmentTasks.StartFrontendService(spa, "../../frontend", "yarn", (port) => $"run dev --port {port}");
+                        spa.Options.DefaultPage = "/index.html";
+                        spa.Options.StartupTimeout = TimeSpan.FromSeconds(10);
+                        LocalDevelopmentTasks.StartFrontendService(spa, "../../frontend", "yarn", (port) => $"run dev", "Your application is ready");
                     }
                 });
             }

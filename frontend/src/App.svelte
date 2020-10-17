@@ -1,14 +1,8 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { Router } from "@sveltech/routify";
+  import { routes } from "@sveltech/routify/tmp/routes";
+
   import ErrorReporter from "./ErrorReporter.svelte";
-
-  export let name: string;
-
-  onMount(() => {});
-
-  function handleClick() {
-    throw new Error("this is a test error");
-  }
 
   function reloadApp() {
     console.log("reload from error");
@@ -26,6 +20,4 @@
 
 <ErrorReporter on:dismiss={reloadApp} />
 
-<h1>Hello {name}!</h1>
-
-<button on:click={handleClick}>Error</button>
+<Router {routes} />

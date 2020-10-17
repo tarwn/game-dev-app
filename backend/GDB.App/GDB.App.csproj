@@ -22,7 +22,7 @@
 
   <!-- SPA Static Files linked in -->
   <ItemGroup>
-    <Content Include="$(SpaRoot)public\**" Link="ClientApp\public\%(RecursiveDir)%(Filename)%(Extension)">
+    <Content Include="$(SpaRoot)dist\**" Link="ClientApp\dist\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -55,7 +55,7 @@
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
-      <DistFiles Include="$(SpaRoot)public\**; $(SpaRoot)public-ssr\**" />
+      <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-ssr\**" />
       <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
