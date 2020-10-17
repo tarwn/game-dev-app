@@ -1,27 +1,27 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import ErrorReporter from "./ErrorReporter.svelte";
 
   export let name: string;
 
-  onMount(() => {
+  onMount(() => {});
 
-  });
-
-  function handleClick(){
+  function handleClick() {
     throw new Error("this is a test error");
   }
 
-  function reloadApp(){
+  function reloadApp() {
     console.log("reload from error");
     window.location.reload();
   }
 </script>
 
-<style>
-	h1 {
-		color: purple;
-	}
+<style type="text/scss">
+  @import "./styles/_variables.scss";
+
+  h1 {
+    color: $color-primary;
+  }
 </style>
 
 <ErrorReporter on:dismiss={reloadApp} />

@@ -4,6 +4,7 @@ export interface config {
   sessionId: string,
   sentry: {
     dsn: string;
+    enabled: boolean;
   }
 }
 

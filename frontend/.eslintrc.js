@@ -7,7 +7,8 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint',
-    'svelte3'
+    'svelte3',
+    'editorconfig'
   ],
   extends: [
     'eslint:recommended',
@@ -30,9 +31,11 @@ module.exports = {
       processor: 'svelte3/svelte3'
     }
   ],
-  settings: { },
+  settings: {},
   rules: {
     "semi": "error",
+    "brace-style": ["error", "stroustrup"],
+    "editorconfig/editorconfig": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off"
   }
