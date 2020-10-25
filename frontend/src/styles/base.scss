@@ -1,12 +1,14 @@
 @import "./variables";
 @import "./mixins/textCrop";
+@import "./uiconmax";
 
 html {
   font-size: $font-size-base;
+  font-family: $font-family;
 }
 
 body{
-  background-color: $color-background-default;
+  background-color: $color-background-white;
   color: $text-color-default;
   margin: 0px;
 }

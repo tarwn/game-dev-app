@@ -1,0 +1,80 @@
+@font-face {
+    font-family: "UiconMAX";
+    src: url("/fonts/UiconMAX.eot?09ef8ff3ba84e72d5f2dc5f24223c443?#iefix") format("embedded-opentype"),
+url("/fonts/UiconMAX.woff2?09ef8ff3ba84e72d5f2dc5f24223c443") format("woff2"),
+url("/fonts/UiconMAX.woff?09ef8ff3ba84e72d5f2dc5f24223c443") format("woff"),
+url("/fonts/UiconMAX.ttf?09ef8ff3ba84e72d5f2dc5f24223c443") format("truetype"),
+url("/fonts/UiconMAX.svg?09ef8ff3ba84e72d5f2dc5f24223c443#UiconMAX") format("svg");
+}
+
+i[class^="true-"]:before, i[class*=" true-"]:before {
+    font-family: UiconMAX !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.true-Arrows_empty_curved_arrow_left:before {
+    content: "\f101";
+}
+.true-BusinessandFinance_business_finance_invoice:before {
+    content: "\f102";
+}
+.true-Construction_attention_alert:before {
+    content: "\f103";
+}
+.true-Construction_building:before {
+    content: "\f104";
+}
+.true-Construction_gear_cog_engineering_engine_machine:before {
+    content: "\f105";
+}
+.true-Construction_pc_computer_engineering:before {
+    content: "\f106";
+}
+.true-Email_forward_message_arrow_right:before {
+    content: "\f107";
+}
+.true-Email_reply_arrow_left_direction_undo:before {
+    content: "\f108";
+}
+.true-FilesandFolders_file_download:before {
+    content: "\f109";
+}
+.true-GraphicDesign_pencil:before {
+    content: "\f10a";
+}
+.true-GraphicDesign_picture_add:before {
+    content: "\f10b";
+}
+.true-GraphicDesign_picture:before {
+    content: "\f10c";
+}
+.true-InterfaceElements_interface_ui_controls_sliders:before {
+    content: "\f10d";
+}
+.true-InterfaceElements_interface_ui_dots_menu:before {
+    content: "\f10e";
+}
+.true-UIEssentials_button_circle_round_add:before {
+    content: "\f10f";
+}
+.true-UIEssentials_button_circle_round_delete_x:before {
+    content: "\f110";
+}
+.true-UIEssentials_download:before {
+    content: "\f111";
+}
+.true-UIEssentials_trash_bin_delete:before {
+    content: "\f112";
+}
+.true-Users_users_female_male_people:before {
+    content: "\f113";
+}
+.true-Videogames_controller_joystick_games_video_console:before {
+    content: "\f114";
+}

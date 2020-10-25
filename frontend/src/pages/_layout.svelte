@@ -1,5 +1,8 @@
 <script lang="ts">
   import { url } from "@sveltech/routify";
+  import MenuItemGame from "../components/layout/MenuItemGame.svelte";
+  import MenuItemLink from "../components/layout/MenuItemLink.svelte";
+  import Logo from "../components/layout/Logo.svelte";
 </script>
 
 <style type="text/scss">
@@ -12,59 +15,84 @@
     height: 100vh;
     width: 100vw;
   }
-  .gdb-header {
-    display: block;
-    grid-column-start: start-content;
-    grid-column-end: end;
-    grid-row-start: top;
-    grid-row-end: top-content;
-    border: 1px solid #ddd;
-  }
-  .gdb-top-left {
-    display: block;
-    grid-column-start: start;
-    grid-column-end: start-content;
-    grid-row-start: top;
-    grid-row-end: top-content;
-    background-color: $color-background-dark;
-    color: $text-color-inverse;
-  }
   .gdb-sidebar {
     display: block;
     grid-column-start: start;
     grid-column-end: start-content;
-    grid-row-start: top-content;
+    grid-row-start: top;
     grid-row-end: bottom;
-    background-color: $color-background-dark;
-    color: $text-color-inverse;
+    background-color: $color-background-white;
+    color: $text-color-default;
+    border-right: 1px solid $ws_lightgrey;
+    z-index: 10;
   }
   .gdb-content {
     display: block;
     grid-column-start: start-content;
     grid-column-end: end;
-    grid-row-start: top-content;
+    grid-row-start: top;
     grid-row-end: bottom;
+    background-color: $color-background-light;
+  }
+
+  .gdb-nav-header {
+    text-transform: uppercase;
+    font-size: $font-size-smallest;
+    color: $text-color-light;
+    margin-left: 1rem;
+    margin-top: 4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .gdb-nav-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 </style>
 
 <div class="gdb-screen">
-  <div class="gdb-top-left" />
-  <div class="gdb-header">
-    <div class="gdb-selected-game">Game Name</div>
-    <nav class="gdb-header-links">
-      <ul>
-        <li><a href={$url('/')}>Home</a></li>
-        <li><a href={$url('../examples')}>Examples</a></li>
-        <li><a href={$url('../examples/:id', { id: 1 })}>Example 1</a></li>
-      </ul>
-    </nav>
-  </div>
   <div class="gdb-sidebar">
+    <Logo />
     <nav>
-      <ul>
-        <li><a href={$url('/')}>Home</a></li>
-        <li><a href={$url('../examples')}>Examples</a></li>
-        <li><a href={$url('../examples/:id', { id: 1 })}>Example 1</a></li>
+      <div class="gdb-nav-header">Active Games</div>
+      <ul class="gdb-nav-list">
+        <li>
+          <MenuItemGame id="demo" name="Demo Game" />
+        </li>
+        <li>
+          <MenuItemGame id="na" name="Example Game" />
+        </li>
+        <li>
+          <MenuItemGame id="na" name="Another Example" />
+        </li>
+        <li>
+          <MenuItemGame
+            id="new"
+            name="New Game"
+            icon="true-UIEssentials_button_circle_round_add" />
+        </li>
+      </ul>
+      <div class="gdb-nav-header">Studio Settings</div>
+      <ul class="gdb-nav-list">
+        <li>
+          <MenuItemLink
+            path="./studio/settings"
+            name="Settings"
+            icon="true-Construction_gear_cog_engineering_engine_machine" />
+        </li>
+        <li>
+          <MenuItemLink
+            path="./studio/members"
+            name="Team Members"
+            icon="true-Users_users_female_male_people" />
+        </li>
+        <li>
+          <MenuItemLink
+            path="./studio/billing"
+            name="Billing Plan"
+            icon="true-BusinessandFinance_business_finance_invoice" />
+        </li>
       </ul>
     </nav>
   </div>

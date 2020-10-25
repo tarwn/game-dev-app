@@ -1,14 +1,12 @@
 <script>
-  import { metatags } from "@sveltech/routify";
-  metatags.title = "My Routify app";
-  metatags.description = "Description coming soon...";
-</script>
+  import { goto, metatags } from "@sveltech/routify";
+  import { getConfig } from "../config";
+  metatags.title = "LaunchReady";
+  metatags.description =
+    "Your LaunchReady Dashboard: Select a game, add a new game, or manage the studio.";
 
-<h1>h1 Index</h1>
-<h2>h2 Index</h2>
-<h3>h3 Index</h3>
-<h4>h4 Index</h4>
-<h5>h5 Index</h5>
-<p>This is basic text</p>
-<a href="#abc">This is a link</a>
-<input type="button" value="This is a button" />
+  const config = getConfig();
+  if (!config.isFullUser) {
+    $goto("../games/:id", { id: "demo" });
+  }
+</script>
