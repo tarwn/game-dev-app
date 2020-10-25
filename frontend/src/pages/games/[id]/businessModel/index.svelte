@@ -4,7 +4,7 @@
 </script>
 
 <style type="text/scss">
-  @import "../../../styles/_variables.scss";
+  @import "../../../../styles/_variables.scss";
 </style>
 
-<div class="gdp-busmodel">Business Model for {id}</div>
+<h1>Business Model</h1>

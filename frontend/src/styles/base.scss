@@ -42,4 +42,9 @@ a:hover{
   color: $color-accent-1-darker;
   text-decoration: none;
 }
-
+a.disabled{
+  cursor: pointer;
+  color: $cs_darkgrey;
+  text-decoration: none;
+  pointer-events: none;
+}

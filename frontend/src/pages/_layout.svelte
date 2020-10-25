@@ -68,7 +68,7 @@
         </li>
         <li>
           <MenuItemLink
-            path="./game/new"
+            path="./games/new"
             name="Add New Game"
             icon="true-UIEssentials_button_circle_round_add"
             demphasize={true} />

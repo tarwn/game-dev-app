@@ -4,7 +4,7 @@
   export let icon = "true-Videogames_controller_joystick_games_video_console";
   export let id = "na";
   export let name = "na";
-  $: params = { id: id };
+  const params = { id: id };
 </script>
 
 <style type="text/scss">
