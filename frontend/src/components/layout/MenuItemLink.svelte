@@ -1,8 +1,10 @@
 <script lang="ts">
   import { url, isActive } from "@sveltech/routify";
-  export let icon = "true-Videogames_controller_joystick_games_video_console";
-  export let path = "na";
-  export let name = "na";
+  export let icon: string =
+    "true-Videogames_controller_joystick_games_video_console";
+  export let path: string = "na";
+  export let name: string = "na";
+  export let demphasize: boolean = false;
 </script>
 
 <style type="text/scss">
@@ -32,6 +34,10 @@
     font-size: 1.5rem;
     line-height: 32px;
     padding-right: 0.5rem;
+
+    &.demphasize {
+      color: $ws_lightgrey;
+    }
   }
   .gdb-nav-link-name {
     display: inline-block;
@@ -40,6 +46,6 @@
 </style>
 
 <a class="gdb-nav-link" href={$url(path)} class:active={$isActive(path)}>
-  <i class="gdb-nav-link-icon {icon}" />
+  <i class="gdb-nav-link-icon {icon}" class:demphasize />
   <div class="gdb-nav-link-name">{name}</div>
 </a>

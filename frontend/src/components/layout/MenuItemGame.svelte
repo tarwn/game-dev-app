@@ -23,6 +23,8 @@
   $active-accent-background: $color-accent-1-darker;
   $active-accent-color: $text-color-inverse;
 
+  $main-height: 40px;
+
   .gdb-nav-game {
     display: flex;
     flex-direction: row;
@@ -51,10 +53,11 @@
 
   .gdb-nav-game-icon {
     display: inline-block;
-    width: 1.5rem;
-    font-size: 1.5rem;
-    line-height: 24px;
-    padding: $space-m;
+    width: 2rem;
+    font-size: 2rem;
+    line-height: $main-height;
+    padding: $space-s;
+    padding-left: $space-m; // extra padding for curve
     background-color: $base-accent-background;
     color: $base-accent-color;
     text-align: center;
@@ -68,8 +71,8 @@
   .gdb-nav-game-name {
     display: inline-block;
     flex-grow: 1;
-    line-height: 24px;
-    padding: $space-m;
+    line-height: $main-height;
+    padding: $space-s;
   }
 </style>
 

@@ -67,10 +67,11 @@
           <MenuItemGame id="na" name="Another Example" />
         </li>
         <li>
-          <MenuItemGame
-            id="new"
-            name="New Game"
-            icon="true-UIEssentials_button_circle_round_add" />
+          <MenuItemLink
+            path="./game/new"
+            name="Add New Game"
+            icon="true-UIEssentials_button_circle_round_add"
+            demphasize={true} />
         </li>
       </ul>
       <div class="gdb-nav-header">Studio Settings</div>
