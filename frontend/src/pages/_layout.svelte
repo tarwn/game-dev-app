@@ -23,7 +23,7 @@
     grid-row-end: bottom;
     background-color: $color-background-white;
     color: $text-color-default;
-    border-right: 1px solid $ws_lightgrey;
+    border-right: 1px solid $cs-grey-1;
     z-index: 10;
   }
   .gdb-content {

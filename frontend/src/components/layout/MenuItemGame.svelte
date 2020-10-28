@@ -12,11 +12,11 @@
 
   $base-main-background: $color-background-white;
   $base-main-color: $color-accent-1;
-  $base-accent-background: $ws_lightgrey;
+  $base-accent-background: $cs-grey-1;
   $base-accent-color: $color-accent-1;
   $hover-main-background: $cs_lighterblue;
   $hover-main-color: $color-accent-1-darker;
-  $hover-accent-background: $ws_lightgrey;
+  $hover-accent-background: $cs-grey-3;
   $hover-accent-color: $color-accent-1-darker;
   $active-main-background: $color-accent-1;
   $active-main-color: $color-background-white;

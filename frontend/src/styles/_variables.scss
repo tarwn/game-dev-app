@@ -51,12 +51,17 @@ $cs_lightblue: #e3f4fc;
 $cs_lighterblue: #f6f8fa;
 
 $ws_white: #FFFFFF;
-$ws_lightgrey: #dddddd;
-$ws_medgrey: #86807C;
-$ws_darkgrey: #26201C;
-$ws_lightergrey: #fafbfc;
 
-$color-primary: $cs_green;
+// https://mdigi.tools/color-shades/#404e4d
+$cs-grey-0: #ebefee;
+$cs-grey-1: #c3cecd;
+$cs-grey-2: #9badac;
+$cs-grey-3: #738c8a;
+$cs-grey-4: #526463;
+$cs-grey-5: #313c3b;
+$cs-grey-6: #101414;
+
+
 $color-accent-1: $cs_blue;
 $color-accent-1-darker: darken($cs_blue, 10%);
 $color-accent-2: $cs_orange;
@@ -65,8 +70,8 @@ $color-background-white: $ws_white;
 $color-background-light: $cs_lighterblue;
 $color-background-dark: $cs_darkgrey;
 
-$text-color-default: $ws_darkgrey;
-$text-color-light: $ws_medgrey;
+$text-color-default: $cs-grey-5;
+$text-color-light: $cs-grey-4;
 $text-color-inverse: $ws_white;
 
 

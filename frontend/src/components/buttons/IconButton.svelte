@@ -12,7 +12,7 @@
     min-width: 32px;
     min-height: 32px;
     line-height: 32px;
-    color: $ws_medgrey;
+    color: $cs-grey-2;
     cursor: pointer;
 
     &:hover {

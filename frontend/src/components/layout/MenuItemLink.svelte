@@ -30,13 +30,13 @@
     width: 2rem;
     text-align: center;
     text-decoration: none;
-    color: $ws_medgrey;
+    color: $cs-grey-2;
     font-size: 1.5rem;
     line-height: 32px;
     padding-right: 0.5rem;
 
     &.demphasize {
-      color: $ws_lightgrey;
+      color: $cs-grey-3;
     }
   }
   .gdb-nav-link-name {
