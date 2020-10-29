@@ -29,6 +29,7 @@
   }
   .gdb-page-header-game-icon {
     font-size: 32px;
+    color: $cs-grey-2;
   }
   .gdb-page-header-game {
     display: inline-block;
@@ -56,7 +57,7 @@
       /
       <a
         href={breadcrumb.path}
-        class:disabled={i == breadcrumbs.length - 1}>{breadcrumb.name}</a>
+        class:disabled={false && i == breadcrumbs.length - 1}>{breadcrumb.name}</a>
     {/each}
   </div>
   <div class="gdb-page-header-buttons">

@@ -11,9 +11,10 @@
   @import "../../styles/_variables.scss";
 
   $base-main-background: $color-background-white;
-  $base-main-color: $color-accent-1;
-  $base-accent-background: $cs-grey-1;
+  $base-main-color: $cs-grey-3;
+  $base-accent-background: $cs-grey-0;
   $base-accent-color: $color-accent-1;
+  $base-accent-border: $cs-grey-1;
   $hover-main-background: $cs_lighterblue;
   $hover-main-color: $color-accent-1-darker;
   $hover-accent-background: $cs-grey-3;
@@ -31,7 +32,7 @@
     // padding: $space-m $space-m;
     text-decoration: none;
     margin: $space-s -4px $space-s $space-s;
-    border: 1px solid $base-accent-background;
+    border: 1px solid $base-accent-border;
     border-top-left-radius: 30px;
     border-bottom-left-radius: 30px;
     overflow: hidden;
@@ -62,6 +63,10 @@
     color: $base-accent-color;
     text-align: center;
 
+    .gdb-nav-game:hover > & {
+      // color: $hover-accent-color;
+    }
+
     .gdb-nav-game.active > & {
       background-color: $active-accent-background;
       color: $active-accent-color;
@@ -73,6 +78,14 @@
     flex-grow: 1;
     line-height: $main-height;
     padding: $space-s;
+
+    .gdb-nav-game:hover > & {
+      text-decoration: underline;
+    }
+
+    .gdb-nav-game.active:hover > & {
+      text-decoration: none;
+    }
   }
 </style>
 

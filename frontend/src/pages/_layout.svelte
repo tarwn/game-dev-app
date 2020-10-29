@@ -38,7 +38,7 @@
   .gdb-nav-header {
     text-transform: uppercase;
     font-size: $font-size-smallest;
-    color: $text-color-light;
+    color: $cs-grey-3;
     margin-left: 1rem;
     margin-top: 4rem;
     margin-bottom: 0.75rem;

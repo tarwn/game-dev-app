@@ -64,6 +64,7 @@ $cs-grey-6: #101414;
 
 $color-accent-1: $cs_blue;
 $color-accent-1-darker: darken($cs_blue, 10%);
+$color-accent-1-lighter: lighten($cs_blue, 10%);
 $color-accent-2: $cs_orange;
 
 $color-background-white: $ws_white;

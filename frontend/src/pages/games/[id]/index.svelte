@@ -74,6 +74,12 @@
     }
   }
 
+  h1,
+  h2 {
+    color: $cs-grey-4;
+    // font-weight: normal;
+  }
+
   h2 {
     margin-top: $space-xl;
   }

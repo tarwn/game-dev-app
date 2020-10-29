@@ -15,13 +15,15 @@
     margin: $space-s $space-m;
     padding: $space-s;
     text-decoration: none;
+    color: $cs-grey-4;
 
     &:hover > .gdb-nav-link-name {
       text-decoration: underline;
       color: $color-accent-1-darker;
     }
     &:hover > .gdb-nav-link-icon {
-      color: $color-accent-1-darker;
+      // color: $color-accent-1-lighter;
+      color: $cs-grey-3;
     }
   }
 
@@ -31,12 +33,12 @@
     text-align: center;
     text-decoration: none;
     color: $cs-grey-2;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     line-height: 32px;
     padding-right: 0.5rem;
 
     &.demphasize {
-      color: $cs-grey-3;
+      // color: $cs-grey-1;
     }
   }
   .gdb-nav-link-name {
