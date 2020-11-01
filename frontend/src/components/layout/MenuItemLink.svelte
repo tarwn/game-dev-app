@@ -37,9 +37,9 @@
     line-height: 32px;
     padding-right: 0.5rem;
 
-    &.demphasize {
-      // color: $cs-grey-1;
-    }
+    // &.demphasize {
+    //   // color: $cs-grey-1;
+    // }
   }
   .gdb-nav-link-name {
     display: inline-block;

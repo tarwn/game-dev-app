@@ -62,9 +62,11 @@ $cs-grey-5: #313c3b;
 $cs-grey-6: #101414;
 
 
+// https://mdigi.tools/color-shades/#5bc0eb
 $color-accent-1: $cs_blue;
-$color-accent-1-darker: darken($cs_blue, 10%);
-$color-accent-1-lighter: lighten($cs_blue, 10%);
+$color-accent-1-darker: #32b0e6; //darken($cs_blue, 10%);
+$color-accent-1-lighter: #8dd3f1; //lighten($cs_blue, 10%);
+$color-accent-1-lightest: #e8f6fc;
 $color-accent-2: $cs_orange;
 
 $color-background-white: $ws_white;
@@ -75,4 +77,32 @@ $text-color-default: $cs-grey-5;
 $text-color-light: $cs-grey-4;
 $text-color-inverse: $ws_white;
 
+// material
+// $shadow-main: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+$shadow-main: rgba(60, 64, 67, 0.1) 0px 1px 2px 0px,
+              rgba(60, 64, 67, 0.075) 0px 2px 6px 2px;
+$shadow-main-hover: 0 14px 28px rgba(0,0,0,0.25),
+                    0 10px 10px rgba(0,0,0,0.22);
+$shadow-nav-button: 1px 0px 2px 0px rgba(60, 64, 67, 0.3);
+$shadow-push: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
+$button-transitions: all 0.3s cubic-bezier(.25,.8,.25,1);
+
+// $shadow-main:rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+
+  // large shadow, soft
+    // box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    //   rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+
+    // box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+
+    // box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px,
+    //   rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    // box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    // box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+    // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+    // box-shadow: rgba(136, 165, 191, 0.48) 6px 2px 16px 0px,
+    //   rgba(255, 255, 255, 0.8) -6px -2px 16px 0px;
+    // box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px,
+    //   rgba(17, 17, 26, 0.1) 0px 0px 8px;
+    // box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;

@@ -1,6 +1,13 @@
 <script lang="ts">
-  import { params } from "@sveltech/routify";
-  $: id = $params.id;
+  // import { params } from "@sveltech/routify";
+  import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
+  // $: id = $params.id;
+
+  $: businessModel = {
+    customer: {
+      customers: [],
+    },
+  };
 </script>
 
 <style type="text/scss">
@@ -8,3 +15,4 @@
 </style>
 
 <h1>Business Model</h1>
+<BusinessModelCanvasLarge bind:model={businessModel} />

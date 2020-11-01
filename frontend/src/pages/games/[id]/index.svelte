@@ -1,6 +1,13 @@
 <script lang="ts">
-  import { params } from "@sveltech/routify";
+  import { url, params } from "@sveltech/routify";
   $: id = $params.id;
+
+  $: game = {
+    id: id,
+    name: "Demo Game",
+    status: "Active",
+    lastModified: "2 days ago by you",
+  };
 </script>
 
 <style type="text/scss">
@@ -10,12 +17,23 @@
     display: flex;
   }
 
-  section {
-    border: 1px solid #dddddd;
+  section,
+  .tile {
+    // border: 1px solid $cs-grey-1;
+    border-radius: 4px;
     margin: $space-m 0;
     background: $color-background-white;
+    box-shadow: $shadow-main;
+
+    &:hover {
+      box-shadow: $shadow-main-hover;
+    }
+    &:active {
+      box-shadow: $shadow-main;
+    }
   }
-  section + section {
+  section + section,
+  .tile + .tile {
     margin-left: $space-xl;
   }
 
@@ -26,12 +44,24 @@
     flex-direction: row;
 
     .sample-pic {
+      position: relative;
       flex: 0;
       min-width: 200px;
       width: 200px;
       height: 200px;
-      background-color: #eee;
-      border-right: 1px solid #ddd;
+      // border-right: 1px solid $cs-grey-1;
+
+      background-color: $cs-grey-0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%235bc0eb' fill-opacity='0.3'%3E%3Cpath fill-rule='evenodd' d='M11 0l5 20H6l5-20zm42 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM0 72h40v4H0v-4zm0-8h31v4H0v-4zm20-16h20v4H20v-4zM0 56h40v4H0v-4zm63-25a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM53 41a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-30 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-28-8a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zM56 5a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zm-3 46a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 0l5 20H16l5-20zm43 64v-4h-4v4h-4v4h4v4h4v-4h4v-4h-4zM36 13h4v4h-4v-4zm4 4h4v4h-4v-4zm-4 4h4v4h-4v-4zm8-8h4v4h-4v-4z'/%3E%3C/g%3E%3C/svg%3E");
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 20%;
+        bottom: 20%;
+        left: 20%;
+        right: 20%;
+      }
     }
 
     .sample-details {
@@ -58,18 +88,18 @@
     width: 600px;
     height: 200px;
     background-color: white;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid $cs-grey-1;
   }
 
-  .sample-tile {
+  .tile {
     display: inline-block;
     min-width: 200px;
     width: 200px;
     height: 200px;
     background-color: white;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid $cs-grey-1;
 
-    & + .sample-tile {
+    & + .tile {
       margin-left: $space-xl;
     }
   }
@@ -91,9 +121,9 @@
   <section class="sample-1">
     <div class="sample-pic" />
     <div class="sample-details">
-      <div>Game: {id}</div>
-      <div>Status: Active</div>
-      <div class="sample-footer">Last updated 2 days ago by You</div>
+      <div>Game: {game.name}</div>
+      <div>Status: {game.status}</div>
+      <div class="sample-footer">Last modified {game.lastModified}</div>
     </div>
   </section>
   <section class="sample-2" />
@@ -102,16 +132,16 @@
 <h2>Planning</h2>
 
 <div class="row">
-  <section class="sample-tile" />
-  <section class="sample-tile" />
-  <section class="sample-tile" />
-  <section class="sample-tile" />
+  <a class="tile" href={$url('../businessModel')}>Business Model</a>
+  <section class="tile" />
+  <section class="tile" />
+  <section class="tile" />
 </div>
 
 <h2>Next Stages</h2>
 
 <div class="row">
-  <section class="sample-tile" />
-  <section class="sample-tile" />
-  <section class="sample-tile" />
+  <section class="tile" />
+  <section class="tile" />
+  <section class="tile" />
 </div>

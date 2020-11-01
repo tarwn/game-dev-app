@@ -5,7 +5,7 @@
   @import "../../styles/_variables.scss";
 
   .gdb-logo {
-    margin: 1rem;
+    margin: 1rem 1rem 1rem 0.75rem;
     line-height: 32px;
     text-align: center;
     white-space: nowrap;

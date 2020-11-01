@@ -39,6 +39,10 @@
     background-color: $base-main-background;
     color: $base-main-color;
 
+    box-shadow: $shadow-nav-button;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+
     &:hover {
       background-color: $hover-main-background;
       color: $hover-main-color;
@@ -50,12 +54,17 @@
       color: $active-main-color;
       border-color: $active-main-background;
     }
+
+    &::after {
+      position: relative;
+      content: "";
+    }
   }
 
   .gdb-nav-game-icon {
     display: inline-block;
     width: 2rem;
-    font-size: 2rem;
+    font-size: 1.5rem;
     line-height: $main-height;
     padding: $space-s;
     padding-left: $space-m; // extra padding for curve
@@ -63,9 +72,9 @@
     color: $base-accent-color;
     text-align: center;
 
-    .gdb-nav-game:hover > & {
-      // color: $hover-accent-color;
-    }
+    // .gdb-nav-game:hover > & {
+    //   // color: $hover-accent-color;
+    // }
 
     .gdb-nav-game.active > & {
       background-color: $active-accent-background;

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { url } from "@sveltech/routify";
   import MenuItemGame from "../components/layout/MenuItemGame.svelte";
   import MenuItemLink from "../components/layout/MenuItemLink.svelte";
   import Logo from "../components/layout/Logo.svelte";
@@ -25,6 +24,7 @@
     color: $text-color-default;
     border-right: 1px solid $cs-grey-1;
     z-index: 10;
+    box-shadow: $shadow-main;
   }
   .gdb-content {
     display: block;
