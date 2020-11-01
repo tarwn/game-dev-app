@@ -14,7 +14,6 @@
 
 <style type="text/scss">
   @import "../../../styles/_variables.scss";
-
   .gdb-page-content {
     margin: $space-l $space-xl;
   }

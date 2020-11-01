@@ -40,7 +40,7 @@
       max-height: 240px;
       font-size: 4px;
       border-width: 1px;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      // transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       & > .gdb-board-section {
         padding: 4px;
