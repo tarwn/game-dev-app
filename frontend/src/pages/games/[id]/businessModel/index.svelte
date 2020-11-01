@@ -3,11 +3,16 @@
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   // $: id = $params.id;
 
+  let displaySection = null;
   $: businessModel = {
     customer: {
       customers: [],
     },
   };
+
+  function handleChangeSection(event) {
+    displaySection = event.detail.section;
+  }
 </script>
 
 <style type="text/scss">
@@ -15,4 +20,7 @@
 </style>
 
 <h1>Business Model</h1>
-<BusinessModelCanvasLarge bind:model={businessModel} />
+<BusinessModelCanvasLarge
+  bind:model={businessModel}
+  isMiniMap={displaySection != null}
+  on:sectionChange={handleChangeSection} />

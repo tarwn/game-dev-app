@@ -1,12 +1,15 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { PredefinedIcons } from "../../../../../components/buttons/PredefinedIcons";
-
   import type { IBusinessModel } from "../_types/businessModel";
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
+
   export let model: IBusinessModel;
+  export let isMiniMap: boolean = false;
   let highlight: string | null = null;
 
   $: nextIsCustomer = model.customer.customers.length == 0;
+  const dispatch = createEventDispatcher();
 
   function onMouseEnter() {
     highlight = "customer";
@@ -29,6 +32,31 @@
     max-width: 1280;
     max-height: 1024px;
     border: 3px solid $cs-grey-4;
+
+    &.isMiniMap {
+      min-width: 360px;
+      min-height: 240px;
+      max-width: 360px;
+      max-height: 240px;
+      font-size: 4px;
+      border-width: 1px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+      & > .gdb-board-section {
+        padding: 4px;
+        border-width: 1px;
+      }
+
+      & > .gdb-board-section > h3 {
+        margin-top: 4px;
+        font-size: 4px;
+        white-space: nowrap;
+      }
+
+      & .gdb-board-button-panel {
+        display: none;
+      }
+    }
 
     &.highlight {
       border-color: $cs-grey-2;
@@ -134,7 +162,8 @@
 
 <div
   class="gdb-board"
-  class:highlight
+  class:highlight={highlight != null && !isMiniMap}
+  class:isMiniMap
   on:mouseenter={onMouseEnter}
   on:mouseleave={onMouseLeave}>
   <div class="gdb-board-section gdb-board-keyPartners">
@@ -161,7 +190,10 @@
     <h3>Customer / Players</h3>
     {#if nextIsCustomer}
       <div class="gdb-board-button-panel">
-        <IconTextButton value="Start Here" icon={PredefinedIcons.plus} />
+        <IconTextButton
+          value="Start Here"
+          icon={PredefinedIcons.plus}
+          on:click={() => dispatch('sectionChange', { section: 'customer' })} />
       </div>
     {:else}not empty{/if}
   </div>
