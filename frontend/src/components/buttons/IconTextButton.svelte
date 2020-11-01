@@ -10,10 +10,15 @@
   $: iconString = getIconString(icon);
   $: {
     switch (buttonStyle) {
+      case "primary-outline":
+        buttonStyleClass = "gdb-bs-primary-outline";
+        iconStyleClass = "gdb-is-primary";
+        break;
       case "primary":
       default:
         buttonStyleClass = "gdb-bs-primary";
         iconStyleClass = "gdb-is-inverse";
+        break;
     }
   }
 </script>
@@ -26,11 +31,16 @@
     font-size: $font-size-normal;
     border-radius: 4px;
     border: 0px;
-
+    outline: none;
     line-height: 2rem;
     min-height: 2rem;
+    padding: 0 $space-m 0 $space-m;
+    box-shadow: $shadow-main;
+    transition: $button-transitions;
 
-    padding: $space-xs $space-m;
+    &:active {
+      box-shadow: $shadow-push;
+    }
   }
 
   .gdb-button-icon {
@@ -51,17 +61,29 @@
 
   .gdb-bs-primary {
     background-color: $color-accent-1;
+    border: 1px solid $color-accent-1;
     color: $text-color-inverse;
-    box-shadow: $shadow-main;
-    transition: $button-transitions;
 
-    // &:hover {
-    //   // background-color: $color-accent-1-lighter;
-    // }
+    &:hover {
+      background-color: $color-accent-1-darker;
+    }
 
     &:active {
       background-color: $color-accent-1-darker;
-      box-shadow: $shadow-push;
+    }
+  }
+
+  .gdb-bs-primary-outline {
+    background-color: $color-background-white;
+    color: $color-accent-1;
+    border: 1px solid $color-accent-1;
+
+    &:hover {
+      background-color: $color-accent-1-lightest;
+    }
+
+    &:active {
+      background-color: $color-accent-1-lighter;
     }
   }
 </style>

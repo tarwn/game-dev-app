@@ -8,7 +8,7 @@
     "dev:server:start": "sirv dist --single",
     "validate": "svelte-check",
     "lint": "eslint ./src/**/*.ts",
-    "icon": "./node_modules/.bin/icon-font-generator ./resources/fonts/*.svg -n UiconMAX -o ./public/font/ --csspath ./src/styles/uiconmax.css --cssfontsurl /fonts -p --htmlpath ./resources/font/preview.html uiconmax --descent 4"
+    "icon": "./node_modules/.bin/icon-font-generator ./resources/font/*.svg -n UiconMAX -o ./public/fonts/ --csspath ./src/styles/uiconmax.css --cssfontsurl /fonts -p --htmlpath ./resources/font/preview.html uiconmax --descent 4"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",

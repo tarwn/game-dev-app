@@ -33,6 +33,7 @@
     grid-row-start: top;
     grid-row-end: bottom;
     background-color: $color-background-light;
+    position: relative;
   }
 
   .gdb-nav-header {

@@ -6,7 +6,7 @@
 
   export let model: IBusinessModel;
   export let isMiniMap: boolean = false;
-  let highlight: string | null = null;
+  export let highlight: string | null = null;
 
   $: nextIsCustomer = model.customer.customers.length == 0;
   const dispatch = createEventDispatcher();
@@ -70,7 +70,6 @@
       border: 6px solid $color-accent-1;
       margin: -3px;
       opacity: 1;
-      background-color: $color-accent-1-lightest;
       z-index: 10;
     }
   }
@@ -144,6 +143,10 @@
     display: flex;
     flex-direction: column;
 
+    &.highlight {
+      background-color: $color-accent-1-lightest;
+    }
+
     & > h3 {
       margin-top: $space-s;
       flex-grow: 0;
@@ -186,13 +189,14 @@
   </div>
   <div
     class="gdb-board-section gdb-board-customers"
-    class:emphasize={nextIsCustomer && highlight}>
+    class:emphasize={nextIsCustomer && highlight}
+    class:highlight>
     <h3>Customer / Players</h3>
     {#if nextIsCustomer}
       <div class="gdb-board-button-panel">
         <IconTextButton
           value="Start Here"
-          icon={PredefinedIcons.plus}
+          icon={PredefinedIcons.Plus}
           on:click={() => dispatch('sectionChange', { section: 'customer' })} />
       </div>
     {:else}not empty{/if}
