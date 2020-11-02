@@ -7,6 +7,8 @@
 
   .gdb-save-label {
     color: $text-color-light;
+    font-size: $font-size-smallest;
+    font-style: italic;
   }
 </style>
 

@@ -1,0 +1,15 @@
+@import "./variables";
+
+// this is the "I know what I'm doing" file to try and
+//  do things that would otherwise get filtered out as the
+//  component CSS level
+
+.gdb-page-bm-buttons {
+  & > button {
+    margin-left: $space-s;
+  }
+
+  & > .gdb-save-label {
+    margin-right: $space-m;
+  }
+}

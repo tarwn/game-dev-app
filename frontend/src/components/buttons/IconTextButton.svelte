@@ -3,6 +3,7 @@
   export let icon: PredefinedIcons | string;
   export let value: string;
   export let buttonStyle: string = "primary";
+  export let disabled: boolean = false;
 
   let buttonStyleClass = "";
   let iconStyleClass = "";
@@ -61,7 +62,7 @@
 
   .gdb-bs-primary {
     background-color: $color-accent-1;
-    border: 1px solid $color-accent-1;
+    border: 2px solid $color-accent-1;
     color: $text-color-inverse;
 
     &:hover {
@@ -71,12 +72,22 @@
     &:active {
       background-color: $color-accent-1-darker;
     }
+
+    &[disabled],
+    &[disabled]:hover,
+    &[disabled]:active {
+      background-color: $cs-grey-0;
+      color: $cs-grey-1;
+      border-color: $cs-grey-1;
+      box-shadow: none;
+      cursor: default;
+    }
   }
 
   .gdb-bs-primary-outline {
     background-color: $color-background-white;
     color: $color-accent-1;
-    border: 1px solid $color-accent-1;
+    border: 2px solid $color-accent-1;
 
     &:hover {
       background-color: $color-accent-1-lightest;
@@ -85,12 +96,23 @@
     &:active {
       background-color: $color-accent-1-lighter;
     }
+
+    &[disabled],
+    &[disabled]:hover,
+    &[disabled]:active {
+      background-color: $cs-grey-0;
+      color: $cs-grey-1;
+      border-color: $cs-grey-1;
+      box-shadow: none;
+      cursor: default;
+    }
   }
 </style>
 
 <button
   on:click|preventDefault|stopPropagation
-  class="gdb-button {buttonStyleClass}">
+  class="gdb-button {buttonStyleClass}"
+  {disabled}>
   <i class="gdb-button-icon {iconString} {iconStyleClass}" />
   <span class="gdb-button-text">{value}</span>
 </button>

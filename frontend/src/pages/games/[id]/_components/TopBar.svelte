@@ -1,6 +1,7 @@
 <script lang="ts">
   import { isActive } from "@sveltech/routify";
   import IconButton from "../../../../components/buttons/IconButton.svelte";
+  import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   export let icon: string;
   export let id: string;
   export let name: string;
@@ -63,6 +64,7 @@
   <div class="gdb-page-header-buttons">
     <IconButton
       on:click={handleClick}
-      icon="true-FilesandFolders_file_download" />
+      icon={PredefinedIcons.Download}
+      buttonStyle="icon-only" />
   </div>
 </div>

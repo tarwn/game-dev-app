@@ -24,6 +24,7 @@
     display: grid;
     grid-template-columns: [start] auto [end];
     grid-template-rows: [top] 3.5rem [mid] auto [bottom];
+    overflow: auto;
   }
 
   .gdb-page-head {
@@ -34,6 +35,7 @@
   }
 
   .gdb-page-content {
+    position: relative;
     grid-column-start: start;
     grid-column-end: end;
     grid-row-start: mid;
