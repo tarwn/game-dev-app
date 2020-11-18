@@ -1,22 +1,25 @@
 <script lang="ts">
-  import { scale, crossfade } from "svelte/transition";
-  import { fade } from "svelte/transition";
-  // import { params } from "@sveltech/routify";
+  import { onMount, onDestroy } from "svelte";
+  import { scale, crossfade, fade } from "svelte/transition";
+  import { params } from "@sveltech/routify";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   import InputPanel from "./_components/InputPanel.svelte";
-  // $: id = $params.id;
+  import type { IBusinessModel } from "./_types/businessModel";
+  import { businessModelStore } from "./_stores/businessModelStore";
 
+  // props
   let displaySection = null;
   let displaySectionCommit = null;
-  $: businessModel = {
-    customer: {
-      customers: [],
-    },
-  };
+
+  $: id = $params.id;
+  let businessModel = null as IBusinessModel | null;
+
+  // section change
+  const [send, receive] = crossfade({ duration: 500, fallback: scale });
 
   function handleChangeSection(event) {
     displaySection = event.detail.section;
@@ -29,7 +32,23 @@
     displaySectionCommit = displaySection;
   }
 
-  const [send, receive] = crossfade({ duration: 500, fallback: scale });
+  // data management
+  let isLoading = true;
+  let unsubscribe = businessModelStore.subscribe((update) => {
+    businessModel = update;
+    console.log(update);
+    if (isLoading) {
+      isLoading = false;
+    }
+  });
+  onMount(async () => {
+    await fetch(`/api/fe/businessModels/${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        businessModelStore.set(data);
+      });
+  });
+  onDestroy(unsubscribe);
 </script>
 
 <style type="text/scss">
@@ -91,7 +110,7 @@
       value="Full View"
       buttonStyle="primary-outline"
       on:click={() => handleChangeSection({ detail: { section: null } })}
-      disabled={displaySectionCommit == null} />
+      disabled={isLoading || displaySectionCommit == null} />
     {#if displaySection == null}
       <IconTextButton
         icon={PredefinedIcons.Next}
@@ -99,47 +118,49 @@
         buttonStyle="primary"
         on:click={() => handleChangeSection({
             detail: { section: 'customer' },
-          })} />
+          })}
+        disabled={isLoading} />
     {:else}
       <IconTextButton
         icon={PredefinedIcons.Next}
         value="Next"
         buttonStyle="primary"
-        disabled={businessModel.customer.customers.length == 0} />
+        disabled={isLoading || businessModel.customers.length == 0} />
     {/if}
   </SpacedButtons>
 </div>
 <div class="gdb-page-bm-container">
   {#if displaySection == null}
-    {#each [businessModel] as b}
-      <div
-        in:receive={{ key: 123 }}
-        out:send={{ key: 123 }}
-        class="gdb-bm-fullSize"
-        class:transitioning={displaySection != null}>
+    <div
+      in:receive|local={{ key: 123 }}
+      out:send|local={{ key: 123 }}
+      class="gdb-bm-fullSize"
+      class:transitioning={displaySection != null}>
+      {#each [businessModel] as b}
         <BusinessModelCanvasLarge
+          {isLoading}
           bind:model={b}
           isMiniMap={false}
           on:sectionChange={handleChangeSection} />
-      </div>
-    {/each}
+      {/each}
+    </div>
   {:else}
-    {#each [businessModel] as b}
-      <div
-        in:receive={{ key: 123 }}
-        out:send={{ key: 123 }}
-        on:introend={handleSectionChangeCommit}
-        class="gdb-bm-minimap"
-        class:transitioning={displaySection == null}>
+    <div
+      in:receive|local={{ key: 123 }}
+      out:send|local={{ key: 123 }}
+      on:introend={handleSectionChangeCommit}
+      class="gdb-bm-minimap"
+      class:transitioning={displaySection == null}>
+      {#each [businessModel] as b}
         <BusinessModelCanvasLarge
           bind:model={b}
           isMiniMap={true}
           highlight={displaySection}
           on:sectionChange={handleChangeSection} />
-      </div>
-    {/each}
+      {/each}
+    </div>
   {/if}
-  {#if displaySectionCommit}
+  {#if !isLoading && displaySectionCommit}
     <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
       Instructions
     </div>
@@ -148,7 +169,7 @@
         title="Identifying players & customers"
         canUndo={false}
         canRedo={false}
-        canNext={businessModel.customer.customers.length > 0}
+        canNext={businessModel.customers.length > 0}
         canFullscreen={true}
         on:clickFullscreen={() => handleChangeSection({
             detail: { section: null },
@@ -158,8 +179,20 @@
           that buy it?
         </div>
         <br />
-        <label>Question
-          <input type="text" placeholder="enter an answer" /></label>
+        {#each businessModel.customers as customer}
+          <ul>
+            {#each customer.entries as customerEntry}
+              <li><input type="text" value={customerEntry.entry} /></li>
+            {/each}
+          </ul>
+          <label>Question
+            <input type="text" placeholder="enter an answer" /></label>
+        {/each}
+        <IconTextButton
+          icon={PredefinedIcons.Plus}
+          value="Add Customer"
+          buttonStyle="primary"
+          on:click={() => businessModelStore.addNewCustomer()} />
       </InputPanel>
     </div>
   {/if}

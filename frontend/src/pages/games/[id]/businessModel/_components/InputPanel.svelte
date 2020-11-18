@@ -4,6 +4,8 @@
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../../components/buttons/PredefinedIcons";
+
+  // props
   export let title: string = "";
   export let canUndo: boolean = false;
   export let canRedo: boolean = false;

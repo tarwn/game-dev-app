@@ -1,0 +1,29 @@
+@import "../variables";
+
+// Based on: https://codepen.io/nurulishlah/pen/beEGVE
+
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+@mixin loading-pulse {
+  color: transparent;
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-name: placeHolderShimmer;
+  background: $cs-grey-3;
+  background: linear-gradient(
+    to right,
+    $cs-grey-1 8%,
+    $cs-grey-2 18%,
+    $cs-grey-1 33%
+  );
+  background-size: 1000px 100px;
+}

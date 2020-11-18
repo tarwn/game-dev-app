@@ -4,15 +4,16 @@
   import type { IBusinessModel } from "../_types/businessModel";
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
 
-  export let model: IBusinessModel;
+  export let isLoading: boolean = false;
+  export let model: IBusinessModel | null;
   export let isMiniMap: boolean = false;
   export let highlight: string | null = null;
 
-  $: nextIsCustomer = model.customer.customers.length == 0;
+  $: nextIsCustomer = !isLoading && model && model.customers.length == 0;
   const dispatch = createEventDispatcher();
 
   function onMouseEnter() {
-    highlight = "customer";
+    highlight = isLoading ? null : "customer";
   }
   function onMouseLeave() {
     highlight = null;
@@ -21,6 +22,7 @@
 
 <style type="text/scss">
   @import "../../../../../styles/_variables.scss";
+  @import "../../../../../styles/mixins/_loadingPulse.scss";
 
   .gdb-board {
     display: grid;
@@ -151,6 +153,35 @@
       margin-top: $space-s;
       flex-grow: 0;
       flex-shrink: 0;
+
+      &.isLoading {
+        @include loading-pulse;
+        max-width: 10rem;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .gdb-loading-block {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    & > li {
+      @include loading-pulse;
+      display: inline-block;
+      width: 70%;
+      height: $space-m;
+      margin: $space-s $space-m;
+
+      & + li {
+        width: 80%;
+      }
+
+      & + li + li {
+        width: 50%;
+      }
     }
   }
 
@@ -170,29 +201,35 @@
   on:mouseenter={onMouseEnter}
   on:mouseleave={onMouseLeave}>
   <div class="gdb-board-section gdb-board-keyPartners">
-    <h3>Key Partners</h3>
+    <h3 class:isLoading>Key Partners</h3>
   </div>
   <div class="gdb-board-section gdb-board-keyActivities">
-    <h3>Key Activities</h3>
+    <h3 class:isLoading>Key Activities</h3>
   </div>
   <div class="gdb-board-section gdb-board-keyResources">
-    <h3>Key Resources</h3>
+    <h3 class:isLoading>Key Resources</h3>
   </div>
   <div class="gdb-board-section gdb-board-valueProposition">
-    <h3>Value Proposition</h3>
+    <h3 class:isLoading>Value Proposition</h3>
   </div>
   <div class="gdb-board-section gdb-board-customerRelationships">
-    <h3>Customer Relationships</h3>
+    <h3 class:isLoading>Customer Relationships</h3>
   </div>
   <div class="gdb-board-section gdb-board-channels">
-    <h3>Channels</h3>
+    <h3 class:isLoading>Channels</h3>
   </div>
   <div
     class="gdb-board-section gdb-board-customers"
     class:emphasize={nextIsCustomer && highlight}
     class:highlight>
-    <h3>Customer / Players</h3>
-    {#if nextIsCustomer}
+    <h3 class:isLoading>Customer / Players</h3>
+    {#if isLoading}
+      <ul class="gdb-loading-block">
+        <li />
+        <li />
+        <li />
+      </ul>
+    {:else if nextIsCustomer}
       <div class="gdb-board-button-panel">
         <IconTextButton
           value="Start Here"
@@ -202,9 +239,9 @@
     {:else}not empty{/if}
   </div>
   <div class="gdb-board-section gdb-board-costStructure">
-    <h3>Cost Structure</h3>
+    <h3 class:isLoading>Cost Structure</h3>
   </div>
   <div class="gdb-board-section gdb-board-revenue">
-    <h3>Revenue</h3>
+    <h3 class:isLoading>Revenue</h3>
   </div>
 </div>

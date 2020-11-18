@@ -132,6 +132,7 @@ namespace GDB.App
             {
                 options.EnableForHttps = true;
                 options.Providers.Add<GzipCompressionProvider>();
+                options.Providers.Add<BrotliCompressionProvider>();
             });
         }
 
