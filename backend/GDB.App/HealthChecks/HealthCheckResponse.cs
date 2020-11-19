@@ -3,6 +3,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -31,11 +32,12 @@ namespace GDB.App.HealthChecks
 
             public PrettierHealthCheckResponse(HealthReport result)
             {
+                Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
                 Status = result.Status;
                 DurationTotalMilliseconds = result.TotalDuration.TotalMilliseconds;
                 Entries = result.Entries.Select(e => new PrettierHealthEvent(e)).ToList();
             }
-
+            public string Version { get; }
             public HealthStatus Status { get; }
             public double DurationTotalMilliseconds { get; }
             public object Entries { get; }

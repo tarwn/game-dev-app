@@ -11,7 +11,7 @@ jobs:
     steps:
       - checkout
       - run: 
-          name: Install npm
+          name: Install Build/System Dependencies
           command:
             |
             apt-get update -yq \
@@ -21,6 +21,7 @@ jobs:
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
             apt update && apt install yarn
+            apt install zip
 
       - run: 
           name: Front-end Dependencies
@@ -49,13 +50,15 @@ jobs:
           command: 
             |
             cd backend
-            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-publish
+            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-publish --runtime win-x64
             dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-migrate --self-contained -r linux-x64
+            cd ../app-publish
+            zip -r ../app-publish.zip *
 
       - persist_to_workspace: # store the built files into the workspace for other jobs.
           root: ./
           paths:
-            - app-publish
+            - app-publish.zip
             - app-migrate
 
       - discord/status:
@@ -69,7 +72,32 @@ jobs:
           success_message: "Application: **$CIRCLE_JOB** updated successfully"
           webhook: "${DISCORD_STATUS_WEBHOOK}"
 
+  deploy-application:
+    docker:
+      - image: microsoft/azure-cli:latest
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: 
+          name: azure-cli
+          command:
+            |
+            cd /tmp/workspace/build
+            ls -l
+            az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
+            az webapp deployment source config-zip -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging --src app-publish.zip
+            az webapp start -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
+            az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
+            az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
+
 workflows:
   build_and_deploy:
     jobs:
       - build-application
+      - deploy-application:
+          requires:
+            - build-application
+
+          # filters: 
+          #   branches:
+          #     only: main
