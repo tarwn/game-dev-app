@@ -94,7 +94,7 @@ jobs:
             echo "Adding firewall rule for: $ip"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az sql server firewall-rule create --subscription ${AzureSubscription} -s ${AzureSqlServerName} -g ${AzureResourceGroup} -n CircleCI-Job-$CIRCLE_JOB --start-ip-address $ip --end-ip-address $ip
-            cd /tmp/wrkspace/app-migrate
+            cd /tmp/workspace/app-migrate
             ./GDB.Tools.DatabaseMigration --ConnectionString "{AzureDatabaseConnectionString}"
 
       - run:
@@ -112,7 +112,6 @@ jobs:
           command:
             |
             curl -vs ${AzureStagingUrl}
-            cd /tmp/workspace
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
