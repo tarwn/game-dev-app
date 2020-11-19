@@ -2,14 +2,16 @@
   import { onMount, onDestroy } from "svelte";
   import { scale, crossfade, fade } from "svelte/transition";
   import { params } from "@sveltech/routify";
+  import type { IBusinessModel } from "./_types/businessModel";
+  import { businessModelStore } from "./_stores/businessModelStore";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   import InputPanel from "./_components/InputPanel.svelte";
-  import type { IBusinessModel } from "./_types/businessModel";
-  import { businessModelStore } from "./_stores/businessModelStore";
+  import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
+  import CustomersSection from "./_components/sections/CustomersSection.svelte";
 
   // props
   let displaySection = null;
@@ -32,11 +34,14 @@
     displaySectionCommit = displaySection;
   }
 
+  function handleOnFullScreen() {
+    handleChangeSection({ detail: { section: null } });
+  }
+
   // data management
   let isLoading = true;
   let unsubscribe = businessModelStore.subscribe((update) => {
     businessModel = update;
-    console.log(update);
     if (isLoading) {
       isLoading = false;
     }
@@ -98,6 +103,7 @@
     grid-column-end: end;
     grid-row-start: top;
     grid-row-end: bottom;
+    padding: 0 0 0 $space-l;
   }
 </style>
 
@@ -109,7 +115,7 @@
       icon={PredefinedIcons.Expand}
       value="Full View"
       buttonStyle="primary-outline"
-      on:click={() => handleChangeSection({ detail: { section: null } })}
+      on:click={handleOnFullScreen}
       disabled={isLoading || displaySectionCommit == null} />
     {#if displaySection == null}
       <IconTextButton
@@ -162,38 +168,12 @@
   {/if}
   {#if !isLoading && displaySectionCommit}
     <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-      Instructions
+      <CustomersSectionInstructions />
     </div>
     <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-      <InputPanel
-        title="Identifying players & customers"
-        canUndo={false}
-        canRedo={false}
-        canNext={businessModel.customers.length > 0}
-        canFullscreen={true}
-        on:clickFullscreen={() => handleChangeSection({
-            detail: { section: null },
-          })}>
-        <div>
-          Who are the people that will love this game? Are they the sames ones
-          that buy it?
-        </div>
-        <br />
-        {#each businessModel.customers as customer}
-          <ul>
-            {#each customer.entries as customerEntry}
-              <li><input type="text" value={customerEntry.entry} /></li>
-            {/each}
-          </ul>
-          <label>Question
-            <input type="text" placeholder="enter an answer" /></label>
-        {/each}
-        <IconTextButton
-          icon={PredefinedIcons.Plus}
-          value="Add Customer"
-          buttonStyle="primary"
-          on:click={() => businessModelStore.addNewCustomer()} />
-      </InputPanel>
+      <CustomersSection
+        {businessModel}
+        on:clickFullscreen={handleOnFullScreen} />
     </div>
   {/if}
 </div>

@@ -24,9 +24,10 @@
     background-color: white;
     box-shadow: $shadow-main;
     border-radius: 8px;
-    max-width: 50rem;
+    max-width: 60rem;
     display: flex;
     flex-direction: column;
+    min-height: 600px;
   }
 
   .gdb-bm-inputPanel-head {

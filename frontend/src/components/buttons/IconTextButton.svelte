@@ -42,6 +42,10 @@
     &:active {
       box-shadow: $shadow-push;
     }
+
+    &:focus {
+      outline: dotted $cs_orange;
+    }
   }
 
   .gdb-button-icon {

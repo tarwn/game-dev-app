@@ -6,5 +6,6 @@
   "eslint.validate": [
     "javascript",
     "typescript"
-  ]
+  ],
+  "html.autoClosingTags": false
 }
