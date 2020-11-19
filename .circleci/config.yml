@@ -49,8 +49,8 @@ jobs:
           command: 
             |
             cd backend
-            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_JOB -o ../app-publish
-            dotnet build ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_JOB -o ../app-migrate --self-contained --r linux-x64
+            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-publish
+            dotnet build ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-migrate --self-contained --r linux-x64
 
       - persist_to_workspace: # store the built files into the workspace for other jobs.
           root: ./
