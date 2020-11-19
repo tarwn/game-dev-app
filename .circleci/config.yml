@@ -77,7 +77,7 @@ jobs:
           name: azure-cli
           command:
             |
-            cd /tmp/workspace/build
+            cd /tmp/workspace
             ls -l
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment source config-zip -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging --src app-publish.zip
