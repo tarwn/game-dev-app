@@ -3,14 +3,30 @@
   import { PredefinedIcons } from "../../../../../components/buttons/PredefinedIcons";
   import type { IBusinessModel } from "../_types/businessModel";
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
+  import IconButton from "../../../../../components/buttons/IconButton.svelte";
+  import CustomersSectionSummary from "./sections/CustomersSectionSummary.svelte";
 
   export let isLoading: boolean = false;
-  export let model: IBusinessModel | null;
+  export let businessModel: IBusinessModel | null;
   export let isMiniMap: boolean = false;
   export let highlight: string | null = null;
 
-  $: nextIsCustomer = !isLoading && model && model.customers.length == 0;
   const dispatch = createEventDispatcher();
+
+  $: editable = {
+    valueProposition: false,
+    customers:
+      !isLoading && businessModel && businessModel.customers.length > 0,
+    channels: false,
+    customerRelationships: false,
+    revenue: false,
+    keyResources: false,
+    keyActiviies: false,
+    keyPartners: false,
+    costStructure: false,
+  };
+
+  $: nextIsCustomer = !isLoading && !editable.customers;
 
   function onMouseEnter() {
     highlight = isLoading ? null : "customer";
@@ -67,6 +83,12 @@
     &.highlight > .gdb-board-section {
       opacity: 0.5;
       transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    &.highlight > .gdb-board-section.doNotDemphasize {
+      border: 6px solid $cs-grey-4;
+      margin: -3px;
+      opacity: 1;
+      z-index: 9;
     }
     &.highlight > .gdb-board-section.emphasize {
       border: 6px solid $color-accent-1;
@@ -192,6 +214,15 @@
     margin-bottom: $space-xl;
     justify-content: center;
   }
+
+  .gdb-button-edit-panel {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    display: flex;
+    flex-direction: column;
+    padding: 3px $space-s;
+  }
 </style>
 
 <div
@@ -209,7 +240,9 @@
   <div class="gdb-board-section gdb-board-keyResources">
     <h3 class:isLoading>Key Resources</h3>
   </div>
-  <div class="gdb-board-section gdb-board-valueProposition">
+  <div
+    class="gdb-board-section gdb-board-valueProposition"
+    class:doNotDemphasize={highlight}>
     <h3 class:isLoading>Value Proposition</h3>
   </div>
   <div class="gdb-board-section gdb-board-customerRelationships">
@@ -221,8 +254,18 @@
   <div
     class="gdb-board-section gdb-board-customers"
     class:emphasize={nextIsCustomer && highlight}
+    class:doNotDemphasize={editable.customers && highlight}
     class:highlight>
+    {#if !isMiniMap && editable.customers}
+      <div class="gdb-button-edit-panel">
+        <IconButton
+          icon={PredefinedIcons.Edit}
+          buttonStyle="bm-edit-charm"
+          on:click={() => dispatch('sectionChange', { section: 'customer' })} />
+      </div>
+    {/if}
     <h3 class:isLoading>Customer / Players</h3>
+
     {#if isLoading}
       <ul class="gdb-loading-block">
         <li />
@@ -236,7 +279,9 @@
           icon={PredefinedIcons.Plus}
           on:click={() => dispatch('sectionChange', { section: 'customer' })} />
       </div>
-    {:else}not empty{/if}
+    {:else}
+      <CustomersSectionSummary {businessModel} />
+    {/if}
   </div>
   <div class="gdb-board-section gdb-board-costStructure">
     <h3 class:isLoading>Cost Structure</h3>

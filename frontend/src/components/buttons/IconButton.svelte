@@ -12,6 +12,9 @@
       case "icon-only":
         buttonStyleClass = "gdb-bs-iconOnly";
         break;
+      case "bm-edit-charm":
+        buttonStyleClass = "gdb-bs-bmEditCharm";
+        break;
       case "primary":
       default:
         buttonStyleClass = "gdb-bs-primary";
@@ -50,6 +53,42 @@
 
     &:hover {
       color: $color-accent-1;
+    }
+
+    &[disabled],
+    &[disabled]:hover,
+    &[disabled]:active {
+      color: $cs-grey-1;
+      cursor: not-allowed;
+    }
+  }
+
+  .gdb-bs-bmEditCharm {
+    background: none;
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    text-align: center;
+    padding: 0;
+    color: $cs-grey-1;
+    box-shadow: unset;
+    transition: $button-transitions;
+    border-radius: 50%;
+    border: 1px solid transparent;
+
+    &:hover {
+      color: $color-accent-1;
+      background-color: $color-accent-1-lightest;
+      box-shadow: $shadow-main;
+      border-color: $cs-grey-1;
+    }
+
+    &:active {
+      color: $color-accent-1-darker;
+      background-color: $color-accent-1-lighter;
+      box-shadow: $shadow-push;
+      border-color: $cs-grey-1;
     }
 
     &[disabled],

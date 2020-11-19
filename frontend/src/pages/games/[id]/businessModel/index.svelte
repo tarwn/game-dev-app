@@ -13,10 +13,8 @@
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
   import CustomersSection from "./_components/sections/CustomersSection.svelte";
 
-  // props
   let displaySection = null;
   let displaySectionCommit = null;
-
   $: id = $params.id;
   let businessModel = null as IBusinessModel | null;
 
@@ -145,7 +143,7 @@
       {#each [businessModel] as b}
         <BusinessModelCanvasLarge
           {isLoading}
-          bind:model={b}
+          businessModel={b}
           isMiniMap={false}
           on:sectionChange={handleChangeSection} />
       {/each}
@@ -159,7 +157,7 @@
       class:transitioning={displaySection == null}>
       {#each [businessModel] as b}
         <BusinessModelCanvasLarge
-          bind:model={b}
+          businessModel={b}
           isMiniMap={true}
           highlight={displaySection}
           on:sectionChange={handleChangeSection} />
