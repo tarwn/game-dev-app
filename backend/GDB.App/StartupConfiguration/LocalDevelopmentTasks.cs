@@ -20,9 +20,9 @@ namespace GDB.App.StartupConfiguration
 {
     public class LocalDevelopmentTasks
     {
-        internal static void MigrateDatabase(IConfiguration configuration)
+        internal static void MigrateDatabase(string connectionString)
         {
-            LocalDatabaseMigrator.Execute(configuration.GetConnectionString("Database"));
+            LocalDatabaseMigrator.Execute(connectionString);
         }
 
         internal static void StartFrontendService(ISpaBuilder spaBuilder, string workingDirectory, string exeToRun, Func<int, string> commandFromPort, string textForServerStart)

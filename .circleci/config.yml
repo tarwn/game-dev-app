@@ -54,6 +54,8 @@ jobs:
             dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-migrate --self-contained -r linux-x64
             cd ../app-publish
             zip -r ../app-publish.zip *
+            cd ../app-migrate
+            chmod 755 GDB.Tools.DatabaseMigration
 
       - persist_to_workspace: # store the built files into the workspace for other jobs.
           root: ./
@@ -74,7 +76,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: 
-          name: azure-cli
+          name: Azure Staging Deploy
           command:
             |
             cd /tmp/workspace
@@ -82,8 +84,39 @@ jobs:
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment source config-zip -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging --src app-publish.zip
             az webapp start -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
+            curl -vs ${AzureStagingUrl}
+
+      - run:
+          name: Database Migration
+          command: 
+            |
+            ip=$(curl -s https://api.ipify.org)
+            echo "Adding firewall rule for: $ip"
+            az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
+            az sql server firewall-rule create --subscription {AzureSubscription} -s lri-sqlsrv-main -g LaunchReady-Indie -n CircleCI-Job-$CIRCLE_JOB --start-ip-address $ip --end-ip-address $ip
+            cd /tmp/wrkspace/app-migrate
+            ./GDB.Tools.DatabaseMigration --ConnectionString "{AzureDatabaseConnectionString}"
+
+      - run:
+        name: Database Migration - Cleanup
+        when: always
+        command: 
+            |
+            ip=$(curl -s https://api.ipify.org)
+            echo "Removing firewall rule for: $ip"
+            az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
+            az sql server firewall-rule delete --subscription {AzureSubscription} -s lri-sqlsrv-main -g LaunchReady-Indie -n CircleCI-Job-$CIRCLE_JOB
+
+      - run: 
+          name: Azure Production Swap
+          command:
+            |
+            curl -vs ${AzureStagingUrl}
+            cd /tmp/workspace
+            az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
+
 
       - discord/status:
           fail_only: true
