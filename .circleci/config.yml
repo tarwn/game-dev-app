@@ -20,8 +20,8 @@ jobs:
               && apt-get install nodejs -yq
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-            apt update && apt install yarn
-            apt install zip
+            apt update && apt install yarn -yq
+            apt install zip -yq
 
       - run: 
           name: Front-end Dependencies
@@ -67,11 +67,6 @@ jobs:
           webhook: "${DISCORD_STATUS_WEBHOOK}"
           mentions: "@employees"
 
-      - discord/status:
-          success_only: true
-          success_message: "Application: **$CIRCLE_JOB** updated successfully"
-          webhook: "${DISCORD_STATUS_WEBHOOK}"
-
   deploy-application:
     docker:
       - image: microsoft/azure-cli:latest
@@ -89,6 +84,17 @@ jobs:
             az webapp start -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
+
+      - discord/status:
+          fail_only: true
+          failure_message: "Application: **$CIRCLE_JOB** deploy has failed!"
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
+          mentions: "@employees"
+
+      - discord/status:
+          success_only: true
+          success_message: "Application: **$CIRCLE_JOB** deployed successfully"
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
 
 workflows:
   build_and_deploy:
