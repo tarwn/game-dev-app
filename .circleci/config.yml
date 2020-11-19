@@ -93,19 +93,19 @@ jobs:
             ip=$(curl -s https://api.ipify.org)
             echo "Adding firewall rule for: $ip"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
-            az sql server firewall-rule create --subscription {AzureSubscription} -s lri-sqlsrv-main -g LaunchReady-Indie -n CircleCI-Job-$CIRCLE_JOB --start-ip-address $ip --end-ip-address $ip
+            az sql server firewall-rule create --subscription ${AzureSubscription} -s ${AzureSQLServerName} -g ${AzureResourceGroup} -n CircleCI-Job-$CIRCLE_JOB --start-ip-address $ip --end-ip-address $ip
             cd /tmp/wrkspace/app-migrate
             ./GDB.Tools.DatabaseMigration --ConnectionString "{AzureDatabaseConnectionString}"
 
       - run:
-        name: Database Migration - Cleanup
-        when: always
-        command: 
+          name: Database Migration - Cleanup
+          command: 
             |
             ip=$(curl -s https://api.ipify.org)
             echo "Removing firewall rule for: $ip"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
-            az sql server firewall-rule delete --subscription {AzureSubscription} -s lri-sqlsrv-main -g LaunchReady-Indie -n CircleCI-Job-$CIRCLE_JOB
+            az sql server firewall-rule delete --subscription ${AzureSubscription} -s ${AzureSQLServerName} -g ${AzureResourceGroup} -n CircleCI-Job-$CIRCLE_JOB
+          when: always
 
       - run: 
           name: Azure Production Swap
