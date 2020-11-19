@@ -24,26 +24,39 @@ jobs:
 
       - run: 
           name: Front-end Dependencies
-          command: yarn install
+          command:
+            |
+            cd frontend
+            yarn install
 
       - run: 
           name: Front-end Test
           command: 
             |
+            cd frontend
             yarn run validate
             yarn run lint
 
       - run:
           name: Front-end Build
-          command: yarn run build
-
-      - run:
-          name: Back-end Dependencies
-          command: dotnet restore
-          
+          command: 
+            |
+            cd frontend
+            yarn run build
+         
       - run:
           name: Back-end Build
-          command: dotnet build -c Release /property:Version=0.0.0.$CIRCLE_JOB
+          command: 
+            |
+            cd backend
+            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_JOB -o ../app-publish
+            dotnet build ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_JOB -o ../app-migrate --self-contained --r linux-x64
+
+      - persist_to_workspace: # store the built files into the workspace for other jobs.
+          root: ./
+          paths:
+            - app-publish
+            - app-migrate
 
       - discord/status:
           fail_only: true
