@@ -40,7 +40,7 @@ function performCheck(attempt) {
                     resolve({ attempt, state: res.statusCode, result });
                 }
                 catch (error) {
-                    reject(error);
+                    resolve({ attempt, state: res.statusCode, result: {} });
                 }
             });
         }).on('error', (err) => reject(err)).end();
