@@ -51,7 +51,7 @@ jobs:
             |
             cd backend
             dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-publish --runtime win-x64
-            dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-migrate --self-contained -r linux-x64
+            dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_BUILD_NUM -o ../app-migrate --self-contained -r linux-musl-x64
             cd ../app-publish
             zip -r ../app-publish.zip *
             cd ../app-migrate
@@ -75,6 +75,14 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
+      - run: 
+        name: Install Dependencies
+        command:
+          |
+          apk add libc6-compat
+          ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+          
       - run: 
           name: Azure Staging Deploy
           command:
