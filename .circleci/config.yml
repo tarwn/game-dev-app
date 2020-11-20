@@ -90,7 +90,7 @@ jobs:
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az sql server firewall-rule create --subscription ${AzureSubscription} -s ${AzureSqlServerName} -g ${AzureResourceGroup} -n CircleCI-Job-$CIRCLE_JOB --start-ip-address $ip --end-ip-address $ip
             cd /tmp/workspace/app-migrate
-            ./GDB.Tools.DatabaseMigration --ConnectionString "{AzureDatabaseConnectionString}"
+            ./GDB.Tools.DatabaseMigration --ConnectionString "${AzureDatabaseConnectionString}"
 
       - run:
           name: Database Migration - Cleanup
