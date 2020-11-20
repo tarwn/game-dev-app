@@ -32,17 +32,20 @@ namespace GDB.App
     public class Startup
     {
         private IConfiguration _configuration;
+        private IWebHostEnvironment _environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             _configuration = configuration;
+            _environment = environment;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             // Configurations
             services.Configure<SentryOptions>(_configuration.GetSection("Sentry"));
-            services.AddScoped<DatabaseConnectionSettings>((services) => {
+            services.AddScoped<DatabaseConnectionSettings>((services) =>
+            {
                 return new DatabaseConnectionSettings() { Database = _configuration.GetConnectionString("Database") };
             });
 
@@ -107,11 +110,16 @@ namespace GDB.App
                     .AddCheck<DatabaseHealthCheck>("database");
 
                 // MVC 
-                services.AddControllersWithViews(options => {
+                var builder = services.AddControllersWithViews(options =>
+                {
                     options.Filters.Add(new UnhandledApiExceptionFilter(new string[] { 
                         // add API endpoints here to automatically return non-HTML errors
                     }));
                 });
+                if (_environment.IsDevelopment())
+                {
+                    builder.AddRazorRuntimeCompilation();
+                }
                 services.Configure<RazorViewEngineOptions>(o =>
                 {
                     // {2} is area, {1} is controller,{0} is the action    
@@ -185,13 +193,19 @@ namespace GDB.App
                 //  that does the right thing for now
                 app.Use(async (context, next) =>
                 {
-                    if (env.IsDevelopment() && context.Request.Path.Value.EndsWith(".js.map"))
+                    if (!context.User.Identity.IsAuthenticated)
                     {
-                        await next();
-                    }
-                    else if (!context.User.Identity.IsAuthenticated)
-                    {
-                        await context.ChallengeAsync();
+                        if (context.Request.Path.StartsWithSegments("/base.css") ||
+                             context.Request.Path.StartsWithSegments("/fonts") ||
+                             context.Request.Path.StartsWithSegments("/CircleArrow56.png") ||
+                             (env.IsDevelopment() && context.Request.Path.Value.EndsWith(".js.map")))
+                        {
+                            await next();
+                        }
+                        else
+                        {
+                            await context.ChallengeAsync();
+                        }
                     }
                     else
                     {

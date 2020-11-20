@@ -54,17 +54,6 @@
     padding: $space-s;
     text-align: center;
   }
-
-  input[type="text"] {
-    border: 1px solid $cs-grey-1;
-    padding: $space-xs;
-
-    &:active,
-    &:focus {
-      border: 1px solid $color-accent-1-darker;
-      outline: none;
-    }
-  }
 </style>
 
 <InputPanel

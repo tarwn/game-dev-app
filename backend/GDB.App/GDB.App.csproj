@@ -7,7 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.10" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.10" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.9" />
     <PackageReference Include="Sentry" Version="2.1.6" />
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.6" />
@@ -22,12 +23,13 @@
 
   <!-- SPA Static Files linked in -->
   <ItemGroup>
+    <!-- Copy all SPA dist files to ClientApp for use by SPA after auth -->
     <Content Include="$(SpaRoot)dist\**" Link="ClientApp\dist\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Middleware\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <!-- SPA Build Steps -->

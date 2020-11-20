@@ -1,9 +1,145 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@(ViewData["Title"] ?? "Missing Title :(")</title>
+    <title>@(ViewData["Title"] ?? "LaunchReady")</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width">
+
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Oxygen" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/base.css" />
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/images/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/images/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/images/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/images/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/images/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/images/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/images/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <style>
+        .gdb-main {
+            display: grid;
+            grid-template-columns: [start] auto [end];
+            grid-template-rows: [top] 70px [top-content] auto [bottom];
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .gdb-header {
+            display: block;
+            grid-column-start: start;
+            grid-column-end: end;
+            grid-row-start: top;
+            grid-row-end: top-content;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #c3cecd; /* $cs-grey-1 */
+        }
+
+        .gdb-body {
+            display: block;
+            grid-column-start: start;
+            grid-column-end: end;
+            grid-row-start: top-content;
+            grid-row-end: bottom;
+            background-color: #f6f8fa; /* $cs_lighterblue */
+            position: relative;
+        }
+
+        .gdb-header-content {
+            line-height: 56px;
+        }
+
+        .gdb-header-content,
+        .gdb-body-content {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 1140px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .gdb-logo {
+            color: #404e4d; /* $cs_darkgrey */
+            text-decoration: none;
+            margin: 0;
+            height: 36px;
+            line-height: 56px;
+            flex: 0 0 auto;
+        }
+
+        .gdb-logo-img {
+            width: 56px;
+            height: 56px;
+        }
+
+        .gdb-logo.gdb-logo-name {
+            border-left: 3px solid #5bc0eb; /* $cs_blue */
+            line-height: 56px;
+            height: 52px;
+            margin: 2px 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        .gdb-logo-launch, .gdb-logo-ready {
+            display: inline-block;
+            text-transform: uppercase;
+            line-height: 52px;
+            height: 52px;
+            font-size: 2.25rem;
+            letter-spacing: .1rem;
+            padding-right: .2rem;
+        }
+
+        .gdb-logo-launch {
+            color: #5bc0eb; /* $cs_blue */
+        }
+
+        .gdb-logo-ready {
+            color: #404e4d; /* $cs_darkgrey */
+        }
+
+        .gdb-floating-box {
+            display: block;
+            margin: 80px auto;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .gdb-floating-box > h1 {
+            font-size: 2.5rem;            
+        }
+
+    </style>
 </head>
 <body>
-    @RenderBody()
+    <div class="gdb-main">
+        <div class="gdb-header">
+            <div class="gdb-header-content">
+                <span class="gdb-logo">
+                    <img src="/CircleArrow56.png" alt="LR" class="gdb-logo-img" />
+                </span>
+                <span aria-label="Go to homepage" class="gdb-logo gdb-logo-name">
+                    <div class="gdb-logo-launch">Launch</div><div class="gdb-logo-ready">Ready</div>
+                </span>
+            </div>
+        </div>
+        <div class="gdb-body">
+            <div class="gdb-body-content">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
 </body>
 </html>

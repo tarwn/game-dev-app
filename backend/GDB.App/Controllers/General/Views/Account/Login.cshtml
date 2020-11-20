@@ -3,21 +3,64 @@
     Layout = "../_Layout.cshtml";
     TempData["title"] = "Login";
 }
-<h1>Login</h1>
-@if (ViewData["ErrorMessage"] != null)
-{
-    <div>@ViewData["ErrorMessage"]</div>
-}
-<form method="post">
-    @Html.AntiForgeryToken()
-    @Html.Hidden("ReturnUrl", Model.ReturnUrl ?? "")
-    <label>
-        <span>Username</span>
-        @Html.TextBox("UserName")
-    </label>
-    <label>
-        <span>Password</span>
-        @Html.Password("Password")
-    </label>
-    <input type="submit" value="Log In" />
-</form>
+<div class="gdb-floating-box">
+    <h1>Sign In</h1>
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="gdb-err-message">@ViewData["ErrorMessage"]</div>
+    }
+    <form method="post">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("ReturnUrl", Model.ReturnUrl ?? "")
+        <label>
+            <span class="gdb-label-text">Username</span>
+            @Html.TextBoxFor(x => x.Username, new { placeholder = "youremail@example.com", @class="gdb-pronounced" })
+        </label>
+        <label>
+            <span class="gdb-label-text">Password</span>
+            @Html.PasswordFor(x => x.Password, new { @class = "gdb-pronounced" })
+        </label>
+        <input type="submit" value="Log In" class="gdb-button gdb-bs-primary" />
+        <div class="gdb-form-footer">
+            Need an account? <a href="https://www.launchready.co/pricing">Sign-up</a> for access!
+        </div>
+    </form>
+</div>
+<style>
+    .gdb-err-message {
+        text-align: center;
+        color: #c3423f; /* $cs_red */
+
+    }
+
+    .gdb-floating-box {
+        width: 400px;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gdb-label-text {
+        display: block;
+        font-size: 0.952rem; /* $font-size-small */
+        margin: 16px 0 8px 0;  /* $space-m 0 $space-s 0 */
+        width: 100%;
+    }
+
+    input[type=text],
+    input[type=password] {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .gdb-button {
+        margin: 32px 0 16px 0; /* $space-l 0 $space-m 0 */
+    }
+
+    .gdb-form-footer {
+        text-align: center;
+        font-size: 0.952rem; /* $font-size-small */
+    }
+</style>

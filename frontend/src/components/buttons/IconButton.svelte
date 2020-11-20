@@ -26,22 +26,6 @@
 <style type="text/scss">
   @import "../../styles/_variables.scss";
 
-  .gdb-button {
-    cursor: pointer;
-    border-radius: 4px;
-    border: 0px;
-    outline: none;
-    line-height: 2rem;
-    min-height: 2rem;
-    padding: 0 $space-m 0 $space-m;
-    box-shadow: $shadow-main;
-    transition: $button-transitions;
-
-    &:active {
-      box-shadow: $shadow-push;
-    }
-  }
-
   .gdb-bs-iconOnly {
     background: none;
     font-size: 32px;
@@ -96,30 +80,6 @@
     &[disabled]:active {
       color: $cs-grey-1;
       cursor: not-allowed;
-    }
-  }
-
-  .gdb-bs-primary {
-    background-color: $color-accent-1;
-    border: 2px solid $color-accent-1;
-    color: $text-color-inverse;
-
-    &:hover {
-      background-color: $color-accent-1-darker;
-    }
-
-    &:active {
-      background-color: $color-accent-1-darker;
-    }
-
-    &[disabled],
-    &[disabled]:hover,
-    &[disabled]:active {
-      background-color: $cs-grey-0;
-      color: $cs-grey-1;
-      border-color: $cs-grey-1;
-      box-shadow: none;
-      cursor: default;
     }
   }
 </style>
