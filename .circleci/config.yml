@@ -79,7 +79,7 @@ jobs:
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment source config-zip -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging --src app-publish.zip
             az webapp start -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
-            curl -vs ${AzureStagingUrl}
+            curl -sSf -H "Accept: application/json" "${AzureStagingUrl}/health"
 
       - run:
           name: Database Migration
@@ -106,7 +106,7 @@ jobs:
           name: Azure Production Swap
           command:
             |
-            curl -vs ${AzureStagingUrl}
+            curl -sSf -H "Accept: application/json" "${AzureStagingUrl}/health"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
