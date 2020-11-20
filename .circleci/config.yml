@@ -24,29 +24,16 @@ jobs:
             apt install zip -yq
 
       - run: 
-          name: Front-end Dependencies
-          command:
-            |
-            cd frontend
-            yarn install
-
-      - run: 
           name: Front-end Test
           command: 
             |
             cd frontend
+            yarn install
             yarn run validate
             yarn run lint
-
-      - run:
-          name: Front-end Build
-          command: 
-            |
-            cd frontend
-            yarn run build
          
       - run:
-          name: Back-end Build
+          name: Build for Release
           command: 
             |
             cd backend

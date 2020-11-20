@@ -144,12 +144,6 @@ namespace GDB.App
             {
                 LocalDevelopmentTasks.MigrateDatabase(_configuration.GetConnectionString("Database"));
             }
-            else
-            {
-                // temporary until I can find a better way to run the DB Migration during builds
-                //  without requiring dynamic firewall rule addition
-                LocalDevelopmentTasks.MigrateDatabase(_configuration.GetConnectionString("DatabaseMigrateAccess"));
-            }
 
             // -- Continue configuration
             if (env.IsDevelopment())
