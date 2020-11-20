@@ -16,7 +16,7 @@ jobs:
             |
             apt-get update -yq \
               && apt-get install curl gnupg -yq \
-              && curl -sL https://deb.nodesource.com/setup_10.x | bash \
+              && curl -sL https://deb.nodesource.com/setup_14.x | bash \
               && apt-get install nodejs -yq
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -54,6 +54,7 @@ jobs:
           paths:
             - app-publish.zip
             - app-migrate
+            - tools/PollHealthcheck
 
       - discord/status:
           fail_only: true
@@ -72,8 +73,11 @@ jobs:
           name: Install Dependencies
           command:
             |
+            # dependencies to run dotnet db migration tool
             apk add libc6-compat
             ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+            # dependencies for monitoring health checkout
+            apk add nodejs           
           
       - run: 
           name: Azure Staging Deploy
@@ -81,10 +85,13 @@ jobs:
             |
             cd /tmp/workspace
             ls -l
+            # Deploy to staging slot
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment source config-zip -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging --src app-publish.zip
             az webapp start -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
-            curl -sSf -H "Accept: application/json" "${AzureStagingUrl}/health"
+            # Poll health endpoint, 500ms intervals, 15s timeout
+            cd /tmp/workspace/tools/PollHealthcheck
+            node index.js ${AzureStagingUrl}/health 500 15000
 
       - run:
           name: Database Migration
@@ -98,7 +105,7 @@ jobs:
             ./GDB.Tools.DatabaseMigration --ConnectionString "${AzureDatabaseConnectionString}"
 
       - run:
-          name: Database Migration - Cleanup
+          name: Database Migration - Firewall Cleanup
           command: 
             |
             ip=$(curl -s https://api.ipify.org)
@@ -111,9 +118,13 @@ jobs:
           name: Azure Production Swap
           command:
             |
-            curl -sSf -H "Accept: application/json" "${AzureStagingUrl}/health"
+            # Poll health endpoint, 500ms intervals, 15s timeout
+            cd /tmp/workspace/tools/PollHealthcheck
+            node index.js ${AzureStagingUrl}/health 500 15000
+            # Swap into production
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
+            # Shutdown old version
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
 
 

@@ -21,7 +21,8 @@ namespace GDB.App.HealthChecks
                 WriteIndented = true,
                 Converters = {
                     new JsonStringEnumConverter()
-                }
+                },
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             httpContext.Response.ContentType = "application/json";
             return httpContext.Response.WriteAsync(json);

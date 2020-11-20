@@ -35,7 +35,7 @@ function createStore() {
   const { subscribe, set, update } = writable(null);
 
   // const latestSynchronizedState = null;
-  const localLatestState = null;
+  // const localLatestState = null;
   const outstandingEvents = [] as IEvent[];
 
   const executeLocalCommand = (model: IBusinessModel, command: ICommand, args?: any) => {
