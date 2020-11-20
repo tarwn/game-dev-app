@@ -7,7 +7,8 @@ jobs:
   build-application:
     docker: 
       - image: mcr.microsoft.com/dotnet/sdk:3.1-buster
-
+    environment:
+      VERSION_NUMBER: 0.0.0.<< pipeline.number >>
     steps:
       - checkout
       - run: 
@@ -42,8 +43,8 @@ jobs:
           command: 
             |
             cd backend
-            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$CIRCLE_WORKFLOW_ID -o ../app-publish --runtime win-x64
-            dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$CIRCLE_WORKFLOW_ID -o ../app-migrate --self-contained -r linux-musl-x64
+            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=0.0.0.$VERSION_NUMBER -o ../app-publish --runtime win-x64
+            dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=0.0.0.$VERSION_NUMBER -o ../app-migrate --self-contained -r linux-musl-x64
             cd ../app-publish
             zip -r ../app-publish.zip *
             cd ../app-migrate
@@ -65,6 +66,8 @@ jobs:
   deploy-application:
     docker:
       - image: microsoft/azure-cli:latest
+    environment:
+      VERSION_NUMBER: 0.0.0.<< pipeline.number >>
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -136,7 +139,7 @@ jobs:
 
       - discord/status:
           success_only: true
-          success_message: "Application: **$CIRCLE_JOB** deployed successfully: 0.0.0.$CIRCLE_WORKFLOW_ID"
+          success_message: "Application: **$CIRCLE_JOB** deployed successfully: $VERSION_NUMBER"
           webhook: "${DISCORD_STATUS_WEBHOOK}"
 
 workflows:
