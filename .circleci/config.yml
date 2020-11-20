@@ -29,9 +29,14 @@ jobs:
             |
             cd frontend
             yarn install
-            yarn run validate
-            yarn run lint
-         
+            yarn run ci:validate
+            yarn run ci:lint --output-file ~/reports/eslint.xml
+      
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports  
+
       - run:
           name: Build for Release
           command: 

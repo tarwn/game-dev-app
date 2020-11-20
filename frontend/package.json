@@ -6,8 +6,10 @@
     "dev": "routify -c dev:server:watch --",
     "dev:server:watch": "rollup -c -w",
     "dev:server:start": "sirv dist --single",
-    "validate": "svelte-check",
+    "validate": "svelte-check --fail-on-warnings",
     "lint": "eslint ./src/**/*.ts",
+    "ci:validate": "svelte-check --fail-on-warnings --output machine",
+    "ci:lint": "eslint ./src/**/*.ts --format junit",
     "icon": "./node_modules/.bin/icon-font-generator ./resources/font/*.svg -n UiconMAX -o ./public/fonts/ --csspath ./src/styles/uiconmax.css --cssfontsurl /fonts -p --htmlpath ./resources/font/preview.html uiconmax --descent 4"
   },
   "devDependencies": {
