@@ -21,10 +21,11 @@ namespace GDB.App
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    //webBuilder.UseSentry(options => {
-                    //    options.MinimumEventLevel = LogLevel.Error;
-                    //    options.DiagnosticsLevel = Sentry.Protocol.SentryLevel.Error;
-                    //});
+                    webBuilder.UseSentry(options =>
+                    {
+                        options.MinimumEventLevel = LogLevel.Error;
+                        options.DiagnosticsLevel = Sentry.Protocol.SentryLevel.Error;
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }
