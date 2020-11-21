@@ -38,6 +38,13 @@ jobs:
       - store_artifacts:
           path: ~/reports  
 
+      - run: 
+        name: Front-end Build
+        command: 
+          |
+          cd frontend
+          yarn run build
+
       - run:
           name: Build for Release
           command: 

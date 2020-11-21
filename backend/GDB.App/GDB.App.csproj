@@ -50,8 +50,4 @@
     <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
   </Target>
 
-  <Target Name="BuildSPA" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn run build" />
-  </Target>
 </Project>
