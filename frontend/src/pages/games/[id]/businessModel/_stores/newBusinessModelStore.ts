@@ -1,7 +1,8 @@
-import { createEventStore } from "./eventSystem/store";
+import { createEventStore } from "./eventSystem/eventStore";
 import type { IEvent, IEventApplier, IEventStateApi } from "./eventSystem/types";
 import type { IBusinessModel } from "../_types/businessModel";
 import { log } from "./logger";
+import { createLocalStore } from "./eventSystem/localStore";
 
 const api: IEventStateApi<IBusinessModel> = {
   get: (id: any) => {
@@ -50,29 +51,25 @@ const eventApplier: IEventApplier<IBusinessModel> = {
   }
 };
 
-
 type EvtMethod = {
   get: (args: any) => Evt,
   apply: (model: IBusinessModel, event: Evt) => any
 }
 
-export const events = new Map<string, EvtMethod>([
-  ["Customer_AddNew", {
-    get: (): Evt => ({ type: "Customer_AddNew", versionNumber: null }),
+export const businessModelEvents = {
+  "AddNewCustomer": {
+    get: (): Evt => ({ type: "AddNewCustomer", versionNumber: null }),
     apply: (model: IBusinessModel): number => model.customers.push({ globalId: null, name: null, entries: [] })
-  }],
-  ["Customer_AddEntry", {
-    get: ({ customerIndex, entry }: { customerIndex: number, entry: string }): Evt => ({ type: "Customer_AddEntry", versionNumber: null, customerIndex, entry }),
+  },
+  "AddCustomerEntry": {
+    get: ({ customerIndex, entry }: { customerIndex: number, entry: string }): Evt => ({ type: "AddCustomerEntry", versionNumber: null, customerIndex, entry }),
     apply: (model: IBusinessModel, event: Evt): number => model.customers[event.customerIndex].entries.push({ globalId: null, entry: event.entry })
-  }]
-]);
-
-export const businessModelStore = createEventStore(api, eventApplier);
-
+  }
+};
+export const businessModelEventStore = createEventStore(api, eventApplier);
+export const businessModelLocalStore = createLocalStore(businessModelEventStore, eventApplier);
 
 // Next Steps:
-//  * Add generic Local State that subscribes to an event store
-//  * Expose instance of Local State store here
 //  * Replace old store with this one
 //  * Add missing API endpoints
 //    * How to deal w/ version number? Server-side cache of a shared business model for now until user sessions?

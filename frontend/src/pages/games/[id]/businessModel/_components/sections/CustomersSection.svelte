@@ -2,11 +2,15 @@
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
   import type { IBusinessModel } from "../../_types/businessModel";
-  import { businessModelStore } from "../../_stores/businessModelStore";
+  // import { businessModelStore } from "../../_stores/businessModelStore";
   import InputPanel from "../InputPanel.svelte";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import CustomersSectionInstructions from "./CustomersSectionInstructions.svelte";
+  import {
+    businessModelEventStore,
+    businessModelEvents,
+  } from "../../_stores/newBusinessModelStore";
 
   export let businessModel: IBusinessModel;
 
@@ -73,7 +77,7 @@
         icon={PredefinedIcons.Plus}
         value="Add a Customer"
         buttonStyle="primary"
-        on:click={() => businessModelStore.addNewCustomer()} />
+        on:click={() => businessModelEvents.AddNewCustomer.get()} />
     </div>
   {:else}
     {#each businessModel.customers as customer}
@@ -103,7 +107,8 @@
               <input
                 type="text"
                 placeholder="Add another characteristic"
-                id="newCharacteristic" />
+                id="newCharacteristic"
+                on:change={(e) => console.log(e)} />
             </li>
           </ul>
         </div>
@@ -114,7 +119,7 @@
         icon={PredefinedIcons.Plus}
         value="Add another Customer"
         buttonStyle="primary"
-        on:click={() => businessModelStore.addNewCustomer()} />
+        on:click={() => businessModelEvents.AddNewCustomer.get()} />
     </div>
   {/if}
 </InputPanel>

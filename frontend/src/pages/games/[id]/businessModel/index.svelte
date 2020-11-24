@@ -3,7 +3,7 @@
   import { scale, crossfade, fade } from "svelte/transition";
   import { params } from "@sveltech/routify";
   import type { IBusinessModel } from "./_types/businessModel";
-  import { businessModelStore } from "./_stores/businessModelStore";
+  // import { businessModelStore } from "./_stores/businessModelStore";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
@@ -12,6 +12,10 @@
   import InputPanel from "./_components/InputPanel.svelte";
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
   import CustomersSection from "./_components/sections/CustomersSection.svelte";
+  import {
+    businessModelEventStore,
+    businessModelLocalStore,
+  } from "./_stores/newBusinessModelStore";
 
   let displaySection = null;
   let displaySectionCommit = null;
@@ -38,18 +42,16 @@
 
   // data management
   let isLoading = true;
-  let unsubscribe = businessModelStore.subscribe((update) => {
+  businessModelEventStore.initialize(id);
+  const unsubscribe = businessModelLocalStore.subscribe((update) => {
     businessModel = update;
     if (isLoading) {
       isLoading = false;
     }
   });
+
   onMount(async () => {
-    await fetch(`/api/fe/businessModels/${id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        businessModelStore.set(data);
-      });
+    businessModelEventStore.loadFullState();
   });
   onDestroy(unsubscribe);
 </script>

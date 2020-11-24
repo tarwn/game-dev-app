@@ -1,15 +1,12 @@
 import { writable } from 'svelte/store';
-import type { IEvent, IEventApplier, IEventStateApi } from './types';
+import type { Versioned, IEvent, IEventApplier, IEventStateApi, IEventStore } from './types';
 
-type Versioned = {
-  versionNumber: number;
-};
 
-export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>) {
+export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {
   // api args and id to skip stale API calls coming back
   const initState = {
     id: null,
-    apiArgs: 1
+    apiArgs: null
   };
   const pendingEvents = [] as IEvent<T>[];
   let finalState = null as T | null;
