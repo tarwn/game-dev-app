@@ -77,7 +77,7 @@
         icon={PredefinedIcons.Plus}
         value="Add a Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEvents.AddNewCustomer.get()} />
+        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get())} />
     </div>
   {:else}
     {#each businessModel.customers as customer}
@@ -119,7 +119,7 @@
         icon={PredefinedIcons.Plus}
         value="Add another Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEvents.AddNewCustomer.get()} />
+        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get())} />
     </div>
   {/if}
 </InputPanel>

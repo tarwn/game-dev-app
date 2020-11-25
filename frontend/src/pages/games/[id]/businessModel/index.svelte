@@ -42,7 +42,11 @@
 
   // data management
   let isLoading = true;
-  businessModelEventStore.initialize(id);
+  $: {
+    if (id != null) {
+      businessModelEventStore.initialize(id);
+    }
+  }
   const unsubscribe = businessModelLocalStore.subscribe((update) => {
     businessModel = update;
     if (isLoading) {

@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^5.26.0",
+    "@sentry/integrations": "^5.27.6",
     "@sveltech/routify": "^1.9.9",
     "sirv-cli": "^1.0.0"
   }

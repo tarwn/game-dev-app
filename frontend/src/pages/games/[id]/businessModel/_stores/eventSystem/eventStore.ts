@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { log } from '../logger';
 import type { Versioned, IEvent, IEventApplier, IEventStateApi, IEventStore } from './types';
 
 
@@ -17,10 +18,12 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
 
   function initialize(id: any, apiArgs?: any) {
     initState.id = id;
+    log("eventStore.initialize", { id, apiArgs });
     initState.apiArgs = apiArgs;
   }
 
   function addEvent(event: IEvent<T>) {
+    log("addEvent", { event });
     pendingEvents.push(event);
     update(state => ({ ...state, pendingEvents }));
     sendEvent();
@@ -42,7 +45,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
     currentSending = pendingEvents[0];
 
     const thisId = initState.id;
-    api.update(initState.apiArgs, currentSending)
+    api.update(initState.id, currentSending, initState.apiArgs)
       .then(response => {
         if (thisId != initState.id) return;
 
@@ -91,9 +94,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
         update(() => ({ finalState, pendingEvents }));
       })
       .catch(err => {
-        // report errors
-        //  todo
-        console.error(err);
+        throw (err);
       });
   }
 
@@ -119,9 +120,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
         update(() => ({ finalState, pendingEvents }));
       })
       .catch(err => {
-        // report errors
-        //  todo
-        console.error(err);
+        throw (err);
       });
   }
 

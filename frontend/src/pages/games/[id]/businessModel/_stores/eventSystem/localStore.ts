@@ -10,21 +10,21 @@ export function createLocalStore<T extends Versioned>(eventStore: ReadableEventS
   eventStore.subscribe(es => {
     // todo add locking or promise chain
     if (latestFinalState != es.finalState) {
-      log("Final State Updated", { localStateAction: "rebuild all" });
       latestFinalState = es.finalState;
       latestEventQueue = es.pendingEvents;
       const tempState = { ...latestFinalState };
       latestEventQueue.forEach(event => eventApplier.apply(tempState, event));
       latestLocalState = tempState;
+      log("Final State Updated", { localStateAction: "rebuild all", latestLocalState });
       update(() => latestLocalState);
     }
-    else if (latestEventQueue != es.pendingEvents) {
-      log("Event Queue Updated", { localStateAction: "rebuild events" });
+    else if (latestFinalState != null && latestEventQueue != es.pendingEvents) {
       latestEventQueue = es.pendingEvents;
       const tempState = { ...latestFinalState };
       latestEventQueue.forEach(event => eventApplier.apply(tempState, event));
       latestLocalState = tempState;
       update(() => latestLocalState);
+      log("Event Queue Updated", { localStateAction: "rebuild events", latestLocalState });
     }
   });
 

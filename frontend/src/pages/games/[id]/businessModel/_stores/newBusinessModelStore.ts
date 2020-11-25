@@ -42,10 +42,10 @@ type Evt = IEvent<IBusinessModel> & any;
 const eventApplier: IEventApplier<IBusinessModel> = {
   apply: (model: IBusinessModel, event: Evt) => {
     log(event.type, event as any);
-    if (!events.has(event.type)) {
+    if (!businessModelEvents[event.type]) {
       throw new Error(`IEventApplier<IBusinessModel>: Unrecognized event type ${event.type}, cannot continue`);
     }
-    events.get(event.type).apply(model, event);
+    businessModelEvents[event.type].apply(model, event);
     model.versionNumber = event.versionNumber ?? model.versionNumber;
     return model;
   }
@@ -56,7 +56,7 @@ type EvtMethod = {
   apply: (model: IBusinessModel, event: Evt) => any
 }
 
-export const businessModelEvents = {
+export const businessModelEvents: { [key: string]: EvtMethod } = {
   "AddNewCustomer": {
     get: (): Evt => ({ type: "AddNewCustomer", versionNumber: null }),
     apply: (model: IBusinessModel): number => model.customers.push({ globalId: null, name: null, entries: [] })
