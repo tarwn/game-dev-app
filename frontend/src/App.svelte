@@ -15,6 +15,5 @@
   @import "./styles/base.scss";
 </style>
 
-<ErrorReporter on:dismiss={reloadApp} />
-
 <Router {routes} />
+<ErrorReporter on:dismiss={reloadApp} />
