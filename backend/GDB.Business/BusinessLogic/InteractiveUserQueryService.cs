@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace GDB.Business.BusinessLogic
 {
-    public class InteractiveUserQueryService : BusinessServiceBase, IInteractiveUserQueryService
+    public class InteractiveUserQueryService : IInteractiveUserQueryService
     {
-        private IPersistence _persistence;
+        private IBusinessServiceOperator _busOp;
 
-        public InteractiveUserQueryService(IPersistence persistence)
+        public InteractiveUserQueryService(IBusinessServiceOperator busOp)
         {
-            _persistence = persistence;
+            _busOp = busOp;
         }
 
         public async Task<List<CustomerDTO>> GetAllCustomersAsync()
         {
-            return await BusinessQuery(async () => {
-                return await _persistence.Customers.GetAllAsync();
+            return await _busOp.Query(async (persistence) => {
+                return await persistence.Customers.GetAllAsync();
             });
         }
     }

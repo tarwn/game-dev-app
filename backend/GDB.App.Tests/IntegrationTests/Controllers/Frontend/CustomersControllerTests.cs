@@ -29,7 +29,8 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
         public void BeforeEachTest()
         {
             var persistence = new DapperPersistence(Database.GetConnectionSettings());
-            var service = new InteractiveUserQueryService(persistence);
+            var busOps = new BusinessServiceOperatorWithRetry(persistence);
+            var service = new InteractiveUserQueryService(busOps);
             _controller = new CustomersController(service)
             {
                 ControllerContext = GetControllerContextForFrontEnd()

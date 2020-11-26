@@ -12,6 +12,10 @@ namespace GDB.App.StartupConfiguration
     {
         public static void Configure(IServiceCollection services)
         {
+            services.AddSingleton<TemporaryBusinessModelStore>();
+
+            services.AddScoped<IBusinessServiceOperator, BusinessServiceOperatorWithRetry>();
+            services.AddScoped<IBusinessModelService, BusinessModelService>();
             services.AddScoped<IInteractiveUserQueryService, InteractiveUserQueryService>();
         }
     }

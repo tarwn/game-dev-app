@@ -1,6 +1,7 @@
 ﻿using GDB.App.Controllers.Frontend.Models.BusinessModel;
 using GDB.App.Security;
 using GDB.Common.BusinessLogic;
+using GDB.Common.DTOs.BusinessModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,16 +18,43 @@ namespace GDB.App.Controllers.Frontend
     public class BusinessModelsController : Controller
     {
         private IInteractiveUserQueryService _queryService;
+        private IBusinessModelService _businessModelService;
 
         public BusinessModelsController(IInteractiveUserQueryService queryService)
         {
             _queryService = queryService;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(string id)
+        [HttpGet("{gameId}")]
+        public async Task<IActionResult> GetByIdAsync(string gameId)
         {
-            return Ok(new BusinessModel() { GlobalId = id, GlobalGameId = "ABC-123" });
+            var user = new UserAuthContext();
+            var dto = await _businessModelService.GetOrCreateAsync(gameId, user);
+            if (dto == null)
+            {
+                return NotFound();
+            }
+            return Ok(dto);
+        }
+
+        [HttpGet("{gameId}/since/{versionNumber}")]
+        public async Task<IActionResult> GetSinceByIdAsync(string gameId, int versionNumber)
+        {
+            var user = new UserAuthContext();
+            var events = await _businessModelService.GetSinceAsync(gameId, versionNumber, user);
+            if (events == null)
+            {
+                return NotFound();
+            }
+            return Ok(events);
+        }
+
+        [HttpPost("{gameId}")]
+        public async Task<IActionResult> UpdateAsync(string gameId, [FromBody] ChangeModel change)
+        {
+            var user = new UserAuthContext();
+            var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change.PreviousVersionNumber, change.Change, user);
+            return Ok(savedEvent);
         }
     }
 }
