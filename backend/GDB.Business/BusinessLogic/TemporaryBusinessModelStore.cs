@@ -110,6 +110,10 @@ namespace GDB.Business.BusinessLogic
                         Entries = new List<FreeFormEntry>()
                     });
                     break;
+                case "DeleteCustomer":
+                    EnsureOperationCount(change, 1);
+                    model.Customers.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
+                    break;
                 case "AddCustomerEntry":
                     EnsureOperationCount(change, 1);
                     model.Customers.Add(new FreeFormCollection()

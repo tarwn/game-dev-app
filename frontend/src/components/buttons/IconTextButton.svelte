@@ -15,6 +15,10 @@
         buttonStyleClass = "gdb-bs-primary-outline";
         iconStyleClass = "gdb-is-primary";
         break;
+      case "secondary-negative":
+        buttonStyleClass = "gdb-bs-secondary-negative";
+        iconStyleClass = "gdb-is-secondary-negative";
+        break;
       case "primary":
       default:
         buttonStyleClass = "gdb-bs-primary";
@@ -54,6 +58,34 @@
 
     &:active {
       background-color: $color-accent-1-lighter;
+    }
+
+    &[disabled],
+    &[disabled]:hover,
+    &[disabled]:active {
+      background-color: $cs-grey-0;
+      color: $cs-grey-1;
+      border-color: $cs-grey-1;
+      box-shadow: none;
+      cursor: default;
+    }
+  }
+
+  .gdb-bs-secondary-negative {
+    background-color: $color-background-white;
+    color: $cs-red-2;
+    border: 2px solid $cs-red-1;
+
+    &:hover {
+      background-color: $cs-red-0;
+      color: $cs_red;
+      border-color: $cs_red;
+    }
+
+    &:active {
+      background-color: $cs-red-0;
+      color: $cs_red;
+      border-color: $cs_red;
     }
 
     &[disabled],

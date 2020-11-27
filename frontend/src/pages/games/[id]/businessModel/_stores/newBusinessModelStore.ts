@@ -4,17 +4,26 @@ import type { IBusinessModel } from "../_types/businessModel";
 import { log } from "./logger";
 import { createLocalStore } from "./eventSystem/localStore";
 
+const jsonOrThrow = (r: Response) => {
+  if (r.status <= 299) {
+    return r.json();
+  }
+  else {
+    throw Error(`HTTP response error, ${r.status}: ${r.statusText}`);
+  }
+};
+
 const api: IEventStateApi<IBusinessModel> = {
   get: (id: any) => {
     return fetch(`/api/fe/businessModels/${id}`)
-      .then((r) => r.json())
+      .then(jsonOrThrow)
       .then((data) => {
         return { payload: data as IBusinessModel };
       });
   },
   getSince: (id: any, versionNumber: number) => {
     return fetch(`/api/fe/businessModels/${id}/since/${versionNumber}`)
-      .then((r) => r.json())
+      .then(jsonOrThrow)
       .then((data) => {
         return data as { events: IEvent<IBusinessModel>[] };
       });
@@ -27,7 +36,7 @@ const api: IEventStateApi<IBusinessModel> = {
       },
       body: JSON.stringify(event)
     })
-      .then((r) => r.json())
+      .then(jsonOrThrow)
       .then((data) => {
         return {
           versionNumber: data.versionNumber,
@@ -37,7 +46,7 @@ const api: IEventStateApi<IBusinessModel> = {
   },
   getActorSeqNo: (actor: string) => {
     return fetch(`/api/fe/actors/${actor}/latestSeqNo`)
-      .then((r) => r.json())
+      .then(jsonOrThrow)
       .then((data) => {
         return data as GetActorSeqNoResponse;
       });
@@ -69,7 +78,7 @@ export const businessModelLocalStore = createLocalStore(businessModelEventStore,
 export const businessModelEvents: { [key: string]: EvtMethod } = {
   "AddNewCustomer": {
     get: (): Evt => {
-      const event = businessModelEventStore.versionEvent((actor, seqNo) => ({
+      return businessModelEventStore.versionEvent((actor, seqNo) => ({
         actor,
         seqNo,
         type: "AddNewCustomer",
@@ -81,8 +90,6 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
           { action: OperationType.MakeList, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "entries" },
         ]
       }));
-      log("businessModelEvents.Generated", event as any);
-      return event;
     },
     apply: (model: IBusinessModel, event: Evt): IBusinessModel => ({
       ...model,
@@ -96,9 +103,33 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
       ]
     })
   },
+  "DeleteCustomer": {
+    get: (customerId: string): Evt => {
+      return businessModelEventStore.versionEvent((actor, seqNo) => ({
+        actor,
+        seqNo,
+        type: "DeleteCustomer",
+        versionNumber: null,
+        previousVersionNumber: businessModelEventStore.getVersionNumber(),
+        operations: [
+          { action: OperationType.Delete, objectId: customerId, parentId: "customers" }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
+      const customerIndex = model.customers.findIndex(c => c.globalId == event.operations[0].objectId);
+      return {
+        ...model,
+        customers: [
+          ...model.customers.slice(0, customerIndex),
+          ...model.customers.slice(customerIndex + 1)
+        ]
+      };
+    }
+  },
   "AddCustomerEntry": {
     get: ({ parentId, entry }: { parentId: string, entry: string }): Evt => {
-      const event = businessModelEventStore.versionEvent((actor, seqNo) => ({
+      return businessModelEventStore.versionEvent((actor, seqNo) => ({
         actor,
         seqNo,
         type: "AddCustomerEntry",
@@ -108,8 +139,6 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
           { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value: entry, insert: true }
         ]
       }));
-      log("businessModelEvents.Generated", event as any);
-      return event;
     },
     apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
       const index = model.customers.findIndex(c => c.globalId == event.operations[0].parentId);

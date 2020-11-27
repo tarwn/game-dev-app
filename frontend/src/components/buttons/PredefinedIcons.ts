@@ -6,7 +6,8 @@ export enum PredefinedIcons {
   Undo,
   Redo,
   Download,
-  Edit
+  Edit,
+  Delete
 }
 
 const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
@@ -17,7 +18,8 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.Undo, "true-Email_reply_arrow_left_direction_undo"],
   [PredefinedIcons.Redo, "true-Email_forward_message_arrow_right"],
   [PredefinedIcons.Download, "true-FilesandFolders_file_download"],
-  [PredefinedIcons.Edit, "true-GraphicDesign_pencil"]
+  [PredefinedIcons.Edit, "true-GraphicDesign_pencil"],
+  [PredefinedIcons.Delete, "true-UIEssentials_trash_bin_delete"]
 ]);
 
 export const getIconString = (icon: PredefinedIcons | string): string => {

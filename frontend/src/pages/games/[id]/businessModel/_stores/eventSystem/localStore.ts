@@ -12,19 +12,26 @@ export function createLocalStore<T extends Versioned>(eventStore: ReadableEventS
     if (es.finalState != null && latestFinalStateVersion != es.finalState.versionNumber) {
       latestFinalStateVersion = es.finalState.versionNumber;
       nextEventInQueue = es.pendingEvents.length > 0 ? es.pendingEvents[0] : null;
-      const tempState = { ...es.finalState };
-      es.pendingEvents.forEach(event => eventApplier.apply(tempState, event));
+      let tempState = { ...es.finalState };
+      es.pendingEvents.forEach(event => tempState = eventApplier.apply(tempState, event));
       latestLocalState = tempState;
       log("localStore.FinalStateUpdate", { localStateAction: "rebuild all", latestLocalState });
       update(() => latestLocalState);
     }
     else if (es.finalState != null && !nextEventInQueueStillMatches(es.pendingEvents, nextEventInQueue)) {
       nextEventInQueue = es.pendingEvents.length > 0 ? es.pendingEvents[0] : null;
-      const tempState = { ...es.finalState };
-      es.pendingEvents.forEach(event => eventApplier.apply(tempState, event));
+      let tempState = { ...es.finalState };
+      es.pendingEvents.forEach(event => tempState = eventApplier.apply(tempState, event));
       latestLocalState = tempState;
       update(() => latestLocalState);
       log("eventStore.EventQueueUpdate", { localStateAction: "rebuild events", latestLocalState });
+    }
+    else if (es.finalState == null) {
+      log("eventStore.reset", null);
+      latestLocalState = null;
+      latestFinalStateVersion = null;
+      nextEventInQueue = null;
+      update(() => null);
     }
     else {
       log("eventStore.????", { localStateAction: "skip rebuild", latestLocalState });

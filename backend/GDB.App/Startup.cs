@@ -113,7 +113,7 @@ namespace GDB.App
                 var builder = services.AddControllersWithViews(options =>
                 {
                     options.Filters.Add(new UnhandledApiExceptionFilter(new string[] { 
-                        // add API endpoints here to automatically return non-HTML errors
+                        "/api/fe"
                     }));
                 });
                 if (_environment.IsDevelopment())

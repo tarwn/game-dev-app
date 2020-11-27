@@ -34,9 +34,16 @@
       border: 3px solid $color-accent-1-lighter;
       box-shadow: $shadow-smallest;
     }
+  }
+
+  .gdb-customer-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: $space-s;
 
     & > h3 {
-      margin-top: $space-s;
+      flex-grow: 2;
     }
   }
 
@@ -80,9 +87,16 @@
         on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get())} />
     </div>
   {:else}
-    {#each businessModel.customers as customer}
+    {#each businessModel.customers as customer (customer.globalId)}
       <div class="gdb-customer-section" in:fade={{ duration: 250 }}>
-        <h3>Customer/Player</h3>
+        <div class="gdb-customer-head">
+          <h3>Customer/Player</h3>
+          <IconTextButton
+            icon={PredefinedIcons.Delete}
+            value="Delete"
+            buttonStyle="secondary-negative"
+            on:click={() => businessModelEventStore.addEvent(businessModelEvents.DeleteCustomer.get(customer.globalId))} />
+        </div>
         <div>
           <label><span>Name:</span><input
               type="text"

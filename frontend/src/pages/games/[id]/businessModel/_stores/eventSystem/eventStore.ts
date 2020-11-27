@@ -98,12 +98,12 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
 
         // try again
         currentSending = null;
-        if (retryCounter < 3) {
-          sendEvent(++retryCounter);
-        }
-        else {
-          scheduleNextSafetySendEvent();
-        }
+        // if (retryCounter < 3) {
+        //   sendEvent(retryCounter + 1);
+        // }
+        // else {
+        scheduleNextSafetySendEvent();
+        // }
       });
   }
 
