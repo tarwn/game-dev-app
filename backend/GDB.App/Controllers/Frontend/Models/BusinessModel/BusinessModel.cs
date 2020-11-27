@@ -15,7 +15,7 @@ namespace GDB.App.Controllers.Frontend.Models.BusinessModel
 
         public string GlobalId { get; set; }
         public string GlobalGameId { get; set; }
-        public int VersionId { get; set; }
+        public int VersionNumber { get; set; }
 
         public List<FreeFormCollection> Customers { get; set; }
 

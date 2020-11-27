@@ -3,6 +3,7 @@ export interface config {
   version: string,
   sessionId: string,
   isFullUser?: boolean,
+  actorId: string;
   sentry: {
     dsn: string;
     enabled: boolean;

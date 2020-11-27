@@ -16,7 +16,9 @@
     businessModelEventStore,
     businessModelLocalStore,
   } from "./_stores/newBusinessModelStore";
+  import { getConfig } from "../../../../config";
 
+  const { actorId } = getConfig();
   let displaySection = null;
   let displaySectionCommit = null;
   $: id = $params.id;
@@ -42,9 +44,14 @@
 
   // data management
   let isLoading = true;
+  let initializedId = null;
   $: {
-    if (id != null) {
-      businessModelEventStore.initialize(id);
+    if (id != null && id != initializedId) {
+      initializedId = id;
+      businessModelEventStore.initialize(actorId, id).then((initdId) => {
+        if (initdId != id) return;
+        return businessModelEventStore.loadFullState();
+      });
     }
   }
   const unsubscribe = businessModelLocalStore.subscribe((update) => {
@@ -54,9 +61,6 @@
     }
   });
 
-  onMount(async () => {
-    businessModelEventStore.loadFullState();
-  });
   onDestroy(unsubscribe);
 </script>
 

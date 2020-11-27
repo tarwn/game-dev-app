@@ -6,20 +6,47 @@ using System.Text.Json;
 namespace GDB.Common.DTOs.BusinessModel
 {
 
-    // change to C# 5 + https://github.com/wivuu/Wivuu.JsonPolymorphism?
-    public class BusinessModelChangeEvent
+    public class BusinessModelChangeEvent : IncomingBusinessModelChangeEvent
     {
-        public BusinessModelChangeEvent() { }
+        public BusinessModelChangeEvent() : base()
+        { }
 
-        public BusinessModelChangeEvent(string type, int versionNumber)
+        public BusinessModelChangeEvent(int versionNumber, IncomingBusinessModelChangeEvent change)
+            : base(change.Actor, change.SeqNo, change.Type, change.PreviousVersionNumber)
         {
-            Type = type;
+            VersionNumber = versionNumber;
+            Operations = change.Operations;
+        }
+
+        public BusinessModelChangeEvent(string actor, int seqNo, string type, int versionNumber, int previousVersionNumber)
+            : base(actor, seqNo, type, previousVersionNumber)
+        {
             VersionNumber = versionNumber;
         }
 
-        public string Type { get; set; }
         public int VersionNumber { get; set; }
+    }
 
-        public JsonElement Change { get; set; }
+    public class IncomingBusinessModelChangeEvent
+    {
+        public IncomingBusinessModelChangeEvent()
+        {
+            Operations = new List<BusinessModelEventOperation>();
+        }
+
+        public IncomingBusinessModelChangeEvent(string actor, int seqNo, string type, int previousVersionNumber)
+            : this()
+        {
+            Actor = actor;
+            SeqNo = seqNo;
+            Type = type;
+            PreviousVersionNumber = previousVersionNumber;
+        }
+
+        public string Actor { get; set; }
+        public int SeqNo { get; set; }
+        public string Type { get; set; }
+        public int PreviousVersionNumber { get; set; }
+        public List<BusinessModelEventOperation> Operations { get; set; }
     }
 }

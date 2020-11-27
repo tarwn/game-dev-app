@@ -25,6 +25,12 @@ namespace GDB.App
                     {
                         options.MinimumEventLevel = LogLevel.Error;
                         options.DiagnosticsLevel = Sentry.Protocol.SentryLevel.Error;
+                        options.BeforeSend = @event => {
+#if DEBUG
+                            return null;
+#endif
+                            return @event;
+                        };
                     });
                     webBuilder.UseStartup<Startup>();
                 });

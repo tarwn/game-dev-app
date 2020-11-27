@@ -44,13 +44,24 @@ namespace GDB.Business.BusinessLogic
         }
 
 
-        public async Task<Applied<BusinessModelChangeEvent>> ApplyEventAsync(string gameId, int clientPreviousVersionNumber, BusinessModelChangeEvent change, IAuthContext authContext)
+        public async Task<Applied<BusinessModelChangeEvent>> ApplyEventAsync(string gameId, IncomingBusinessModelChangeEvent change, IAuthContext authContext)
         {
             return await _busOp.Operation(async (p) =>
             {
                 using (var lockObj = await _store.GetLockAsync())
                 {
-                    return _store.ApplyChange(lockObj, clientPreviousVersionNumber, change);
+                    return _store.ApplyChange(lockObj, gameId, change);
+                }
+            });
+        }
+
+        public async Task<int?> GetLatestSeqNoAsync(string actor)
+        {
+            return await _busOp.Operation(async (p) =>
+            {
+                using (var lockObj = await _store.GetLockAsync())
+                {
+                    return _store.GetLatestSeqNo(lockObj, actor);
                 }
             });
         }

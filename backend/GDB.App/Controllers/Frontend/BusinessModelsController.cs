@@ -20,9 +20,10 @@ namespace GDB.App.Controllers.Frontend
         private IInteractiveUserQueryService _queryService;
         private IBusinessModelService _businessModelService;
 
-        public BusinessModelsController(IInteractiveUserQueryService queryService)
+        public BusinessModelsController(IInteractiveUserQueryService queryService, IBusinessModelService businessModelService)
         {
             _queryService = queryService;
+            _businessModelService = businessModelService;
         }
 
         [HttpGet("{gameId}")]
@@ -46,14 +47,19 @@ namespace GDB.App.Controllers.Frontend
             {
                 return NotFound();
             }
-            return Ok(events);
+            return Ok(new SinceResponseModel(gameId, events));
         }
 
         [HttpPost("{gameId}")]
-        public async Task<IActionResult> UpdateAsync(string gameId, [FromBody] ChangeModel change)
+        public async Task<IActionResult> UpdateAsync(string gameId, [FromBody] IncomingBusinessModelChangeEvent change)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = new UserAuthContext();
-            var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change.PreviousVersionNumber, change.Change, user);
+            var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change, user);
             return Ok(savedEvent);
         }
     }

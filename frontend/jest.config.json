@@ -1,0 +1,19 @@
+{
+  "transform": {
+    "^.+\\.svelte$": [
+      "svelte-jester",
+      {
+        "preprocess": true
+      }
+    ],
+    "^.+\\.[tj]s$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "<rootDir>/node_modules/"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "ts",
+    "svelte"
+  ]
+}

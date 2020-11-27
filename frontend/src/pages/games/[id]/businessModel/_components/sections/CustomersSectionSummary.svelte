@@ -3,7 +3,7 @@
 
   export let businessModel: IBusinessModel | null;
 
-  $: console.log({ loc: "summary", businessModel });
+  $: console.log({ loc: "CustomerSectionSummary Reactive", businessModel });
 </script>
 
 <style type="text/scss">
@@ -25,7 +25,7 @@
 
 {#if businessModel != null}
   <div>
-    {#each businessModel.customers as customer}
+    {#each businessModel.customers as customer (customer.globalId)}
       <div class="gdb-customer-section-summary">
         <div>{customer.name}</div>
         <ul>

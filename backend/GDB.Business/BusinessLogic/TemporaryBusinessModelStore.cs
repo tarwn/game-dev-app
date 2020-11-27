@@ -13,11 +13,13 @@ namespace GDB.Business.BusinessLogic
         private LockObject _curLock = null;
         private Dictionary<string, BusinessModelDTO> _models;
         private Dictionary<string, List<BusinessModelChangeEvent>> _events;
+        private Dictionary<string, int> _globalSeqNos;
 
         public TemporaryBusinessModelStore()
         {
             _models = new Dictionary<string, BusinessModelDTO>();
             _events = new Dictionary<string, List<BusinessModelChangeEvent>>();
+            _globalSeqNos = new Dictionary<string, int>();
         }
 
 
@@ -25,7 +27,7 @@ namespace GDB.Business.BusinessLogic
         {
             var cancellation = new CancellationTokenSource();
             cancellation.CancelAfter(TimeSpan.FromSeconds(10));
-            while (_curLock != null && !cancellation.Token.IsCancellationRequested)
+            do
             {
                 if (_curLock == null)
                 {
@@ -33,7 +35,7 @@ namespace GDB.Business.BusinessLogic
                     return _curLock;
                 }
                 await Task.Delay(32, cancellation.Token);
-            }
+            } while (_curLock != null && !cancellation.Token.IsCancellationRequested);
             throw new LockTimeoutException("Could not get a lock");
         }
 
@@ -62,18 +64,32 @@ namespace GDB.Business.BusinessLogic
                 .OrderBy(e => e.VersionNumber)
                 .ToList();
         }
+
+        public int? GetLatestSeqNo(LockObject curLock, string actor)
+        {
+            VerifyLock(curLock);
+            if (_globalSeqNos.ContainsKey(actor))
+            {
+                return _globalSeqNos[actor];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public BusinessModelDTO Create(LockObject curLock, string gameId)
         {
             VerifyLock(curLock);
             var modelId = gameId + "-1";
             _models.Add(modelId, new BusinessModelDTO(gameId, modelId));
             _events.Add(modelId, new List<BusinessModelChangeEvent>() {
-                new BusinessModelChangeEvent("Create", 1)
+                new BusinessModelChangeEvent("Init", 1, "Create", 1, 0)
             });
             return _models[gameId + "-1"];
         }
 
-        public Applied<BusinessModelChangeEvent> ApplyChange(LockObject curLock, string gameId, int clientPreviousVersionNumber, BusinessModelChangeEvent change)
+        public Applied<BusinessModelChangeEvent> ApplyChange(LockObject curLock, string gameId, IncomingBusinessModelChangeEvent change)
         {
             VerifyLock(curLock);
             var model = GetByGameId(curLock, gameId);
@@ -81,13 +97,50 @@ namespace GDB.Business.BusinessLogic
             {
                 throw new BusinessModelNotFoundException(gameId);
             }
-            // YOUAREHERE!
-            // Apply event to model
-            // Update model
-            // Add event to list
-            // return Apply details
+            // TODO conflict detect + resolution
+
+            switch (change.Type)
+            {
+                case "AddNewCustomer":
+                    EnsureOperationCount(change, 3);
+                    model.Customers.Add(new FreeFormCollection()
+                    {
+                        GlobalId = change.Operations[0].ObjectId,
+                        Name = change.Operations[1].Value.ToString(),
+                        Entries = new List<FreeFormEntry>()
+                    });
+                    break;
+                case "AddCustomerEntry":
+                    EnsureOperationCount(change, 1);
+                    model.Customers.Add(new FreeFormCollection()
+                    {
+                        GlobalId = change.Operations[0].ObjectId,
+                        Name = change.Operations[1].Value.ToString(),
+                        Entries = new List<FreeFormEntry>()
+                    });
+                    break;
+                default:
+                    throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
+            }
+            model.VersionNumber += 1;
+            var newEvent = new BusinessModelChangeEvent(model.VersionNumber, change);
+            _events[model.GlobalId].Add(newEvent);
+            _globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
+            return new Applied<BusinessModelChangeEvent>()
+            {
+                PreviousVersionNumber = change.PreviousVersionNumber,
+                VersionNumber = model.VersionNumber,
+                Event = newEvent
+            };
         }
 
+        private void EnsureOperationCount(IncomingBusinessModelChangeEvent change, int expectedCount)
+        {
+            if (change.Operations.Count != expectedCount)
+            {
+                throw new ArgumentException($"Operation count is expected to be {expectedCount} for {change.Type}", nameof(change));
+            }
+        }
     }
 
     public class LockObject : IDisposable

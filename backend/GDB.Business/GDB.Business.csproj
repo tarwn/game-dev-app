@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Configuration.NetCore" Version="6.0.1312" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.16.0" />
   </ItemGroup>
   
   <ItemGroup>
