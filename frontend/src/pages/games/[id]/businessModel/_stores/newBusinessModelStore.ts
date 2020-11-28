@@ -1,9 +1,8 @@
-import produce from "immer";
 import { createEventStore } from "./eventSystem/eventStore";
 import { GetActorSeqNoResponse, Identified, IEvent, IEventApplier, IEventStateApi, OperationType } from "./eventSystem/types";
 import type { IBusinessModel } from "../_types/businessModel";
-import { log } from "./logger";
 import { createLocalStore } from "./eventSystem/localStore";
+import { createImmutableEventApplier } from "./eventSystem/eventApplier";
 
 const jsonOrThrow = (r: Response) => {
   if (r.status <= 299) {
@@ -55,30 +54,12 @@ const api: IEventStateApi<IBusinessModel> = {
 };
 
 type Evt = IEvent<IBusinessModel>;
-
-export const eventApplier: IEventApplier<IBusinessModel> = {
-  apply: (model: IBusinessModel, event: Evt) => {
-    log(`Apply(${event.type})`, event as any);
-    if (!businessModelEvents[event.type]) {
-      throw new Error(`IEventApplier<IBusinessModel>: Unrecognized event type ${event.type}, cannot continue`);
-    }
-    const nextState = produce(model, draftState => {
-      businessModelEvents[event.type].apply(draftState, event);
-      draftState.versionNumber = event.versionNumber || model.versionNumber;
-    });
-    return nextState;
-  }
-};
-
 type EvtMethod = {
   get: (args?: any) => Evt,
   apply: (model: IBusinessModel, event: Evt) => void
 }
 
-export const businessModelEventStore = createEventStore(api, eventApplier);
-export const businessModelLocalStore = createLocalStore(businessModelEventStore, eventApplier);
-
-export const businessModelEvents: { [key: string]: EvtMethod } = {
+const businessModelEvents: { [key: string]: EvtMethod } = {
   "AddNewCustomer": {
     get: ({ parentId }: { parentId: string }): Evt => {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
@@ -187,3 +168,19 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
     }
   }
 };
+
+export const events = {
+  "AddNewCustomer": businessModelEvents.AddNewCustomer.get,
+  "DeleteCustomer": businessModelEvents.DeleteCustomer.get,
+  "AddCustomerEntry": businessModelEvents.AddCustomerEntry.get,
+  "UpdateCustomerEntry": businessModelEvents.UpdateCustomerEntry.get,
+  "DeleteCustomerEntry": businessModelEvents.DeleteCustomerEntry.get,
+};
+
+export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {
+  result[key] = businessModelEvents[key].apply;
+  return result;
+}, {}));
+export const businessModelEventStore = createEventStore(api, eventApplier);
+export const businessModelLocalStore = createLocalStore(businessModelEventStore, eventApplier);
+

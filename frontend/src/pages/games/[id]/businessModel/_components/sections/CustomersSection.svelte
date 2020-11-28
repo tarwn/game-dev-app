@@ -7,7 +7,7 @@
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import {
     businessModelEventStore,
-    businessModelEvents,
+    events,
   } from "../../_stores/newBusinessModelStore";
   import CustomerInput from "./components/CustomerInput.svelte";
 
@@ -56,9 +56,9 @@
         icon={PredefinedIcons.Plus}
         value="Add a Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get(
-              { parentId: businessModel.customers.globalId }
-            ))} />
+        on:click={() => businessModelEventStore.addEvent(events.AddNewCustomer({
+              parentId: businessModel.customers.globalId,
+            }))} />
     </div>
   {:else}
     {#each businessModel.customers.list as customer (customer.globalId)}
@@ -69,9 +69,9 @@
         icon={PredefinedIcons.Plus}
         value="Add another Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get(
-              { parentId: businessModel.customers.globalId }
-            ))} />
+        on:click={() => businessModelEventStore.addEvent(events.AddNewCustomer({
+              parentId: businessModel.customers.globalId,
+            }))} />
     </div>
   {/if}
 </InputPanel>

@@ -4,7 +4,7 @@
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";
   import {
     businessModelEventStore,
-    businessModelEvents,
+    events,
   } from "../../../_stores/newBusinessModelStore";
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
 
@@ -53,12 +53,10 @@
       icon={PredefinedIcons.Delete}
       value="Delete"
       buttonStyle="secondary-negative"
-      on:click={() => businessModelEventStore.addEvent(businessModelEvents.DeleteCustomer.get(
-            {
-              parentId: customer.parentId,
-              globalId: customer.globalId,
-            }
-          ))} />
+      on:click={() => businessModelEventStore.addEvent(events.DeleteCustomer({
+            parentId: customer.parentId,
+            globalId: customer.globalId,
+          }))} />
   </div>
   <div>
     <label><span>Name:</span><input
@@ -83,13 +81,13 @@
             type="text"
             value={customerEntry.value}
             use:init
-            on:change|stopPropagation={(e) => (e.target?.value.length > 0 ? businessModelEventStore.addEvent(businessModelEvents.UpdateCustomerEntry.get(
+            on:change|stopPropagation={(e) => (e.target?.value.length > 0 ? businessModelEventStore.addEvent(events.UpdateCustomerEntry(
                       {
                         parentId: customerEntry.parentId,
                         globalId: customerEntry.globalId,
                         value: e.target?.value,
                       }
-                    )) : businessModelEventStore.addEvent(businessModelEvents.DeleteCustomerEntry.get(
+                    )) : businessModelEventStore.addEvent(events.DeleteCustomerEntry(
                       {
                         parentId: customerEntry.parentId,
                         globalId: customerEntry.globalId,
@@ -104,12 +102,10 @@
           id="newCharacteristic"
           bind:value={hackyNewValue}
           on:input|stopPropagation={(e) => {
-            businessModelEventStore.addEvent(businessModelEvents.AddCustomerEntry.get(
-                {
-                  parentId: customer.entries.globalId,
-                  value: e.target?.value,
-                }
-              ));
+            businessModelEventStore.addEvent(events.AddCustomerEntry({
+                parentId: customer.entries.globalId,
+                value: e.target?.value,
+              }));
             hackyNewValue = '';
           }} />
       </li>
