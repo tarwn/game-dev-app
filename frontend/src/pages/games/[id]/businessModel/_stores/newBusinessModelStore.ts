@@ -1,3 +1,4 @@
+import produce from "immer";
 import { createEventStore } from "./eventSystem/eventStore";
 import { GetActorSeqNoResponse, Identified, IEvent, IEventApplier, IEventStateApi, OperationType } from "./eventSystem/types";
 import type { IBusinessModel } from "../_types/businessModel";
@@ -61,15 +62,17 @@ export const eventApplier: IEventApplier<IBusinessModel> = {
     if (!businessModelEvents[event.type]) {
       throw new Error(`IEventApplier<IBusinessModel>: Unrecognized event type ${event.type}, cannot continue`);
     }
-    model = businessModelEvents[event.type].apply(model, event);
-    model.versionNumber = event.versionNumber || model.versionNumber;
-    return model;
+    const nextState = produce(model, draftState => {
+      businessModelEvents[event.type].apply(draftState, event);
+      draftState.versionNumber = event.versionNumber || model.versionNumber;
+    });
+    return nextState;
   }
 };
 
 type EvtMethod = {
   get: (args?: any) => Evt,
-  apply: (model: IBusinessModel, event: Evt) => IBusinessModel
+  apply: (model: IBusinessModel, event: Evt) => void
 }
 
 export const businessModelEventStore = createEventStore(api, eventApplier);
@@ -78,12 +81,8 @@ export const businessModelLocalStore = createLocalStore(businessModelEventStore,
 export const businessModelEvents: { [key: string]: EvtMethod } = {
   "AddNewCustomer": {
     get: ({ parentId }: { parentId: string }): Evt => {
-      return businessModelEventStore.versionEvent((actor, seqNo) => ({
-        actor,
-        seqNo,
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddNewCustomer",
-        versionNumber: null,
-        previousVersionNumber: businessModelEventStore.getVersionNumber(),
         operations: [
           { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId },
           { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "name", value: "" },
@@ -91,190 +90,100 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
         ]
       }));
     },
-    apply: (model: IBusinessModel, event: Evt): IBusinessModel => ({
-      ...model,
-      customers: {
-        ...model.customers,
-        list: [
-          ...model.customers.list,
-          {
-            globalId: event.operations[0].objectId,
-            parentId: event.operations[0].parentId,
-            name: { globalId: event.operations[1].objectId, parentId: event.operations[1].parentId, value: event.operations[1].value, field: event.operations[1].field },
-            entries: { globalId: event.operations[2].objectId, parentId: event.operations[2].parentId, list: [], field: event.operations[1].field },
-          }
-        ]
-      }
-    })
+    apply: (model: IBusinessModel, event: Evt): void => {
+      model.customers.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        name: { globalId: event.operations[1].objectId, parentId: event.operations[1].parentId, value: event.operations[1].value, field: event.operations[1].field },
+        entries: { globalId: event.operations[2].objectId, parentId: event.operations[2].parentId, list: [], field: event.operations[1].field },
+      });
+    }
   },
   "DeleteCustomer": {
     get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.versionEvent((actor, seqNo) => ({
-        actor,
-        seqNo,
+      return businessModelEventStore.createEvent(() => ({
         type: "DeleteCustomer",
-        versionNumber: null,
-        previousVersionNumber: businessModelEventStore.getVersionNumber(),
         operations: [
           { action: OperationType.Delete, objectId: globalId, parentId }
         ]
       }));
     },
-    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
-      const customerIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].objectId);
-      return {
-        ...model,
-        customers: {
-          ...model.customers,
-          list: [
-            ...model.customers.list.slice(0, customerIndex),
-            ...model.customers.list.slice(customerIndex + 1)
-          ]
-        }
-      };
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].objectId);
+      if (cIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.customers.list.splice(cIndex, 1);
     }
   },
   "AddCustomerEntry": {
     get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-      return businessModelEventStore.versionEvent((actor, seqNo) => ({
-        actor,
-        seqNo,
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddCustomerEntry",
-        versionNumber: null,
-        previousVersionNumber: businessModelEventStore.getVersionNumber(),
         operations: [
           { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true }
         ]
       }));
     },
-    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
-      const index = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
-      if (index == -1) {
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
+      if (cIndex == -1) {
         // conflict/out of order event
-        return model;
+        return;
       }
-      return {
-        ...model,
-        customers: {
-          ...model.customers,
-          list: [
-            ...model.customers.list.slice(0, index),
-            {
-              ...model.customers.list[index],
-              entries: {
-                ...model.customers.list[index].entries,
-                list: [
-                  ...model.customers.list[index].entries.list,
-                  {
-                    globalId: event.operations[0].objectId,
-                    parentId: event.operations[0].parentId,
-                    value: event.operations[0].value,
-                    field: event.operations[0].field
-                  }
-                ]
-              }
-            },
-            ...model.customers.list.slice(index + 1)
-          ]
-        }
-      };
+      model.customers.list[cIndex].entries.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        value: event.operations[0].value,
+        field: event.operations[0].field
+      });
     }
   },
   "UpdateCustomerEntry": {
     get: ({ parentId, globalId, value }: Identified & { value: string }): Evt => {
-      return businessModelEventStore.versionEvent((actor, seqNo) => ({
-        actor,
-        seqNo,
+      return businessModelEventStore.createEvent(() => ({
         type: "UpdateCustomerEntry",
-        versionNumber: null,
-        previousVersionNumber: businessModelEventStore.getVersionNumber(),
         operations: [
           { action: OperationType.Set, objectId: globalId, parentId, value }
         ]
       }));
     },
-    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
+    apply: (model: IBusinessModel, event: Evt): void => {
       const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
       if (cIndex == -1) {
         // conflict/out of order event
-        return model;
+        return;
       }
       const eIndex = model.customers.list[cIndex].entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
       if (eIndex == -1) {
         // conflict/out of order event
-        return model;
+        return;
       }
-      return {
-        ...model,
-        customers: {
-          ...model.customers,
-          list: [
-            ...model.customers.list.slice(0, cIndex),
-            {
-              ...model.customers.list[cIndex],
-              entries: {
-                ...model.customers.list[cIndex].entries,
-                list: [
-                  ...model.customers.list[cIndex].entries.list.slice(0, eIndex),
-                  {
-                    ...model.customers.list[cIndex].entries.list[eIndex],
-                    value: event.operations[0].value
-                  },
-                  ...model.customers.list[cIndex].entries.list.slice(eIndex + 1)
-                ]
-              }
-            },
-            ...model.customers.list.slice(cIndex + 1)
-          ]
-        }
-      };
+      model.customers.list[cIndex].entries.list[eIndex].value = event.operations[0].value;
     }
   },
   "DeleteCustomerEntry": {
     get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.versionEvent((actor, seqNo) => ({
-        actor,
-        seqNo,
+      return businessModelEventStore.createEvent(() => ({
         type: "DeleteCustomerEntry",
-        versionNumber: null,
-        previousVersionNumber: businessModelEventStore.getVersionNumber(),
         operations: [
           { action: OperationType.Delete, objectId: globalId, parentId }
         ]
       }));
     },
-    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
+    apply: (model: IBusinessModel, event: Evt): void => {
       const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
       if (cIndex == -1) {
         // conflict/out of order event
-        return model;
+        return;
       }
       const eIndex = model.customers.list[cIndex].entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
       if (eIndex == -1) {
         // conflict/out of order event
-        return model;
+        return;
       }
-      return {
-        ...model,
-        customers: {
-          ...model.customers,
-          list: [
-            ...model.customers.list.slice(0, cIndex),
-            {
-              ...model.customers.list[cIndex],
-              entries: {
-                ...model.customers.list[cIndex].entries,
-                list: [
-                  ...model.customers.list[cIndex].entries.list.slice(0, eIndex),
-                  // delete item at eIndex
-                  ...model.customers.list[cIndex].entries.list.slice(eIndex + 1)
-                ]
-              }
-            },
-            ...model.customers.list.slice(cIndex + 1)
-          ]
-        }
-      };
+      model.customers.list[cIndex].entries.list.splice(eIndex, 1);
     }
   }
 };

@@ -89,12 +89,11 @@ export type IEventStoreState<T extends Versioned> = {
 
 export type ReadableEventStore<T extends Versioned> = Readable<IEventStoreState<T>>
 
-export type VersionEventArgs = (actor: string, seqNo: number) => IEvent<T>;
+export type VersionEventArgs = (actor: string, seqNo: number) => { type: string, operations: IEventOperation[] };
 
 export interface IEventStore<T extends Versioned> extends ReadableEventStore<T> {
   initialize: (actor: string, id: any, apiArgs?: any) => Promise<any>;
-  getVersionNumber: () => number;
-  versionEvent: (builder: VersionEventArgs) => IEvent<T>;
   loadFullState: () => void;
+  createEvent: (builder: VersionEventArgs) => IEvent<T>;
   addEvent: (event: IEvent<T>) => void;
 }

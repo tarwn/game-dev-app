@@ -33,12 +33,14 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
       });
   }
 
-  function getVersionNumber() {
-    return finalState?.versionNumber;
-  }
-
-  function versionEvent(builder: VersionEventArgs) {
-    const evt = builder(initState.actor, initState.seqNo);
+  function createEvent(builder: VersionEventArgs) {
+    const evt = {
+      actor: initState.actor,
+      seqNo: initState.seqNo,
+      versionNumber: null,
+      previousVersionNumber: finalState?.versionNumber,
+      ...builder(initState.actor, initState.seqNo)
+    };
     initState.seqNo += Math.max(1, evt.operations.length);
     return evt;
   }
@@ -74,9 +76,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
           finalStateVersioNumber: finalState.versionNumber,
           response
         });
-        // todo: apply event to prior state
         currentSending.versionNumber = response.versionNumber;
-        // currentSending.previousVersionNumber = response.previousVersionNumber;
         if (finalState && finalState.versionNumber == response.versionNumber - 1) {
           finalState = eventApplier.apply(finalState, currentSending);
           pendingEvents.pop();
@@ -98,12 +98,12 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
 
         // try again
         currentSending = null;
-        // if (retryCounter < 3) {
-        //   sendEvent(retryCounter + 1);
-        // }
-        // else {
-        scheduleNextSafetySendEvent();
-        // }
+        if (retryCounter < 3) {
+          sendEvent(retryCounter + 1);
+        }
+        else {
+          scheduleNextSafetySendEvent();
+        }
       });
   }
 
@@ -158,8 +158,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
 
   return {
     initialize,
-    getVersionNumber,
-    versionEvent,
+    createEvent,
     subscribe,
     loadFullState,
     addEvent
