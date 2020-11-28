@@ -170,6 +170,16 @@ namespace GDB.Business.BusinessLogic
                         }
                     }
                     break;
+                case "DeleteCustomerEntry":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
+                        if (customer != null)
+                        {
+                            customer.Entries.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }

@@ -229,5 +229,52 @@ export const businessModelEvents: { [key: string]: EvtMethod } = {
         }
       };
     }
+  },
+  "DeleteCustomerEntry": {
+    get: ({ parentId, globalId }: Identified): Evt => {
+      return businessModelEventStore.versionEvent((actor, seqNo) => ({
+        actor,
+        seqNo,
+        type: "DeleteCustomerEntry",
+        versionNumber: null,
+        previousVersionNumber: businessModelEventStore.getVersionNumber(),
+        operations: [
+          { action: OperationType.Delete, objectId: globalId, parentId }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): IBusinessModel => {
+      const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
+      if (cIndex == -1) {
+        // conflict/out of order event
+        return model;
+      }
+      const eIndex = model.customers.list[cIndex].entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
+      if (eIndex == -1) {
+        // conflict/out of order event
+        return model;
+      }
+      return {
+        ...model,
+        customers: {
+          ...model.customers,
+          list: [
+            ...model.customers.list.slice(0, cIndex),
+            {
+              ...model.customers.list[cIndex],
+              entries: {
+                ...model.customers.list[cIndex].entries,
+                list: [
+                  ...model.customers.list[cIndex].entries.list.slice(0, eIndex),
+                  // delete item at eIndex
+                  ...model.customers.list[cIndex].entries.list.slice(eIndex + 1)
+                ]
+              }
+            },
+            ...model.customers.list.slice(cIndex + 1)
+          ]
+        }
+      };
+    }
   }
 };

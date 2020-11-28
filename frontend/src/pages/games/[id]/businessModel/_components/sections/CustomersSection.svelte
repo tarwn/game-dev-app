@@ -128,13 +128,18 @@
                   type="text"
                   value={customerEntry.value}
                   use:init
-                  on:change|stopPropagation={(e) => businessModelEventStore.addEvent(businessModelEvents.UpdateCustomerEntry.get(
-                        {
-                          parentId: customerEntry.parentId,
-                          globalId: customerEntry.globalId,
-                          value: e.target?.value,
-                        }
-                      ))} />
+                  on:change|stopPropagation={(e) => (e.target?.value.length > 0 ? businessModelEventStore.addEvent(businessModelEvents.UpdateCustomerEntry.get(
+                            {
+                              parentId: customerEntry.parentId,
+                              globalId: customerEntry.globalId,
+                              value: e.target?.value,
+                            }
+                          )) : businessModelEventStore.addEvent(businessModelEvents.DeleteCustomerEntry.get(
+                            {
+                              parentId: customerEntry.parentId,
+                              globalId: customerEntry.globalId,
+                            }
+                          )))} />
               </li>
             {/each}
             <li>
