@@ -3,19 +3,17 @@
   import { scale, crossfade, fade } from "svelte/transition";
   import { params } from "@sveltech/routify";
   import type { IBusinessModel } from "./_types/businessModel";
-  // import { businessModelStore } from "./_stores/businessModelStore";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
-  import InputPanel from "./_components/InputPanel.svelte";
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
   import CustomersSection from "./_components/sections/CustomersSection.svelte";
   import {
     businessModelEventStore,
     businessModelLocalStore,
-  } from "./_stores/newBusinessModelStore";
+  } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
 
   const { actorId } = getConfig();
@@ -139,7 +137,7 @@
         icon={PredefinedIcons.Next}
         value="Next"
         buttonStyle="primary"
-        disabled={isLoading || businessModel.customers.length == 0} />
+        disabled={isLoading || businessModel.customers.list.length == 0} />
     {/if}
   </SpacedButtons>
 </div>

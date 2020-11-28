@@ -15,6 +15,44 @@
   function init(el) {
     el.focus();
   }
+
+  function handleOnNewCharacteristic(e) {
+    businessModelEventStore.addEvent(
+      events.AddCustomerEntry({
+        parentId: customer.entries.globalId,
+        value: e.target?.value,
+      })
+    );
+    hackyNewValue = "";
+  }
+
+  function handleCharacteristicUpdate(customerEntry, e) {
+    if (e.target?.value.length > 0) {
+      businessModelEventStore.addEvent(
+        events.UpdateCustomerEntry({
+          parentId: customerEntry.parentId,
+          globalId: customerEntry.globalId,
+          value: e.target?.value,
+        })
+      );
+    } else {
+      businessModelEventStore.addEvent(
+        events.DeleteCustomerEntry({
+          parentId: customerEntry.parentId,
+          globalId: customerEntry.globalId,
+        })
+      );
+    }
+  }
+
+  function handleCustomerDelete(customer) {
+    businessModelEventStore.addEvent(
+      events.DeleteCustomer({
+        parentId: customer.parentId,
+        globalId: customer.globalId,
+      })
+    );
+  }
 </script>
 
 <style type="text/scss">
@@ -53,10 +91,7 @@
       icon={PredefinedIcons.Delete}
       value="Delete"
       buttonStyle="secondary-negative"
-      on:click={() => businessModelEventStore.addEvent(events.DeleteCustomer({
-            parentId: customer.parentId,
-            globalId: customer.globalId,
-          }))} />
+      on:click={() => handleCustomerDelete(customer)} />
   </div>
   <div>
     <label><span>Name:</span><input
@@ -81,18 +116,7 @@
             type="text"
             value={customerEntry.value}
             use:init
-            on:change|stopPropagation={(e) => (e.target?.value.length > 0 ? businessModelEventStore.addEvent(events.UpdateCustomerEntry(
-                      {
-                        parentId: customerEntry.parentId,
-                        globalId: customerEntry.globalId,
-                        value: e.target?.value,
-                      }
-                    )) : businessModelEventStore.addEvent(events.DeleteCustomerEntry(
-                      {
-                        parentId: customerEntry.parentId,
-                        globalId: customerEntry.globalId,
-                      }
-                    )))} />
+            on:change|stopPropagation={(e) => handleCharacteristicUpdate(customerEntry, e)} />
         </li>
       {/each}
       <li>
@@ -101,13 +125,7 @@
           placeholder="Add another characteristic"
           id="newCharacteristic"
           bind:value={hackyNewValue}
-          on:input|stopPropagation={(e) => {
-            businessModelEventStore.addEvent(events.AddCustomerEntry({
-                parentId: customer.entries.globalId,
-                value: e.target?.value,
-              }));
-            hackyNewValue = '';
-          }} />
+          on:input|stopPropagation={handleOnNewCharacteristic} />
       </li>
     </ul>
   </div>

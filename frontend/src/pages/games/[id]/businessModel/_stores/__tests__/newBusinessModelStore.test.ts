@@ -1,5 +1,5 @@
 import { createEventStore } from "../eventSystem/eventStore";
-import { eventApplier } from "../newBusinessModelStore";
+import { eventApplier } from "../businessModelStore";
 
 test("placeholder", () => {
   expect(1).toBe(1);
