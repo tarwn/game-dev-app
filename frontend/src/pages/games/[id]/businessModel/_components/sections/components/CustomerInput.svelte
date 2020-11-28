@@ -5,7 +5,7 @@
   import {
     businessModelEventStore,
     events,
-  } from "../../../_stores/newBusinessModelStore";
+  } from "../../../_stores/businessModelStore";
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
 
   export let customer: IBusinessModelCustomer;

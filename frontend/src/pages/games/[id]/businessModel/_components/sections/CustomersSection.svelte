@@ -8,7 +8,7 @@
   import {
     businessModelEventStore,
     events,
-  } from "../../_stores/newBusinessModelStore";
+  } from "../../_stores/businessModelStore";
   import CustomerInput from "./components/CustomerInput.svelte";
 
   export let businessModel: IBusinessModel;
