@@ -16,7 +16,7 @@
   $: editable = {
     valueProposition: false,
     customers:
-      !isLoading && businessModel && businessModel.customers.length > 0,
+      !isLoading && businessModel && businessModel.customers.list.length > 0,
     channels: false,
     customerRelationships: false,
     revenue: false,
@@ -42,8 +42,13 @@
 
   .gdb-board {
     display: grid;
-    grid-template-columns: [e0] 20% [e1] 20% [e2] 10% [e2-5] 10% [e3] 20% [e4] 20% [e5];
-    grid-template-rows: [r0] 40% [r1] 40% [r2] 20% [r3];
+    grid-template-columns: [e0] minmax(0, 20fr) [e1] minmax(0, 20fr) [e2] minmax(
+        0,
+        10fr
+      ) [e2-5] minmax(0, 10fr) [e3] minmax(0, 20fr) [e4] minmax(0, 20fr) [e5];
+    grid-template-rows:
+      [r0] minmax(0, 20fr) [r1] minmax(0, 20fr) [r2] minmax(0, 15fr)
+      [r3];
     align-items: stretch;
     min-width: 1024px;
     min-height: 768px;
@@ -166,6 +171,7 @@
     padding: $space-s;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 
     &.highlight {
       background-color: $color-accent-1-lightest;

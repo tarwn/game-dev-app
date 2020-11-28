@@ -2,8 +2,6 @@
   import type { IBusinessModel } from "../../_types/businessModel";
 
   export let businessModel: IBusinessModel | null;
-
-  $: console.log({ loc: "CustomerSectionSummary Reactive", businessModel });
 </script>
 
 <style type="text/scss">
@@ -25,15 +23,15 @@
 
 {#if businessModel != null}
   <div>
-    {#each businessModel.customers as customer (customer.globalId)}
+    {#each businessModel.customers.list as customer (customer.globalId)}
       <div class="gdb-customer-section-summary">
-        <div>{customer.name}</div>
+        <div>{customer.name.value || 'Unnamed Customer'}</div>
         <ul>
-          {#if customer.entries.length == 0}
+          {#if customer.entries.list.length == 0}
             <li>No details yet</li>
           {:else}
-            {#each customer.entries as entry}
-              <li>{entry.entry}</li>
+            {#each customer.entries.list as entry (entry.globalId)}
+              <li>{entry.value}</li>
             {/each}
           {/if}
         </ul>

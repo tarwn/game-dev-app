@@ -1,4 +1,5 @@
 ﻿using GDB.Common.DTOs.BusinessModel;
+using GDB.Common.DTOs.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,7 +49,7 @@ namespace GDB.Business.BusinessLogic
         public BusinessModelDTO GetByGameId(LockObject curLock, string gameId)
         {
             VerifyLock(curLock);
-            return _models.Values.SingleOrDefault(m => m.GlobalGameId == gameId);
+            return _models.Values.SingleOrDefault(m => m.ParentId == gameId);
         }
 
         public List<BusinessModelChangeEvent> GetByGameIdSince(LockObject curLock, string gameId, int sinceVersionNumber)
@@ -81,12 +82,23 @@ namespace GDB.Business.BusinessLogic
         public BusinessModelDTO Create(LockObject curLock, string gameId)
         {
             VerifyLock(curLock);
-            var modelId = gameId + "-1";
-            _models.Add(modelId, new BusinessModelDTO(gameId, modelId));
+            var modelId = gameId + ":bm";
+            var model = new BusinessModelDTO(gameId, modelId);
+            _models.Add(modelId, model);
             _events.Add(modelId, new List<BusinessModelChangeEvent>() {
-                new BusinessModelChangeEvent("Init", 1, "Create", 1, 0)
+                new BusinessModelChangeEvent("Init", 1, "CreateBusinessModel", 1, 0){
+                    Operations = new List<BusinessModelEventOperation>(){
+                        new BusinessModelEventOperation(){
+                            Action = OperationType.MakeObject,
+                            ParentId = model.ParentId,
+                            ObjectId = model.GlobalId,
+                            Field = model.Field,
+                            Insert = true
+                        }
+                    }
+                }
             });
-            return _models[gameId + "-1"];
+            return _models[modelId];
         }
 
         public Applied<BusinessModelChangeEvent> ApplyChange(LockObject curLock, string gameId, IncomingBusinessModelChangeEvent change)
@@ -103,25 +115,60 @@ namespace GDB.Business.BusinessLogic
             {
                 case "AddNewCustomer":
                     EnsureOperationCount(change, 3);
-                    model.Customers.Add(new FreeFormCollection()
+                    model.Customers.List.Add(new BusinessModelCustomer()
                     {
                         GlobalId = change.Operations[0].ObjectId,
-                        Name = change.Operations[1].Value.ToString(),
-                        Entries = new List<FreeFormEntry>()
+                        ParentId = change.Operations[0].ParentId,
+                        Field = change.Operations[0].Field,
+                        Name = new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[1].ObjectId,
+                            ParentId = change.Operations[1].ParentId,
+                            Field = change.Operations[1].Field,
+                            Value = change.Operations[1].Value.ToString()
+                        },
+                        Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                        {
+                            GlobalId = change.Operations[2].ObjectId,
+                            ParentId = change.Operations[2].ParentId,
+                            Field = change.Operations[2].Field,
+                            List = new List<IdentifiedPrimitive<string>>()
+                        }
                     });
                     break;
                 case "DeleteCustomer":
                     EnsureOperationCount(change, 1);
-                    model.Customers.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
+                    model.Customers.List.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
                     break;
                 case "AddCustomerEntry":
                     EnsureOperationCount(change, 1);
-                    model.Customers.Add(new FreeFormCollection()
                     {
-                        GlobalId = change.Operations[0].ObjectId,
-                        Name = change.Operations[1].Value.ToString(),
-                        Entries = new List<FreeFormEntry>()
-                    });
+                        var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
+                        if (customer != null)
+                        {
+                            customer.Entries.List.Add(new IdentifiedPrimitive<string>()
+                            {
+                                GlobalId = change.Operations[0].ObjectId,
+                                ParentId = change.Operations[0].ParentId,
+                                Field = change.Operations[0].Field,
+                                Value = change.Operations[0].Value.ToString()
+                            });
+                        }
+                    }
+                    break;
+                case "UpdateCustomerEntry":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
+                        if (customer != null)
+                        {
+                            var entry = customer.Entries.List.SingleOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                            if (entry != null)
+                            {
+                                entry.Value = change.Operations[0].Value.ToString();
+                            }
+                        }
+                    }
                     break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));

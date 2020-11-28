@@ -1,8 +1,31 @@
 import type { Readable } from "svelte/store";
 
+// Types
+
 export type Versioned = {
   versionNumber: number;
 };
+
+export type Identified = {
+  globalId: string;
+  parentId: string;
+}
+
+export interface IIdentifiedObject extends Identified {
+  field?: string;
+}
+
+export interface IIdentifiedPrimitive<T> extends Identified {
+  field?: string;
+  value: T;
+}
+
+export interface IIdentifiedList<T extends Identified> extends Identified {
+  field?: string;
+  list: T[];
+}
+
+// Event Types
 
 export interface IEvent<T extends Versioned> {
   actor: string;
@@ -28,6 +51,8 @@ export enum OperationType {
   MakeList = 3,
   MakeObject = 4
 }
+
+// Mechanics: Applier + API
 
 export interface IEventApplier<T extends Versioned> {
   apply(model: T, event: IEvent<T>): T;

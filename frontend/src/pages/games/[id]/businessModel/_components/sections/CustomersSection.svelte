@@ -14,6 +14,7 @@
 
   export let businessModel: IBusinessModel;
 
+  let hackyNewValue = "";
   const dispatch = createEventDispatcher();
 
   function init(el) {
@@ -71,10 +72,10 @@
   title="Identifying players & customers"
   canUndo={false}
   canRedo={false}
-  canNext={businessModel.customers.length > 0}
+  canNext={businessModel.customers.list.length > 0}
   canFullscreen={true}
   on:clickFullscreen>
-  {#if businessModel.customers.length == 0}
+  {#if businessModel.customers.list.length == 0}
     <div class="gdb-customer-new-section">
       <p>
         Who are the people that will love this game? Are they the sames ones
@@ -84,10 +85,12 @@
         icon={PredefinedIcons.Plus}
         value="Add a Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get())} />
+        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get(
+              { parentId: businessModel.customers.globalId }
+            ))} />
     </div>
   {:else}
-    {#each businessModel.customers as customer (customer.globalId)}
+    {#each businessModel.customers.list as customer (customer.globalId)}
       <div class="gdb-customer-section" in:fade={{ duration: 250 }}>
         <div class="gdb-customer-head">
           <h3>Customer/Player</h3>
@@ -95,7 +98,12 @@
             icon={PredefinedIcons.Delete}
             value="Delete"
             buttonStyle="secondary-negative"
-            on:click={() => businessModelEventStore.addEvent(businessModelEvents.DeleteCustomer.get(customer.globalId))} />
+            on:click={() => businessModelEventStore.addEvent(businessModelEvents.DeleteCustomer.get(
+                  {
+                    parentId: businessModel.customers.globalId,
+                    globalId: customer.globalId,
+                  }
+                ))} />
         </div>
         <div>
           <label><span>Name:</span><input
@@ -114,15 +122,36 @@
         <div>
           <label for="newCharacteristic">Key Characteristics</label>
           <ul>
-            {#each customer.entries as customerEntry}
-              <li><input type="text" value={customerEntry.entry} /></li>
+            {#each customer.entries.list as customerEntry (customerEntry.globalId)}
+              <li>
+                <input
+                  type="text"
+                  value={customerEntry.value}
+                  use:init
+                  on:change|stopPropagation={(e) => businessModelEventStore.addEvent(businessModelEvents.UpdateCustomerEntry.get(
+                        {
+                          parentId: customerEntry.parentId,
+                          globalId: customerEntry.globalId,
+                          value: e.target?.value,
+                        }
+                      ))} />
+              </li>
             {/each}
             <li>
               <input
                 type="text"
                 placeholder="Add another characteristic"
                 id="newCharacteristic"
-                on:change={(e) => console.log(e)} />
+                bind:value={hackyNewValue}
+                on:input|stopPropagation={(e) => {
+                  businessModelEventStore.addEvent(businessModelEvents.AddCustomerEntry.get(
+                      {
+                        parentId: customer.entries.globalId,
+                        value: e.target?.value,
+                      }
+                    ));
+                  hackyNewValue = '';
+                }} />
             </li>
           </ul>
         </div>
@@ -133,7 +162,9 @@
         icon={PredefinedIcons.Plus}
         value="Add another Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get())} />
+        on:click={() => businessModelEventStore.addEvent(businessModelEvents.AddNewCustomer.get(
+              { parentId: businessModel.customers.globalId }
+            ))} />
     </div>
   {/if}
 </InputPanel>
