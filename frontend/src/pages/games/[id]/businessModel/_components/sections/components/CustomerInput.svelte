@@ -6,6 +6,7 @@
     businessModelEventStore,
     events,
   } from "../../../_stores/businessModelStore";
+  import type { Identified } from "../../../_stores/eventSystem/types";
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
 
   export let customer: IBusinessModelCustomer;
@@ -16,7 +17,7 @@
     el.focus();
   }
 
-  function handleOnNewCharacteristic(e) {
+  function handleOnNewCharacteristic(e: any) {
     businessModelEventStore.addEvent(
       events.AddCustomerEntry({
         parentId: customer.entries.globalId,
@@ -26,7 +27,7 @@
     hackyNewValue = "";
   }
 
-  function handleCharacteristicUpdate(customerEntry, e) {
+  function handleCharacteristicUpdate(customerEntry: Identified, e: any) {
     if (e.target?.value.length > 0) {
       businessModelEventStore.addEvent(
         events.UpdateCustomerEntry({
@@ -45,7 +46,7 @@
     }
   }
 
-  function handleCustomerDelete(customer) {
+  function handleCustomerDelete(customer: Identified) {
     businessModelEventStore.addEvent(
       events.DeleteCustomer({
         parentId: customer.parentId,

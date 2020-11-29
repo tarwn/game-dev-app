@@ -58,8 +58,19 @@
       isLoading = false;
     }
   });
+  let hasUnsaved = false;
+  let lastSaved = new Date();
+  const unsubscribe2 = businessModelEventStore.subscribe((update) => {
+    if (hasUnsaved && update.pendingEvents.length == 0) {
+      lastSaved = new Date();
+    }
+    hasUnsaved = update.pendingEvents.length > 0;
+  });
 
-  onDestroy(unsubscribe);
+  onDestroy(() => {
+    unsubscribe();
+    unsubscribe2();
+  });
 </script>
 
 <style type="text/scss">
@@ -116,7 +127,7 @@
 <div class="gdb-page-bm-header">
   <h1>Business Model</h1>
   <SpacedButtons>
-    <SaveMessage />
+    <SaveMessage {hasUnsaved} {lastSaved} />
     <IconTextButton
       icon={PredefinedIcons.Expand}
       value="Full View"
