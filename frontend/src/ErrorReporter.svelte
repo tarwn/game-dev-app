@@ -15,7 +15,23 @@
     environment: config.environment,
     debug: config.environment == "Development",
     beforeSend: (event) => {
-      console.log(event);
+      // ignore websocket errors - hack because I couldn't find a handle in signal connection to eat errors at the source
+      if (
+        event.message.indexOf(
+          "Connection disconnected with error 'Error: WebSocket closed with status code"
+        ) >= 0 ||
+        event.message.indexOf(
+          "Failed to complete negotiation with the server:"
+        ) >= 0 ||
+        event.message.indexOf("Failed to start the connection: ") >= 0
+      ) {
+        console.log(
+          "Sentry: Skipping websocket messages, will reconnect when able"
+        );
+        return null;
+      }
+
+      // back to our regular programming
       anErrorHasOccurred = true;
       dispatch("error", { event });
       if (config.sentry.enabled) {

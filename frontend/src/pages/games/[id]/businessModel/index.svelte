@@ -25,6 +25,10 @@
   let businessModel = null as IBusinessModel | null;
 
   // -- signalr --
+  // extract to a component that will manage all of this
+  //  and can show a toast when disconnected?
+  //  allows us to have props, dispatch, reactivity, onDestroy
+  //  super easy, w/ UI as a bonus
   const connection = new signalR.HubConnectionBuilder()
     .withAutomaticReconnect()
     .withUrl("/api/fe/hub")
@@ -43,7 +47,6 @@
       connected = true;
     })
     .catch((err) => document.write(err));
-  connection.onclose((err) => console.log("signalR error: " + err));
   connection.onreconnecting(() => (connected = false));
   connection.onreconnected(() => (connected = true));
 
@@ -102,8 +105,9 @@
   });
 
   onDestroy(() => {
-    console.log("Supposedly closing the connection");
+    // -- signalR close
     connection.stop();
+    // -- end signalR close
     unsubscribe();
     unsubscribe2();
   });
