@@ -15,12 +15,46 @@
     businessModelLocalStore,
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
+  import { log } from "./_stores/logger";
+  import * as signalR from "@microsoft/signalr";
 
   const { actorId } = getConfig();
   let displaySection = null;
   let displaySectionCommit = null;
   $: id = $params.id;
   let businessModel = null as IBusinessModel | null;
+
+  // -- signalr --
+  const connection = new signalR.HubConnectionBuilder()
+    .withAutomaticReconnect()
+    .withUrl("/api/fe/hub")
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  connection.on("businessModelUpdate", (args: any) => {
+    log("SignalR.businessModelUpdate", { args });
+    businessModelEventStore.receiveEvent(id, args.event);
+  });
+
+  let connected = false;
+  connection
+    .start()
+    .then(() => {
+      connected = true;
+    })
+    .catch((err) => document.write(err));
+  connection.onclose((err) => console.log("signalR error: " + err));
+  connection.onreconnecting(() => (connected = false));
+  connection.onreconnected(() => (connected = true));
+
+  let joinedGroup = "";
+  $: {
+    if (connected && joinedGroup != id) {
+      connection.send("joinGroup", id);
+      joinedGroup = id;
+    }
+  }
+  // -- end signal r --
 
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
@@ -68,6 +102,8 @@
   });
 
   onDestroy(() => {
+    console.log("Supposedly closing the connection");
+    connection.stop();
     unsubscribe();
     unsubscribe2();
   });

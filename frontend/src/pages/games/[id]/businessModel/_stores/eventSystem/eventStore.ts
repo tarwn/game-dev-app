@@ -1,9 +1,9 @@
+import { init } from 'svelte/internal';
 import { writable } from 'svelte/store';
 import { log } from '../logger';
-import type { Versioned, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
+import type { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
 
-
-export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {
+export function createEventStore<T extends Versioned & Identified>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {
   // api args and id to skip stale API calls coming back
   const initState = {
     id: null,
@@ -24,6 +24,11 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
     initState.seqNo = 1;
     initState.id = id;
     initState.apiArgs = apiArgs;
+    // reset everything
+    finalState = null;
+    pendingEvents.splice(0);
+    update(() => ({ finalState, pendingEvents }));
+    // get latest usable seqNo for this actor id
     return api.getActorSeqNo(actor)
       .then(response => {
         if (response.actor == initState.actor) {
@@ -52,6 +57,33 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
     sendEvent();
   }
 
+  function receiveEvent(parentId: string, event: IEvent<T>) {
+    log("eventStore.receiveEvent", { parentId, event });
+    if (finalState.parentId != parentId) {
+      console.log(`"Mismatched parentId: ${parentId} vs ${finalState.parentId}`);
+      return;
+    }
+
+    if (initState.actor == event.actor) {
+      console.log(`"Actor matches, I sent this: ${event.actor} vs ${initState.actor}`);
+      return;
+    }
+
+    if (finalState && finalState.versionNumber >= event.versionNumber) {
+      console.log(`Already applied version ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
+      return;
+    }
+
+    if (finalState && finalState.versionNumber < event.versionNumber - 1) {
+      console.log(`Detected gap, calling since instead. Received ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
+      loadSinceEvents(finalState.versionNumber);
+    }
+
+    console.log(`Applying received event for version ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
+    finalState = eventApplier.apply(finalState, event);
+    update(() => ({ finalState, pendingEvents }));
+  }
+
   function scheduleNextSafetySendEvent() {
     nextSafetySend = setTimeout(sendEvent, 30000);
   }
@@ -72,17 +104,15 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
       .then(response => {
         if (thisId != initState.id) return;
 
-        console.log({
-          finalStateVersioNumber: finalState.versionNumber,
-          response
-        });
         currentSending.versionNumber = response.versionNumber;
         if (finalState && finalState.versionNumber == response.versionNumber - 1) {
+          // console.log(`Applying sendEvent'd event for version ${currentSending.versionNumber}, currently on version ${finalState.versionNumber}`);
           finalState = eventApplier.apply(finalState, currentSending);
           pendingEvents.pop();
           update(() => ({ finalState, pendingEvents }));
         }
-        else {
+        else if (finalState && finalState.versionNumber < response.versionNumber - 1) {
+          // console.log(`Detected gap, calling since instead. Received ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
           loadSinceEvents(finalState.versionNumber);
         }
         currentSending = null;
@@ -161,6 +191,7 @@ export function createEventStore<T extends Versioned>(api: IEventStateApi<T>, ev
     createEvent,
     subscribe,
     loadFullState,
-    addEvent
+    addEvent,
+    receiveEvent
   };
 }

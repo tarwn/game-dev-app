@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
+using GDB.App.Controllers.Frontend;
 using GDB.App.ErrorHandling;
 using GDB.App.HealthChecks;
 using GDB.App.Security;
@@ -71,7 +72,10 @@ namespace GDB.App
                 // Cookie policies
                 services.Configure<CookiePolicyOptions>(options =>
                 {
-                    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    // downgrade samesite for local development to prevent warnings cluttering up console when debugging on HTTP, etc
+                    options.MinimumSameSitePolicy = _environment.IsDevelopment() 
+                        ? Microsoft.AspNetCore.Http.SameSiteMode.Lax 
+                        : Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                     options.HttpOnly = HttpOnlyPolicy.None;
                     options.Secure = CookieSecurePolicy.Always;
                 });
@@ -128,6 +132,9 @@ namespace GDB.App
                     o.AreaViewLocationFormats.Add("/Controllers/{2}/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
                 });
 
+                // SignalR
+                services.AddSignalR();
+
                 // SPA
                 services.AddSpaStaticFiles(configuration =>
                 {
@@ -183,6 +190,7 @@ namespace GDB.App
                 })
                 .RequireCors(SecurityConstants.CORS_AllowAny);
 
+                endpoints.MapHub<SignalRHub>("/api/fe/hub");
                 endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 

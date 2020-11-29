@@ -96,4 +96,5 @@ export interface IEventStore<T extends Versioned> extends ReadableEventStore<T> 
   loadFullState: () => void;
   createEvent: (builder: VersionEventArgs) => IEvent<T>;
   addEvent: (event: IEvent<T>) => void;
+  receiveEvent: (parentId: string, event: IEvent<T>) => void;
 }

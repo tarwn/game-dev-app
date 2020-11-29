@@ -59,6 +59,7 @@
     "yargs": "^16.0.3"
   },
   "dependencies": {
+    "@microsoft/signalr": "^5.0.0",
     "@sentry/browser": "^5.26.0",
     "@sentry/integrations": "^5.27.6",
     "@sveltech/routify": "^1.9.9",

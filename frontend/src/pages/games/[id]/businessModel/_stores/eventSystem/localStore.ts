@@ -24,17 +24,23 @@ export function createLocalStore<T extends Versioned>(eventStore: ReadableEventS
       es.pendingEvents.forEach(event => tempState = eventApplier.apply(tempState, event));
       latestLocalState = tempState;
       update(() => latestLocalState);
-      log("eventStore.EventQueueUpdate", { localStateAction: "rebuild events", latestLocalState });
+      log("localStore.EventQueueUpdate", { localStateAction: "rebuild events", latestLocalState });
     }
     else if (es.finalState == null) {
-      log("eventStore.reset", null);
+      log("localStore.reset", null);
       latestLocalState = null;
       latestFinalStateVersion = null;
       nextEventInQueue = null;
       update(() => null);
     }
     else {
-      log("eventStore.????", { localStateAction: "skip rebuild", latestLocalState });
+      log("localStore.????", {
+        localStateAction: "skip rebuild",
+        esFinalStateIsSet: (es.finalState != null),
+        esFinalStateVersion: es.finalState?.versionNumber,
+        latestFinalStateVersion,
+        latestLocalState
+      });
     }
   });
 

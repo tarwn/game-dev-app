@@ -4,6 +4,7 @@ using GDB.Common.BusinessLogic;
 using GDB.Common.DTOs.BusinessModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,13 @@ namespace GDB.App.Controllers.Frontend
     {
         private IInteractiveUserQueryService _queryService;
         private IBusinessModelService _businessModelService;
+        private IHubContext<SignalRHub> _hubContext;
 
-        public BusinessModelsController(IInteractiveUserQueryService queryService, IBusinessModelService businessModelService)
+        public BusinessModelsController(IInteractiveUserQueryService queryService, IBusinessModelService businessModelService, IHubContext<SignalRHub> hubContext)
         {
             _queryService = queryService;
             _businessModelService = businessModelService;
+            _hubContext = hubContext;
         }
 
         [HttpGet("{gameId}")]
@@ -60,6 +63,7 @@ namespace GDB.App.Controllers.Frontend
 
             var user = new UserAuthContext();
             var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change, user);
+            await _hubContext.Clients.Group(gameId).SendAsync("businessModelUpdate", savedEvent);
             return Ok(savedEvent);
         }
     }

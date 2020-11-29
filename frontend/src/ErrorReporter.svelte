@@ -15,6 +15,7 @@
     environment: config.environment,
     debug: config.environment == "Development",
     beforeSend: (event) => {
+      console.log(event);
       anErrorHasOccurred = true;
       dispatch("error", { event });
       if (config.sentry.enabled) {
