@@ -16,48 +16,14 @@
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
-  import * as signalR from "@microsoft/signalr";
+  import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
+  import type { Arg } from "@microsoft/signalr/dist/esm/Utils";
 
   const { actorId } = getConfig();
   let displaySection = null;
   let displaySectionCommit = null;
   $: id = $params.id;
   let businessModel = null as IBusinessModel | null;
-
-  // -- signalr --
-  // extract to a component that will manage all of this
-  //  and can show a toast when disconnected?
-  //  allows us to have props, dispatch, reactivity, onDestroy
-  //  super easy, w/ UI as a bonus
-  const connection = new signalR.HubConnectionBuilder()
-    .withAutomaticReconnect()
-    .withUrl("/api/fe/hub")
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  connection.on("businessModelUpdate", (args: any) => {
-    log("SignalR.businessModelUpdate", { args });
-    businessModelEventStore.receiveEvent(id, args.event);
-  });
-
-  let connected = false;
-  connection
-    .start()
-    .then(() => {
-      connected = true;
-    })
-    .catch((err) => document.write(err));
-  connection.onreconnecting(() => (connected = false));
-  connection.onreconnected(() => (connected = true));
-
-  let joinedGroup = "";
-  $: {
-    if (connected && joinedGroup != id) {
-      connection.send("joinGroup", id);
-      joinedGroup = id;
-    }
-  }
-  // -- end signal r --
 
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
@@ -105,8 +71,6 @@
   });
 
   onDestroy(() => {
-    // -- signalR close
-    connection.stop();
     // -- end signalR close
     unsubscribe();
     unsubscribe2();
@@ -164,6 +128,16 @@
   }
 </style>
 
+<WebSocketReceiver
+  updateChannelId={id}
+  on:receiveUpdate={({ detail }) => {
+    log('WebSocketReceiver.on:receiveUpdate', detail);
+    businessModelEventStore.receiveEvent(detail.gameId, detail.event);
+  }}
+  on:channelConnect={({ detail }) => log(
+      'WebSocketReceiver.on:channelConnected',
+      { channel: detail }
+    )} />
 <div class="gdb-page-bm-header">
   <h1>Business Model</h1>
   <SpacedButtons>

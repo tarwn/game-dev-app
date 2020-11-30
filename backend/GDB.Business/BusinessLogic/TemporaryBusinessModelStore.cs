@@ -187,12 +187,7 @@ namespace GDB.Business.BusinessLogic
             var newEvent = new BusinessModelChangeEvent(model.VersionNumber, change);
             _events[model.GlobalId].Add(newEvent);
             _globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
-            return new Applied<BusinessModelChangeEvent>()
-            {
-                PreviousVersionNumber = change.PreviousVersionNumber,
-                VersionNumber = model.VersionNumber,
-                Event = newEvent
-            };
+            return new Applied<BusinessModelChangeEvent>(gameId, change.PreviousVersionNumber, model.VersionNumber, newEvent);
         }
 
         private void EnsureOperationCount(IncomingBusinessModelChangeEvent change, int expectedCount)

@@ -57,10 +57,10 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
     sendEvent();
   }
 
-  function receiveEvent(parentId: string, event: IEvent<T>) {
-    log("eventStore.receiveEvent", { parentId, event });
-    if (finalState.parentId != parentId) {
-      console.log(`"Mismatched parentId: ${parentId} vs ${finalState.parentId}`);
+  function receiveEvent(rootParentId: string, event: IEvent<T>) {
+    log("eventStore.receiveEvent", { rootParentId, event });
+    if (finalState.parentId != rootParentId) {
+      console.log(`"Mismatched parentId: ${rootParentId} vs ${finalState.parentId}`);
       return;
     }
 

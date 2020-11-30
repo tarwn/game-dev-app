@@ -23,6 +23,8 @@ namespace GDB.App.Controllers.Frontend
 
         public async Task JoinGroup(string gameId)
         {
+            // TODO validate user is allowed to access this game id [ch926] or [ch993]
+
             _logger.LogInformation($"Client connected to '{gameId}': {Context.ConnectionId}");
             if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
             {

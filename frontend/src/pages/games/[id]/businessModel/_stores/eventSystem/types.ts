@@ -52,6 +52,13 @@ export enum OperationType {
   MakeObject = 4
 }
 
+export interface AppliedEvent<T extends IEvent<T>> {
+  gameId: string;
+  versionNumber: number | null;
+  previousVersionNumber: number;
+  event: IEvent<T>;
+}
+
 // Mechanics: Applier + API
 
 export interface IEventApplier<T extends Versioned> {
