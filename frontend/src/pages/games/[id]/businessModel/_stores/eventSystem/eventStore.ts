@@ -93,7 +93,6 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
   }
 
   function sendEvent(retryCounter = 0) {
-    console.log("sendEvent: " + pendingEvents.length);
     if (nextSafetySend) {
       clearTimeout(nextSafetySend);
     }
@@ -103,7 +102,6 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
       return;
     }
     currentSending = { ...pendingEvents[0] };
-    console.log("About to send event w/ first op id of: " + pendingEvents[0].operations[0].objectId);
 
     const thisId = initState.id;
     api.update(initState.id, currentSending, initState.apiArgs)
@@ -124,8 +122,6 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
           loadSinceEvents(finalState.versionNumber);
         }
         currentSending = null;
-        console.log("done sendEvent: " + pendingEvents.length);
-        console.log("next pending event has first op id of: " + pendingEvents[0].operations[0].objectId);
         sendEvent();
       })
       .catch(err => {
@@ -137,7 +133,6 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
           throw err;
         }
 
-        console.log(err);
         // assume offline, back off and retry
         if (retryCounter < 1) {
           log("eventStore.sendEvent(retry)", { retryCounter });
