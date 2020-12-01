@@ -3,7 +3,7 @@
   import * as signalR from "@microsoft/signalr";
   import { log } from "./logger";
   import type { AppliedEvent } from "./eventSystem/types";
-  import App from "../../../../../App.svelte";
+  import Portal from "svelte-portal/src/Portal.svelte";
 
   export let updateChannelId: string;
   export let updateUpdateType: string = "businessModelUpdate";
@@ -54,6 +54,8 @@
   });
 </script>
 
-{#if !connected}
-  <div>Not connected... :(</div>
-{/if}
+<Portal target="body">
+  {#if !connected}
+    <div>Not connected... :(</div>
+  {/if}
+</Portal>

@@ -1,5 +1,5 @@
-import { init } from 'svelte/internal';
 import { writable } from 'svelte/store';
+import produce from "immer";
 import { log } from '../logger';
 import type { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
 
@@ -11,7 +11,7 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
     seqNo: 1,
     actor: null
   };
-  const pendingEvents = [] as IEvent<T>[];
+  let pendingEvents = [] as IEvent<T>[];
   let finalState = null as T | null;
   const { subscribe, update } = writable({ pendingEvents, finalState });
 
@@ -26,7 +26,9 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
     initState.apiArgs = apiArgs;
     // reset everything
     finalState = null;
-    pendingEvents.splice(0);
+    pendingEvents = produce(pendingEvents, (draft) => {
+      draft.splice(0);
+    });
     update(() => ({ finalState, pendingEvents }));
     // get latest usable seqNo for this actor id
     return api.getActorSeqNo(actor)
@@ -52,7 +54,9 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
 
   function addEvent(event: IEvent<T>) {
     log("eventStore.addEvent", { event });
-    pendingEvents.push(event);
+    pendingEvents = produce(pendingEvents, (draft) => {
+      draft.push(event);
+    });
     update(state => ({ ...state, pendingEvents }));
     sendEvent();
   }
@@ -85,10 +89,11 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
   }
 
   function scheduleNextSafetySendEvent() {
-    nextSafetySend = setTimeout(sendEvent, 30000);
+    nextSafetySend = setTimeout(() => sendEvent(), 10000);
   }
 
   function sendEvent(retryCounter = 0) {
+    console.log("sendEvent: " + pendingEvents.length);
     if (nextSafetySend) {
       clearTimeout(nextSafetySend);
     }
@@ -97,7 +102,8 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
       scheduleNextSafetySendEvent();
       return;
     }
-    currentSending = pendingEvents[0];
+    currentSending = { ...pendingEvents[0] };
+    console.log("About to send event w/ first op id of: " + pendingEvents[0].operations[0].objectId);
 
     const thisId = initState.id;
     api.update(initState.id, currentSending, initState.apiArgs)
@@ -108,7 +114,9 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
         if (finalState && finalState.versionNumber == response.versionNumber - 1) {
           // console.log(`Applying sendEvent'd event for version ${currentSending.versionNumber}, currently on version ${finalState.versionNumber}`);
           finalState = eventApplier.apply(finalState, currentSending);
-          pendingEvents.pop();
+          pendingEvents = produce(pendingEvents, (draft) => {
+            draft.shift();
+          });
           update(() => ({ finalState, pendingEvents }));
         }
         else if (finalState && finalState.versionNumber < response.versionNumber - 1) {
@@ -116,22 +124,27 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
           loadSinceEvents(finalState.versionNumber);
         }
         currentSending = null;
+        console.log("done sendEvent: " + pendingEvents.length);
+        console.log("next pending event has first op id of: " + pendingEvents[0].operations[0].objectId);
         sendEvent();
       })
       .catch(err => {
-        // report error
-        //  todo
-        console.error(err);
-
-        // offline? toggle and schedule retry
-        //  todo
-
-        // try again
         currentSending = null;
-        if (retryCounter < 3) {
+        if (err.message && err.message.indexOf("HTTP server error") >= 0) {
+          if (nextSafetySend) {
+            clearTimeout(nextSafetySend);
+          }
+          throw err;
+        }
+
+        console.log(err);
+        // assume offline, back off and retry
+        if (retryCounter < 1) {
+          log("eventStore.sendEvent(retry)", { retryCounter });
           sendEvent(retryCounter + 1);
         }
         else {
+          log("eventStore.sendEvent(backoff retry)", { retryCounter });
           scheduleNextSafetySendEvent();
         }
       });
@@ -145,7 +158,7 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
 
         // todo: model processing?
         finalState = response.payload;
-        clearStalePendingEvents();
+        pendingEvents = clearStalePendingEvents(pendingEvents);
         update(() => ({ finalState, pendingEvents }));
       })
       .catch(err => {
@@ -171,7 +184,7 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
             finalState = eventApplier.apply(finalState, event);
           }
         });
-        clearStalePendingEvents();
+        pendingEvents = clearStalePendingEvents(pendingEvents);
         update(() => ({ finalState, pendingEvents }));
       })
       .catch(err => {
@@ -179,11 +192,13 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
       });
   }
 
-  function clearStalePendingEvents() {
-    // clear out relevant pending events still in queue
-    while (pendingEvents.length > 0 && pendingEvents[0].versionNumber != null && pendingEvents[0].versionNumber < finalState.versionNumber) {
-      pendingEvents.pop();
-    }
+  function clearStalePendingEvents(pendingEvents: IEvent<T>[]): IEvent<T>[] {
+    return produce(pendingEvents, (draft) => {
+      // clear out relevant pending events still in queue
+      while (draft.length > 0 && draft[0].versionNumber != null && draft[0].versionNumber < finalState.versionNumber) {
+        draft.pop();
+      }
+    });
   }
 
   return {

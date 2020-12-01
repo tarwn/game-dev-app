@@ -8,6 +8,16 @@
   const config = getConfig();
   let anErrorHasOccurred = false;
 
+  function looksLikeWebsocket(message: string) {
+    return (
+      message.indexOf(
+        "Connection disconnected with error 'Error: WebSocket closed"
+      ) >= 0 ||
+      message.indexOf("Failed to complete negotiation with the server:") >= 0 ||
+      message.indexOf("Failed to start the connection: ") >= 0
+    );
+  }
+
   const dispatch = createEventDispatcher();
   init({
     dsn: config.sentry.dsn,
@@ -16,15 +26,7 @@
     debug: config.environment == "Development",
     beforeSend: (event) => {
       // ignore websocket errors - hack because I couldn't find a handle in signal connection to eat errors at the source
-      if (
-        event.message.indexOf(
-          "Connection disconnected with error 'Error: WebSocket closed with status code"
-        ) >= 0 ||
-        event.message.indexOf(
-          "Failed to complete negotiation with the server:"
-        ) >= 0 ||
-        event.message.indexOf("Failed to start the connection: ") >= 0
-      ) {
+      if (event.message && looksLikeWebsocket(event.message)) {
         console.log(
           "Sentry: Skipping websocket messages, will reconnect when able"
         );
