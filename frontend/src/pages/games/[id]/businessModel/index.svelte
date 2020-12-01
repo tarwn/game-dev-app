@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onDestroy } from "svelte";
   import { scale, crossfade, fade } from "svelte/transition";
   import { params } from "@sveltech/routify";
   import type { IBusinessModel } from "./_types/businessModel";
@@ -15,6 +15,8 @@
     businessModelLocalStore,
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
+  import { log } from "./_stores/logger";
+  import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -68,6 +70,7 @@
   });
 
   onDestroy(() => {
+    // -- end signalR close
     unsubscribe();
     unsubscribe2();
   });
@@ -124,6 +127,16 @@
   }
 </style>
 
+<WebSocketReceiver
+  updateChannelId={id}
+  on:receiveUpdate={({ detail }) => {
+    log('WebSocketReceiver.on:receiveUpdate', detail);
+    businessModelEventStore.receiveEvent(detail.gameId, detail.event);
+  }}
+  on:channelConnect={({ detail }) => log(
+      'WebSocketReceiver.on:channelConnected',
+      { channel: detail }
+    )} />
 <div class="gdb-page-bm-header">
   <h1>Business Model</h1>
   <SpacedButtons>

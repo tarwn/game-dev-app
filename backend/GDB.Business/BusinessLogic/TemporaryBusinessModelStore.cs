@@ -14,12 +14,14 @@ namespace GDB.Business.BusinessLogic
         private LockObject _curLock = null;
         private Dictionary<string, BusinessModelDTO> _models;
         private Dictionary<string, List<BusinessModelChangeEvent>> _events;
+        private Dictionary<string, HashSet<string>> _ids;
         private Dictionary<string, int> _globalSeqNos;
 
         public TemporaryBusinessModelStore()
         {
             _models = new Dictionary<string, BusinessModelDTO>();
             _events = new Dictionary<string, List<BusinessModelChangeEvent>>();
+            _ids = new Dictionary<string, HashSet<string>>();
             _globalSeqNos = new Dictionary<string, int>();
         }
 
@@ -98,6 +100,10 @@ namespace GDB.Business.BusinessLogic
                     }
                 }
             });
+            _ids.Add(modelId, new HashSet<string>() {
+                model.GlobalId,
+                model.ParentId
+            });
             return _models[modelId];
         }
 
@@ -110,6 +116,13 @@ namespace GDB.Business.BusinessLogic
                 throw new BusinessModelNotFoundException(gameId);
             }
             // TODO conflict detect + resolution
+
+            if (_ids.ContainsKey(model.GlobalId)){
+                var duplicateId = change.Operations.FirstOrDefault(o => o.Insert.GetValueOrDefault(false) && _ids[model.GlobalId].Contains(o.ObjectId));
+                if (duplicateId != null) {
+                    throw new ArgumentException($"Operation cannot insert new object with id {duplicateId}, already in use.");
+                }
+            }
 
             switch (change.Type)
             {
@@ -186,13 +199,12 @@ namespace GDB.Business.BusinessLogic
             model.VersionNumber += 1;
             var newEvent = new BusinessModelChangeEvent(model.VersionNumber, change);
             _events[model.GlobalId].Add(newEvent);
+            newEvent.Operations.ForEach(o => {
+                if (o.Insert.GetValueOrDefault(false))
+                    _ids[model.GlobalId].Add(o.ObjectId);
+            });    
             _globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
-            return new Applied<BusinessModelChangeEvent>()
-            {
-                PreviousVersionNumber = change.PreviousVersionNumber,
-                VersionNumber = model.VersionNumber,
-                Event = newEvent
-            };
+            return new Applied<BusinessModelChangeEvent>(gameId, change.PreviousVersionNumber, model.VersionNumber, newEvent);
         }
 
         private void EnsureOperationCount(IncomingBusinessModelChangeEvent change, int expectedCount)
