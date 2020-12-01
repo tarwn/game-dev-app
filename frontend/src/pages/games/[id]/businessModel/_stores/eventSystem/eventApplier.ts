@@ -12,10 +12,10 @@ export function createImmutableEventApplier<T extends Versioned>(eventHandlers: 
         throw new Error(`IEventApplier<T>: Unrecognized event type ${event.type}, cannot continue`);
       }
       const nextState = produce(model, draftState => {
-        eventHandlers[event.type](draftState, event);
+        eventHandlers[event.type](draftState as T, event);
         draftState.versionNumber = event.versionNumber || model.versionNumber;
       });
-      log(`Apply(${event.type}):After`, { nextState });
+      // log(`Apply(${event.type}):After`, { nextState });
       return nextState;
     }
   };
