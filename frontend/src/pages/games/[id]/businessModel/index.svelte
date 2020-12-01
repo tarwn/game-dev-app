@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onDestroy } from "svelte";
   import { scale, crossfade, fade } from "svelte/transition";
   import { params } from "@sveltech/routify";
   import type { IBusinessModel } from "./_types/businessModel";
@@ -17,7 +17,6 @@
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
   import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
-  import type { Arg } from "@microsoft/signalr/dist/esm/Utils";
 
   const { actorId } = getConfig();
   let displaySection = null;
