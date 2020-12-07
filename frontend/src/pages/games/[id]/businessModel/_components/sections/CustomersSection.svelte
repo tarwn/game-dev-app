@@ -49,12 +49,12 @@
   {#if businessModel.customers.list.length == 0}
     <div class="gdb-customer-new-section">
       <p>
-        Who are the people that will love this game? Are they the sames ones
-        that buy it? Let's add the first Player/Customer:
+        Who are the people that will love this game? Are they the same ones that
+        buy it? Let's start by defining a Player:
       </p>
       <IconTextButton
         icon={PredefinedIcons.Plus}
-        value="Add a Customer"
+        value="Add a Player"
         buttonStyle="primary"
         on:click={() => businessModelEventStore.addEvent(events.AddNewCustomer({
               parentId: businessModel.customers.globalId,

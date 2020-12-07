@@ -2,6 +2,19 @@
   import type { IBusinessModel } from "../../_types/businessModel";
 
   export let businessModel: IBusinessModel | null;
+
+  function summarizeType(customerType: string) {
+    switch (customerType) {
+      case "both":
+        return "Customer / Player";
+      case "player":
+        return "Player";
+      case "customer":
+        return "Customer";
+      default:
+        "Unknown";
+    }
+  }
 </script>
 
 <style type="text/scss">
@@ -14,10 +27,21 @@
     margin: 1em 0;
   }
 
-  ul {
-    margin: 0 0 0 2em;
+  .gdb-summary-name {
+    font-weight: bold;
+    margin: 0.5em 0;
+  }
+
+  .gdb-customer-summary-li {
+    color: $text-color-default;
+    margin: 0.5em 0;
+  }
+
+  .gdb-customer-summary {
+    margin: 0.5em 0 2em 2em;
     padding: 0 0 0 0em;
-    list-style-position: inside;
+    list-style-position: outside;
+    color: $cs-grey-3;
   }
 </style>
 
@@ -25,13 +49,18 @@
   <div>
     {#each businessModel.customers.list as customer (customer.globalId)}
       <div class="gdb-customer-section-summary">
-        <div>{customer.name.value || 'Unnamed Customer'}</div>
-        <ul>
+        <div class="gdb-summary-name">
+          {customer.name.value || 'Unnamed Customer'}
+        </div>
+        <ul class="gdb-customer-summary">
+          <li class="gdb-customer-summary-li">
+            {summarizeType(customer.type.value)}
+          </li>
           {#if customer.entries.list.length == 0}
-            <li>No details yet</li>
+            <li class="gdb-customer-summary-li">No details yet</li>
           {:else}
             {#each customer.entries.list as entry (entry.globalId)}
-              <li>{entry.value}</li>
+              <li class="gdb-customer-summary-li">{entry.value}</li>
             {/each}
           {/if}
         </ul>

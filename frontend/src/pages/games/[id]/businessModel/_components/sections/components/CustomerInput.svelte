@@ -2,6 +2,8 @@
   import { fade } from "svelte/transition";
   import IconTextButton from "../../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";
+  import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
+  import Row from "../../../../../../../components/inputs/Row.svelte";
   import {
     businessModelEventStore,
     events,
@@ -15,6 +17,55 @@
 
   function init(el) {
     el.focus();
+  }
+
+  $: hasPlayerType =
+    customer.type.value == "both" || customer.type.value == "player";
+  $: hasCustomerType =
+    customer.type.value == "both" || customer.type.value == "customer";
+
+  function handleNameChange(e) {
+    businessModelEventStore.addEvent(
+      events.UpdateCustomerName({
+        parentId: customer.name.parentId,
+        globalId: customer.name.globalId,
+        value: e.target?.value,
+      })
+    );
+  }
+
+  function handlePlayerTypeChange(e) {
+    let nextType = "";
+    if (hasCustomerType) {
+      nextType = e.target?.checked ? "both" : "customer";
+    } else {
+      nextType = e.target?.checked ? "player" : "customer";
+    }
+
+    businessModelEventStore.addEvent(
+      events.UpdateCustomerType({
+        parentId: customer.type.parentId,
+        globalId: customer.type.globalId,
+        value: nextType,
+      })
+    );
+  }
+
+  function handleCustomerTypeChange(e) {
+    let nextType = "";
+    if (hasPlayerType) {
+      nextType = e.target?.checked ? "both" : "player";
+    } else {
+      nextType = e.target?.checked ? "player" : "player";
+    }
+
+    businessModelEventStore.addEvent(
+      events.UpdateCustomerType({
+        parentId: customer.type.parentId,
+        globalId: customer.type.globalId,
+        value: nextType,
+      })
+    );
   }
 
   function handleOnNewCharacteristic(e: any) {
@@ -81,6 +132,50 @@
       flex-grow: 2;
     }
   }
+
+  input + label + input {
+    margin-left: $space-m;
+  }
+
+  .gdb-entry-list {
+    margin: 0;
+    list-style-type: disc;
+    margin-left: 4rem; // matches label min-size padding
+    padding-left: $space-s; // matches label.text min-size padding
+  }
+  .gdb-entry-list-item-new,
+  .gdb-entry-list-item {
+    line-height: $line-height-base; // matches label
+    margin: $space-s 0; // matches Row
+  }
+
+  .gdb-entry-list-item-new {
+    list-style-type: none;
+
+    &:focus-within::before {
+      content: "\2022"; /* Add content: \2022 is the CSS Code/unicode for a bullet */
+      color: $cs_blue;
+      font-weight: bold;
+      font-size: $font-size-larger;
+      display: inline-block;
+      width: 15px;
+      margin-left: -15px;
+    }
+  }
+
+  .gdb-entry-input-new,
+  .gdb-entry-input {
+    width: 26rem;
+  }
+
+  .gdb-entry-input-new {
+    border-style: dashed;
+
+    &:active,
+    &:focus {
+      border-style: solid;
+    }
+  }
 </style>
 
 <svelte:options immutable={true} />
@@ -94,40 +189,58 @@
       buttonStyle="secondary-negative"
       on:click={() => handleCustomerDelete(customer)} />
   </div>
-  <div>
-    <label><span>Name:</span><input
+  <Row>
+    <LabeledInput label="Name">
+      <input
         type="text"
         placeholder="Enter a short name..."
-        use:init /></label>
-  </div>
-  <div>
-    <label><span>Type:</span>
-      <input type="checkbox" value="player" id="player" /><label
-        for="player">Player</label>
-      <input type="checkbox" value="customer" id="customer" /><label
-        for="customer">Customer</label>
-    </label>
-  </div>
-  <div>
-    <label for="newCharacteristic">Key Characteristics</label>
-    <ul>
+        on:change={handleNameChange}
+        value={customer.name.value}
+        use:init />
+    </LabeledInput>
+  </Row>
+  <Row>
+    <LabeledInput label="Type">
+      <input
+        type="checkbox"
+        value="player"
+        id={`${customer.type.globalId}-player`}
+        checked={hasPlayerType}
+        on:change={handlePlayerTypeChange} />
+      <label for={`${customer.type.globalId}-player`}>Player</label>
+      <input
+        type="checkbox"
+        value="customer"
+        id={`${customer.type.globalId}-customer`}
+        checked={hasCustomerType}
+        on:change={handleCustomerTypeChange} />
+      <label for={`${customer.type.globalId}-customer`}>Customer</label>
+    </LabeledInput>
+  </Row>
+  <Row>
+    <LabeledInput
+      label="Key Characteristics"
+      forId={`${customer.entries.globalId}-newEntry`} />
+    <ul class="gdb-entry-list">
       {#each customer.entries.list as customerEntry (customerEntry.globalId)}
-        <li>
+        <li class="gdb-entry-list-item">
           <input
             type="text"
+            class="gdb-entry-input"
             value={customerEntry.value}
             use:init
             on:change|stopPropagation={(e) => handleCharacteristicUpdate(customerEntry, e)} />
         </li>
       {/each}
-      <li>
+      <li class="gdb-entry-list-item-new">
         <input
           type="text"
-          placeholder="Add another characteristic"
-          id="newCharacteristic"
+          class="gdb-entry-input-new"
+          placeholder={customer.entries.list.length == 0 ? 'Enter a key characteristic' : 'Enter another key characteristic'}
+          id={`${customer.entries.globalId}-newEntry`}
           bind:value={hackyNewValue}
           on:input|stopPropagation={handleOnNewCharacteristic} />
       </li>
     </ul>
-  </div>
+  </Row>
 </div>

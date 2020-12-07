@@ -21,7 +21,7 @@
     customerRelationships: false,
     revenue: false,
     keyResources: false,
-    keyActiviies: false,
+    keyActivities: false,
     keyPartners: false,
     costStructure: false,
   };
@@ -42,10 +42,9 @@
 
   .gdb-board {
     display: grid;
-    grid-template-columns: [e0] minmax(0, 20fr) [e1] minmax(0, 20fr) [e2] minmax(
-        0,
-        10fr
-      ) [e2-5] minmax(0, 10fr) [e3] minmax(0, 20fr) [e4] minmax(0, 20fr) [e5];
+    grid-template-columns:
+      [e0] minmax(0, 20fr) [e1] minmax(0, 20fr) [e2] minmax(0, 10fr)
+      [e2-5] minmax(0, 10fr) [e3] minmax(0, 20fr) [e4] minmax(0, 20fr) [e5];
     grid-template-rows:
       [r0] minmax(0, 20fr) [r1] minmax(0, 20fr) [r2] minmax(0, 15fr)
       [r3];
@@ -171,7 +170,31 @@
     padding: $space-s;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    // firefox
+    scrollbar-width: thin;
+    scrollbar-color: $cs-grey-1 $cs-grey-0;
+    // chrome/safari
+    &::-webkit-scrollbar {
+      width: 8px; /* width of the entire scrollbar */
+    }
+    &::-webkit-scrollbar-track {
+      background: $cs-grey-0; /* color of the tracking area */
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: $cs-grey-1; /* color of the scroll thumb */
+      border-radius: 20px; /* roundness of the scroll thumb */
+      border: 1px solid $cs-grey-0; /* creates padding around scroll thumb */
+    }
+
+    &:hover {
+      // firefox
+      scrollbar-color: $cs-grey-3 $cs-grey-0;
+      // chrome/safari
+      &::-webkit-scrollbar-thumb {
+        background-color: $cs-grey-3; /* color of the scroll thumb */
+      }
+    }
 
     &.highlight {
       background-color: $color-accent-1-lightest;

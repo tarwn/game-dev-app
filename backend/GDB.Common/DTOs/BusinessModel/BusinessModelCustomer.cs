@@ -14,5 +14,6 @@ namespace GDB.Common.DTOs.BusinessModel
         public string Field { get; set; }
         public IdentifiedPrimitive<string> Name { get; set; }
         public IdentifiedList<IdentifiedPrimitive<string>> Entries { get; set; }
+        public IdentifiedPrimitive<string> Type { get; set; }
     }
 }

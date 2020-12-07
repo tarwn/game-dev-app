@@ -11,7 +11,9 @@ type EvtMethod = {
   apply: (model: IBusinessModel, event: Evt) => void
 }
 
-const businessModelEvents: { [key: string]: EvtMethod } = {
+type IdentifiedValueUpdate<T> = Identified & { value: T };
+
+const businessModelEvents = {
   "AddNewCustomer": {
     get: ({ parentId }: { parentId: string }): Evt => {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
@@ -20,6 +22,7 @@ const businessModelEvents: { [key: string]: EvtMethod } = {
           { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId },
           { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "name", value: "" },
           { action: OperationType.MakeList, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "entries" },
+          { action: OperationType.Set, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "both" },
         ]
       }));
     },
@@ -28,7 +31,8 @@ const businessModelEvents: { [key: string]: EvtMethod } = {
         globalId: event.operations[0].objectId,
         parentId: event.operations[0].parentId,
         name: { globalId: event.operations[1].objectId, parentId: event.operations[1].parentId, value: event.operations[1].value, field: event.operations[1].field },
-        entries: { globalId: event.operations[2].objectId, parentId: event.operations[2].parentId, list: [], field: event.operations[1].field },
+        entries: { globalId: event.operations[2].objectId, parentId: event.operations[2].parentId, list: [], field: event.operations[2].field },
+        type: { globalId: event.operations[3].objectId, parentId: event.operations[3].parentId, value: event.operations[3].value, field: event.operations[3].field },
       });
     }
   },
@@ -55,7 +59,7 @@ const businessModelEvents: { [key: string]: EvtMethod } = {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddCustomerEntry",
         operations: [
-          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true }
+          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
         ]
       }));
     },
@@ -74,7 +78,7 @@ const businessModelEvents: { [key: string]: EvtMethod } = {
     }
   },
   "UpdateCustomerEntry": {
-    get: ({ parentId, globalId, value }: Identified & { value: string }): Evt => {
+    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
       return businessModelEventStore.createEvent(() => ({
         type: "UpdateCustomerEntry",
         operations: [
@@ -118,6 +122,42 @@ const businessModelEvents: { [key: string]: EvtMethod } = {
       }
       model.customers.list[cIndex].entries.list.splice(eIndex, 1);
     }
+  },
+  "UpdateCustomerType": {
+    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "UpdateCustomerType",
+        operations: [
+          { action: OperationType.Set, objectId: globalId, parentId, value }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
+      if (cIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.customers.list[cIndex].type.value = event.operations[0].value;
+    }
+  },
+  "UpdateCustomerName": {
+    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "UpdateCustomerName",
+        operations: [
+          { action: OperationType.Set, objectId: globalId, parentId, value }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
+      if (cIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.customers.list[cIndex].name.value = event.operations[0].value;
+    }
   }
 };
 
@@ -127,6 +167,8 @@ export const events = {
   "AddCustomerEntry": businessModelEvents.AddCustomerEntry.get,
   "UpdateCustomerEntry": businessModelEvents.UpdateCustomerEntry.get,
   "DeleteCustomerEntry": businessModelEvents.DeleteCustomerEntry.get,
+  "UpdateCustomerType": businessModelEvents.UpdateCustomerType.get,
+  "UpdateCustomerName": businessModelEvents.UpdateCustomerName.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

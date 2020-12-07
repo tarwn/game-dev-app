@@ -117,9 +117,11 @@ namespace GDB.Business.BusinessLogic
             }
             // TODO conflict detect + resolution
 
-            if (_ids.ContainsKey(model.GlobalId)){
+            if (_ids.ContainsKey(model.GlobalId))
+            {
                 var duplicateId = change.Operations.FirstOrDefault(o => o.Insert.GetValueOrDefault(false) && _ids[model.GlobalId].Contains(o.ObjectId));
-                if (duplicateId != null) {
+                if (duplicateId != null)
+                {
                     throw new ArgumentException($"Operation cannot insert new object with id {duplicateId}, already in use.");
                 }
             }
@@ -127,7 +129,7 @@ namespace GDB.Business.BusinessLogic
             switch (change.Type)
             {
                 case "AddNewCustomer":
-                    EnsureOperationCount(change, 3);
+                    EnsureOperationCount(change, 4);
                     model.Customers.List.Add(new BusinessModelCustomer()
                     {
                         GlobalId = change.Operations[0].ObjectId,
@@ -146,6 +148,13 @@ namespace GDB.Business.BusinessLogic
                             ParentId = change.Operations[2].ParentId,
                             Field = change.Operations[2].Field,
                             List = new List<IdentifiedPrimitive<string>>()
+                        },
+                        Type = new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[3].ObjectId,
+                            ParentId = change.Operations[3].ParentId,
+                            Field = change.Operations[3].Field,
+                            Value = change.Operations[3].Value.ToString()
                         }
                     });
                     break;
@@ -193,16 +202,37 @@ namespace GDB.Business.BusinessLogic
                         }
                     }
                     break;
+                case "UpdateCustomerType":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
+                        if (customer != null)
+                        {
+                            customer.Type.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "UpdateCustomerName":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var customer = model.Customers.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                        if (customer != null)
+                        {
+                            customer.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }
             model.VersionNumber += 1;
             var newEvent = new BusinessModelChangeEvent(model.VersionNumber, change);
             _events[model.GlobalId].Add(newEvent);
-            newEvent.Operations.ForEach(o => {
+            newEvent.Operations.ForEach(o =>
+            {
                 if (o.Insert.GetValueOrDefault(false))
                     _ids[model.GlobalId].Add(o.ObjectId);
-            });    
+            });
             _globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
             return new Applied<BusinessModelChangeEvent>(gameId, change.PreviousVersionNumber, model.VersionNumber, newEvent);
         }

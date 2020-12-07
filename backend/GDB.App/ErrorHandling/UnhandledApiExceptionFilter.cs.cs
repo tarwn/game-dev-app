@@ -32,7 +32,9 @@ namespace GDB.App.ErrorHandling
                     Message = "Internal Server Error.",
                     Type = typeof(Exception).Name
                 });
+#if !DEBUG
                 context.ExceptionHandled = true;
+#endif
             }
         }
 
