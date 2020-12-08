@@ -7,19 +7,21 @@
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
-  import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
-  import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
-  import CustomersSection from "./_components/sections/CustomersSection.svelte";
   import {
     businessModelEventStore,
     businessModelLocalStore,
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
+  import { getNextSectionInLine } from "./_types/businessModelUsage";
   import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
+  import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
+  import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
+  import CustomersSection from "./_components/sections/CustomersSection.svelte";
   import ValuePropositionInstructions from "./_components/sections/ValuePropositionInstructions.svelte";
   import ValuePropositionSection from "./_components/sections/ValuePropositionSection.svelte";
-  import { getNextSectionInLine } from "./_types/businessModelUsage";
+  import ChannelsInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
+  import ChannelsSection from "./_components/sections/ChannelsSection.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -160,7 +162,7 @@
         value="Start"
         buttonStyle="primary"
         on:click={() => handleChangeSection({
-            detail: { section: 'customer' },
+            detail: { section: 'customers' },
           })}
         disabled={isLoading} />
     {:else}
@@ -207,7 +209,7 @@
     </div>
   {/if}
   {#if !isLoading && displaySectionCommit}
-    {#if displaySection === 'customer'}
+    {#if displaySection === 'customers'}
       <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
         <CustomersSectionInstructions />
       </div>
@@ -227,7 +229,7 @@
           on:clickFullscreen={handleOnFullScreen}
           on:clickNext={() => handleOnNextScreen('channels')} />
       </div>
-      {:else if displaySection === 'channels'}
+    {:else if displaySection === 'channels'}
       <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
         <ChannelsInstructions />
       </div>

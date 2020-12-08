@@ -1,12 +1,11 @@
 <script type="ts">
   import type { IBusinessModel } from "../../_types/businessModel";
-  import TagSummaryList from "./components/TagSummaryList.svelte";
   import EntrySummaryList from "./components/EntrySummaryList.svelte";
   import SummarySection from "./components/SummarySection.svelte";
 
   export let businessModel: IBusinessModel | null;
 
-  $: valueProp = businessModel?.valueProposition;
+  $: channels = businessModel?.channels;
 </script>
 
 <style type="text/scss">
@@ -18,18 +17,19 @@
 
 {#if businessModel != null}
   <div>
-    {#if valueProp.genres.list.length > 0}
-      <SummarySection label="Genre(s)">
-        <TagSummaryList entries={valueProp.genres} />
-      </SummarySection>
-    {/if}
-    {#if valueProp.platforms.list.length > 0}
-      <SummarySection label="Platform(s)">
-        <TagSummaryList entries={valueProp.platforms} />
-      </SummarySection>
-    {/if}
-    <SummarySection>
-      <EntrySummaryList entries={valueProp.entries} />
+    <SummarySection label="">
+      {#if channels.awareness.list.length > 0}
+        <EntrySummaryList entries={channels.awareness} />
+      {/if}
+      {#if channels.consideration.list.length > 0}
+        <EntrySummaryList entries={channels.consideration} />
+      {/if}
+      {#if channels.purchase.list.length > 0}
+        <EntrySummaryList entries={channels.purchase} />
+      {/if}
+      {#if channels.postPurchase.list.length > 0}
+        <EntrySummaryList entries={channels.postPurchase} />
+      {/if}
     </SummarySection>
   </div>
 {/if}

@@ -40,7 +40,7 @@
   }
 
   .gdb-customer-summary {
-    margin: 0.5em 0 2em 2em;
+    margin: 0.5em 0 0.5em 2em;
     padding: 0 0 0 0em;
     list-style-position: outside;
     color: $cs-grey-3;

@@ -375,192 +375,81 @@ describe("businessModelStore", () => {
       });
     });
 
-    // value prop
+    // Mass Tests: Value Prop, Channels
 
-    describe("AddValuePropGenre", () => {
-      it("adds a new genre to the value proposition", () => {
+    describe.each`
+      event                              | section               | list
+      ${"AddValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
+      ${"AddValuePropPlatform"}          | ${"valueProposition"} | ${"platforms"}
+      ${"AddValuePropGenre"}             | ${"valueProposition"} | ${"genres"}
+      ${"AddChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
+      ${"AddChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
+      ${"AddChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
+      ${"AddChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+    `("$event", ({ event, section, list }) => {
+      it(`adds a new entry to the ${section} '${list}'`, () => {
         const initialModel = createEmptyBusinessModel();
 
-        const addEntryEvent = events.AddValuePropGenre({
-          parentId: initialModel.valueProposition.genres.globalId,
+        const addEntryEvent = events[event]({
+          parentId: initialModel[section][list].globalId,
           value: "test"
         });
         const nextModel = eventApplier.apply(initialModel, addEntryEvent);
 
         // original model is unchanged
-        expect(initialModel.valueProposition.genres.list).toEqual([]);
+        expect(initialModel[section][list].list).toEqual([]);
         // now with the new entry
-        expect(nextModel.valueProposition.genres.list).not.toEqual([]);
-        expect(nextModel.valueProposition.genres.list.length).toEqual(1);
-        expect(nextModel.valueProposition.genres.list[0].parentId).toEqual(nextModel.valueProposition.genres.globalId);
-        expect(nextModel.valueProposition.genres.list[0].value).toEqual("test");
+        expect(nextModel[section][list].list).not.toEqual([]);
+        expect(nextModel[section][list].list.length).toEqual(1);
+        expect(nextModel[section][list].list[0].parentId).toEqual(nextModel[section][list].globalId);
+        expect(nextModel[section][list].list[0].value).toEqual("test");
       });
     });
 
-    describe("DeleteValuePropGenre", () => {
-      it("deletes an existing genre on the value proposition", () => {
+    describe.each`
+      event                                 | section               | list
+      ${"UpdateValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
+      ${"UpdateChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
+      ${"UpdateChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
+      ${"UpdateChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
+      ${"UpdateChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+    `("$event", ({ event, section, list }) => {
+      const addEvent = event.replace("Update", "Add");
+      const deleteEvent = event.replace("Update", "Delete");
+
+      it(`updates an existing entry on the ${section} '${list}'`, () => {
         let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropGenre({
-          parentId: initialModel.valueProposition.genres.globalId,
+        const addEntryEvent = events[addEvent]({
+          parentId: initialModel[section][list].globalId,
           value: "test"
         });
         initialModel = eventApplier.apply(initialModel, addEntryEvent);
 
-        const deleteEvent = events.DeleteValuePropGenre({
-          parentId: initialModel.valueProposition.genres.list[0].parentId,
-          globalId: initialModel.valueProposition.genres.list[0].globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.genres.list[0].value).toEqual("test");
-        // new model is updated
-        expect(nextModel.valueProposition.genres.list).toEqual([]);
-      });
-
-      it("[conflict] skips deleting an already deleted or non-existent genre", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropGenre({
-          parentId: initialModel.valueProposition.genres.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.valueProposition.genres.list[0];
-        const preDeleteEntry = events.DeleteValuePropGenre({ parentId: entry.parentId, globalId: entry.globalId });
-        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
-
-        const deleteEntryEvent = events.DeleteValuePropGenre({
-          parentId: entry.parentId,
-          globalId: entry.globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.genres.list).toEqual([]);
-        // the initial model is completely unchanged by this event
-        expect(nextModel).toEqual(initialModel);
-      });
-    });
-
-    describe("AddValuePropPlatform", () => {
-      it("adds a new platform to the value proposition", () => {
-        const initialModel = createEmptyBusinessModel();
-
-        const addEntryEvent = events.AddValuePropPlatform({
-          parentId: initialModel.valueProposition.platforms.globalId,
-          value: "test"
-        });
-        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.platforms.list).toEqual([]);
-        // now with the new entry
-        expect(nextModel.valueProposition.platforms.list).not.toEqual([]);
-        expect(nextModel.valueProposition.platforms.list.length).toEqual(1);
-        expect(nextModel.valueProposition.platforms.list[0].parentId).toEqual(nextModel.valueProposition.platforms.globalId);
-        expect(nextModel.valueProposition.platforms.list[0].value).toEqual("test");
-      });
-    });
-
-    describe("DeleteValuePropPlatform", () => {
-      it("deletes an existing platform on the value proposition", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropPlatform({
-          parentId: initialModel.valueProposition.platforms.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        const deleteEvent = events.DeleteValuePropPlatform({
-          parentId: initialModel.valueProposition.platforms.list[0].parentId,
-          globalId: initialModel.valueProposition.platforms.list[0].globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.platforms.list[0].value).toEqual("test");
-        // new model is updated
-        expect(nextModel.valueProposition.platforms.list).toEqual([]);
-      });
-
-      it("[conflict] skips deleting an already deleted or non-existent platform", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropPlatform({
-          parentId: initialModel.valueProposition.platforms.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.valueProposition.platforms.list[0];
-        const preDeleteEntry = events.DeleteValuePropPlatform({ parentId: entry.parentId, globalId: entry.globalId });
-        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
-
-        const deleteEntryEvent = events.DeleteValuePropPlatform({
-          parentId: entry.parentId,
-          globalId: entry.globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.platforms.list).toEqual([]);
-        // the initial model is completely unchanged by this event
-        expect(nextModel).toEqual(initialModel);
-      });
-    });
-
-    describe("AddValuePropEntry", () => {
-      it("adds a new entry to the value proposition", () => {
-        const initialModel = createEmptyBusinessModel();
-
-        const addEntryEvent = events.AddValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
-          value: "test"
-        });
-        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.valueProposition.entries.list).toEqual([]);
-        // now with the new entry
-        expect(nextModel.valueProposition.entries.list).not.toEqual([]);
-        expect(nextModel.valueProposition.entries.list.length).toEqual(1);
-        expect(nextModel.valueProposition.entries.list[0].parentId).toEqual(nextModel.valueProposition.entries.globalId);
-        expect(nextModel.valueProposition.entries.list[0].value).toEqual("test");
-      });
-    });
-
-    describe("UpdateValuePropEntry", () => {
-      it("updates an existing entry on the value proposition", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        const updateEntryEvent = events.UpdateValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
-          globalId: initialModel.valueProposition.entries.list[0].globalId,
+        const updateEntryEvent = events[event]({
+          parentId: initialModel[section][list].globalId,
+          globalId: initialModel[section][list].list[0].globalId,
           value: "test 2"
         });
         const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
 
         // original model is unchanged
-        expect(initialModel.valueProposition.entries.list[0].value).toEqual("test");
+        expect(initialModel[section][list].list[0].value).toEqual("test");
         // new model is updated
-        expect(nextModel.valueProposition.entries.list[0].value).toEqual("test 2");
+        expect(nextModel[section][list].list[0].value).toEqual("test 2");
       });
 
-      it("[conflict] skips updating a deleted entry", () => {
+      it(`[conflict] skips updating a deleted ${section} '${list}'`, () => {
         let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
+        const addEntryEvent = events[addEvent]({
+          parentId: initialModel[section][list].globalId,
           value: "test"
         });
         initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.valueProposition.entries.list[0];
-        const preDeleteEntry = events.DeleteValuePropEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        const entry = initialModel[section][list].list[0];
+        const preDeleteEntry = events[deleteEvent]({ parentId: entry.parentId, globalId: entry.globalId });
         initialModel = eventApplier.apply(initialModel, preDeleteEntry);
 
-        const updateEntryEvent = events.UpdateValuePropEntry({
+        const updateEntryEvent = events[event]({
           parentId: entry.parentId,
           globalId: entry.globalId,
           value: "test 2"
@@ -568,166 +457,63 @@ describe("businessModelStore", () => {
         const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
 
         // original model is unchanged
-        expect(initialModel.valueProposition.entries.list).toEqual([]);
+        expect(initialModel[section][list].list).toEqual([]);
         // the initial model is completely unchanged by this event
         expect(nextModel).toEqual(initialModel);
       });
     });
 
-    describe("DeleteValuePropEntry", () => {
-      it("deletes an existing entry on the value proposition", () => {
+    describe.each`
+    event                                 | section               | list
+      ${"DeleteValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
+      ${"DeleteValuePropPlatform"}          | ${"valueProposition"} | ${"platforms"}
+      ${"DeleteValuePropGenre"}             | ${"valueProposition"} | ${"genres"}
+      ${"DeleteChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
+      ${"DeleteChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
+      ${"DeleteChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
+      ${"DeleteChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+    `("$event", ({ event, section, list }) => {
+      const addEvent = event.replace("Delete", "Add");
+
+      it(`deletes an existing entry on the ${section} '${list}'`, () => {
         let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
+        const addEntryEvent = events[addEvent]({
+          parentId: initialModel[section][list].globalId,
           value: "test"
         });
         initialModel = eventApplier.apply(initialModel, addEntryEvent);
 
-        const deleteEvent = events.DeleteValuePropEntry({
-          parentId: initialModel.valueProposition.entries.list[0].parentId,
-          globalId: initialModel.valueProposition.entries.list[0].globalId
+        const deleteEvent = events[event]({
+          parentId: initialModel[section][list].list[0].parentId,
+          globalId: initialModel[section][list].list[0].globalId
         });
         const nextModel = eventApplier.apply(initialModel, deleteEvent);
 
         // original model is unchanged
-        expect(initialModel.valueProposition.entries.list[0].value).toEqual("test");
+        expect(initialModel[section][list].list[0].value).toEqual("test");
         // new model is updated
-        expect(nextModel.valueProposition.entries.list).toEqual([]);
+        expect(nextModel[section][list].list).toEqual([]);
       });
 
       it("[conflict] skips deleting an already deleted or non-existent entry", () => {
         let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddValuePropEntry({
-          parentId: initialModel.valueProposition.entries.globalId,
+        const addEntryEvent = events[addEvent]({
+          parentId: initialModel[section][list].globalId,
           value: "test"
         });
         initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.valueProposition.entries.list[0];
-        const preDeleteEntry = events.DeleteValuePropEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        const entry = initialModel[section][list].list[0];
+        const preDeleteEntry = events[event]({ parentId: entry.parentId, globalId: entry.globalId });
         initialModel = eventApplier.apply(initialModel, preDeleteEntry);
 
-        const deleteEntryEvent = events.DeleteValuePropEntry({
+        const deleteEntryEvent = events[event]({
           parentId: entry.parentId,
           globalId: entry.globalId
         });
         const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
 
         // original model is unchanged
-        expect(initialModel.valueProposition.entries.list).toEqual([]);
-        // the initial model is completely unchanged by this event
-        expect(nextModel).toEqual(initialModel);
-      });
-    });
-
-    // Channels
-
-    describe("AddChannelsAwarenessEntry", () => {
-      it("adds a new entry to the channels 'awareness'", () => {
-        const initialModel = createEmptyBusinessModel();
-
-        const addEntryEvent = events.AddChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          value: "test"
-        });
-        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.channels.awareness.list).toEqual([]);
-        // now with the new entry
-        expect(nextModel.channels.awareness.list).not.toEqual([]);
-        expect(nextModel.channels.awareness.list.length).toEqual(1);
-        expect(nextModel.channels.awareness.list[0].parentId).toEqual(nextModel.channels.awareness.globalId);
-        expect(nextModel.channels.awareness.list[0].value).toEqual("test");
-      });
-    });
-
-    describe("UpdateChannelsAwarenessEntry", () => {
-      it("updates an existing entry on the channels 'awareness'", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        const updateEntryEvent = events.UpdateChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          globalId: initialModel.channels.awareness.list[0].globalId,
-          value: "test 2"
-        });
-        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.channels.awareness.list[0].value).toEqual("test");
-        // new model is updated
-        expect(nextModel.channels.awareness.list[0].value).toEqual("test 2");
-      });
-
-      it("[conflict] skips updating a deleted entry", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.channels.awareness.list[0];
-        const preDeleteEntry = events.DeleteChannelsAwarenessEntry({ parentId: entry.parentId, globalId: entry.globalId });
-        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
-
-        const updateEntryEvent = events.UpdateChannelsAwarenessEntry({
-          parentId: entry.parentId,
-          globalId: entry.globalId,
-          value: "test 2"
-        });
-        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.channels.awareness.list).toEqual([]);
-        // the initial model is completely unchanged by this event
-        expect(nextModel).toEqual(initialModel);
-      });
-    });
-
-    describe("DeleteChannelAwarenessEntry", () => {
-      it("deletes an existing entry on the channels 'awareness'", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-
-        const deleteEvent = events.DeleteChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.list[0].parentId,
-          globalId: initialModel.channels.awareness.list[0].globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEvent);
-
-        // original model is unchanged
-        expect(initialModel.channels.awareness.list[0].value).toEqual("test");
-        // new model is updated
-        expect(nextModel.channels.awareness.list).toEqual([]);
-      });
-
-      it("[conflict] skips deleting an already deleted or non-existent entry", () => {
-        let initialModel = createEmptyBusinessModel();
-        const addEntryEvent = events.AddChannelsAwarenessEntry({
-          parentId: initialModel.channels.awareness.globalId,
-          value: "test"
-        });
-        initialModel = eventApplier.apply(initialModel, addEntryEvent);
-        const entry = initialModel.channels.awareness.list[0];
-        const preDeleteEntry = events.DeleteChannelsAwarenessEntry({ parentId: entry.parentId, globalId: entry.globalId });
-        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
-
-        const deleteEntryEvent = events.DeleteChannelsAwarenessEntry({
-          parentId: entry.parentId,
-          globalId: entry.globalId
-        });
-        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
-
-        // original model is unchanged
-        expect(initialModel.channels.awareness.list).toEqual([]);
+        expect(initialModel[section][list].list).toEqual([]);
         // the initial model is completely unchanged by this event
         expect(nextModel).toEqual(initialModel);
       });

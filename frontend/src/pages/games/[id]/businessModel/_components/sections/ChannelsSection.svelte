@@ -1,15 +1,12 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import type { IBusinessModel } from "../../_types/businessModel";
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
-  import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import EntryList from "./components/EntryList.svelte";
   import {
     businessModelEventStore,
     events,
   } from "../../_stores/businessModelStore";
-  import TagEntryList from "./components/TagEntryList.svelte";
 
   export let businessModel: IBusinessModel;
 
@@ -20,9 +17,6 @@
     businessModel.channels.consideration.list.length > 0 ||
     businessModel.channels.purchase.list.length > 0 ||
     businessModel.channels.postPurchase.list.length > 0;
-
-  // YOU ARE HERE -
-  //  * Update instructions
 </script>
 
 <style type="text/scss">
@@ -44,5 +38,29 @@
       on:create={({ detail }) => publish(events.AddChannelsAwarenessEntry(detail))}
       on:update={({ detail }) => publish(events.UpdateChannelsAwarenessEntry(detail))}
       on:delete={({ detail }) => publish(events.DeleteChannelsAwarenessEntry(detail))} />
+  </Row>
+  <Row>
+    <EntryList
+      label="Consideration"
+      entries={businessModel.channels.consideration}
+      on:create={({ detail }) => publish(events.AddChannelsConsiderationEntry(detail))}
+      on:update={({ detail }) => publish(events.UpdateChannelsConsiderationEntry(detail))}
+      on:delete={({ detail }) => publish(events.DeleteChannelsConsiderationEntry(detail))} />
+  </Row>
+  <Row>
+    <EntryList
+      label="Purchase"
+      entries={businessModel.channels.purchase}
+      on:create={({ detail }) => publish(events.AddChannelsPurchaseEntry(detail))}
+      on:update={({ detail }) => publish(events.UpdateChannelsPurchaseEntry(detail))}
+      on:delete={({ detail }) => publish(events.DeleteChannelsPurchaseEntry(detail))} />
+  </Row>
+  <Row>
+    <EntryList
+      label="Post-Purchase"
+      entries={businessModel.channels.postPurchase}
+      on:create={({ detail }) => publish(events.AddChannelsPostPurchaseEntry(detail))}
+      on:update={({ detail }) => publish(events.UpdateChannelsPostPurchaseEntry(detail))}
+      on:delete={({ detail }) => publish(events.DeleteChannelsPostPurchaseEntry(detail))} />
   </Row>
 </InputPanel>

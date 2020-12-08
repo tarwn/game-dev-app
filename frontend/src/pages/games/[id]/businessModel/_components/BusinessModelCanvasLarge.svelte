@@ -1,12 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { PredefinedIcons } from "../../../../../components/buttons/PredefinedIcons";
   import type { IBusinessModel } from "../_types/businessModel";
-  import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
-  import IconButton from "../../../../../components/buttons/IconButton.svelte";
+  import { getNextSection } from "../_types/businessModelUsage";
+  import BusinessModelCanvasSection from "./BusinessModelCanvasSection.svelte";
   import CustomersSectionSummary from "./sections/CustomersSectionSummary.svelte";
   import ValuePropositionSectionSummary from "./sections/ValuePropositionSectionSummary.svelte";
-  import { getNextSection } from "../_types/businessModelUsage";
+  import ChannelsSectionSummary from "./sections/ChannelsSectionSummary.svelte";
 
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
@@ -24,7 +23,13 @@
       (businessModel.valueProposition.genres.list.length > 0 ||
         businessModel.valueProposition.platforms.list.length > 0 ||
         businessModel.valueProposition.entries.list.length > 0),
-    channels: false,
+    channels:
+      !isLoading &&
+      businessModel &&
+      (businessModel.channels.awareness.list.length > 0 ||
+        businessModel.channels.consideration.list.length > 0 ||
+        businessModel.channels.purchase.list.length > 0 ||
+        businessModel.channels.postPurchase.list.length > 0),
     customerRelationships: false,
     revenue: false,
     keyResources: false,
@@ -50,7 +55,7 @@
   }
 </script>
 
-<style type="text/scss">
+<style type="text/scss" global>
   @import "../../../../../styles/_variables.scss";
   @import "../../../../../styles/mixins/_loadingPulse.scss";
   @import "../../../../../styles/mixins/_scrollbar.scss";
@@ -167,7 +172,7 @@
     flex-grow: 1;
     display: flex;
     align-items: center;
-    margin-bottom: $space-xl;
+    margin-top: $space-xl;
     justify-content: center;
   }
 
@@ -191,97 +196,68 @@
     <h3 class:isLoading>Key Partners</h3>
     <div class="gdb-board-section-content" />
   </div>
+
   <div class="gdb-board-section gdb-board-keyActivities">
     <h3 class:isLoading>Key Activities</h3>
   </div>
+
   <div class="gdb-board-section gdb-board-keyResources">
     <h3 class:isLoading>Key Resources</h3>
     <div class="gdb-board-section-content" />
   </div>
-  <div
-    class="gdb-board-section gdb-board-valueProposition"
-    class:emphasize={nextIs === 'valueProposition' && highlight}
-    class:doNotDemphasize={editable.valueProposition && highlight}
-    class:highlight={highlight && (editable.valueProposition || nextIs === 'valueProposition')}>
-    {#if !isMiniMap && editable.valueProposition}
-      <div class="gdb-button-edit-panel">
-        <IconButton
-          icon={PredefinedIcons.Edit}
-          buttonStyle="bm-edit-charm"
-          on:click={() => dispatch('sectionChange', {
-              section: 'valueProposition',
-            })} />
-      </div>
-    {/if}
-    <h3 class:isLoading>Value Proposition</h3>
-    <div class="gdb-board-section-content">
-      {#if isLoading}
-        <ul class="gdb-loading-block">
-          <li />
-          <li />
-          <li />
-        </ul>
-      {:else if !isMiniMap && nextIs === 'valueProposition'}
-        <div class="gdb-board-button-panel">
-          <IconTextButton
-            value="Continue Here"
-            icon={PredefinedIcons.Plus}
-            on:click={() => dispatch('sectionChange', {
-                section: 'valueProposition',
-              })} />
-        </div>
-      {:else}
-        <ValuePropositionSectionSummary {businessModel} />
-      {/if}
-    </div>
-  </div>
+
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-valueProposition"
+    label="Value Proposition"
+    {isLoading}
+    highlightAsNext={highlight == 'valueProposition'}
+    isEditable={editable.valueProposition}
+    {isMiniMap}
+    section="valueProposition"
+    {nextIs}
+    on:showMe={() => dispatch('sectionChange', {
+        section: 'valueProposition',
+      })}>
+    <ValuePropositionSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
+
   <div class="gdb-board-section gdb-board-customerRelationships">
     <h3 class:isLoading>Customer Relationships</h3>
     <div class="gdb-board-section-content" />
   </div>
-  <div class="gdb-board-section gdb-board-channels">
-    <h3 class:isLoading>Channels</h3>
-    <div class="gdb-board-section-content" />
-  </div>
-  <div
-    class="gdb-board-section gdb-board-customers"
-    class:emphasize={nextIs === 'customer' && highlight}
-    class:doNotDemphasize={editable.customers && highlight}
-    class:highlight={highlight && (editable.customers || nextIs === 'customer')}>
-    {#if !isMiniMap && editable.customers}
-      <div class="gdb-button-edit-panel">
-        <IconButton
-          icon={PredefinedIcons.Edit}
-          buttonStyle="bm-edit-charm"
-          on:click={() => dispatch('sectionChange', { section: 'customer' })} />
-      </div>
-    {/if}
-    <h3 class:isLoading>Customer / Players</h3>
-    <div class="gdb-board-section-content">
-      {#if isLoading}
-        <ul class="gdb-loading-block">
-          <li />
-          <li />
-          <li />
-        </ul>
-      {:else if !isMiniMap && nextIs === 'customer'}
-        <div class="gdb-board-button-panel">
-          <IconTextButton
-            value="Start Here"
-            icon={PredefinedIcons.Plus}
-            on:click={() => dispatch('sectionChange', {
-                section: 'customer',
-              })} />
-        </div>
-      {:else}
-        <CustomersSectionSummary {businessModel} />
-      {/if}
-    </div>
-  </div>
+
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-channels"
+    label="Channels"
+    {isLoading}
+    highlightAsNext={highlight == 'channels'}
+    isEditable={editable.channels}
+    {isMiniMap}
+    section="channels"
+    {nextIs}
+    on:showMe={() => dispatch('sectionChange', { section: 'channels' })}>
+    <ChannelsSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
+
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-customers"
+    label="Customers / Players"
+    {isLoading}
+    highlightAsNext={highlight == 'customers'}
+    isEditable={editable.customers}
+    {isMiniMap}
+    section="customers"
+    {nextIs}
+    emptyButtonText="Start Here"
+    on:showMe={() => dispatch('sectionChange', { section: 'customers' })}>
+    <CustomersSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
+
   <div class="gdb-board-section gdb-board-costStructure">
     <h3 class:isLoading>Cost Structure</h3>
     <div class="gdb-board-section-content" />
   </div>
+
   <div class="gdb-board-section gdb-board-revenue">
     <h3 class:isLoading>Revenue</h3>
     <div class="gdb-board-section-content" />

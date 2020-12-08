@@ -163,44 +163,31 @@ namespace GDB.Business.BusinessLogic
                     model.Customers.List.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
                     break;
                 case "AddCustomerEntry":
-                    EnsureOperationCount(change, 1);
-                    {
+                    ApplyBasicListAdd(model, change, m => {
                         var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
                         if (customer != null)
-                        {
-                            customer.Entries.List.Add(new IdentifiedPrimitive<string>()
-                            {
-                                GlobalId = change.Operations[0].ObjectId,
-                                ParentId = change.Operations[0].ParentId,
-                                Field = change.Operations[0].Field,
-                                Value = change.Operations[0].Value.ToString()
-                            });
-                        }
-                    }
+                            return customer.Entries;
+                        else
+                            return null;
+                    });
                     break;
                 case "UpdateCustomerEntry":
-                    EnsureOperationCount(change, 1);
-                    {
+                    ApplyBasicListUpdate(model, change, m => {
                         var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
                         if (customer != null)
-                        {
-                            var entry = customer.Entries.List.SingleOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
-                            if (entry != null)
-                            {
-                                entry.Value = change.Operations[0].Value.ToString();
-                            }
-                        }
-                    }
+                            return customer.Entries;
+                        else
+                            return null;
+                    });
                     break;
                 case "DeleteCustomerEntry":
-                    EnsureOperationCount(change, 1);
-                    {
+                    ApplyBasicListDelete(model, change, m => {
                         var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
                         if (customer != null)
-                        {
-                            customer.Entries.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
-                        }
-                    }
+                            return customer.Entries;
+                        else
+                            return null;
+                    });
                     break;
                 case "UpdateCustomerType":
                     EnsureOperationCount(change, 1);
@@ -223,68 +210,61 @@ namespace GDB.Business.BusinessLogic
                     }
                     break;
                 case "AddValuePropGenre":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Genres.List.Add(new IdentifiedPrimitive<string>()
-                        {
-                            GlobalId = change.Operations[0].ObjectId,
-                            ParentId = change.Operations[0].ParentId,
-                            Field = change.Operations[0].Field,
-                            Value = change.Operations[0].Value.ToString()
-                        });
-                    }
+                    ApplyBasicListAdd(model, change, m => model.ValueProposition.Genres);
                     break;
                 case "DeleteValuePropGenre":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Genres.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
-                    }
+                    ApplyBasicListDelete(model, change, m => model.ValueProposition.Genres);
                     break;
                 case "AddValuePropPlatform":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Platforms.List.Add(new IdentifiedPrimitive<string>()
-                        {
-                            GlobalId = change.Operations[0].ObjectId,
-                            ParentId = change.Operations[0].ParentId,
-                            Field = change.Operations[0].Field,
-                            Value = change.Operations[0].Value.ToString()
-                        });
-                    }
+                    ApplyBasicListAdd(model, change, m => model.ValueProposition.Platforms);
                     break;
                 case "DeleteValuePropPlatform":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Platforms.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
-                    }
+                    ApplyBasicListDelete(model, change, m => model.ValueProposition.Platforms);
                     break;
                 case "AddValuePropEntry":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Entries.List.Add(new IdentifiedPrimitive<string>()
-                        {
-                            GlobalId = change.Operations[0].ObjectId,
-                            ParentId = change.Operations[0].ParentId,
-                            Field = change.Operations[0].Field,
-                            Value = change.Operations[0].Value.ToString()
-                        });
-                    }
+                    ApplyBasicListAdd(model, change, m => model.ValueProposition.Entries);
                     break;
                 case "UpdateValuePropEntry":
-                    EnsureOperationCount(change, 1);
-                    {
-                            var entry = model.ValueProposition.Entries.List.SingleOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
-                            if (entry != null)
-                            {
-                                entry.Value = change.Operations[0].Value.ToString();
-                            }
-                    }
+                    ApplyBasicListUpdate(model, change, m => model.ValueProposition.Entries);
                     break;
                 case "DeleteValuePropEntry":
-                    EnsureOperationCount(change, 1);
-                    {
-                        model.ValueProposition.Entries.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
-                    }
+                    ApplyBasicListDelete(model, change, m => model.ValueProposition.Entries);
+                    break;
+                case "AddChannelsAwarenessEntry":
+                    ApplyBasicListAdd(model, change, m => model.Channels.Awareness);
+                    break;
+                case "UpdateChannelsAwarenessEntry":
+                    ApplyBasicListUpdate(model, change, m => model.Channels.Awareness);
+                    break;
+                case "DeleteChannelsAwarenessEntry":
+                    ApplyBasicListDelete(model, change, m => model.Channels.Awareness);
+                    break;
+                case "AddChannelsConsiderationEntry":
+                    ApplyBasicListAdd(model, change, m => model.Channels.Consideration);
+                    break;
+                case "UpdateChannelsConsiderationEntry":
+                    ApplyBasicListUpdate(model, change, m => model.Channels.Consideration);
+                    break;
+                case "DeleteChannelsConsiderationEntry":
+                    ApplyBasicListDelete(model, change, m => model.Channels.Consideration);
+                    break;
+                case "AddChannelsPurchaseEntry":
+                    ApplyBasicListAdd(model, change, m => model.Channels.Purchase);
+                    break;
+                case "UpdateChannelsPurchaseEntry":
+                    ApplyBasicListUpdate(model, change, m => model.Channels.Purchase);
+                    break;
+                case "DeleteChannelsPurchaseEntry":
+                    ApplyBasicListDelete(model, change, m => model.Channels.Purchase);
+                    break;
+                case "AddChannelsPostPurchaseEntry":
+                    ApplyBasicListAdd(model, change, m => model.Channels.PostPurchase);
+                    break;
+                case "UpdateChannelsPostPurchaseEntry":
+                    ApplyBasicListUpdate(model, change, m => model.Channels.PostPurchase);
+                    break;
+                case "DeleteChannelsPostPurchaseEntry":
+                    ApplyBasicListDelete(model, change, m => model.Channels.PostPurchase);
                     break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
@@ -299,6 +279,51 @@ namespace GDB.Business.BusinessLogic
             });
             _globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
             return new Applied<BusinessModelChangeEvent>(gameId, change.PreviousVersionNumber, model.VersionNumber, newEvent);
+        }
+
+        private void ApplyBasicListDelete(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        {
+            EnsureOperationCount(change, 1);
+            {
+                var parent = getParent(model);
+                if (parent != null)
+                {
+                    parent.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
+                }
+            }
+        }
+
+        private void ApplyBasicListUpdate(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        {
+            EnsureOperationCount(change, 1);
+            {
+                var parent = getParent(model);
+                if (parent != null)
+                {
+                    var entry = parent.List.SingleOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                    if (entry != null)
+                    {
+                        entry.Value = change.Operations[0].Value.ToString();
+                    }
+                }
+            }
+        }
+
+        private void ApplyBasicListAdd(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        {
+            EnsureOperationCount(change, 1);
+            {
+                var parent = getParent(model);
+                    if (parent != null) {
+                    parent.List.Add(new IdentifiedPrimitive<string>()
+                    {
+                        GlobalId = change.Operations[0].ObjectId,
+                        ParentId = change.Operations[0].ParentId,
+                        Field = change.Operations[0].Field,
+                        Value = change.Operations[0].Value.ToString()
+                    });
+                }
+            }
         }
 
         private void EnsureOperationCount(IncomingBusinessModelChangeEvent change, int expectedCount)

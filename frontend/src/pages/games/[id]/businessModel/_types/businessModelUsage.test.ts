@@ -5,7 +5,7 @@ describe("businessModelUsage", () => {
   it("reports customer when not customers added yet", () => {
     const businessModel = createEmptyBusinessModel();
     const nextIs = getNextSection(businessModel);
-    expect(nextIs).toEqual("customer");
+    expect(nextIs).toEqual("customers");
   });
 
   it("reports valueProp when customer added but no value prop values yet", () => {

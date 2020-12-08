@@ -177,6 +177,15 @@ const businessModelEvents = {
   "AddChannelsAwarenessEntry": basicListFactory.makeAdd("AddChannelsAwarenessEntry", (model) => model.channels.awareness),
   "UpdateChannelsAwarenessEntry": basicListFactory.makeUpdate("UpdateChannelsAwarenessEntry", (model) => model.channels.awareness),
   "DeleteChannelsAwarenessEntry": basicListFactory.makeDelete("DeleteChannelsAwarenessEntry", (model) => model.channels.awareness),
+  "AddChannelsConsiderationEntry": basicListFactory.makeAdd("AddChannelsConsiderationEntry", (model) => model.channels.consideration),
+  "UpdateChannelsConsiderationEntry": basicListFactory.makeUpdate("UpdateChannelsConsiderationEntry", (model) => model.channels.consideration),
+  "DeleteChannelsConsiderationEntry": basicListFactory.makeDelete("DeleteChannelsConsiderationEntry", (model) => model.channels.consideration),
+  "AddChannelsPurchaseEntry": basicListFactory.makeAdd("AddChannelsPurchaseEntry", (model) => model.channels.purchase),
+  "UpdateChannelsPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPurchaseEntry", (model) => model.channels.purchase),
+  "DeleteChannelsPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPurchaseEntry", (model) => model.channels.purchase),
+  "AddChannelsPostPurchaseEntry": basicListFactory.makeAdd("AddChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
+  "UpdateChannelsPostPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
+  "DeleteChannelsPostPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
 };
 
 export const events = {
@@ -197,6 +206,15 @@ export const events = {
   "AddChannelsAwarenessEntry": businessModelEvents.AddChannelsAwarenessEntry.get,
   "UpdateChannelsAwarenessEntry": businessModelEvents.UpdateChannelsAwarenessEntry.get,
   "DeleteChannelsAwarenessEntry": businessModelEvents.DeleteChannelsAwarenessEntry.get,
+  "AddChannelsConsiderationEntry": businessModelEvents.AddChannelsConsiderationEntry.get,
+  "UpdateChannelsConsiderationEntry": businessModelEvents.UpdateChannelsConsiderationEntry.get,
+  "DeleteChannelsConsiderationEntry": businessModelEvents.DeleteChannelsConsiderationEntry.get,
+  "AddChannelsPurchaseEntry": businessModelEvents.AddChannelsPurchaseEntry.get,
+  "UpdateChannelsPurchaseEntry": businessModelEvents.UpdateChannelsPurchaseEntry.get,
+  "DeleteChannelsPurchaseEntry": businessModelEvents.DeleteChannelsPurchaseEntry.get,
+  "AddChannelsPostPurchaseEntry": businessModelEvents.AddChannelsPostPurchaseEntry.get,
+  "UpdateChannelsPostPurchaseEntry": businessModelEvents.UpdateChannelsPostPurchaseEntry.get,
+  "DeleteChannelsPostPurchaseEntry": businessModelEvents.DeleteChannelsPostPurchaseEntry.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {
