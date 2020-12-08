@@ -16,14 +16,14 @@
   const dispatch = createEventDispatcher();
 
   $: editable = {
+    customers:
+      !isLoading && businessModel && businessModel.customers.list.length > 0,
     valueProposition:
       !isLoading &&
       businessModel &&
       (businessModel.valueProposition.genres.list.length > 0 ||
         businessModel.valueProposition.platforms.list.length > 0 ||
         businessModel.valueProposition.entries.list.length > 0),
-    customers:
-      !isLoading && businessModel && businessModel.customers.list.length > 0,
     channels: false,
     customerRelationships: false,
     revenue: false,
@@ -40,6 +40,8 @@
     } else {
       nextIs = getNextSection(businessModel);
     }
+
+    console.log(editable);
   }
 
   function onMouseEnter() {
@@ -77,7 +79,75 @@
     }
   }
 
+  .gdb-board {
+    border: 3px solid $cs-grey-4;
+
+    &.isMiniMap {
+      border-width: 1px;
+      // transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+      & > .gdb-board-section {
+        padding: 4px;
+        border-width: 1px;
+      }
+
+      & > .gdb-board-section > h3 {
+        margin-top: 4px;
+        font-size: 4px;
+        white-space: nowrap;
+      }
+
+      & .gdb-board-button-panel {
+        display: none;
+      }
+    }
+  }
+
   .gdb-board-section {
+    border: 3px solid $cs-grey-4;
+    padding: $space-s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    // firefox
+    scrollbar-width: thin;
+    scrollbar-color: $cs-grey-1 $cs-grey-0;
+    // chrome/safari
+    &::-webkit-scrollbar {
+      width: 8px; /* width of the entire scrollbar */
+    }
+    &::-webkit-scrollbar-track {
+      background: $cs-grey-0; /* color of the tracking area */
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: $cs-grey-1; /* color of the scroll thumb */
+      border-radius: 20px; /* roundness of the scroll thumb */
+      border: 1px solid $cs-grey-0; /* creates padding around scroll thumb */
+    }
+
+    &:hover {
+      // firefox
+      scrollbar-color: $cs-grey-3 $cs-grey-0;
+      // chrome/safari
+      &::-webkit-scrollbar-thumb {
+        background-color: $cs-grey-3; /* color of the scroll thumb */
+      }
+    }
+
+    & > h3 {
+      margin-top: $space-s;
+      flex-grow: 0;
+      flex-shrink: 0;
+
+      &.isLoading {
+        @include loading-pulse;
+        max-width: 10rem;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
     &.highlight {
       background-color: $color-accent-1-lightest;
     }

@@ -35,7 +35,7 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR="~/reports/"
             JEST_JUNIT_OUTPUT_NAME="frontend.xml"
             JEST_JUNIT_ANCESTOR_SEPARATOR=" > "
-            JEST_JUNIT_SUITE_NAME ="{filename}"
+            JEST_JUNIT_SUITE_NAME="{filename}"
             JEST_JUNIT_CLASSNAME="{classname}"
             JEST_JUNIT_TITLE="{classname} > {title}"
             yarn run ci:test

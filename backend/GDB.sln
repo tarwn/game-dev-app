@@ -9,11 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Business", "GDB.Busines
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Common", "GDB.Common\GDB.Common.csproj", "{F5B1EA91-712B-4988-AFB5-FA73473DB1B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Tools.DatabaseMigration", "GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj", "{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Tools.DatabaseMigration", "GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj", "{0BDDE9E6-AA6F-459D-B7B4-0B0D491D3925}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Persistence", "GDB.Persistence\GDB.Persistence.csproj", "{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Persistence", "GDB.Persistence\GDB.Persistence.csproj", "{AD67BD87-87D2-4D65-9A13-1F43933EC7E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.App.Tests", "GDB.App.Tests\GDB.App.Tests.csproj", "{D9E13B1D-EA66-417D-A6BC-5536C257A237}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.App.Tests", "GDB.App.Tests\GDB.App.Tests.csproj", "{D9E13B1D-EA66-417D-A6BC-5536C257A237}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Business.Tests", "GDB.Business.Tests\GDB.Business.Tests.csproj", "{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9E13B1D-EA66-417D-A6BC-5536C257A237}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -222,6 +222,34 @@ namespace GDB.Business.BusinessLogic
                         }
                     }
                     break;
+                case "AddValuePropEntry":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Entries.List.Add(new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[0].ObjectId,
+                            ParentId = change.Operations[0].ParentId,
+                            Field = change.Operations[0].Field,
+                            Value = change.Operations[0].Value.ToString()
+                        });
+                    }
+                    break;
+                case "UpdateValuePropEntry":
+                    EnsureOperationCount(change, 1);
+                    {
+                            var entry = model.ValueProposition.Entries.List.SingleOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                            if (entry != null)
+                            {
+                                entry.Value = change.Operations[0].Value.ToString();
+                            }
+                    }
+                    break;
+                case "DeleteValuePropEntry":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Entries.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }
