@@ -376,6 +376,136 @@ describe("businessModelStore", () => {
 
     // value prop
 
+    describe("AddValuePropGenre", () => {
+      it("adds a new genre to the value proposition", () => {
+        const initialModel = createEmptyBusinessModel();
+
+        const addEntryEvent = events.AddValuePropGenre({
+          parentId: initialModel.valueProposition.genres.globalId,
+          value: "test"
+        });
+        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.genres.list).toEqual([]);
+        // now with the new entry
+        expect(nextModel.valueProposition.genres.list).not.toEqual([]);
+        expect(nextModel.valueProposition.genres.list.length).toEqual(1);
+        expect(nextModel.valueProposition.genres.list[0].parentId).toEqual(nextModel.valueProposition.genres.globalId);
+        expect(nextModel.valueProposition.genres.list[0].value).toEqual("test");
+      });
+    });
+
+    describe("DeleteValuePropGenre", () => {
+      it("deletes an existing genre on the value proposition", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropGenre({
+          parentId: initialModel.valueProposition.genres.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const deleteEvent = events.DeleteValuePropGenre({
+          parentId: initialModel.valueProposition.genres.list[0].parentId,
+          globalId: initialModel.valueProposition.genres.list[0].globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.genres.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.valueProposition.genres.list).toEqual([]);
+      });
+
+      it("[conflict] skips deleting an already deleted or non-existent genre", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropGenre({
+          parentId: initialModel.valueProposition.genres.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.valueProposition.genres.list[0];
+        const preDeleteEntry = events.DeleteValuePropGenre({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const deleteEntryEvent = events.DeleteValuePropGenre({
+          parentId: entry.parentId,
+          globalId: entry.globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.genres.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
+    describe("AddValuePropPlatform", () => {
+      it("adds a new platform to the value proposition", () => {
+        const initialModel = createEmptyBusinessModel();
+
+        const addEntryEvent = events.AddValuePropPlatform({
+          parentId: initialModel.valueProposition.platforms.globalId,
+          value: "test"
+        });
+        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.platforms.list).toEqual([]);
+        // now with the new entry
+        expect(nextModel.valueProposition.platforms.list).not.toEqual([]);
+        expect(nextModel.valueProposition.platforms.list.length).toEqual(1);
+        expect(nextModel.valueProposition.platforms.list[0].parentId).toEqual(nextModel.valueProposition.platforms.globalId);
+        expect(nextModel.valueProposition.platforms.list[0].value).toEqual("test");
+      });
+    });
+
+    describe("DeleteValuePropPlatform", () => {
+      it("deletes an existing platform on the value proposition", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropPlatform({
+          parentId: initialModel.valueProposition.platforms.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const deleteEvent = events.DeleteValuePropPlatform({
+          parentId: initialModel.valueProposition.platforms.list[0].parentId,
+          globalId: initialModel.valueProposition.platforms.list[0].globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.platforms.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.valueProposition.platforms.list).toEqual([]);
+      });
+
+      it("[conflict] skips deleting an already deleted or non-existent platform", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropPlatform({
+          parentId: initialModel.valueProposition.platforms.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.valueProposition.platforms.list[0];
+        const preDeleteEntry = events.DeleteValuePropPlatform({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const deleteEntryEvent = events.DeleteValuePropPlatform({
+          parentId: entry.parentId,
+          globalId: entry.globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.platforms.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
     describe("AddValuePropEntry", () => {
       it("adds a new entry to the value proposition", () => {
         const initialModel = createEmptyBusinessModel();

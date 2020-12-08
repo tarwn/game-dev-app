@@ -36,13 +36,13 @@ function createValueProposition(parentId: string, globalId: string, field?: stri
     globalId,
     parentId,
     field,
-    genres: createObjectList<IIdentifiedPrimitive<string>>(globalId + "-genres", globalId, "genres"),
-    platforms: createObjectList<IIdentifiedPrimitive<string>>(globalId + "-platforms", globalId, "platforms"),
-    entries: createObjectList<IIdentifiedPrimitive<string>>(globalId + "-entries", globalId, "entries")
+    genres: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-genres", "genres"),
+    platforms: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-platforms", "platforms"),
+    entries: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-entries", "entries")
   };
 }
 
-export function createIdentifiedPrimitive<T>(parentId: string, globalId: string, value: T, field?: string) {
+export function createIdentifiedPrimitive<T>(parentId: string, globalId: string, value: T, field?: string): IIdentifiedPrimitive<T> {
   return {
     parentId,
     globalId,

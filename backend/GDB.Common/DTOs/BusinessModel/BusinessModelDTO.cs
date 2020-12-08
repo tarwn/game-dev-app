@@ -30,9 +30,24 @@ namespace GDB.Common.DTOs.BusinessModel
                 ParentId = modelId,
                 GlobalId = $"{modelId}:vp",
                 Field = "value-proposition",
-                Genres = new IdentifiedList<IdentifiedPrimitive<string>>(),
-                Platforms = new IdentifiedList<IdentifiedPrimitive<string>>(),
-                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                Genres = new IdentifiedList<IdentifiedPrimitive<string>>() {
+                    ParentId = $"{modelId}:vp",
+                    GlobalId = $"{modelId}:vp:genres",
+                    Field = "genres",
+                    List = new List<IdentifiedPrimitive<string>>()
+                },
+                Platforms = new IdentifiedList<IdentifiedPrimitive<string>>() {
+                    ParentId = $"{modelId}:vp",
+                    GlobalId = $"{modelId}:bp:platforms",
+                    Field = "platforms",
+                    List = new List<IdentifiedPrimitive<string>>()
+                },
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>() {
+                    ParentId = $"{modelId}:vp",
+                    GlobalId = $"{modelId}:vo:entries",
+                    Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
             };
         }
 

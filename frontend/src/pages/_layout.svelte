@@ -92,7 +92,7 @@
         <li>
           <MenuItemLink
             path="./studio/billing"
-            name="Billing Plan"
+            name="Account"
             icon="true-BusinessandFinance_business_finance_invoice" />
         </li>
       </ul>

@@ -9,35 +9,25 @@
     businessModelEventStore,
     events,
   } from "../../_stores/businessModelStore";
+  import TagEntryList from "./components/TagEntryList.svelte";
+  import { Platform } from "@microsoft/signalr/dist/esm/Utils";
 
   export let businessModel: IBusinessModel;
 
-  const dispatch = createEventDispatcher();
+  const publish = businessModelEventStore.addEvent;
+  // const dispatch = createEventDispatcher();
 
   $: hasMinimumInfo =
     businessModel.valueProposition.genres.list.length > 0 ||
     businessModel.valueProposition.platforms.list.length > 0 ||
     businessModel.valueProposition.entries.list.length > 0;
 
-  function handleEntryCreate(evt) {
-    businessModelEventStore.addEvent(events.AddValuePropEntry(evt.detail));
-  }
-  function handleEntryUpdate(evt) {
-    businessModelEventStore.addEvent(events.UpdateValuePropEntry(evt.detail));
-  }
-  function handleEntryDelete(evt) {
-    businessModelEventStore.addEvent(events.DeleteValuePropEntry(evt.detail));
-  }
-
   // YOU ARE HERE -
-  //  * Ditto back-end
-  //  * Add TagEntryList component for genres
-  //  * Add events, applies, tests to frontend
-  //  * Ditto back-end
   //  * Add TagEntryList component for platforms
   //  * Add events, applies, tests to frontend
   //  * Ditto back-end
   //  * Update instructions
+  //  * style bus mod canvas large
 </script>
 
 <style type="text/scss">
@@ -53,20 +43,27 @@
   on:clickFullscreen
   on:clickNext>
   <Row>
-    <LabeledInput label="Genres">
-      {#each businessModel.valueProposition.genres.list as genre (genre.globalId)}
-        <span>{genre.value}</span>
-      {/each}
-      <input type="text" on:change={() => console.log} />
-    </LabeledInput>
-    <LabeledInput label="Platforms" />
-    <Row>
-      <EntryList
-        label="Unique Proposition"
-        entries={businessModel.valueProposition.entries}
-        on:create={handleEntryCreate}
-        on:update={handleEntryUpdate}
-        on:delete={handleEntryDelete} />
-    </Row>
+    <TagEntryList
+      placeholder="Add a genre"
+      label="Genre(s)"
+      entries={businessModel.valueProposition.genres}
+      on:create={({ detail }) => publish(events.AddValuePropGenre(detail))}
+      on:delete={({ detail }) => publish(events.DeleteValuePropGenre(detail))} />
+  </Row>
+  <Row>
+    <TagEntryList
+      placeholder="Enter a platform"
+      label="Platform(s)"
+      entries={businessModel.valueProposition.platforms}
+      on:create={({ detail }) => publish(events.AddValuePropPlatform(detail))}
+      on:delete={({ detail }) => publish(events.DeleteValuePropPlatform(detail))} />
+  </Row>
+  <Row>
+    <EntryList
+      label="Unique Proposition"
+      entries={businessModel.valueProposition.entries}
+      on:create={({ detail }) => publish(events.AddValuePropEntry(detail))}
+      on:update={({ detail }) => publish(events.UpdateValuePropEntry(detail))}
+      on:delete={({ detail }) => publish(events.DeleteValuePropEntry(detail))} />
   </Row>
 </InputPanel>

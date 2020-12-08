@@ -213,6 +213,78 @@ const businessModelEvents = {
       model.valueProposition.entries.list.splice(eIndex, 1);
     }
   },
+  "AddValuePropGenre": {
+    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
+        type: "AddValuePropGenre",
+        operations: [
+          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      model.valueProposition.genres.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        value: event.operations[0].value,
+        field: event.operations[0].field
+      });
+    }
+  },
+  "DeleteValuePropGenre": {
+    get: ({ parentId, globalId }: Identified): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "DeleteValuePropGenre",
+        operations: [
+          { action: OperationType.Delete, objectId: globalId, parentId }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const eIndex = model.valueProposition.genres.list.findIndex(e => e.globalId == event.operations[0].objectId);
+      if (eIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.valueProposition.genres.list.splice(eIndex, 1);
+    }
+  },
+  "AddValuePropPlatform": {
+    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
+        type: "AddValuePropPlatform",
+        operations: [
+          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      model.valueProposition.platforms.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        value: event.operations[0].value,
+        field: event.operations[0].field
+      });
+    }
+  },
+  "DeleteValuePropPlatform": {
+    get: ({ parentId, globalId }: Identified): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "DeleteValuePropPlatform",
+        operations: [
+          { action: OperationType.Delete, objectId: globalId, parentId }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const eIndex = model.valueProposition.platforms.list.findIndex(e => e.globalId == event.operations[0].objectId);
+      if (eIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.valueProposition.platforms.list.splice(eIndex, 1);
+    }
+  },
 };
 
 export const events = {
@@ -223,6 +295,10 @@ export const events = {
   "DeleteCustomerEntry": businessModelEvents.DeleteCustomerEntry.get,
   "UpdateCustomerType": businessModelEvents.UpdateCustomerType.get,
   "UpdateCustomerName": businessModelEvents.UpdateCustomerName.get,
+  "AddValuePropGenre": businessModelEvents.AddValuePropGenre.get,
+  "DeleteValuePropGenre": businessModelEvents.DeleteValuePropGenre.get,
+  "AddValuePropPlatform": businessModelEvents.AddValuePropPlatform.get,
+  "DeleteValuePropPlatform": businessModelEvents.DeleteValuePropPlatform.get,
   "AddValuePropEntry": businessModelEvents.AddValuePropEntry.get,
   "UpdateValuePropEntry": businessModelEvents.UpdateValuePropEntry.get,
   "DeleteValuePropEntry": businessModelEvents.DeleteValuePropEntry.get,

@@ -222,6 +222,42 @@ namespace GDB.Business.BusinessLogic
                         }
                     }
                     break;
+                case "AddValuePropGenre":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Genres.List.Add(new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[0].ObjectId,
+                            ParentId = change.Operations[0].ParentId,
+                            Field = change.Operations[0].Field,
+                            Value = change.Operations[0].Value.ToString()
+                        });
+                    }
+                    break;
+                case "DeleteValuePropGenre":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Genres.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
+                    }
+                    break;
+                case "AddValuePropPlatform":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Platforms.List.Add(new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[0].ObjectId,
+                            ParentId = change.Operations[0].ParentId,
+                            Field = change.Operations[0].Field,
+                            Value = change.Operations[0].Value.ToString()
+                        });
+                    }
+                    break;
+                case "DeleteValuePropPlatform":
+                    EnsureOperationCount(change, 1);
+                    {
+                        model.ValueProposition.Platforms.List.RemoveAll(e => e.GlobalId == change.Operations[0].ObjectId);
+                    }
+                    break;
                 case "AddValuePropEntry":
                     EnsureOperationCount(change, 1);
                     {

@@ -3,6 +3,8 @@
   export let icon: PredefinedIcons | string;
   export let buttonStyle: string = "primary";
   export let disabled: boolean = false;
+  export let label: string | null = null;
+  export let size: "normal" | "small" = "normal";
 
   let buttonStyleClass = "";
 
@@ -20,6 +22,10 @@
         buttonStyleClass = "gdb-bs-primary";
         break;
     }
+
+    if (size === "small") {
+      buttonStyleClass += " gdb-bs-small";
+    }
   }
 </script>
 
@@ -34,6 +40,10 @@
     line-height: 32px;
     color: $cs-grey-2;
     box-shadow: unset;
+
+    &.gdb-bs-small {
+      font-size: 16px;
+    }
 
     &:hover {
       color: $color-accent-1;
@@ -87,6 +97,7 @@
 <button
   on:click|preventDefault|stopPropagation
   class="gdb-button {buttonStyleClass}"
-  {disabled}>
+  {disabled}
+  {label}>
   <i class="gdb-button-icon {iconString}" />
 </button>
