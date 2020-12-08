@@ -44,8 +44,41 @@ namespace GDB.Common.DTOs.BusinessModel
                 },
                 Entries = new IdentifiedList<IdentifiedPrimitive<string>>() {
                     ParentId = $"{modelId}:vp",
-                    GlobalId = $"{modelId}:vo:entries",
+                    GlobalId = $"{modelId}:vp:entries",
                     Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
+            };
+            Channels = new BusinessModelValueChannels() {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:channels",
+                Field = "channels",
+                Awareness = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:channels",
+                    GlobalId = $"{modelId}:channels:awareness",
+                    Field = "awareness",
+                    List = new List<IdentifiedPrimitive<string>>()
+                },
+                Consideration = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:channels",
+                    GlobalId = $"{modelId}:channels:consider",
+                    Field = "consideration",
+                    List = new List<IdentifiedPrimitive<string>>()
+                },
+                Purchase = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:channels",
+                    GlobalId = $"{modelId}:channels:purch",
+                    Field = "purchase",
+                    List = new List<IdentifiedPrimitive<string>>()
+                },
+                PostPurchase = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:channels",
+                    GlobalId = $"{modelId}:channels:postpurch",
+                    Field = "postPurchase",
                     List = new List<IdentifiedPrimitive<string>>()
                 }
             };
@@ -58,5 +91,6 @@ namespace GDB.Common.DTOs.BusinessModel
 
         public IdentifiedList<BusinessModelCustomer> Customers { get; set; }
         public BusinessModelValueProposition ValueProposition { get; set; }
+        public BusinessModelValueChannels Channels { get; set; }
     }
 }

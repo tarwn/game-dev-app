@@ -1,5 +1,5 @@
 import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/games/[id]/businessModel/_stores/eventSystem/types";
-import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelCustomer, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
+import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCustomer, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
 
 export function createEmptyBusinessModel(): IBusinessModel {
   return {
@@ -7,7 +7,8 @@ export function createEmptyBusinessModel(): IBusinessModel {
     parentId: "unit-test",
     versionNumber: 1,
     customers: createObjectList<IBusinessModelCustomer>("unit-test-bm", "unit-test-bm-c", "customers"),
-    valueProposition: createValueProposition("unit-test-bm", "unit-test-bm-vp", "valueProposition")
+    valueProposition: createValueProposition("unit-test-bm", "unit-test-bm-vp", "valueProposition"),
+    channels: createChannels("unit-test-bm", "unit-test-bm-channels", "channels")
   };
 }
 
@@ -39,6 +40,18 @@ function createValueProposition(parentId: string, globalId: string, field?: stri
     genres: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-genres", "genres"),
     platforms: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-platforms", "platforms"),
     entries: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-entries", "entries")
+  };
+}
+
+function createChannels(parentId: string, globalId: string, field?: string): IBusinessModelChannels {
+  return {
+    globalId,
+    parentId,
+    field,
+    awareness: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-awareness", "awareness"),
+    consideration: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-consideration", "consideration"),
+    purchase: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-purchase", "purchase"),
+    postPurchase: createObjectList<IIdentifiedPrimitive<string>>(globalId, globalId + "-postPurchase", "postPurchase")
   };
 }
 

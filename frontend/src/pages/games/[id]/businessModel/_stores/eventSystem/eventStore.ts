@@ -30,6 +30,11 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
       draft.splice(0);
     });
     update(() => ({ finalState, pendingEvents }));
+
+    if (apiArgs?.testMode) {
+      return;
+    }
+
     // get latest usable seqNo for this actor id
     return api.getActorSeqNo(actor)
       .then(response => {

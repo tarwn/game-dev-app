@@ -10,12 +10,10 @@
     events,
   } from "../../_stores/businessModelStore";
   import TagEntryList from "./components/TagEntryList.svelte";
-  import { Platform } from "@microsoft/signalr/dist/esm/Utils";
 
   export let businessModel: IBusinessModel;
 
   const publish = businessModelEventStore.addEvent;
-  // const dispatch = createEventDispatcher();
 
   $: hasMinimumInfo =
     businessModel.valueProposition.genres.list.length > 0 ||
@@ -23,11 +21,7 @@
     businessModel.valueProposition.entries.list.length > 0;
 
   // YOU ARE HERE -
-  //  * Add TagEntryList component for platforms
-  //  * Add events, applies, tests to frontend
-  //  * Ditto back-end
   //  * Update instructions
-  //  * style bus mod canvas large
 </script>
 
 <style type="text/scss">

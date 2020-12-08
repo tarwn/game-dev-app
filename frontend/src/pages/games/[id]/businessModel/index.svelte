@@ -227,6 +227,16 @@
           on:clickFullscreen={handleOnFullScreen}
           on:clickNext={() => handleOnNextScreen('channels')} />
       </div>
+      {:else if displaySection === 'channels'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <ChannelsInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <ChannelsSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('customerRelationships')} />
+      </div>
     {/if}
   {/if}
 </div>

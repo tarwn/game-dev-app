@@ -1,5 +1,5 @@
 import { createEventStore } from "./eventSystem/eventStore";
-import { Identified, IEvent, IEventApplier, OperationType } from "./eventSystem/types";
+import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType } from "./eventSystem/types";
 import type { IBusinessModel } from "../_types/businessModel";
 import { createLocalStore } from "./eventSystem/localStore";
 import { createImmutableEventApplier } from "./eventSystem/eventApplier";
@@ -12,6 +12,96 @@ type EvtMethod = {
 }
 
 type IdentifiedValueUpdate<T> = Identified & { value: T };
+
+const primitiveFactory = {
+  makeUpdate: <T>(type: string, getPrimitive: (IBusinessModel, Evt) => IIdentifiedPrimitive<T>) => {
+    return {
+      get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
+        return businessModelEventStore.createEvent(() => ({
+          type,
+          operations: [
+            { action: OperationType.Set, objectId: globalId, parentId, value }
+          ]
+        }));
+      },
+      apply: (model: IBusinessModel, event: Evt): void => {
+        const primitive = getPrimitive(model, event);
+        if (primitive == null) return;
+        primitive.value = event.operations[0].value;
+      }
+    };
+  }
+};
+
+const basicListFactory = {
+  makeAdd: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+    return {
+      get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
+        return businessModelEventStore.createEvent((actor, seqNo) => ({
+          type,
+          operations: [
+            { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
+          ]
+        }));
+      },
+      apply: (model: IBusinessModel, event: Evt): void => {
+        const parent = getParent(model, event);
+        if (!parent) return;
+        parent.list.push({
+          globalId: event.operations[0].objectId,
+          parentId: event.operations[0].parentId,
+          value: event.operations[0].value,
+          field: event.operations[0].field
+        });
+      }
+    };
+  },
+  makeUpdate: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+    return {
+      get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
+        return businessModelEventStore.createEvent(() => ({
+          type,
+          operations: [
+            { action: OperationType.Set, objectId: globalId, parentId, value }
+          ]
+        }));
+      },
+      apply: (model: IBusinessModel, event: Evt): void => {
+        const parent = getParent(model, event);
+        if (!parent) return;
+        const eIndex = parent.list.findIndex(e => e.globalId == event.operations[0].objectId);
+        if (eIndex == -1) {
+          // conflict/out of order event
+          return;
+        }
+        parent.list[eIndex].value = event.operations[0].value;
+      }
+    };
+  },
+  makeDelete: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+    return {
+      get: ({ parentId, globalId }: Identified): Evt => {
+        return businessModelEventStore.createEvent(() => ({
+          type,
+          operations: [
+            { action: OperationType.Delete, objectId: globalId, parentId }
+          ]
+        }));
+      },
+      apply: (model: IBusinessModel, event: Evt): void => {
+        const parent = getParent(model, event);
+        if (!parent) return;
+        const eIndex = parent.list.findIndex(e => e.globalId == event.operations[0].objectId);
+        if (eIndex == -1) {
+          // conflict/out of order event
+          return;
+        }
+        parent.list.splice(eIndex, 1);
+      }
+    };
+  }
+};
+
 
 const businessModelEvents = {
   "AddNewCustomer": {
@@ -36,255 +126,57 @@ const businessModelEvents = {
       });
     }
   },
-  "DeleteCustomer": {
-    get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "DeleteCustomer",
-        operations: [
-          { action: OperationType.Delete, objectId: globalId, parentId }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].objectId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list.splice(cIndex, 1);
+  "DeleteCustomer": basicListFactory.makeDelete("DeleteCustomer", (model) => model.customers),
+  "AddCustomerEntry": basicListFactory.makeAdd("AddCustomerEntry", (model, event) => {
+    const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
     }
-  },
-  "AddCustomerEntry": {
-    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-      return businessModelEventStore.createEvent((actor, seqNo) => ({
-        type: "AddCustomerEntry",
-        operations: [
-          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list[cIndex].entries.list.push({
-        globalId: event.operations[0].objectId,
-        parentId: event.operations[0].parentId,
-        value: event.operations[0].value,
-        field: event.operations[0].field
-      });
+    return model.customers.list[cIndex].entries;
+  }),
+  "UpdateCustomerEntry": basicListFactory.makeUpdate("UpdateCustomerEntry", (model, event) => {
+    const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
     }
-  },
-  "UpdateCustomerEntry": {
-    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "UpdateCustomerEntry",
-        operations: [
-          { action: OperationType.Set, objectId: globalId, parentId, value }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      const eIndex = model.customers.list[cIndex].entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list[cIndex].entries.list[eIndex].value = event.operations[0].value;
+    return model.customers.list[cIndex].entries;
+  }),
+  "DeleteCustomerEntry": basicListFactory.makeDelete("DeleteCustomerEntry", (model, event) => {
+    const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
     }
-  },
-  "DeleteCustomerEntry": {
-    get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "DeleteCustomerEntry",
-        operations: [
-          { action: OperationType.Delete, objectId: globalId, parentId }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      const eIndex = model.customers.list[cIndex].entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list[cIndex].entries.list.splice(eIndex, 1);
+    return model.customers.list[cIndex].entries;
+  }),
+  "UpdateCustomerType": primitiveFactory.makeUpdate("UpdateCustomerType", (model, event) => {
+    const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
     }
-  },
-  "UpdateCustomerType": {
-    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "UpdateCustomerType",
-        operations: [
-          { action: OperationType.Set, objectId: globalId, parentId, value }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list[cIndex].type.value = event.operations[0].value;
+    return model.customers.list[cIndex].type;
+  }),
+  "UpdateCustomerName": primitiveFactory.makeUpdate("UpdateCustomerName", (model, event) => {
+    const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
     }
-  },
-  "UpdateCustomerName": {
-    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "UpdateCustomerName",
-        operations: [
-          { action: OperationType.Set, objectId: globalId, parentId, value }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
-      if (cIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.customers.list[cIndex].name.value = event.operations[0].value;
-    }
-  },
-  "AddValuePropEntry": {
-    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-      return businessModelEventStore.createEvent((actor, seqNo) => ({
-        type: "AddValuePropEntry",
-        operations: [
-          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      model.valueProposition.entries.list.push({
-        globalId: event.operations[0].objectId,
-        parentId: event.operations[0].parentId,
-        value: event.operations[0].value,
-        field: event.operations[0].field
-      });
-    }
-  },
-  "UpdateValuePropEntry": {
-    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "UpdateValuePropEntry",
-        operations: [
-          { action: OperationType.Set, objectId: globalId, parentId, value }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const eIndex = model.valueProposition.entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.valueProposition.entries.list[eIndex].value = event.operations[0].value;
-    }
-  },
-  "DeleteValuePropEntry": {
-    get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "DeleteValuePropEntry",
-        operations: [
-          { action: OperationType.Delete, objectId: globalId, parentId }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const eIndex = model.valueProposition.entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.valueProposition.entries.list.splice(eIndex, 1);
-    }
-  },
-  "AddValuePropGenre": {
-    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-      return businessModelEventStore.createEvent((actor, seqNo) => ({
-        type: "AddValuePropGenre",
-        operations: [
-          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      model.valueProposition.genres.list.push({
-        globalId: event.operations[0].objectId,
-        parentId: event.operations[0].parentId,
-        value: event.operations[0].value,
-        field: event.operations[0].field
-      });
-    }
-  },
-  "DeleteValuePropGenre": {
-    get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "DeleteValuePropGenre",
-        operations: [
-          { action: OperationType.Delete, objectId: globalId, parentId }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const eIndex = model.valueProposition.genres.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.valueProposition.genres.list.splice(eIndex, 1);
-    }
-  },
-  "AddValuePropPlatform": {
-    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-      return businessModelEventStore.createEvent((actor, seqNo) => ({
-        type: "AddValuePropPlatform",
-        operations: [
-          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      model.valueProposition.platforms.list.push({
-        globalId: event.operations[0].objectId,
-        parentId: event.operations[0].parentId,
-        value: event.operations[0].value,
-        field: event.operations[0].field
-      });
-    }
-  },
-  "DeleteValuePropPlatform": {
-    get: ({ parentId, globalId }: Identified): Evt => {
-      return businessModelEventStore.createEvent(() => ({
-        type: "DeleteValuePropPlatform",
-        operations: [
-          { action: OperationType.Delete, objectId: globalId, parentId }
-        ]
-      }));
-    },
-    apply: (model: IBusinessModel, event: Evt): void => {
-      const eIndex = model.valueProposition.platforms.list.findIndex(e => e.globalId == event.operations[0].objectId);
-      if (eIndex == -1) {
-        // conflict/out of order event
-        return;
-      }
-      model.valueProposition.platforms.list.splice(eIndex, 1);
-    }
-  },
+    return model.customers.list[cIndex].name;
+  }),
+  "AddValuePropEntry": basicListFactory.makeAdd("AddValuePropEntry", (model) => model.valueProposition.entries),
+  "UpdateValuePropEntry": basicListFactory.makeUpdate("UpdateValuePropEntry", (model) => model.valueProposition.entries),
+  "DeleteValuePropEntry": basicListFactory.makeDelete("DeleteValuePropEntry", (model) => model.valueProposition.entries),
+  "AddValuePropGenre": basicListFactory.makeAdd("AddValuePropGenre", (model) => model.valueProposition.genres),
+  "DeleteValuePropGenre": basicListFactory.makeDelete("DeleteValuePropGenre", (model) => model.valueProposition.genres),
+  "AddValuePropPlatform": basicListFactory.makeAdd("AddValuePropPlatform", (model) => model.valueProposition.platforms),
+  "DeleteValuePropPlatform": basicListFactory.makeDelete("DeleteValuePropPlatform", (model) => model.valueProposition.platforms),
+  "AddChannelsAwarenessEntry": basicListFactory.makeAdd("AddChannelsAwarenessEntry", (model) => model.channels.awareness),
+  "UpdateChannelsAwarenessEntry": basicListFactory.makeUpdate("UpdateChannelsAwarenessEntry", (model) => model.channels.awareness),
+  "DeleteChannelsAwarenessEntry": basicListFactory.makeDelete("DeleteChannelsAwarenessEntry", (model) => model.channels.awareness),
 };
 
 export const events = {
@@ -302,6 +194,9 @@ export const events = {
   "AddValuePropEntry": businessModelEvents.AddValuePropEntry.get,
   "UpdateValuePropEntry": businessModelEvents.UpdateValuePropEntry.get,
   "DeleteValuePropEntry": businessModelEvents.DeleteValuePropEntry.get,
+  "AddChannelsAwarenessEntry": businessModelEvents.AddChannelsAwarenessEntry.get,
+  "UpdateChannelsAwarenessEntry": businessModelEvents.UpdateChannelsAwarenessEntry.get,
+  "DeleteChannelsAwarenessEntry": businessModelEvents.DeleteChannelsAwarenessEntry.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

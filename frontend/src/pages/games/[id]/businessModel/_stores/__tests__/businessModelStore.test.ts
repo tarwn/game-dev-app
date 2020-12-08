@@ -1,6 +1,7 @@
 import { createEmptyBusinessModel } from "../../../../../../testUtils/dataModel";
-import { eventApplier, events } from "../businessModelStore";
+import { businessModelEventStore, eventApplier, events } from "../businessModelStore";
 
+businessModelEventStore.initialize("unit-test", "1", { testMode: true });
 
 describe("businessModelStore", () => {
   describe("eventApplier", () => {
@@ -613,6 +614,120 @@ describe("businessModelStore", () => {
 
         // original model is unchanged
         expect(initialModel.valueProposition.entries.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
+    // Channels
+
+    describe("AddChannelsAwarenessEntry", () => {
+      it("adds a new entry to the channels 'awareness'", () => {
+        const initialModel = createEmptyBusinessModel();
+
+        const addEntryEvent = events.AddChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          value: "test"
+        });
+        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.channels.awareness.list).toEqual([]);
+        // now with the new entry
+        expect(nextModel.channels.awareness.list).not.toEqual([]);
+        expect(nextModel.channels.awareness.list.length).toEqual(1);
+        expect(nextModel.channels.awareness.list[0].parentId).toEqual(nextModel.channels.awareness.globalId);
+        expect(nextModel.channels.awareness.list[0].value).toEqual("test");
+      });
+    });
+
+    describe("UpdateChannelsAwarenessEntry", () => {
+      it("updates an existing entry on the channels 'awareness'", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const updateEntryEvent = events.UpdateChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          globalId: initialModel.channels.awareness.list[0].globalId,
+          value: "test 2"
+        });
+        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.channels.awareness.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.channels.awareness.list[0].value).toEqual("test 2");
+      });
+
+      it("[conflict] skips updating a deleted entry", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.channels.awareness.list[0];
+        const preDeleteEntry = events.DeleteChannelsAwarenessEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const updateEntryEvent = events.UpdateChannelsAwarenessEntry({
+          parentId: entry.parentId,
+          globalId: entry.globalId,
+          value: "test 2"
+        });
+        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.channels.awareness.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
+    describe("DeleteChannelAwarenessEntry", () => {
+      it("deletes an existing entry on the channels 'awareness'", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const deleteEvent = events.DeleteChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.list[0].parentId,
+          globalId: initialModel.channels.awareness.list[0].globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.channels.awareness.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.channels.awareness.list).toEqual([]);
+      });
+
+      it("[conflict] skips deleting an already deleted or non-existent entry", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddChannelsAwarenessEntry({
+          parentId: initialModel.channels.awareness.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.channels.awareness.list[0];
+        const preDeleteEntry = events.DeleteChannelsAwarenessEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const deleteEntryEvent = events.DeleteChannelsAwarenessEntry({
+          parentId: entry.parentId,
+          globalId: entry.globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.channels.awareness.list).toEqual([]);
         // the initial model is completely unchanged by this event
         expect(nextModel).toEqual(initialModel);
       });
