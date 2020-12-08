@@ -1,5 +1,7 @@
 <script type="ts">
   import type { IBusinessModel } from "../../_types/businessModel";
+  import EntrySummaryList from "./components/EntrySummaryList.svelte";
+  import SummarySection from "./components/SummarySection.svelte";
 
   export let businessModel: IBusinessModel | null;
 
@@ -48,23 +50,17 @@
 {#if businessModel != null}
   <div>
     {#each businessModel.customers.list as customer (customer.globalId)}
-      <div class="gdb-customer-section-summary">
-        <div class="gdb-summary-name">
-          {customer.name.value || 'Unnamed Customer'}
+      <SummarySection label={customer.name.value || 'Unnamed Customer'}>
+        <div class="gdb-customer-section-summary">
+          <div class="gdb-summary-name" />
+          <ul class="gdb-customer-summary">
+            <li class="gdb-customer-summary-li">
+              {summarizeType(customer.type.value)}
+            </li>
+            <EntrySummaryList entries={customer.entries} includeUl={false} />
+          </ul>
         </div>
-        <ul class="gdb-customer-summary">
-          <li class="gdb-customer-summary-li">
-            {summarizeType(customer.type.value)}
-          </li>
-          {#if customer.entries.list.length == 0}
-            <li class="gdb-customer-summary-li">No details yet</li>
-          {:else}
-            {#each customer.entries.list as entry (entry.globalId)}
-              <li class="gdb-customer-summary-li">{entry.value}</li>
-            {/each}
-          {/if}
-        </ul>
-      </div>
+      </SummarySection>
     {/each}
   </div>
 {/if}

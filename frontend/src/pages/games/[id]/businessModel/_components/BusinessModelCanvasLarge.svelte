@@ -40,8 +40,6 @@
     } else {
       nextIs = getNextSection(businessModel);
     }
-
-    console.log(editable);
   }
 
   function onMouseEnter() {
@@ -55,6 +53,7 @@
 <style type="text/scss">
   @import "../../../../../styles/_variables.scss";
   @import "../../../../../styles/mixins/_loadingPulse.scss";
+  @import "../../../../../styles/mixins/_scrollbar.scss";
 
   .gdb-board {
     &.highlight {
@@ -87,12 +86,10 @@
       // transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       & > .gdb-board-section {
-        padding: 4px;
         border-width: 1px;
       }
 
       & > .gdb-board-section > h3 {
-        margin-top: 4px;
         font-size: 4px;
         white-space: nowrap;
       }
@@ -105,39 +102,20 @@
 
   .gdb-board-section {
     border: 3px solid $cs-grey-4;
-    padding: $space-s;
     position: relative;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
 
-    // firefox
-    scrollbar-width: thin;
-    scrollbar-color: $cs-grey-1 $cs-grey-0;
-    // chrome/safari
-    &::-webkit-scrollbar {
-      width: 8px; /* width of the entire scrollbar */
+    & > h3 {
+      padding: 0.5em;
     }
-    &::-webkit-scrollbar-track {
-      background: $cs-grey-0; /* color of the tracking area */
-    }
-    &::-webkit-scrollbar-thumb {
-      background-color: $cs-grey-1; /* color of the scroll thumb */
-      border-radius: 20px; /* roundness of the scroll thumb */
-      border: 1px solid $cs-grey-0; /* creates padding around scroll thumb */
-    }
-
-    &:hover {
-      // firefox
-      scrollbar-color: $cs-grey-3 $cs-grey-0;
-      // chrome/safari
-      &::-webkit-scrollbar-thumb {
-        background-color: $cs-grey-3; /* color of the scroll thumb */
-      }
+    & > .gdb-board-section-content {
+      padding: 0 0.5em;
     }
 
     & > h3 {
-      margin-top: $space-s;
+      margin-top: 0.5em;
+      margin-bottom: 0em;
       flex-grow: 0;
       flex-shrink: 0;
 
@@ -153,6 +131,16 @@
     }
   }
 
+  .gdb-board-section-content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    @include scrollbar;
+
+    .isMiniMap & {
+      overflow-y: hidden;
+    }
+  }
+
   .gdb-loading-block {
     list-style-type: none;
     padding: 0;
@@ -162,8 +150,8 @@
       @include loading-pulse;
       display: inline-block;
       width: 70%;
-      height: $space-m;
-      margin: $space-s $space-m;
+      height: 1em;
+      margin: 0.5em 1em;
 
       & + li {
         width: 80%;
@@ -185,11 +173,11 @@
 
   .gdb-button-edit-panel {
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: -$space-xs;
+    top: -$space-xs;
     display: flex;
     flex-direction: column;
-    padding: 3px $space-s;
+    overflow: visible;
   }
 </style>
 
@@ -201,12 +189,14 @@
   on:mouseleave={onMouseLeave}>
   <div class="gdb-board-section gdb-board-keyPartners">
     <h3 class:isLoading>Key Partners</h3>
+    <div class="gdb-board-section-content" />
   </div>
   <div class="gdb-board-section gdb-board-keyActivities">
     <h3 class:isLoading>Key Activities</h3>
   </div>
   <div class="gdb-board-section gdb-board-keyResources">
     <h3 class:isLoading>Key Resources</h3>
+    <div class="gdb-board-section-content" />
   </div>
   <div
     class="gdb-board-section gdb-board-valueProposition"
@@ -224,30 +214,34 @@
       </div>
     {/if}
     <h3 class:isLoading>Value Proposition</h3>
-    {#if isLoading}
-      <ul class="gdb-loading-block">
-        <li />
-        <li />
-        <li />
-      </ul>
-    {:else if !isMiniMap && nextIs === 'valueProposition'}
-      <div class="gdb-board-button-panel">
-        <IconTextButton
-          value="Continue Here"
-          icon={PredefinedIcons.Plus}
-          on:click={() => dispatch('sectionChange', {
-              section: 'valueProposition',
-            })} />
-      </div>
-    {:else}
-      <ValuePropositionSectionSummary {businessModel} />
-    {/if}
+    <div class="gdb-board-section-content">
+      {#if isLoading}
+        <ul class="gdb-loading-block">
+          <li />
+          <li />
+          <li />
+        </ul>
+      {:else if !isMiniMap && nextIs === 'valueProposition'}
+        <div class="gdb-board-button-panel">
+          <IconTextButton
+            value="Continue Here"
+            icon={PredefinedIcons.Plus}
+            on:click={() => dispatch('sectionChange', {
+                section: 'valueProposition',
+              })} />
+        </div>
+      {:else}
+        <ValuePropositionSectionSummary {businessModel} />
+      {/if}
+    </div>
   </div>
   <div class="gdb-board-section gdb-board-customerRelationships">
     <h3 class:isLoading>Customer Relationships</h3>
+    <div class="gdb-board-section-content" />
   </div>
   <div class="gdb-board-section gdb-board-channels">
     <h3 class:isLoading>Channels</h3>
+    <div class="gdb-board-section-content" />
   </div>
   <div
     class="gdb-board-section gdb-board-customers"
@@ -263,28 +257,33 @@
       </div>
     {/if}
     <h3 class:isLoading>Customer / Players</h3>
-
-    {#if isLoading}
-      <ul class="gdb-loading-block">
-        <li />
-        <li />
-        <li />
-      </ul>
-    {:else if !isMiniMap && nextIs === 'customer'}
-      <div class="gdb-board-button-panel">
-        <IconTextButton
-          value="Start Here"
-          icon={PredefinedIcons.Plus}
-          on:click={() => dispatch('sectionChange', { section: 'customer' })} />
-      </div>
-    {:else}
-      <CustomersSectionSummary {businessModel} />
-    {/if}
+    <div class="gdb-board-section-content">
+      {#if isLoading}
+        <ul class="gdb-loading-block">
+          <li />
+          <li />
+          <li />
+        </ul>
+      {:else if !isMiniMap && nextIs === 'customer'}
+        <div class="gdb-board-button-panel">
+          <IconTextButton
+            value="Start Here"
+            icon={PredefinedIcons.Plus}
+            on:click={() => dispatch('sectionChange', {
+                section: 'customer',
+              })} />
+        </div>
+      {:else}
+        <CustomersSectionSummary {businessModel} />
+      {/if}
+    </div>
   </div>
   <div class="gdb-board-section gdb-board-costStructure">
     <h3 class:isLoading>Cost Structure</h3>
+    <div class="gdb-board-section-content" />
   </div>
   <div class="gdb-board-section gdb-board-revenue">
     <h3 class:isLoading>Revenue</h3>
+    <div class="gdb-board-section-content" />
   </div>
 </div>
