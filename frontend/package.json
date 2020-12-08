@@ -67,5 +67,13 @@
     "@sentry/integrations": "^5.27.6",
     "@sveltech/routify": "^1.9.9",
     "sirv-cli": "^1.0.0"
+  },
+  "jest-junit": {
+    "includeConsoleOutput": "true",
+    "outputName": "frontend.xml",
+    "ancestorSeparator": " > ",
+    "suiteNameTemplate": "{filename}",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{classname} > {title}"
   }
 }
