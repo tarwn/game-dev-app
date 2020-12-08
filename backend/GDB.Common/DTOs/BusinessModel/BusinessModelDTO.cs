@@ -10,6 +10,7 @@ namespace GDB.Common.DTOs.BusinessModel
         public BusinessModelDTO()
         {
             Customers = new IdentifiedList<BusinessModelCustomer>();
+            ValueProposition = new BusinessModelValueProposition();
         }
 
         public BusinessModelDTO(string gameId, string modelId)
@@ -24,6 +25,15 @@ namespace GDB.Common.DTOs.BusinessModel
                 Field = "customers",
                 List = new List<BusinessModelCustomer>()
             };
+            ValueProposition = new BusinessModelValueProposition()
+            {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:vp",
+                Field = "value-proposition",
+                Genres = new IdentifiedList<IdentifiedPrimitive<string>>(),
+                Platforms = new IdentifiedList<IdentifiedPrimitive<string>>(),
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+            };
         }
 
         public string GlobalId { get; set; }
@@ -32,5 +42,6 @@ namespace GDB.Common.DTOs.BusinessModel
         public int VersionNumber { get; set; }
 
         public IdentifiedList<BusinessModelCustomer> Customers { get; set; }
+        public BusinessModelValueProposition ValueProposition { get; set; }
     }
 }

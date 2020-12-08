@@ -13,6 +13,7 @@
 <style type="text/scss" global>
   @import "normalize.css";
   @import "./styles/base.scss";
+  @import "./styles/app.scss";
 </style>
 
 <Router {routes} />

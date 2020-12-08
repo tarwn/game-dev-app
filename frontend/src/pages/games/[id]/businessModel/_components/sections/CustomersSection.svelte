@@ -14,6 +14,8 @@
   export let businessModel: IBusinessModel;
 
   const dispatch = createEventDispatcher();
+
+  $: hasMinimumInfo = businessModel.customers.list.length > 0;
 </script>
 
 <style type="text/scss">
@@ -43,10 +45,11 @@
   title="Identifying players & customers"
   canUndo={false}
   canRedo={false}
-  canNext={businessModel.customers.list.length > 0}
+  canNext={hasMinimumInfo}
   canFullscreen={true}
-  on:clickFullscreen>
-  {#if businessModel.customers.list.length == 0}
+  on:clickFullscreen
+  on:clickNext>
+  {#if !hasMinimumInfo}
     <div class="gdb-customer-new-section">
       <p>
         Who are the people that will love this game? Are they the same ones that

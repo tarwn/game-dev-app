@@ -10,19 +10,18 @@
   } from "../../../_stores/businessModelStore";
   import type { Identified } from "../../../_stores/eventSystem/types";
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
+  import EntryList from "./EntryList.svelte";
 
   export let customer: IBusinessModelCustomer;
-
-  let hackyNewValue = "";
-
-  function init(el) {
-    el.focus();
-  }
 
   $: hasPlayerType =
     customer.type.value == "both" || customer.type.value == "player";
   $: hasCustomerType =
     customer.type.value == "both" || customer.type.value == "customer";
+
+  function init(el) {
+    el.focus();
+  }
 
   function handleNameChange(e) {
     businessModelEventStore.addEvent(
@@ -68,33 +67,22 @@
     );
   }
 
-  function handleOnNewCharacteristic(e: any) {
+  function handleOnNewCharacteristic(createEventArgs) {
     businessModelEventStore.addEvent(
-      events.AddCustomerEntry({
-        parentId: customer.entries.globalId,
-        value: e.target?.value,
-      })
+      events.AddCustomerEntry(createEventArgs.detail)
     );
-    hackyNewValue = "";
   }
 
-  function handleCharacteristicUpdate(customerEntry: Identified, e: any) {
-    if (e.target?.value.length > 0) {
-      businessModelEventStore.addEvent(
-        events.UpdateCustomerEntry({
-          parentId: customerEntry.parentId,
-          globalId: customerEntry.globalId,
-          value: e.target?.value,
-        })
-      );
-    } else {
-      businessModelEventStore.addEvent(
-        events.DeleteCustomerEntry({
-          parentId: customerEntry.parentId,
-          globalId: customerEntry.globalId,
-        })
-      );
-    }
+  function handleCharacteristicUpdate(updateEventArgs) {
+    businessModelEventStore.addEvent(
+      events.UpdateCustomerEntry(updateEventArgs.detail)
+    );
+  }
+
+  function handleCharacteristicDelete(deleteEventArgs) {
+    businessModelEventStore.addEvent(
+      events.DeleteCustomerEntry(deleteEventArgs.detail)
+    );
   }
 
   function handleCustomerDelete(customer: Identified) {
@@ -133,48 +121,9 @@
     }
   }
 
+  // hack for checkbox spacing
   input + label + input {
     margin-left: $space-m;
-  }
-
-  .gdb-entry-list {
-    margin: 0;
-    list-style-type: disc;
-    margin-left: 4rem; // matches label min-size padding
-    padding-left: $space-s; // matches label.text min-size padding
-  }
-  .gdb-entry-list-item-new,
-  .gdb-entry-list-item {
-    line-height: $line-height-base; // matches label
-    margin: $space-s 0; // matches Row
-  }
-
-  .gdb-entry-list-item-new {
-    list-style-type: none;
-
-    &:focus-within::before {
-      content: "\2022"; /* Add content: \2022 is the CSS Code/unicode for a bullet */
-      color: $cs_blue;
-      font-weight: bold;
-      font-size: $font-size-larger;
-      display: inline-block;
-      width: 15px;
-      margin-left: -15px;
-    }
-  }
-
-  .gdb-entry-input-new,
-  .gdb-entry-input {
-    width: 26rem;
-  }
-
-  .gdb-entry-input-new {
-    border-style: dashed;
-
-    &:active,
-    &:focus {
-      border-style: solid;
-    }
   }
 </style>
 
@@ -218,29 +167,11 @@
     </LabeledInput>
   </Row>
   <Row>
-    <LabeledInput
+    <EntryList
       label="Key Characteristics"
-      forId={`${customer.entries.globalId}-newEntry`} />
-    <ul class="gdb-entry-list">
-      {#each customer.entries.list as customerEntry (customerEntry.globalId)}
-        <li class="gdb-entry-list-item">
-          <input
-            type="text"
-            class="gdb-entry-input"
-            value={customerEntry.value}
-            use:init
-            on:change|stopPropagation={(e) => handleCharacteristicUpdate(customerEntry, e)} />
-        </li>
-      {/each}
-      <li class="gdb-entry-list-item-new">
-        <input
-          type="text"
-          class="gdb-entry-input-new"
-          placeholder={customer.entries.list.length == 0 ? 'Enter a key characteristic' : 'Enter another key characteristic'}
-          id={`${customer.entries.globalId}-newEntry`}
-          bind:value={hackyNewValue}
-          on:input|stopPropagation={handleOnNewCharacteristic} />
-      </li>
-    </ul>
+      entries={customer.entries}
+      on:create={handleOnNewCharacteristic}
+      on:update={handleCharacteristicUpdate}
+      on:delete={handleCharacteristicDelete} />
   </Row>
 </div>

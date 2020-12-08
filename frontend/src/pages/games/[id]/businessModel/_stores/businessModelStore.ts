@@ -158,7 +158,61 @@ const businessModelEvents = {
       }
       model.customers.list[cIndex].name.value = event.operations[0].value;
     }
-  }
+  },
+  "AddValuePropEntry": {
+    get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
+        type: "AddValuePropEntry",
+        operations: [
+          { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      model.valueProposition.entries.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        value: event.operations[0].value,
+        field: event.operations[0].field
+      });
+    }
+  },
+  "UpdateValuePropEntry": {
+    get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "UpdateValuePropEntry",
+        operations: [
+          { action: OperationType.Set, objectId: globalId, parentId, value }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const eIndex = model.valueProposition.entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
+      if (eIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.valueProposition.entries.list[eIndex].value = event.operations[0].value;
+    }
+  },
+  "DeleteValuePropEntry": {
+    get: ({ parentId, globalId }: Identified): Evt => {
+      return businessModelEventStore.createEvent(() => ({
+        type: "DeleteValuePropEntry",
+        operations: [
+          { action: OperationType.Delete, objectId: globalId, parentId }
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      const eIndex = model.valueProposition.entries.list.findIndex(e => e.globalId == event.operations[0].objectId);
+      if (eIndex == -1) {
+        // conflict/out of order event
+        return;
+      }
+      model.valueProposition.entries.list.splice(eIndex, 1);
+    }
+  },
 };
 
 export const events = {
@@ -169,6 +223,9 @@ export const events = {
   "DeleteCustomerEntry": businessModelEvents.DeleteCustomerEntry.get,
   "UpdateCustomerType": businessModelEvents.UpdateCustomerType.get,
   "UpdateCustomerName": businessModelEvents.UpdateCustomerName.get,
+  "AddValuePropEntry": businessModelEvents.AddValuePropEntry.get,
+  "UpdateValuePropEntry": businessModelEvents.UpdateValuePropEntry.get,
+  "DeleteValuePropEntry": businessModelEvents.DeleteValuePropEntry.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

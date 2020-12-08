@@ -14,6 +14,7 @@
 
   const dispatch = createEventDispatcher();
   const onClickFullscreen = () => dispatch("clickFullscreen");
+  const onClickNext = () => dispatch("clickNext");
 </script>
 
 <style type="text/scss">
@@ -82,7 +83,8 @@
         icon={PredefinedIcons.Next}
         value="Next"
         disabled={!canNext}
-        buttonStyle="primary-outline" />
+        buttonStyle="primary-outline"
+        on:click={onClickNext} />
     </SpacedButtons>
   </div>
 </div>

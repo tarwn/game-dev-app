@@ -1,32 +1,15 @@
-import { init } from "svelte/internal";
-import type { IBusinessModel, IBusinessModelCustomer } from "../../_types/businessModel";
+import { createEmptyBusinessModel } from "../../../../../../testUtils/dataModel";
 import { eventApplier, events } from "../businessModelStore";
-import type { Identified, IIdentifiedList } from "../eventSystem/types";
 
-
-function createEmptyModel(): IBusinessModel {
-  return {
-    globalId: "unit-test-bm",
-    parentId: "unit-test",
-    versionNumber: 1,
-    customers: createObjectList<IBusinessModelCustomer>("unit-test-bm-c", "unit-test-bm", "customers")
-  };
-}
-
-function createObjectList<T extends Identified>(globalId: string, parentId: string, field?: string): IIdentifiedList<T> {
-  return {
-    globalId,
-    parentId,
-    field,
-    list: []
-  };
-}
 
 describe("businessModelStore", () => {
   describe("eventApplier", () => {
+
+    // customer
+
     describe("AddCustomer", () => {
       it("adds a new customer with structural fields correct", () => {
-        const emptyModel = createEmptyModel();
+        const emptyModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: emptyModel.customers.globalId });
         const nextModel = eventApplier.apply(emptyModel, event);
 
@@ -46,7 +29,7 @@ describe("businessModelStore", () => {
       });
 
       it("adds a new customer with default values", () => {
-        const emptyModel = createEmptyModel();
+        const emptyModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: emptyModel.customers.globalId });
         const nextModel = eventApplier.apply(emptyModel, event);
 
@@ -62,7 +45,7 @@ describe("businessModelStore", () => {
 
     describe("DeleteCustomer", () => {
       it("removes specified customer with matching globalId", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
 
@@ -79,7 +62,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips removal of customer if the globalId is not found", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
 
@@ -98,7 +81,7 @@ describe("businessModelStore", () => {
 
     describe("AddCustomerEntry", () => {
       it("adds a new entry to the customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
 
@@ -118,7 +101,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips adding an event for a deleted customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
 
@@ -140,7 +123,7 @@ describe("businessModelStore", () => {
 
     describe("UpdateCustomerEntry", () => {
       it("updates an existing entry on the customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -163,7 +146,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips updating an entry for a deleted customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -190,7 +173,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips updating a deleted entry", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -216,10 +199,9 @@ describe("businessModelStore", () => {
       });
     });
 
-
     describe("DeleteCustomerEntry", () => {
       it("deletes an existing entry on the customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -241,7 +223,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips deleting an already deleted or non-existent entry", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -266,7 +248,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips deleting on an already deleted customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -300,7 +282,7 @@ describe("businessModelStore", () => {
         ${"both"}       | ${"player"}
         ${"both"}       | ${"customer"}
       `('updates type to $newState from old value of $oldState', ({ newState, oldState }) => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const preUpdateTypeEvent = events.UpdateCustomerType({
@@ -324,7 +306,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips updating the type for a deleted customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const addEntryEvent = events.AddCustomerEntry({
@@ -353,7 +335,7 @@ describe("businessModelStore", () => {
     describe("UpdateCustomerName", () => {
 
       it('updates name on the customer', () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
 
@@ -371,7 +353,7 @@ describe("businessModelStore", () => {
       });
 
       it("[conflict] skips updating the type for a deleted customer", () => {
-        let initialModel = createEmptyModel();
+        let initialModel = createEmptyBusinessModel();
         const event = events.AddNewCustomer({ parentId: initialModel.customers.globalId });
         initialModel = eventApplier.apply(initialModel, event);
         const customer = initialModel.customers.list[0];
@@ -392,5 +374,118 @@ describe("businessModelStore", () => {
       });
     });
 
+    // value prop
+
+    describe("AddValuePropEntry", () => {
+      it("adds a new entry to the value proposition", () => {
+        const initialModel = createEmptyBusinessModel();
+
+        const addEntryEvent = events.AddValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          value: "test"
+        });
+        const nextModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.entries.list).toEqual([]);
+        // now with the new entry
+        expect(nextModel.valueProposition.entries.list).not.toEqual([]);
+        expect(nextModel.valueProposition.entries.list.length).toEqual(1);
+        expect(nextModel.valueProposition.entries.list[0].parentId).toEqual(nextModel.valueProposition.entries.globalId);
+        expect(nextModel.valueProposition.entries.list[0].value).toEqual("test");
+      });
+    });
+
+    describe("UpdateValuePropEntry", () => {
+      it("updates an existing entry on the value proposition", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const updateEntryEvent = events.UpdateValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          globalId: initialModel.valueProposition.entries.list[0].globalId,
+          value: "test 2"
+        });
+        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.entries.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.valueProposition.entries.list[0].value).toEqual("test 2");
+      });
+
+      it("[conflict] skips updating a deleted entry", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.valueProposition.entries.list[0];
+        const preDeleteEntry = events.DeleteValuePropEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const updateEntryEvent = events.UpdateValuePropEntry({
+          parentId: entry.parentId,
+          globalId: entry.globalId,
+          value: "test 2"
+        });
+        const nextModel = eventApplier.apply(initialModel, updateEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.entries.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
+    describe("DeleteValuePropEntry", () => {
+      it("deletes an existing entry on the value proposition", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+
+        const deleteEvent = events.DeleteValuePropEntry({
+          parentId: initialModel.valueProposition.entries.list[0].parentId,
+          globalId: initialModel.valueProposition.entries.list[0].globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.entries.list[0].value).toEqual("test");
+        // new model is updated
+        expect(nextModel.valueProposition.entries.list).toEqual([]);
+      });
+
+      it("[conflict] skips deleting an already deleted or non-existent entry", () => {
+        let initialModel = createEmptyBusinessModel();
+        const addEntryEvent = events.AddValuePropEntry({
+          parentId: initialModel.valueProposition.entries.globalId,
+          value: "test"
+        });
+        initialModel = eventApplier.apply(initialModel, addEntryEvent);
+        const entry = initialModel.valueProposition.entries.list[0];
+        const preDeleteEntry = events.DeleteValuePropEntry({ parentId: entry.parentId, globalId: entry.globalId });
+        initialModel = eventApplier.apply(initialModel, preDeleteEntry);
+
+        const deleteEntryEvent = events.DeleteValuePropEntry({
+          parentId: entry.parentId,
+          globalId: entry.globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEntryEvent);
+
+        // original model is unchanged
+        expect(initialModel.valueProposition.entries.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
   });
 });

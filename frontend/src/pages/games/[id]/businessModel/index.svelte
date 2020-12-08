@@ -17,6 +17,9 @@
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
   import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
+  import ValuePropositionInstructions from "./_components/sections/ValuePropositionInstructions.svelte";
+  import ValuePropositionSection from "./_components/sections/ValuePropositionSection.svelte";
+  import { getNextSectionInLine } from "./_types/businessModelUsage";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -40,6 +43,10 @@
 
   function handleOnFullScreen() {
     handleChangeSection({ detail: { section: null } });
+  }
+
+  function handleOnNextScreen(section) {
+    handleChangeSection({ detail: { section } });
   }
 
   // data management
@@ -161,6 +168,9 @@
         icon={PredefinedIcons.Next}
         value="Next"
         buttonStyle="primary"
+        on:click={() => handleChangeSection({
+            detail: { section: getNextSectionInLine(displaySection) },
+          })}
         disabled={isLoading || businessModel.customers.list.length == 0} />
     {/if}
   </SpacedButtons>
@@ -197,13 +207,26 @@
     </div>
   {/if}
   {#if !isLoading && displaySectionCommit}
-    <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-      <CustomersSectionInstructions />
-    </div>
-    <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-      <CustomersSection
-        {businessModel}
-        on:clickFullscreen={handleOnFullScreen} />
-    </div>
+    {#if displaySection === 'customer'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CustomersSectionInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CustomersSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('valueProposition')} />
+      </div>
+    {:else if displaySection === 'valueProposition'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <ValuePropositionInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <ValuePropositionSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('channels')} />
+      </div>
+    {/if}
   {/if}
 </div>

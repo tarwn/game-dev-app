@@ -5,6 +5,8 @@
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
   import IconButton from "../../../../../components/buttons/IconButton.svelte";
   import CustomersSectionSummary from "./sections/CustomersSectionSummary.svelte";
+  import ValuePropositionSectionSummary from "./sections/ValuePropositionSectionSummary.svelte";
+  import { getNextSection } from "../_types/businessModelUsage";
 
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
@@ -14,7 +16,12 @@
   const dispatch = createEventDispatcher();
 
   $: editable = {
-    valueProposition: false,
+    valueProposition:
+      !isLoading &&
+      businessModel &&
+      (businessModel.valueProposition.genres.list.length > 0 ||
+        businessModel.valueProposition.platforms.list.length > 0 ||
+        businessModel.valueProposition.entries.list.length > 0),
     customers:
       !isLoading && businessModel && businessModel.customers.list.length > 0,
     channels: false,
@@ -26,10 +33,17 @@
     costStructure: false,
   };
 
-  $: nextIsCustomer = !isLoading && !editable.customers;
+  let nextIs = null;
+  $: {
+    if (isLoading || !businessModel) {
+      nextIs = null;
+    } else {
+      nextIs = getNextSection(businessModel);
+    }
+  }
 
   function onMouseEnter() {
-    highlight = isLoading ? null : "customer";
+    highlight = isLoading ? null : nextIs;
   }
   function onMouseLeave() {
     highlight = null;
@@ -41,45 +55,6 @@
   @import "../../../../../styles/mixins/_loadingPulse.scss";
 
   .gdb-board {
-    display: grid;
-    grid-template-columns:
-      [e0] minmax(0, 20fr) [e1] minmax(0, 20fr) [e2] minmax(0, 10fr)
-      [e2-5] minmax(0, 10fr) [e3] minmax(0, 20fr) [e4] minmax(0, 20fr) [e5];
-    grid-template-rows:
-      [r0] minmax(0, 20fr) [r1] minmax(0, 20fr) [r2] minmax(0, 15fr)
-      [r3];
-    align-items: stretch;
-    min-width: 1024px;
-    min-height: 768px;
-    max-width: 1280;
-    max-height: 1024px;
-    border: 3px solid $cs-grey-4;
-
-    &.isMiniMap {
-      min-width: 360px;
-      min-height: 240px;
-      max-width: 360px;
-      max-height: 240px;
-      font-size: 4px;
-      border-width: 1px;
-      // transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-
-      & > .gdb-board-section {
-        padding: 4px;
-        border-width: 1px;
-      }
-
-      & > .gdb-board-section > h3 {
-        margin-top: 4px;
-        font-size: 4px;
-        white-space: nowrap;
-      }
-
-      & .gdb-board-button-panel {
-        display: none;
-      }
-    }
-
     &.highlight {
       border-color: $cs-grey-2;
       transition: border 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -102,115 +77,9 @@
     }
   }
 
-  .gdb-board-keyPartners {
-    grid-column-start: e0;
-    grid-column-end: e1;
-    grid-row-start: r0;
-    grid-row-end: r2;
-  }
-
-  .gdb-board-keyActivities {
-    grid-column-start: e1;
-    grid-column-end: e2;
-    grid-row-start: r0;
-    grid-row-end: r1;
-  }
-
-  .gdb-board-keyResources {
-    grid-column-start: e1;
-    grid-column-end: e2;
-    grid-row-start: r1;
-    grid-row-end: r2;
-  }
-
-  .gdb-board-valueProposition {
-    grid-column-start: e2;
-    grid-column-end: e3;
-    grid-row-start: r0;
-    grid-row-end: r2;
-  }
-
-  .gdb-board-customerRelationships {
-    grid-column-start: e3;
-    grid-column-end: e4;
-    grid-row-start: r0;
-    grid-row-end: r1;
-  }
-
-  .gdb-board-channels {
-    grid-column-start: e3;
-    grid-column-end: e4;
-    grid-row-start: r1;
-    grid-row-end: r2;
-  }
-
-  .gdb-board-customers {
-    grid-column-start: e4;
-    grid-column-end: e5;
-    grid-row-start: r0;
-    grid-row-end: r2;
-  }
-
-  .gdb-board-costStructure {
-    grid-column-start: e0;
-    grid-column-end: e2-5;
-    grid-row-start: r2;
-    grid-row-end: r3;
-  }
-
-  .gdb-board-revenue {
-    grid-column-start: e2-5;
-    grid-column-end: e5;
-    grid-row-start: r2;
-    grid-row-end: r3;
-  }
-
   .gdb-board-section {
-    border: 3px solid $cs-grey-4;
-    padding: $space-s;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    // firefox
-    scrollbar-width: thin;
-    scrollbar-color: $cs-grey-1 $cs-grey-0;
-    // chrome/safari
-    &::-webkit-scrollbar {
-      width: 8px; /* width of the entire scrollbar */
-    }
-    &::-webkit-scrollbar-track {
-      background: $cs-grey-0; /* color of the tracking area */
-    }
-    &::-webkit-scrollbar-thumb {
-      background-color: $cs-grey-1; /* color of the scroll thumb */
-      border-radius: 20px; /* roundness of the scroll thumb */
-      border: 1px solid $cs-grey-0; /* creates padding around scroll thumb */
-    }
-
-    &:hover {
-      // firefox
-      scrollbar-color: $cs-grey-3 $cs-grey-0;
-      // chrome/safari
-      &::-webkit-scrollbar-thumb {
-        background-color: $cs-grey-3; /* color of the scroll thumb */
-      }
-    }
-
     &.highlight {
       background-color: $color-accent-1-lightest;
-    }
-
-    & > h3 {
-      margin-top: $space-s;
-      flex-grow: 0;
-      flex-shrink: 0;
-
-      &.isLoading {
-        @include loading-pulse;
-        max-width: 10rem;
-        overflow: hidden;
-        white-space: nowrap;
-      }
     }
   }
 
@@ -271,8 +140,38 @@
   </div>
   <div
     class="gdb-board-section gdb-board-valueProposition"
-    class:doNotDemphasize={highlight}>
+    class:emphasize={nextIs === 'valueProposition' && highlight}
+    class:doNotDemphasize={editable.valueProposition && highlight}
+    class:highlight={highlight && (editable.valueProposition || nextIs === 'valueProposition')}>
+    {#if !isMiniMap && editable.valueProposition}
+      <div class="gdb-button-edit-panel">
+        <IconButton
+          icon={PredefinedIcons.Edit}
+          buttonStyle="bm-edit-charm"
+          on:click={() => dispatch('sectionChange', {
+              section: 'valueProposition',
+            })} />
+      </div>
+    {/if}
     <h3 class:isLoading>Value Proposition</h3>
+    {#if isLoading}
+      <ul class="gdb-loading-block">
+        <li />
+        <li />
+        <li />
+      </ul>
+    {:else if !isMiniMap && nextIs === 'valueProposition'}
+      <div class="gdb-board-button-panel">
+        <IconTextButton
+          value="Continue Here"
+          icon={PredefinedIcons.Plus}
+          on:click={() => dispatch('sectionChange', {
+              section: 'valueProposition',
+            })} />
+      </div>
+    {:else}
+      <ValuePropositionSectionSummary {businessModel} />
+    {/if}
   </div>
   <div class="gdb-board-section gdb-board-customerRelationships">
     <h3 class:isLoading>Customer Relationships</h3>
@@ -282,9 +181,9 @@
   </div>
   <div
     class="gdb-board-section gdb-board-customers"
-    class:emphasize={nextIsCustomer && highlight}
+    class:emphasize={nextIs === 'customer' && highlight}
     class:doNotDemphasize={editable.customers && highlight}
-    class:highlight>
+    class:highlight={highlight && (editable.customers || nextIs === 'customer')}>
     {#if !isMiniMap && editable.customers}
       <div class="gdb-button-edit-panel">
         <IconButton
@@ -301,7 +200,7 @@
         <li />
         <li />
       </ul>
-    {:else if nextIsCustomer}
+    {:else if !isMiniMap && nextIs === 'customer'}
       <div class="gdb-board-button-panel">
         <IconTextButton
           value="Start Here"
