@@ -13,7 +13,11 @@
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
-  import { getNextSectionInLine } from "./_types/businessModelUsage";
+  import {
+    getNextSection,
+    getNextSectionInLine,
+    getSectionStatus,
+  } from "./_types/businessModelUsage";
   import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
@@ -83,6 +87,15 @@
     unsubscribe();
     unsubscribe2();
   });
+
+  // overall state for screen
+  // Overall: is it loading, is it minimap, are we mouse-overed
+  // Sections: is it started, is it next non-started, is it currently selected
+
+  // isLoading;
+  // hardcoded below  $: isMiniMap = displaySection != null;
+  $: sectionStatus = getSectionStatus(businessModel);
+  // current section is in displaySection
 </script>
 
 <style type="text/scss">
@@ -108,6 +121,7 @@
     }
   }
 
+  // overall screen layout
   .gdb-bm-fullSize {
     grid-column-start: start;
     grid-column-end: end;
@@ -189,6 +203,8 @@
           {isLoading}
           businessModel={b}
           isMiniMap={false}
+          selectedSection={null}
+          sectionStatuses={sectionStatus}
           on:sectionChange={handleChangeSection} />
       {/each}
     </div>
@@ -203,7 +219,8 @@
         <BusinessModelCanvasLarge
           businessModel={b}
           isMiniMap={true}
-          highlight={displaySection}
+          selectedSection={displaySection}
+          sectionStatuses={sectionStatus}
           on:sectionChange={handleChangeSection} />
       {/each}
     </div>

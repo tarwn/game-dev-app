@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import type { IBusinessModel } from "../_types/businessModel";
-  import { getNextSection } from "../_types/businessModelUsage";
+  import type { SectionStatus } from "../_types/businessModelUsage";
   import BusinessModelCanvasSection from "./BusinessModelCanvasSection.svelte";
   import CustomersSectionSummary from "./sections/CustomersSectionSummary.svelte";
   import ValuePropositionSectionSummary from "./sections/ValuePropositionSectionSummary.svelte";
@@ -10,48 +10,17 @@
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
   export let isMiniMap: boolean = false;
-  export let highlight: string | null = null;
+  let isHovered: boolean = false;
+  export let selectedSection: string | null = null;
+  export let sectionStatuses: SectionStatus;
 
   const dispatch = createEventDispatcher();
 
-  $: editable = {
-    customers:
-      !isLoading && businessModel && businessModel.customers.list.length > 0,
-    valueProposition:
-      !isLoading &&
-      businessModel &&
-      (businessModel.valueProposition.genres.list.length > 0 ||
-        businessModel.valueProposition.platforms.list.length > 0 ||
-        businessModel.valueProposition.entries.list.length > 0),
-    channels:
-      !isLoading &&
-      businessModel &&
-      (businessModel.channels.awareness.list.length > 0 ||
-        businessModel.channels.consideration.list.length > 0 ||
-        businessModel.channels.purchase.list.length > 0 ||
-        businessModel.channels.postPurchase.list.length > 0),
-    customerRelationships: false,
-    revenue: false,
-    keyResources: false,
-    keyActivities: false,
-    keyPartners: false,
-    costStructure: false,
-  };
-
-  let nextIs = null;
-  $: {
-    if (isLoading || !businessModel) {
-      nextIs = null;
-    } else {
-      nextIs = getNextSection(businessModel);
-    }
-  }
-
   function onMouseEnter() {
-    highlight = isLoading ? null : nextIs;
+    isHovered = true;
   }
   function onMouseLeave() {
-    highlight = null;
+    isHovered = false;
   }
 </script>
 
@@ -60,29 +29,7 @@
   @import "../../../../../styles/mixins/_loadingPulse.scss";
   @import "../../../../../styles/mixins/_scrollbar.scss";
 
-  .gdb-board {
-    &.highlight {
-      border-color: $cs-grey-2;
-      transition: border 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    &.highlight > .gdb-board-section {
-      opacity: 0.5;
-      transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    &.highlight > .gdb-board-section.doNotDemphasize {
-      border: 6px solid $cs-grey-4;
-      margin: -3px;
-      opacity: 1;
-      z-index: 9;
-    }
-    &.highlight > .gdb-board-section.emphasize {
-      border: 6px solid $color-accent-1;
-      margin: -3px;
-      opacity: 1;
-      z-index: 10;
-    }
-  }
-
+  // Board
   .gdb-board {
     border: 3px solid $cs-grey-4;
 
@@ -105,6 +52,7 @@
     }
   }
 
+  // Section
   .gdb-board-section {
     border: 3px solid $cs-grey-4;
     position: relative;
@@ -131,11 +79,9 @@
         white-space: nowrap;
       }
     }
-    &.highlight {
-      background-color: $color-accent-1-lightest;
-    }
   }
 
+  // Section Content
   .gdb-board-section-content {
     overflow-y: auto;
     overflow-x: hidden;
@@ -168,6 +114,38 @@
     }
   }
 
+  // Highlighting + Interaction
+  .gdb-board {
+    &.isHover {
+      border-color: $cs-grey-2;
+      transition: border 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    &.isHover > .gdb-board-section {
+      opacity: 0.5;
+      transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    &.isHover > .gdb-board-section.sectionIsStarted {
+      border: 6px solid $cs-grey-4;
+      margin: -3px;
+      opacity: 1;
+      z-index: 9;
+    }
+    &.isHover > .gdb-board-section.sectionIsNext {
+      //border: 6px solid $color-accent-1;
+      border: 6px solid $cs-grey-4;
+      margin: -3px;
+      opacity: 1;
+      z-index: 10;
+      background-color: $color-accent-1-lightest;
+    }
+
+    // highlight background in minimap if selected
+    & > .gdb-board-section.sectionIsSelected {
+      background-color: $color-accent-1-lightest;
+    }
+  }
+
+  // buttons at top of panel
   .gdb-board-button-panel {
     flex-grow: 1;
     display: flex;
@@ -176,6 +154,7 @@
     justify-content: center;
   }
 
+  // Edit button on top of section
   .gdb-button-edit-panel {
     position: absolute;
     right: -$space-xs;
@@ -188,8 +167,9 @@
 
 <div
   class="gdb-board"
-  class:highlight={highlight != null && !isMiniMap}
+  class:isHover={!isMiniMap && isHovered}
   class:isMiniMap
+  class:isCurrentSelection={isMiniMap && selectedSection}
   on:mouseenter={onMouseEnter}
   on:mouseleave={onMouseLeave}>
   <div class="gdb-board-section gdb-board-keyPartners">
@@ -210,11 +190,10 @@
     className="gdb-board-section gdb-board-valueProposition"
     label="Value Proposition"
     {isLoading}
-    highlightAsNext={highlight == 'valueProposition'}
-    isEditable={editable.valueProposition}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'valueProposition'}
+    isStarted={sectionStatuses.valueProposition}
+    isSelected={selectedSection == 'valueProposition'}
     {isMiniMap}
-    section="valueProposition"
-    {nextIs}
     on:showMe={() => dispatch('sectionChange', {
         section: 'valueProposition',
       })}>
@@ -230,11 +209,10 @@
     className="gdb-board-section gdb-board-channels"
     label="Channels"
     {isLoading}
-    highlightAsNext={highlight == 'channels'}
-    isEditable={editable.channels}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'channels'}
+    isStarted={sectionStatuses.channels}
+    isSelected={selectedSection == 'channels'}
     {isMiniMap}
-    section="channels"
-    {nextIs}
     on:showMe={() => dispatch('sectionChange', { section: 'channels' })}>
     <ChannelsSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
@@ -243,11 +221,10 @@
     className="gdb-board-section gdb-board-customers"
     label="Customers / Players"
     {isLoading}
-    highlightAsNext={highlight == 'customers'}
-    isEditable={editable.customers}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'customers'}
+    isStarted={sectionStatuses.customers}
+    isSelected={selectedSection == 'customers'}
     {isMiniMap}
-    section="customers"
-    {nextIs}
     emptyButtonText="Start Here"
     on:showMe={() => dispatch('sectionChange', { section: 'customers' })}>
     <CustomersSectionSummary {businessModel} />
