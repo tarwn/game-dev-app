@@ -1,5 +1,10 @@
-<div>
-  <h3>What types of players will buy the game?</h3>
+<script lang="ts">
+  import Instructions from "./components/Instructions.svelte";
+</script>
+
+<Instructions
+  title="What types of players will buy the game?"
+  href="https://www.launchready.co/blog/define-your-business-model/?utm_source=inapp&medium=inapp&name=inapp#section-1-player-customer-segments">
   <p>
     We're outlining the key characteristics of players, based on what we know
     now.
@@ -59,4 +64,4 @@
       sport)
     </li>
   </ul>
-</div>
+</Instructions>

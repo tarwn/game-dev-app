@@ -15,10 +15,19 @@ describe("businessModelUsage", () => {
     expect(nextIs).toEqual("valueProposition");
   });
 
+  it("reports channels when customer + valueProp filled", () => {
+    const businessModel = createEmptyBusinessModel();
+    businessModel.customers.list.push(createBusinessModelCustomer(businessModel));
+    businessModel.valueProposition.genres.list.push(createIdentifiedPrimitive<string>(businessModel.valueProposition.genres.globalId, businessModel.valueProposition.genres.globalId + "x", "dummy value"));
+    const nextIs = getNextSection(businessModel);
+    expect(nextIs).toEqual("channels");
+  });
+
   it("reports null when all other options are populated", () => {
     const businessModel = createEmptyBusinessModel();
     businessModel.customers.list.push(createBusinessModelCustomer(businessModel));
     businessModel.valueProposition.genres.list.push(createIdentifiedPrimitive<string>(businessModel.valueProposition.genres.globalId, businessModel.valueProposition.genres.globalId + "x", "dummy value"));
+    businessModel.channels.awareness.list.push(createIdentifiedPrimitive<string>(businessModel.channels.awareness.globalId, businessModel.channels.awareness.globalId + "x", "dummy value"));
     const nextIs = getNextSection(businessModel);
     expect(nextIs).toEqual(null);
   });

@@ -20,7 +20,7 @@
   import CustomersSection from "./_components/sections/CustomersSection.svelte";
   import ValuePropositionInstructions from "./_components/sections/ValuePropositionInstructions.svelte";
   import ValuePropositionSection from "./_components/sections/ValuePropositionSection.svelte";
-  import ChannelsInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
+  import ChannelsInstructions from "./_components/sections/ChannelsInstructions.svelte";
   import ChannelsSection from "./_components/sections/ChannelsSection.svelte";
 
   const { actorId } = getConfig();
