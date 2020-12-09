@@ -61,7 +61,8 @@ export const getSectionStatus = (businessModel: IBusinessModel | null): SectionS
         businessModel.channels.consideration.list.length > 0 ||
         businessModel.channels.purchase.list.length > 0 ||
         businessModel.channels.postPurchase.list.length > 0),
-    customerRelationships: false,
+    customerRelationships:
+      businessModel && (businessModel.customerRelationships.entries.list.length > 0),
     revenue: false,
     keyResources: false,
     keyActivities: false,

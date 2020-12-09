@@ -266,6 +266,15 @@ namespace GDB.Business.BusinessLogic
                 case "DeleteChannelsPostPurchaseEntry":
                     ApplyBasicListDelete(model, change, m => model.Channels.PostPurchase);
                     break;
+                case "AddCustomerRelationshipsEntry":
+                    ApplyBasicListAdd(model, change, m => model.CustomerRelationships.Entries);
+                    break;
+                case "UpdateCustomerRelationshipsEntry":
+                    ApplyBasicListUpdate(model, change, m => model.CustomerRelationships.Entries);
+                    break;
+                case "DeleteCustomerRelationshipsEntry":
+                    ApplyBasicListDelete(model, change, m => model.CustomerRelationships.Entries);
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }

@@ -22,13 +22,20 @@
   .gdb-summary-list-li {
     color: $text-color-default;
     margin: 0.5em 0;
+
+    &.gdb-summary-list-li-no-details {
+      font-style: italic;
+      opacity: 0.5;
+    }
   }
 </style>
 
 {#if includeUl}
   <ul class="gdb-summary-list">
     {#if entries.list.length == 0}
-      <li class="gdb-summary-list-li">No details yet</li>
+      <li class="gdb-summary-list-li gdb-summary-list-li-no-details">
+        No details yet
+      </li>
     {:else}
       {#each entries.list as entry (entry.globalId)}
         <li class="gdb-summary-list-li">{entry.value}</li>
@@ -37,7 +44,9 @@
   </ul>
 {:else}
   {#if entries.list.length == 0}
-    <li class="gdb-summary-list-li">No details yet</li>
+    <li class="gdb-summary-list-li gdb-summary-list-li-no-details">
+      No details yet
+    </li>
   {:else}
     {#each entries.list as entry (entry.globalId)}
       <li class="gdb-summary-list-li">{entry.value}</li>

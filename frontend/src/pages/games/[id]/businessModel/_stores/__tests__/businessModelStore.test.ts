@@ -378,14 +378,15 @@ describe("businessModelStore", () => {
     // Mass Tests: Value Prop, Channels
 
     describe.each`
-      event                              | section               | list
-      ${"AddValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
-      ${"AddValuePropPlatform"}          | ${"valueProposition"} | ${"platforms"}
-      ${"AddValuePropGenre"}             | ${"valueProposition"} | ${"genres"}
-      ${"AddChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
-      ${"AddChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
-      ${"AddChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
-      ${"AddChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+      event                               | section                    | list
+      ${"AddValuePropEntry"}              | ${"valueProposition"}      | ${"entries"}
+      ${"AddValuePropPlatform"}           | ${"valueProposition"}      | ${"platforms"}
+      ${"AddValuePropGenre"}              | ${"valueProposition"}      | ${"genres"}
+      ${"AddChannelsAwarenessEntry"}      | ${"channels"}              | ${"awareness"}
+      ${"AddChannelsConsiderationEntry"}  | ${"channels"}              | ${"consideration"}
+      ${"AddChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
+      ${"AddChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
+      ${"AddCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
     `("$event", ({ event, section, list }) => {
       it(`adds a new entry to the ${section} '${list}'`, () => {
         const initialModel = createEmptyBusinessModel();
@@ -407,12 +408,13 @@ describe("businessModelStore", () => {
     });
 
     describe.each`
-      event                                 | section               | list
-      ${"UpdateValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
-      ${"UpdateChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
-      ${"UpdateChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
-      ${"UpdateChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
-      ${"UpdateChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+      event                                  | section                    | list
+      ${"UpdateValuePropEntry"}              | ${"valueProposition"}      | ${"entries"}
+      ${"UpdateChannelsAwarenessEntry"}      | ${"channels"}              | ${"awareness"}
+      ${"UpdateChannelsConsiderationEntry"}  | ${"channels"}              | ${"consideration"}
+      ${"UpdateChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
+      ${"UpdateChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
+      ${"UpdateCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Update", "Add");
       const deleteEvent = event.replace("Update", "Delete");
@@ -464,14 +466,15 @@ describe("businessModelStore", () => {
     });
 
     describe.each`
-    event                                 | section               | list
-      ${"DeleteValuePropEntry"}             | ${"valueProposition"} | ${"entries"}
-      ${"DeleteValuePropPlatform"}          | ${"valueProposition"} | ${"platforms"}
-      ${"DeleteValuePropGenre"}             | ${"valueProposition"} | ${"genres"}
-      ${"DeleteChannelsAwarenessEntry"}     | ${"channels"}         | ${"awareness"}
-      ${"DeleteChannelsConsiderationEntry"} | ${"channels"}         | ${"consideration"}
-      ${"DeleteChannelsPurchaseEntry"}      | ${"channels"}         | ${"purchase"}
-      ${"DeleteChannelsPostPurchaseEntry"}  | ${"channels"}         | ${"postPurchase"}
+      event                                  | section                    | list
+      ${"DeleteValuePropEntry"}              | ${"valueProposition"}      | ${"entries"}
+      ${"DeleteValuePropPlatform"}           | ${"valueProposition"}      | ${"platforms"}
+      ${"DeleteValuePropGenre"}              | ${"valueProposition"}      | ${"genres"}
+      ${"DeleteChannelsAwarenessEntry"}      | ${"channels"}              | ${"awareness"}
+      ${"DeleteChannelsConsiderationEntry"}  | ${"channels"}              | ${"consideration"}
+      ${"DeleteChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
+      ${"DeleteChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
+      ${"DeleteCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Delete", "Add");
 

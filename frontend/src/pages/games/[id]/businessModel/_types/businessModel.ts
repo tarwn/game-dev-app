@@ -7,6 +7,7 @@ export interface IBusinessModel extends IIdentifiedObject {
   customers: IIdentifiedList<IBusinessModelCustomer>;
   valueProposition: IBusinessModelValueProposition;
   channels: IBusinessModelChannels;
+  customerRelationships: IBusinessModelCustomerRelationships;
 }
 
 export interface IBusinessModelCustomer extends IIdentifiedObject {
@@ -26,4 +27,8 @@ export interface IBusinessModelChannels extends IIdentifiedObject {
   consideration: IIdentifiedList<IIdentifiedPrimitive<string>>;
   purchase: IIdentifiedList<IIdentifiedPrimitive<string>>;
   postPurchase: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+export interface IBusinessModelCustomerRelationships extends IIdentifiedObject {
+  entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
 }

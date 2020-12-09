@@ -11,6 +11,8 @@ namespace GDB.Common.DTOs.BusinessModel
         {
             Customers = new IdentifiedList<BusinessModelCustomer>();
             ValueProposition = new BusinessModelValueProposition();
+            Channels = new BusinessModelValueChannels();
+            CustomerRelationships = new BusinessModelValueCustomerRelationships();
         }
 
         public BusinessModelDTO(string gameId, string modelId)
@@ -82,6 +84,18 @@ namespace GDB.Common.DTOs.BusinessModel
                     List = new List<IdentifiedPrimitive<string>>()
                 }
             };
+            CustomerRelationships = new BusinessModelValueCustomerRelationships() {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:cr",
+                Field = "channels",
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:cr",
+                    GlobalId = $"{modelId}:cr:entries",
+                    Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
+            };
         }
 
         public string GlobalId { get; set; }
@@ -92,5 +106,6 @@ namespace GDB.Common.DTOs.BusinessModel
         public IdentifiedList<BusinessModelCustomer> Customers { get; set; }
         public BusinessModelValueProposition ValueProposition { get; set; }
         public BusinessModelValueChannels Channels { get; set; }
+        public BusinessModelValueCustomerRelationships CustomerRelationships { get; set; }
     }
 }

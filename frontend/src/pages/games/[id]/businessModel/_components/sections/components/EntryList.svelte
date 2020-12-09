@@ -90,7 +90,9 @@
   }
 </style>
 
-<LabeledInput {label} forId={`${entries.globalId}-newEntry`} />
+{#if label}
+  <LabeledInput {label} forId={`${entries.globalId}-newEntry`} />
+{/if}
 <ul class="gdb-entry-list">
   {#each entries.list as entry (entry.globalId)}
     <li class="gdb-entry-list-item">

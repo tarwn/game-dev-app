@@ -6,11 +6,6 @@ import { createImmutableEventApplier } from "./eventSystem/eventApplier";
 import { api } from "./businessModelApi";
 
 type Evt = IEvent<IBusinessModel>;
-type EvtMethod = {
-  get: (args?: any) => Evt,
-  apply: (model: IBusinessModel, event: Evt) => void
-}
-
 type IdentifiedValueUpdate<T> = Identified & { value: T };
 
 const primitiveFactory = {
@@ -102,7 +97,6 @@ const basicListFactory = {
   }
 };
 
-
 const businessModelEvents = {
   "AddNewCustomer": {
     get: ({ parentId }: { parentId: string }): Evt => {
@@ -186,6 +180,9 @@ const businessModelEvents = {
   "AddChannelsPostPurchaseEntry": basicListFactory.makeAdd("AddChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
   "UpdateChannelsPostPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
   "DeleteChannelsPostPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
+  "AddCustomerRelationshipsEntry": basicListFactory.makeAdd("AddCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
+  "UpdateCustomerRelationshipsEntry": basicListFactory.makeUpdate("UpdateCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
+  "DeleteCustomerRelationshipsEntry": basicListFactory.makeDelete("DeleteCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
 };
 
 export const events = {
@@ -215,6 +212,9 @@ export const events = {
   "AddChannelsPostPurchaseEntry": businessModelEvents.AddChannelsPostPurchaseEntry.get,
   "UpdateChannelsPostPurchaseEntry": businessModelEvents.UpdateChannelsPostPurchaseEntry.get,
   "DeleteChannelsPostPurchaseEntry": businessModelEvents.DeleteChannelsPostPurchaseEntry.get,
+  "AddCustomerRelationshipsEntry": businessModelEvents.AddCustomerRelationshipsEntry.get,
+  "UpdateCustomerRelationshipsEntry": businessModelEvents.UpdateCustomerRelationshipsEntry.get,
+  "DeleteCustomerRelationshipsEntry": businessModelEvents.DeleteCustomerRelationshipsEntry.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

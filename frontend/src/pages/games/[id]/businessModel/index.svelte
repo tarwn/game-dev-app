@@ -26,6 +26,8 @@
   import ValuePropositionSection from "./_components/sections/ValuePropositionSection.svelte";
   import ChannelsInstructions from "./_components/sections/ChannelsInstructions.svelte";
   import ChannelsSection from "./_components/sections/ChannelsSection.svelte";
+  import CustomerRelationshipsInstructions from "./_components/sections/CustomerRelationshipsInstructions.svelte";
+  import CustomerRelationshipsSection from "./_components/sections/CustomerRelationshipsSection.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -255,6 +257,16 @@
           {businessModel}
           on:clickFullscreen={handleOnFullScreen}
           on:clickNext={() => handleOnNextScreen('customerRelationships')} />
+      </div>
+    {:else if displaySection === 'customerRelationships'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CustomerRelationshipsInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CustomerRelationshipsSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('revenue')} />
       </div>
     {/if}
   {/if}

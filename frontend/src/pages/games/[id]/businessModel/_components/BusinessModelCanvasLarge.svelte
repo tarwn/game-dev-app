@@ -6,6 +6,7 @@
   import CustomersSectionSummary from "./sections/CustomersSectionSummary.svelte";
   import ValuePropositionSectionSummary from "./sections/ValuePropositionSectionSummary.svelte";
   import ChannelsSectionSummary from "./sections/ChannelsSectionSummary.svelte";
+  import CustomerRelationshipsSectionSummary from "./sections/CustomerRelationshipsSectionSummary.svelte";
 
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
@@ -200,10 +201,19 @@
     <ValuePropositionSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
-  <div class="gdb-board-section gdb-board-customerRelationships">
-    <h3 class:isLoading>Customer Relationships</h3>
-    <div class="gdb-board-section-content" />
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-customerRelationships"
+    label="Customer Relationships"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'customerRelationships'}
+    isStarted={sectionStatuses.customerRelationships}
+    isSelected={selectedSection == 'customerRelationships'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', {
+        section: 'customerRelationships',
+      })}>
+    <CustomerRelationshipsSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 
   <BusinessModelCanvasSection
     className="gdb-board-section gdb-board-channels"
