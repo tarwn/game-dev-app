@@ -7,6 +7,8 @@
   import ValuePropositionSectionSummary from "./sections/ValuePropositionSectionSummary.svelte";
   import ChannelsSectionSummary from "./sections/ChannelsSectionSummary.svelte";
   import CustomerRelationshipsSectionSummary from "./sections/CustomerRelationshipsSectionSummary.svelte";
+  import KeyResourcesSectionSummary from "./sections/KeyResourcesSectionSummary.svelte";
+  import RevenueSectionSummary from "./sections/RevenueSectionSummary.svelte";
 
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
@@ -118,11 +120,11 @@
   // Highlighting + Interaction
   .gdb-board {
     &.isHover {
-      border-color: $cs-grey-2;
+      border-color: $cs-grey-1;
       transition: border 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     &.isHover > .gdb-board-section {
-      opacity: 0.5;
+      opacity: 0.3;
       transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     &.isHover > .gdb-board-section.sectionIsStarted {
@@ -182,10 +184,17 @@
     <h3 class:isLoading>Key Activities</h3>
   </div>
 
-  <div class="gdb-board-section gdb-board-keyResources">
-    <h3 class:isLoading>Key Resources</h3>
-    <div class="gdb-board-section-content" />
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-keyResources"
+    label="Key Resources"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyResources'}
+    isStarted={sectionStatuses.keyResources}
+    isSelected={selectedSection == 'keyResources'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', { section: 'keyResources' })}>
+    <KeyResourcesSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 
   <BusinessModelCanvasSection
     className="gdb-board-section gdb-board-valueProposition"
@@ -245,8 +254,15 @@
     <div class="gdb-board-section-content" />
   </div>
 
-  <div class="gdb-board-section gdb-board-revenue">
-    <h3 class:isLoading>Revenue</h3>
-    <div class="gdb-board-section-content" />
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-revenue"
+    label="Revenue Streams"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'revenue'}
+    isStarted={sectionStatuses.revenue}
+    isSelected={selectedSection == 'revenue'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', { section: 'revenue' })}>
+    <RevenueSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 </div>

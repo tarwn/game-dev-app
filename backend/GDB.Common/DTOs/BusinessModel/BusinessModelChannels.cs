@@ -2,9 +2,9 @@
 
 namespace GDB.Common.DTOs.BusinessModel
 {
-    public class BusinessModelValueChannels : IIdentifiedObject
+    public class BusinessModelChannels : IIdentifiedObject
     {
-        public BusinessModelValueChannels() { }
+        public BusinessModelChannels() { }
 
         public string GlobalId { get; set; }
         public string ParentId { get; set; }

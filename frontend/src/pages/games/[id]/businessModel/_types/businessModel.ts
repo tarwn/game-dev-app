@@ -8,6 +8,8 @@ export interface IBusinessModel extends IIdentifiedObject {
   valueProposition: IBusinessModelValueProposition;
   channels: IBusinessModelChannels;
   customerRelationships: IBusinessModelCustomerRelationships;
+  revenue: IBusinessModelRevenue;
+  keyResources: IBusinessModelKeyResources;
 }
 
 export interface IBusinessModelCustomer extends IIdentifiedObject {
@@ -30,5 +32,13 @@ export interface IBusinessModelChannels extends IIdentifiedObject {
 }
 
 export interface IBusinessModelCustomerRelationships extends IIdentifiedObject {
+  entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+export interface IBusinessModelRevenue extends IIdentifiedObject {
+  entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+export interface IBusinessModelKeyResources extends IIdentifiedObject {
   entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
 }

@@ -183,6 +183,12 @@ const businessModelEvents = {
   "AddCustomerRelationshipsEntry": basicListFactory.makeAdd("AddCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
   "UpdateCustomerRelationshipsEntry": basicListFactory.makeUpdate("UpdateCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
   "DeleteCustomerRelationshipsEntry": basicListFactory.makeDelete("DeleteCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
+  "AddKeyResourcesEntry": basicListFactory.makeAdd("AddKeyResourcesEntry", (model) => model.keyResources.entries),
+  "UpdateKeyResourcesEntry": basicListFactory.makeUpdate("UpdateKeyResourcesEntry", (model) => model.keyResources.entries),
+  "DeleteKeyResourcesEntry": basicListFactory.makeDelete("DeleteKeyResourcesEntry", (model) => model.keyResources.entries),
+  "AddRevenueEntry": basicListFactory.makeAdd("AddRevenueEntry", (model) => model.revenue.entries),
+  "UpdateRevenueEntry": basicListFactory.makeUpdate("UpdateRevenueEntry", (model) => model.revenue.entries),
+  "DeleteRevenueEntry": basicListFactory.makeDelete("DeleteRevenueEntry", (model) => model.revenue.entries),
 };
 
 export const events = {
@@ -215,6 +221,12 @@ export const events = {
   "AddCustomerRelationshipsEntry": businessModelEvents.AddCustomerRelationshipsEntry.get,
   "UpdateCustomerRelationshipsEntry": businessModelEvents.UpdateCustomerRelationshipsEntry.get,
   "DeleteCustomerRelationshipsEntry": businessModelEvents.DeleteCustomerRelationshipsEntry.get,
+  "AddKeyResourcesEntry": businessModelEvents.AddKeyResourcesEntry.get,
+  "UpdateKeyResourcesEntry": businessModelEvents.UpdateKeyResourcesEntry.get,
+  "DeleteKeyResourcesEntry": businessModelEvents.DeleteKeyResourcesEntry.get,
+  "AddRevenueEntry": businessModelEvents.AddRevenueEntry.get,
+  "UpdateRevenueEntry": businessModelEvents.UpdateRevenueEntry.get,
+  "DeleteRevenueEntry": businessModelEvents.DeleteRevenueEntry.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

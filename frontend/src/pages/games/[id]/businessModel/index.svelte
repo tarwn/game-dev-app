@@ -14,7 +14,6 @@
   import { getConfig } from "../../../../config";
   import { log } from "./_stores/logger";
   import {
-    getNextSection,
     getNextSectionInLine,
     getSectionStatus,
   } from "./_types/businessModelUsage";
@@ -28,6 +27,10 @@
   import ChannelsSection from "./_components/sections/ChannelsSection.svelte";
   import CustomerRelationshipsInstructions from "./_components/sections/CustomerRelationshipsInstructions.svelte";
   import CustomerRelationshipsSection from "./_components/sections/CustomerRelationshipsSection.svelte";
+  import KeyResourcesInstructions from "./_components/sections/KeyResourcesInstructions.svelte";
+  import KeyResourcesSection from "./_components/sections/KeyResourcesSection.svelte";
+  import RevenueInstructions from "./_components/sections/RevenueInstructions.svelte";
+  import RevenueSection from "./_components/sections/RevenueSection.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -267,6 +270,26 @@
           {businessModel}
           on:clickFullscreen={handleOnFullScreen}
           on:clickNext={() => handleOnNextScreen('revenue')} />
+      </div>
+    {:else if displaySection === 'revenue'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <RevenueInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <RevenueSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('keyResources')} />
+      </div>
+    {:else if displaySection === 'keyResources'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyResourcesInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyResourcesSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('keyActivities')} />
       </div>
     {/if}
   {/if}

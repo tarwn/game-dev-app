@@ -2,9 +2,9 @@
 
 namespace GDB.Common.DTOs.BusinessModel
 {
-    public class BusinessModelValueCustomerRelationships : IIdentifiedObject
+    public class BusinessModelRevenue : IIdentifiedObject
     {
-        public BusinessModelValueCustomerRelationships() { }
+        public BusinessModelRevenue() { }
 
         public string GlobalId { get; set; }
         public string ParentId { get; set; }

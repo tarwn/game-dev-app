@@ -1,35 +1,15 @@
 import type { IBusinessModel } from "./businessModel";
 
 
-export const getNextSection = (businessModel: IBusinessModel): string | null => {
-  if (businessModel.customers.list.length === 0) {
-    return "customers";
-  }
-  else if (businessModel.valueProposition.genres.list.length === 0 &&
-    businessModel.valueProposition.platforms.list.length === 0 &&
-    businessModel.valueProposition.entries.list.length === 0) {
-    return "valueProposition";
-  }
-  else if (businessModel.channels.awareness.list.length === 0 &&
-    businessModel.channels.consideration.list.length === 0 &&
-    businessModel.channels.purchase.list.length === 0 &&
-    businessModel.channels.postPurchase.list.length === 0) {
-    return "channels";
-  }
-  return null;
-};
+export const getNextSectionInLine = (currentSection: string | null): string | null => {
+  if (currentSection == null)
+    return order[0];
 
-export const getNextSectionInLine = (currentSection: string): string | null => {
-  switch (currentSection) {
-    case "customers":
-      return "valueProposition";
-    case "valueProposition":
-      return "channels";
-    case "channels":
-      return "customRelationships";
-    default:
-      return null;
-  }
+  const curIndex = order.findIndex(s => s == currentSection);
+  if (curIndex < 0 || curIndex === order.length - 1)
+    return null;
+  else
+    return order[curIndex + 1];
 };
 
 export type SectionStatus = {
@@ -63,8 +43,10 @@ export const getSectionStatus = (businessModel: IBusinessModel | null): SectionS
         businessModel.channels.postPurchase.list.length > 0),
     customerRelationships:
       businessModel && (businessModel.customerRelationships.entries.list.length > 0),
-    revenue: false,
-    keyResources: false,
+    revenue:
+      businessModel && (businessModel.revenue.entries.list.length > 0),
+    keyResources:
+      businessModel && (businessModel.keyResources.entries.list.length > 0),
     keyActivities: false,
     keyPartners: false,
     costStructure: false,

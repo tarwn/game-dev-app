@@ -387,6 +387,8 @@ describe("businessModelStore", () => {
       ${"AddChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
       ${"AddChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
       ${"AddCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
+      ${"AddRevenueEntry"}                | ${"revenue"}               | ${"entries"}
+      ${"AddKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
     `("$event", ({ event, section, list }) => {
       it(`adds a new entry to the ${section} '${list}'`, () => {
         const initialModel = createEmptyBusinessModel();
@@ -415,6 +417,8 @@ describe("businessModelStore", () => {
       ${"UpdateChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
       ${"UpdateChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
       ${"UpdateCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
+      ${"UpdateRevenueEntry"}                | ${"revenue"}               | ${"entries"}
+      ${"UpdateKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Update", "Add");
       const deleteEvent = event.replace("Update", "Delete");
@@ -475,6 +479,8 @@ describe("businessModelStore", () => {
       ${"DeleteChannelsPurchaseEntry"}       | ${"channels"}              | ${"purchase"}
       ${"DeleteChannelsPostPurchaseEntry"}   | ${"channels"}              | ${"postPurchase"}
       ${"DeleteCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
+      ${"DeleteRevenueEntry"}                | ${"revenue"}               | ${"entries"}
+      ${"DeleteKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Delete", "Add");
 

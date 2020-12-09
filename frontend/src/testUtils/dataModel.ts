@@ -1,5 +1,5 @@
 import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/games/[id]/businessModel/_stores/eventSystem/types";
-import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCustomer, IBusinessModelCustomerRelationships, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
+import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCustomer, IBusinessModelCustomerRelationships, IBusinessModelKeyResources, IBusinessModelRevenue, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
 
 export function createEmptyBusinessModel(): IBusinessModel {
   return {
@@ -9,7 +9,9 @@ export function createEmptyBusinessModel(): IBusinessModel {
     customers: createObjectList<IBusinessModelCustomer>("unit-test-bm", "unit-test-bm-c", "customers"),
     valueProposition: createValueProposition("unit-test-bm", "unit-test-bm-vp", "valueProposition"),
     channels: createChannels("unit-test-bm", "unit-test-bm-channels", "channels"),
-    customerRelationships: createWithEntriesOnly<IBusinessModelCustomerRelationships>("unit-test-bm", "unit-test-bm-customerRelationships", "customerRelationships")
+    customerRelationships: createWithEntriesOnly<IBusinessModelCustomerRelationships>("unit-test-bm", "unit-test-bm-cr", "customerRelationships"),
+    revenue: createWithEntriesOnly<IBusinessModelRevenue>("unit-test-bm", "unit-test-bm-rev", "revenue"),
+    keyResources: createWithEntriesOnly<IBusinessModelKeyResources>("unit-test-bm", "unit-test-bm-kr", "keyResources"),
   };
 }
 

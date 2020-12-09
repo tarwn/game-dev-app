@@ -1,34 +1,23 @@
-import { createBusinessModelCustomer, createEmptyBusinessModel, createIdentifiedPrimitive } from "../../../../../testUtils/dataModel";
-import { getNextSection } from "./businessModelUsage";
+import { getNextSectionInLine } from "./businessModelUsage";
 
 describe("businessModelUsage", () => {
-  it("reports customer when not customers added yet", () => {
-    const businessModel = createEmptyBusinessModel();
-    const nextIs = getNextSection(businessModel);
-    expect(nextIs).toEqual("customers");
+  describe("getNextSection", () => {
+    it.each`
+    curSection                 | nextSection
+    ${null}                    | ${'customers'}
+    ${'customers'}             | ${'valueProposition'}
+    ${'valueProposition'}      | ${'channels'}
+    ${'channels'}              | ${'customerRelationships'}
+    ${'customerRelationships'} | ${'revenue'}
+    ${'revenue'}               | ${'keyResources'}
+    ${'keyResources'}          | ${'keyActivities'}
+    ${'keyActivities'}         | ${'keyPartners'}
+    ${'keyPartners'}           | ${'costStructure'}
+    ${'costStructure'}         | ${null}
+    `("The next section after $curSection is $nextSection", ({ curSection, nextSection }) => {
+      const nextActSection = getNextSectionInLine(curSection);
+      expect(nextActSection).toEqual(nextSection);
+    });
   });
 
-  it("reports valueProp when customer added but no value prop values yet", () => {
-    const businessModel = createEmptyBusinessModel();
-    businessModel.customers.list.push(createBusinessModelCustomer(businessModel));
-    const nextIs = getNextSection(businessModel);
-    expect(nextIs).toEqual("valueProposition");
-  });
-
-  it("reports channels when customer + valueProp filled", () => {
-    const businessModel = createEmptyBusinessModel();
-    businessModel.customers.list.push(createBusinessModelCustomer(businessModel));
-    businessModel.valueProposition.genres.list.push(createIdentifiedPrimitive<string>(businessModel.valueProposition.genres.globalId, businessModel.valueProposition.genres.globalId + "x", "dummy value"));
-    const nextIs = getNextSection(businessModel);
-    expect(nextIs).toEqual("channels");
-  });
-
-  it("reports null when all other options are populated", () => {
-    const businessModel = createEmptyBusinessModel();
-    businessModel.customers.list.push(createBusinessModelCustomer(businessModel));
-    businessModel.valueProposition.genres.list.push(createIdentifiedPrimitive<string>(businessModel.valueProposition.genres.globalId, businessModel.valueProposition.genres.globalId + "x", "dummy value"));
-    businessModel.channels.awareness.list.push(createIdentifiedPrimitive<string>(businessModel.channels.awareness.globalId, businessModel.channels.awareness.globalId + "x", "dummy value"));
-    const nextIs = getNextSection(businessModel);
-    expect(nextIs).toEqual(null);
-  });
 });
