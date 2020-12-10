@@ -14,7 +14,7 @@
   // this auto-focuses on an element but we only want it
   //  to happen after they start entering it
   let canInitYet = false;
-  function init(el) {
+  function init(el: any) {
     if (canInitYet) {
       el.focus();
     }

@@ -3,7 +3,6 @@
   import { init } from "@sentry/browser";
   import { CaptureConsole } from "@sentry/integrations";
   import { getConfig } from "./config";
-  import { log } from "./pages/games/[id]/businessModel/_stores/logger";
 
   const config = getConfig();
   let anErrorHasOccurred = false;

@@ -26,7 +26,7 @@
     });
   }
 
-  async function handleNewValue(e) {
+  async function handleNewValue(e: any) {
     e.preventDefault();
     if (newTagEntry === "") return;
 

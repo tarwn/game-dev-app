@@ -3,7 +3,6 @@
   import { PredefinedIcons } from "../../../../../components/buttons/PredefinedIcons";
   import IconTextButton from "../../../../../components/buttons/IconTextButton.svelte";
   import IconButton from "../../../../../components/buttons/IconButton.svelte";
-  import { getNextSectionInLine } from "../_types/businessModelUsage";
 
   export let className: string = "gdb-board-section";
   export let label: string = "";

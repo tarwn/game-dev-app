@@ -47,7 +47,7 @@
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
 
-  function handleChangeSection(event) {
+  function handleChangeSection(event: any) {
     displaySection = event.detail.section;
     if (event.detail.section == null) {
       displaySectionCommit = null;

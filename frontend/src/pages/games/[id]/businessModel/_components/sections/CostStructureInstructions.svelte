@@ -13,13 +13,6 @@
       margin: $space-s;
     }
   }
-  .gdb-instructions-sublist {
-    padding-left: $space-m;
-
-    & > li {
-      margin: $space-s;
-    }
-  }
 </style>
 
 <Instructions

@@ -19,11 +19,11 @@
   $: hasCustomerType =
     customer.type.value == "both" || customer.type.value == "customer";
 
-  function init(el) {
+  function init(el: any) {
     el.focus();
   }
 
-  function handleNameChange(e) {
+  function handleNameChange(e: any) {
     businessModelEventStore.addEvent(
       events.UpdateCustomerName({
         parentId: customer.name.parentId,
@@ -33,7 +33,7 @@
     );
   }
 
-  function handlePlayerTypeChange(e) {
+  function handlePlayerTypeChange(e: any) {
     let nextType = "";
     if (hasCustomerType) {
       nextType = e.target?.checked ? "both" : "customer";
@@ -50,7 +50,7 @@
     );
   }
 
-  function handleCustomerTypeChange(e) {
+  function handleCustomerTypeChange(e: any) {
     let nextType = "";
     if (hasPlayerType) {
       nextType = e.target?.checked ? "both" : "player";
@@ -67,19 +67,19 @@
     );
   }
 
-  function handleOnNewCharacteristic(createEventArgs) {
+  function handleOnNewCharacteristic(createEventArgs: any) {
     businessModelEventStore.addEvent(
       events.AddCustomerEntry(createEventArgs.detail)
     );
   }
 
-  function handleCharacteristicUpdate(updateEventArgs) {
+  function handleCharacteristicUpdate(updateEventArgs: any) {
     businessModelEventStore.addEvent(
       events.UpdateCustomerEntry(updateEventArgs.detail)
     );
   }
 
-  function handleCharacteristicDelete(deleteEventArgs) {
+  function handleCharacteristicDelete(deleteEventArgs: any) {
     businessModelEventStore.addEvent(
       events.DeleteCustomerEntry(deleteEventArgs.detail)
     );

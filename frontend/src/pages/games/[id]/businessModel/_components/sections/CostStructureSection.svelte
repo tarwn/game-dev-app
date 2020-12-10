@@ -1,5 +1,8 @@
 <script lang="ts">
-  import type { IBusinessModel } from "../../_types/businessModel";
+  import type {
+    IBusinessModel,
+    IBusinessModelCost,
+  } from "../../_types/businessModel";
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
   import {
@@ -12,8 +15,6 @@
 
   export let businessModel: IBusinessModel;
 
-  const publish = businessModelEventStore.addEvent;
-
   $: hasMinimumInfo = businessModel.costStructure.list.length > 0;
 
   function handleCostDelete(cost: Identified) {
@@ -25,7 +26,7 @@
     );
   }
 
-  function handleTypeChange(cost, e) {
+  function handleTypeChange(cost: IBusinessModelCost, e: any) {
     console.log({ cost, e });
     businessModelEventStore.addEvent(
       events.UpdateCostType({
@@ -36,7 +37,7 @@
     );
   }
 
-  function handleSummaryChange(cost, e) {
+  function handleSummaryChange(cost: IBusinessModelCost, e: any) {
     businessModelEventStore.addEvent(
       events.UpdateCostSummary({
         parentId: cost.summary.parentId,
@@ -46,7 +47,7 @@
     );
   }
 
-  function handlePreLaunchChange(cost, e) {
+  function handlePreLaunchChange(cost: IBusinessModelCost, e: any) {
     businessModelEventStore.addEvent(
       events.UpdateCostIsPreLaunch({
         parentId: cost.summary.parentId,
@@ -56,7 +57,7 @@
     );
   }
 
-  function handlePostLaunchChange(cost, e) {
+  function handlePostLaunchChange(cost: IBusinessModelCost, e: any) {
     businessModelEventStore.addEvent(
       events.UpdateCostIsPostLaunch({
         parentId: cost.summary.parentId,
@@ -90,9 +91,9 @@
   .gdb-cost-input-set {
     margin-left: $space-s;
 
-    & + button {
-      margin-left: $space-m;
-    }
+    // & + button {
+    //   margin-left: $space-m;
+    // }
   }
 </style>
 
