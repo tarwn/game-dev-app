@@ -26,17 +26,19 @@
   <p>Some examples:</p>
   <ul class="gdb-instructions-list">
     <li>
-      Direct sale on _____: $45 sticker price, 500 sales first week then ??/week
-      at avg price of $35
+      Direct sale on _____: $15 sticker price, 200 sales first week then
+      50/month at avg price of $12.50
     </li>
     <li>
-      Direct Subscription through ______: $4.99 monthly fee, 500 sales first
-      week and grow to ~2,500 over 6 months
+      Direct Subscription through ______: $4.99 monthly fee, 200 sales first
+      week and grow to ~1,000 over 6 months
     </li>
     <li>
-      Platform Subscription: $25k monthly to be in their subscription catalog
+      Platform Subscription: $10k monthly to be in their subscription catalog
     </li>
-    <li>Funding from (______?) $125k funding in (9?) months</li>
+    <li>
+      Funding from (______?) $250k funding, every (6?) months over (18?) months
+    </li>
     <li>$5k local city small business grant in (march?)</li>
   </ul>
   <p>See the linked post for more sources and ideas.</p>

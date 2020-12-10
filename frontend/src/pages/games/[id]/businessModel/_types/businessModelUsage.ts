@@ -47,9 +47,12 @@ export const getSectionStatus = (businessModel: IBusinessModel | null): SectionS
       businessModel && (businessModel.revenue.entries.list.length > 0),
     keyResources:
       businessModel && (businessModel.keyResources.entries.list.length > 0),
-    keyActivities: false,
-    keyPartners: false,
-    costStructure: false,
+    keyActivities:
+      businessModel && (businessModel.keyActivities.entries.list.length > 0),
+    keyPartners:
+      businessModel && (businessModel.keyPartners.entries.list.length > 0),
+    costStructure:
+      businessModel && (businessModel.costStructure.list.length > 0),
   };
   status.nextNonStartedSection = getNextNonStarted(status);
   return status;

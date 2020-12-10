@@ -103,7 +103,7 @@ const businessModelEvents = {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddNewCustomer",
         operations: [
-          { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId },
+          { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId, insert: true },
           { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "name", value: "" },
           { action: OperationType.MakeList, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "entries" },
           { action: OperationType.Set, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "both" },
@@ -189,6 +189,69 @@ const businessModelEvents = {
   "AddRevenueEntry": basicListFactory.makeAdd("AddRevenueEntry", (model) => model.revenue.entries),
   "UpdateRevenueEntry": basicListFactory.makeUpdate("UpdateRevenueEntry", (model) => model.revenue.entries),
   "DeleteRevenueEntry": basicListFactory.makeDelete("DeleteRevenueEntry", (model) => model.revenue.entries),
+  "AddKeyActivitiesEntry": basicListFactory.makeAdd("AddKeyActivitiesEntry", (model) => model.keyActivities.entries),
+  "UpdateKeyActivitiesEntry": basicListFactory.makeUpdate("UpdateKeyActivitiesEntry", (model) => model.keyActivities.entries),
+  "DeleteKeyActivitiesEntry": basicListFactory.makeDelete("DeleteKeyActivitiesEntry", (model) => model.keyActivities.entries),
+  "AddKeyPartnersEntry": basicListFactory.makeAdd("AddKeyPartnersEntry", (model) => model.keyPartners.entries),
+  "UpdateKeyPartnersEntry": basicListFactory.makeUpdate("UpdateKeyPartnersEntry", (model) => model.keyPartners.entries),
+  "DeleteKeyPartnersEntry": basicListFactory.makeDelete("DeleteKeyPartnersEntry", (model) => model.keyPartners.entries),
+  "AddCost": {
+    get: ({ parentId }: { parentId: string }): Evt => {
+      return businessModelEventStore.createEvent((actor, seqNo) => ({
+        type: "AddCost",
+        operations: [
+          { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId, insert: true },
+          { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "other" },
+          { action: OperationType.Set, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "summary", value: "" },
+          { action: OperationType.Set, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPreLaunch", value: true },
+          { action: OperationType.Set, objectId: `${seqNo + 4}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPostLaunch", value: true },
+        ]
+      }));
+    },
+    apply: (model: IBusinessModel, event: Evt): void => {
+      model.costStructure.list.push({
+        globalId: event.operations[0].objectId,
+        parentId: event.operations[0].parentId,
+        type: { globalId: event.operations[1].objectId, parentId: event.operations[1].parentId, value: event.operations[1].value, field: event.operations[1].field },
+        summary: { globalId: event.operations[2].objectId, parentId: event.operations[2].parentId, value: event.operations[2].value, field: event.operations[2].field },
+        isPreLaunch: { globalId: event.operations[3].objectId, parentId: event.operations[3].parentId, value: event.operations[3].value, field: event.operations[3].field },
+        isPostLaunch: { globalId: event.operations[4].objectId, parentId: event.operations[4].parentId, value: event.operations[4].value, field: event.operations[4].field },
+      });
+    }
+  },
+  "DeleteCost": basicListFactory.makeDelete("DeleteCost", (model) => model.costStructure),
+  "UpdateCostType": primitiveFactory.makeUpdate("UpdateCostType", (model, event) => {
+    const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
+    }
+    return model.costStructure.list[cIndex].type;
+  }),
+  "UpdateCostSummary": primitiveFactory.makeUpdate("UpdateCostSummary", (model, event) => {
+    const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
+    }
+    return model.costStructure.list[cIndex].summary;
+  }),
+  "UpdateCostIsPreLaunch": primitiveFactory.makeUpdate("UpdateCostIsPreLaunch", (model, event) => {
+    const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
+    }
+    return model.costStructure.list[cIndex].isPreLaunch;
+  }),
+  "UpdateCostIsPostLaunch": primitiveFactory.makeUpdate("UpdateCostIsPostLaunch", (model, event) => {
+    const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
+    if (cIndex == -1) {
+      // conflict/out of order event
+      return;
+    }
+    return model.costStructure.list[cIndex].isPostLaunch;
+  }),
 };
 
 export const events = {
@@ -227,6 +290,18 @@ export const events = {
   "AddRevenueEntry": businessModelEvents.AddRevenueEntry.get,
   "UpdateRevenueEntry": businessModelEvents.UpdateRevenueEntry.get,
   "DeleteRevenueEntry": businessModelEvents.DeleteRevenueEntry.get,
+  "AddKeyActivitiesEntry": businessModelEvents.AddKeyActivitiesEntry.get,
+  "UpdateKeyActivitiesEntry": businessModelEvents.UpdateKeyActivitiesEntry.get,
+  "DeleteKeyActivitiesEntry": businessModelEvents.DeleteKeyActivitiesEntry.get,
+  "AddKeyPartnersEntry": businessModelEvents.AddKeyPartnersEntry.get,
+  "UpdateKeyPartnersEntry": businessModelEvents.UpdateKeyPartnersEntry.get,
+  "DeleteKeyPartnersEntry": businessModelEvents.DeleteKeyPartnersEntry.get,
+  "AddCost": businessModelEvents.AddCost.get,
+  "DeleteCost": businessModelEvents.DeleteCost.get,
+  "UpdateCostType": businessModelEvents.UpdateCostType.get,
+  "UpdateCostSummary": businessModelEvents.UpdateCostSummary.get,
+  "UpdateCostIsPreLaunch": businessModelEvents.UpdateCostIsPreLaunch.get,
+  "UpdateCostIsPostLaunch": businessModelEvents.UpdateCostIsPostLaunch.get,
 };
 
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {

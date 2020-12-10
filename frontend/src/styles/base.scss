@@ -57,7 +57,8 @@ a.disabled{
 }
 
 input[type=text],
-input[type=password] {
+input[type=password],
+select {
   border: 1px solid $cs-grey-2;
   border-radius: 2px;
   padding: $space-xs;
@@ -72,6 +73,14 @@ input[type=password] {
     border: 1px solid $color-accent-1-darker;
     outline: none;
   }
+}
+
+select {
+  // -webkit-appearance: none;
+  // -moz-appearance: none;
+  // appearance: none;
+  background-color: white;
+  // background: url(https://stackoverflow.com/favicon.ico) 96% / 15% no-repeat #EEE;
 }
 
 .gdb-button {

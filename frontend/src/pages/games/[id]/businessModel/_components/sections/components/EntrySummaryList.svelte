@@ -23,6 +23,10 @@
     color: $text-color-default;
     margin: 0.5em 0;
 
+    &::marker {
+      color: $cs-grey-1;
+    }
+
     &.gdb-summary-list-li-no-details {
       font-style: italic;
       opacity: 0.5;

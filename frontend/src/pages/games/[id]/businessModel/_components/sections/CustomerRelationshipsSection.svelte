@@ -28,6 +28,9 @@
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
+  <p>
+    What types of customer relationships do we need to build to be successful?
+  </p>
   <Row>
     <EntryList
       entries={businessModel.customerRelationships.entries}

@@ -6,6 +6,125 @@ businessModelEventStore.initialize("unit-test", "1", { testMode: true });
 describe("businessModelStore", () => {
   describe("eventApplier", () => {
 
+    // cost structure
+    describe("AddCost", () => {
+      it("adds a new cost with correct object structure", () => {
+        const emptyModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: emptyModel.costStructure.globalId });
+        const nextModel = eventApplier.apply(emptyModel, event);
+
+        // original model is unchanged
+        expect(emptyModel.costStructure.list).toEqual([]);
+        // structural fields
+        expect(nextModel.costStructure.list.length).toEqual(1);
+        expect(nextModel.costStructure.list[0].parentId).toEqual(nextModel.costStructure.globalId);
+        expect(nextModel.costStructure.list[0].field).toBeUndefined();
+        expect(nextModel.costStructure.list[0].globalId).not.toBeUndefined();
+        expect(nextModel.costStructure.list[0].globalId).not.toEqual(nextModel.customers.globalId);
+        ["type", "summary"].forEach((field) => {
+          expect(nextModel.costStructure.list[0][field]).not.toBeUndefined();
+          expect(nextModel.costStructure.list[0][field].parentId).toEqual(nextModel.costStructure.list[0].globalId);
+          expect(nextModel.costStructure.list[0][field].field).toEqual(field);
+        });
+      });
+
+      it("adds a new cost with default values", () => {
+        const emptyModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: emptyModel.customers.globalId });
+        const nextModel = eventApplier.apply(emptyModel, event);
+
+        // original model is unchanged
+        expect(emptyModel.costStructure.list).toEqual([]);
+        // new model has defaults set
+        expect(nextModel.costStructure.list.length).toEqual(1);
+        expect(nextModel.costStructure.list[0].type.value).toEqual("other");
+        expect(nextModel.costStructure.list[0].summary.value).toEqual("");
+      });
+    });
+
+    describe("DeleteCost", () => {
+      it("removes specified cost with matching globalId", () => {
+        let initialModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: initialModel.customers.globalId });
+        initialModel = eventApplier.apply(initialModel, event);
+
+        const deleteEvent = events.DeleteCost({
+          parentId: initialModel.costStructure.list[0].parentId,
+          globalId: initialModel.costStructure.list[0].globalId
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.costStructure.list).not.toEqual([]);
+        // new model has removed the specified customer
+        expect(nextModel.costStructure.list).toEqual([]);
+      });
+
+      it("[conflict] skips removal of cost if the globalId is not found", () => {
+        let initialModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: initialModel.customers.globalId });
+        initialModel = eventApplier.apply(initialModel, event);
+
+        const deleteEvent = events.DeleteCost({
+          parentId: initialModel.costStructure.list[0].parentId,
+          globalId: initialModel.costStructure.list[0].globalId + "123"
+        });
+        const nextModel = eventApplier.apply(initialModel, deleteEvent);
+
+        // original model is unchanged
+        expect(initialModel.costStructure.list).not.toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
+    describe.each`
+      eventType                       | field                 | initialValue  | newValue
+      ${'UpdateCostType'}             | ${'type'}             | ${'other'}    | ${'new value'}
+      ${'UpdateCostSummary'}          | ${'summary'}          | ${''}         | ${'new value'}
+      ${'UpdateCostIsPreLaunch'}      | ${'isPreLaunch'}      | ${true}       | ${false}
+      ${'UpdateCostIsPostLaunch'}     | ${'isPostLaunch'}     | ${true}       | ${false}
+    `("$eventType", ({ eventType, field, initialValue, newValue }) => {
+      it(`updates ${field} on the cost`, () => {
+        let initialModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: initialModel.costStructure.globalId });
+        initialModel = eventApplier.apply(initialModel, event);
+
+        const updateNameEvent = events[eventType]({
+          parentId: initialModel.costStructure.list[0][field].parentId,
+          globalId: initialModel.costStructure.list[0][field].globalId,
+          value: newValue
+        });
+        const nextModel = eventApplier.apply(initialModel, updateNameEvent);
+
+        // original model is unchanged
+        expect(initialModel.costStructure.list[0][field].value).toEqual(initialValue);
+        // new model is updated
+        expect(nextModel.costStructure.list[0][field].value).toEqual(newValue);
+      });
+
+      it(`[conflict] skips updating the ${field} for a deleted customer`, () => {
+        let initialModel = createEmptyBusinessModel();
+        const event = events.AddCost({ parentId: initialModel.costStructure.globalId });
+        initialModel = eventApplier.apply(initialModel, event);
+        const cost = initialModel.costStructure.list[0];
+        const deleteEvent = events.DeleteCost({ parentId: cost.parentId, globalId: cost.globalId });
+        initialModel = eventApplier.apply(initialModel, deleteEvent);
+
+        const updateNameEvent = events[eventType]({
+          parentId: cost[field].parentId,
+          globalId: cost[field].globalId,
+          value: "the new name"
+        });
+        const nextModel = eventApplier.apply(initialModel, updateNameEvent);
+
+        // original model is unchanged
+        expect(initialModel.costStructure.list).toEqual([]);
+        // the initial model is completely unchanged by this event
+        expect(nextModel).toEqual(initialModel);
+      });
+    });
+
     // customer
 
     describe("AddCustomer", () => {
@@ -375,7 +494,7 @@ describe("businessModelStore", () => {
       });
     });
 
-    // Mass Tests: Value Prop, Channels
+    // Mass Tests: Value Prop, Channelsx4, Customer Relationships, Revenue, Key Resources, Key Activities, Key Parters
 
     describe.each`
       event                               | section                    | list
@@ -389,6 +508,8 @@ describe("businessModelStore", () => {
       ${"AddCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
       ${"AddRevenueEntry"}                | ${"revenue"}               | ${"entries"}
       ${"AddKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
+      ${"AddKeyActivitiesEntry"}          | ${"keyActivities"}         | ${"entries"}
+      ${"AddKeyPartnersEntry"}            | ${"keyPartners"}           | ${"entries"}
     `("$event", ({ event, section, list }) => {
       it(`adds a new entry to the ${section} '${list}'`, () => {
         const initialModel = createEmptyBusinessModel();
@@ -419,6 +540,8 @@ describe("businessModelStore", () => {
       ${"UpdateCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
       ${"UpdateRevenueEntry"}                | ${"revenue"}               | ${"entries"}
       ${"UpdateKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
+      ${"UpdateKeyActivitiesEntry"}          | ${"keyActivities"}         | ${"entries"}
+      ${"UpdateKeyPartnersEntry"}            | ${"keyPartners"}           | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Update", "Add");
       const deleteEvent = event.replace("Update", "Delete");
@@ -481,6 +604,8 @@ describe("businessModelStore", () => {
       ${"DeleteCustomerRelationshipsEntry"}  | ${"customerRelationships"} | ${"entries"}
       ${"DeleteRevenueEntry"}                | ${"revenue"}               | ${"entries"}
       ${"DeleteKeyResourcesEntry"}           | ${"keyResources"}          | ${"entries"}
+      ${"DeleteKeyActivitiesEntry"}          | ${"keyActivities"}         | ${"entries"}
+      ${"DeleteKeyPartnersEntry"}            | ${"keyPartners"}           | ${"entries"}
     `("$event", ({ event, section, list }) => {
       const addEvent = event.replace("Delete", "Add");
 

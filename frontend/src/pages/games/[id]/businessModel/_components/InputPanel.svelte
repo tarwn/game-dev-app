@@ -45,7 +45,7 @@
 
   .gdb-bm-inputPanel-content {
     flex-grow: 1;
-    margin: $space-m;
+    margin: 0 $space-m;
   }
 
   .gdb-bm-inputPanel-footer {

@@ -12,7 +12,7 @@
 
   const publish = businessModelEventStore.addEvent;
 
-  $: hasMinimumInfo = businessModel.revenue.entries.list.length > 0;
+  $: hasMinimumInfo = businessModel.keyActivities.entries.list.length > 0;
 </script>
 
 <style type="text/scss">
@@ -20,21 +20,19 @@
 </style>
 
 <InputPanel
-  title="Revenue"
+  title="Key Activities"
   canUndo={false}
   canRedo={false}
   canNext={hasMinimumInfo}
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
-  <p>
-    What are the revenue streams for the game? When/where will we receive money?
-  </p>
+  <p>What activities do we need to perform to build and launch the game?</p>
   <Row>
     <EntryList
-      entries={businessModel.revenue.entries}
-      on:create={({ detail }) => publish(events.AddRevenueEntry(detail))}
-      on:update={({ detail }) => publish(events.UpdateRevenueEntry(detail))}
-      on:delete={({ detail }) => publish(events.DeleteRevenueEntry(detail))} />
+      entries={businessModel.keyActivities.entries}
+      on:create={({ detail }) => publish(events.AddKeyActivitiesEntry(detail))}
+      on:update={({ detail }) => publish(events.UpdateKeyActivitiesEntry(detail))}
+      on:delete={({ detail }) => publish(events.DeleteKeyActivitiesEntry(detail))} />
   </Row>
 </InputPanel>

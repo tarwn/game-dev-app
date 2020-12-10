@@ -10,6 +10,9 @@ export interface IBusinessModel extends IIdentifiedObject {
   customerRelationships: IBusinessModelCustomerRelationships;
   revenue: IBusinessModelRevenue;
   keyResources: IBusinessModelKeyResources;
+  keyActivities: IBusinessModelKeyActivities;
+  keyPartners: IBusinessModelKeyPartners;
+  costStructure: IBusinessModelCostStructure;
 }
 
 export interface IBusinessModelCustomer extends IIdentifiedObject {
@@ -41,4 +44,22 @@ export interface IBusinessModelRevenue extends IIdentifiedObject {
 
 export interface IBusinessModelKeyResources extends IIdentifiedObject {
   entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+export interface IBusinessModelKeyActivities extends IIdentifiedObject {
+  entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+export interface IBusinessModelKeyPartners extends IIdentifiedObject {
+  entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
+}
+
+
+export type IBusinessModelCostStructure = IIdentifiedList<IBusinessModelCost>
+
+export interface IBusinessModelCost extends IIdentifiedObject {
+  type: IIdentifiedPrimitive<string>;
+  summary: IIdentifiedPrimitive<string>;
+  isPreLaunch: IIdentifiedPrimitive<boolean>;
+  isPostLaunch: IIdentifiedPrimitive<boolean>;
 }

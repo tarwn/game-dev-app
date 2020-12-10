@@ -31,6 +31,9 @@
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
+  <p>
+    Where will customers find out about, research, buy, and request support?
+  </p>
   <Row>
     <EntryList
       label="Awareness"

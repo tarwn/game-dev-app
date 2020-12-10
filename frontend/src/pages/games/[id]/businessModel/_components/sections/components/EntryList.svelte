@@ -52,7 +52,10 @@
   .gdb-entry-list {
     margin: 0;
     list-style-type: disc;
-    margin-left: 4rem; // matches label min-size padding
+    margin-left: 1rem;
+    &.includesLabel {
+      margin-left: 4rem; // matches label min-size padding
+    }
     padding-left: $space-s; // matches label.text min-size padding
   }
   .gdb-entry-list-item-new,
@@ -61,17 +64,25 @@
     margin: $space-s 0; // matches Row
   }
 
-  .gdb-entry-list-item-new {
-    list-style-type: none;
+  .gdb-entry-list-item {
+    &::marker {
+      color: $cs-grey-1;
+    }
 
-    &:focus-within::before {
-      content: "\2022"; /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    &:focus-within::marker {
+      list-style-type: disc;
       color: $cs_blue;
-      font-weight: bold;
-      font-size: $font-size-larger;
-      display: inline-block;
-      width: 15px;
-      margin-left: -15px;
+    }
+  }
+
+  .gdb-entry-list-item-new {
+    list-style-type: disc;
+    &::marker {
+      color: transparent;
+    }
+    &:focus-within::marker {
+      list-style-type: disc;
+      color: $cs_blue;
     }
   }
 
@@ -93,7 +104,7 @@
 {#if label}
   <LabeledInput {label} forId={`${entries.globalId}-newEntry`} />
 {/if}
-<ul class="gdb-entry-list">
+<ul class="gdb-entry-list" class:includesLabel={!!label}>
   {#each entries.list as entry (entry.globalId)}
     <li class="gdb-entry-list-item">
       <input

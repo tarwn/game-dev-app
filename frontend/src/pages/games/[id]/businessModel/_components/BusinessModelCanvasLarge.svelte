@@ -9,6 +9,9 @@
   import CustomerRelationshipsSectionSummary from "./sections/CustomerRelationshipsSectionSummary.svelte";
   import KeyResourcesSectionSummary from "./sections/KeyResourcesSectionSummary.svelte";
   import RevenueSectionSummary from "./sections/RevenueSectionSummary.svelte";
+  import KeyActivitiesSectionSummary from "./sections/KeyActivitiesSectionSummary.svelte";
+  import KeyPartnersSectionSummary from "./sections/KeyPartnersSectionSummary.svelte";
+  import CostStructureSectionSummary from "./sections/CostStructureSectionSummary.svelte";
 
   export let isLoading: boolean = false;
   export let businessModel: IBusinessModel | null;
@@ -175,14 +178,29 @@
   class:isCurrentSelection={isMiniMap && selectedSection}
   on:mouseenter={onMouseEnter}
   on:mouseleave={onMouseLeave}>
-  <div class="gdb-board-section gdb-board-keyPartners">
-    <h3 class:isLoading>Key Partners</h3>
-    <div class="gdb-board-section-content" />
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-keyPartners"
+    label="Key Partners"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyPartners'}
+    isStarted={sectionStatuses.keyPartners}
+    isSelected={selectedSection == 'keyPartners'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', { section: 'keyPartners' })}>
+    <KeyPartnersSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 
-  <div class="gdb-board-section gdb-board-keyActivities">
-    <h3 class:isLoading>Key Activities</h3>
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-keyActivities"
+    label="Key Activities"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyActivities'}
+    isStarted={sectionStatuses.keyActivities}
+    isSelected={selectedSection == 'keyActivities'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', { section: 'keyActivities' })}>
+    <KeyActivitiesSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 
   <BusinessModelCanvasSection
     className="gdb-board-section gdb-board-keyResources"
@@ -249,10 +267,17 @@
     <CustomersSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
-  <div class="gdb-board-section gdb-board-costStructure">
-    <h3 class:isLoading>Cost Structure</h3>
-    <div class="gdb-board-section-content" />
-  </div>
+  <BusinessModelCanvasSection
+    className="gdb-board-section gdb-board-costStructure"
+    label="Cost Structure"
+    {isLoading}
+    isNextToStart={sectionStatuses.nextNonStartedSection == 'costStructure'}
+    isStarted={sectionStatuses.costStructure}
+    isSelected={selectedSection == 'costStructure'}
+    {isMiniMap}
+    on:showMe={() => dispatch('sectionChange', { section: 'costStructure' })}>
+    <CostStructureSectionSummary {businessModel} />
+  </BusinessModelCanvasSection>
 
   <BusinessModelCanvasSection
     className="gdb-board-section gdb-board-revenue"

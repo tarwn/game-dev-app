@@ -31,6 +31,12 @@
   import KeyResourcesSection from "./_components/sections/KeyResourcesSection.svelte";
   import RevenueInstructions from "./_components/sections/RevenueInstructions.svelte";
   import RevenueSection from "./_components/sections/RevenueSection.svelte";
+  import KeyActivitiesInstructions from "./_components/sections/KeyActivitiesInstructions.svelte";
+  import KeyActivitiesSection from "./_components/sections/KeyActivitiesSection.svelte";
+  import KeyPartnersSection from "./_components/sections/KeyPartnersSection.svelte";
+  import KeyPartnersInstructions from "./_components/sections/KeyPartnersInstructions.svelte";
+  import CostStructureSection from "./_components/sections/CostStructureSection.svelte";
+  import CostStructureInstructions from "./_components/sections/CostStructureInstructions.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -56,7 +62,7 @@
     handleChangeSection({ detail: { section: null } });
   }
 
-  function handleOnNextScreen(section) {
+  function handleOnNextScreen(section: string | null) {
     handleChangeSection({ detail: { section } });
   }
 
@@ -290,6 +296,36 @@
           {businessModel}
           on:clickFullscreen={handleOnFullScreen}
           on:clickNext={() => handleOnNextScreen('keyActivities')} />
+      </div>
+    {:else if displaySection === 'keyActivities'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyActivitiesInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyActivitiesSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('keyPartners')} />
+      </div>
+    {:else if displaySection === 'keyPartners'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyPartnersInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyPartnersSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen('costStructure')} />
+      </div>
+    {:else if displaySection === 'costStructure'}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CostStructureInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CostStructureSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen(null)} />
       </div>
     {/if}
   {/if}

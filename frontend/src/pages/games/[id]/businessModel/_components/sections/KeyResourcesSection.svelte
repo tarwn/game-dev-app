@@ -27,6 +27,10 @@
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
+  <p>
+    What are the critical resources or people we need to build and launch
+    successfully?
+  </p>
   <Row>
     <EntryList
       entries={businessModel.keyResources.entries}

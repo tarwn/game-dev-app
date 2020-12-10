@@ -15,6 +15,9 @@ namespace GDB.Common.DTOs.BusinessModel
             CustomerRelationships = new BusinessModelCustomerRelationships();
             Revenue = new BusinessModelRevenue();
             KeyResources = new BusinessModelKeyResources();
+            KeyActivities = new BusinessModelKeyActivities();
+            KeyPartners = new BusinessModelKeyPartners();
+            CostStructure = new BusinessModelCostStructure();
         }
 
         public BusinessModelDTO(string gameId, string modelId)
@@ -55,33 +58,33 @@ namespace GDB.Common.DTOs.BusinessModel
             };
             Channels = new BusinessModelChannels() {
                 ParentId = modelId,
-                GlobalId = $"{modelId}:channels",
+                GlobalId = $"{modelId}:chnls",
                 Field = "channels",
                 Awareness = new IdentifiedList<IdentifiedPrimitive<string>>()
                 {
-                    ParentId = $"{modelId}:channels",
-                    GlobalId = $"{modelId}:channels:awareness",
+                    ParentId = $"{modelId}:chnls",
+                    GlobalId = $"{modelId}:chnls:aware",
                     Field = "awareness",
                     List = new List<IdentifiedPrimitive<string>>()
                 },
                 Consideration = new IdentifiedList<IdentifiedPrimitive<string>>()
                 {
-                    ParentId = $"{modelId}:channels",
-                    GlobalId = $"{modelId}:channels:consider",
+                    ParentId = $"{modelId}:chnls",
+                    GlobalId = $"{modelId}:chnls:cons",
                     Field = "consideration",
                     List = new List<IdentifiedPrimitive<string>>()
                 },
                 Purchase = new IdentifiedList<IdentifiedPrimitive<string>>()
                 {
-                    ParentId = $"{modelId}:channels",
-                    GlobalId = $"{modelId}:channels:purch",
+                    ParentId = $"{modelId}:chnls",
+                    GlobalId = $"{modelId}:chnls:p",
                     Field = "purchase",
                     List = new List<IdentifiedPrimitive<string>>()
                 },
                 PostPurchase = new IdentifiedList<IdentifiedPrimitive<string>>()
                 {
-                    ParentId = $"{modelId}:channels",
-                    GlobalId = $"{modelId}:channels:postpurch",
+                    ParentId = $"{modelId}:chnls",
+                    GlobalId = $"{modelId}:chnls:pp",
                     Field = "postPurchase",
                     List = new List<IdentifiedPrimitive<string>>()
                 }
@@ -125,6 +128,52 @@ namespace GDB.Common.DTOs.BusinessModel
                     List = new List<IdentifiedPrimitive<string>>()
                 }
             };
+            KeyResources = new BusinessModelKeyResources()
+            {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:kr",
+                Field = "keyResources",
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:kr",
+                    GlobalId = $"{modelId}:kr:entries",
+                    Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
+            };
+            KeyActivities = new BusinessModelKeyActivities()
+            {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:ka",
+                Field = "keyActivities",
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:kr",
+                    GlobalId = $"{modelId}:kr:entries",
+                    Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
+            };
+            KeyPartners = new BusinessModelKeyPartners()
+            {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:kp",
+                Field = "keyPartners",
+                Entries = new IdentifiedList<IdentifiedPrimitive<string>>()
+                {
+                    ParentId = $"{modelId}:kr",
+                    GlobalId = $"{modelId}:kr:entries",
+                    Field = "entries",
+                    List = new List<IdentifiedPrimitive<string>>()
+                }
+            };
+            CostStructure = new BusinessModelCostStructure()
+            {
+                ParentId = modelId,
+                GlobalId = $"{modelId}:cost",
+                Field = "costStructure",
+                List = new List<BusinessModelCost>()
+            };
         }
 
         public string GlobalId { get; set; }
@@ -138,5 +187,9 @@ namespace GDB.Common.DTOs.BusinessModel
         public BusinessModelCustomerRelationships CustomerRelationships { get; set; }
         public BusinessModelRevenue Revenue { get; set; }
         public BusinessModelKeyResources KeyResources { get; set; }
+        public BusinessModelKeyActivities KeyActivities { get; set; }
+        public BusinessModelKeyPartners KeyPartners { get; set; }
+        public BusinessModelCostStructure CostStructure { get; set; }
+
     }
 }

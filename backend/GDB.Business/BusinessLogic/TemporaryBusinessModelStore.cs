@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +25,6 @@ namespace GDB.Business.BusinessLogic
             _ids = new Dictionary<string, HashSet<string>>();
             _globalSeqNos = new Dictionary<string, int>();
         }
-
 
         public async Task<LockObject> GetLockAsync()
         {
@@ -293,6 +293,105 @@ namespace GDB.Business.BusinessLogic
                 case "DeleteKeyResourcesEntry":
                     ApplyBasicListDelete(model, change, m => model.KeyResources.Entries);
                     break;
+                case "AddKeyActivitiesEntry":
+                    ApplyBasicListAdd(model, change, m => model.KeyActivities.Entries);
+                    break;
+                case "UpdateKeyActivitiesEntry":
+                    ApplyBasicListUpdate(model, change, m => model.KeyActivities.Entries);
+                    break;
+                case "DeleteKeyActivitiesEntry":
+                    ApplyBasicListDelete(model, change, m => model.KeyActivities.Entries);
+                    break;
+                case "AddKeyPartnersEntry":
+                    ApplyBasicListAdd(model, change, m => model.KeyPartners.Entries);
+                    break;
+                case "UpdateKeyPartnersEntry":
+                    ApplyBasicListUpdate(model, change, m => model.KeyPartners.Entries);
+                    break;
+                case "DeleteKeyPartnersEntry":
+                    ApplyBasicListDelete(model, change, m => model.KeyPartners.Entries);
+                    break;
+                case "AddCost":
+                    EnsureOperationCount(change, 5);
+                    model.CostStructure.List.Add(new BusinessModelCost()
+                    {
+                        GlobalId = change.Operations[0].ObjectId,
+                        ParentId = change.Operations[0].ParentId,
+                        Field = change.Operations[0].Field,
+                        Type = new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[1].ObjectId,
+                            ParentId = change.Operations[1].ParentId,
+                            Field = change.Operations[1].Field,
+                            Value = change.Operations[1].Value.ToString()
+                        },
+                        Summary = new IdentifiedPrimitive<string>()
+                        {
+                            GlobalId = change.Operations[2].ObjectId,
+                            ParentId = change.Operations[2].ParentId,
+                            Field = change.Operations[2].Field,
+                            Value = change.Operations[2].Value.ToString()
+                        },
+                        IsPreLaunch = new IdentifiedPrimitive<bool>()
+                        {
+                            GlobalId = change.Operations[3].ObjectId,
+                            ParentId = change.Operations[3].ParentId,
+                            Field = change.Operations[3].Field,
+                            Value = ToBoolean(change.Operations[3].Value)
+                        },
+                        IsPostLaunch = new IdentifiedPrimitive<bool>()
+                        {
+                            GlobalId = change.Operations[4].ObjectId,
+                            ParentId = change.Operations[4].ParentId,
+                            Field = change.Operations[4].Field,
+                            Value = ToBoolean(change.Operations[4].Value)
+                        },
+                    });
+                    break;
+                case "DeleteCost":
+                    EnsureOperationCount(change, 1);
+                    model.CostStructure.List.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
+                    break;
+                case "UpdateCostType":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                        if (cost != null)
+                        {
+                            cost.Type.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "UpdateCostSummary":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                        if (cost != null)
+                        {
+                            cost.Summary.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "UpdateCostIsPreLaunch":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                        if (cost != null)
+                        {
+                            cost.IsPreLaunch.Value = ToBoolean(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "UpdateCostIsPostLaunch":
+                    EnsureOperationCount(change, 1);
+                    {
+                        var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                        if (cost != null)
+                        {
+                            cost.IsPostLaunch.Value = ToBoolean(change.Operations[0].Value);
+                        }
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }
@@ -359,6 +458,19 @@ namespace GDB.Business.BusinessLogic
             {
                 throw new ArgumentException($"Operation count is expected to be {expectedCount} for {change.Type}", nameof(change));
             }
+        }
+
+        private bool ToBoolean(object input) {
+            if (input is JsonElement) {
+                var asJson = (JsonElement)input;
+                if (asJson.ValueKind == JsonValueKind.False) {
+                    return false;
+                }
+                if (asJson.ValueKind == JsonValueKind.True) {
+                    return true;
+                }
+            }
+            return Convert.ToBoolean(input.ToString());
         }
     }
 
