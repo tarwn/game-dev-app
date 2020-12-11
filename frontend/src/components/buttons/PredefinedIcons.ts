@@ -22,7 +22,7 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.Download, "true-FilesandFolders_file_download"],
   [PredefinedIcons.Edit, "true-GraphicDesign_pencil"],
   [PredefinedIcons.Delete, "true-UIEssentials_trash_bin_delete"],
-  [PredefinedIcons.InProgress, "true-UIEssentials_sand_clock_time"],
+  [PredefinedIcons.InProgress, "true-UIEssentials_time_clock"],
   [PredefinedIcons.Check, "true-Check"]
 ]);
 

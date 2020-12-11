@@ -150,7 +150,7 @@
     title="Financial Forecast"
     status={'In Progress'}
     href={$url('../businessModel')}
-    imgHref={'/images/BusinessModelCanvas.svg'}
+    imgHref={'/images/FinanceForecast.svg'}
     lastUpdated="Updated on Dec 11" />
   <Tile
     title="Marketing Plan"

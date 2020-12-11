@@ -49,6 +49,7 @@
   .gdb-tile-image {
     flex: 1 0 0;
     max-width: 200px;
+    max-height: 166px;
   }
 
   $badge-size: 80px;
@@ -86,7 +87,7 @@
     }
 
     .gdb-tile:hover & {
-      opacity: 1;
+      opacity: 0.5;
     }
   }
 
