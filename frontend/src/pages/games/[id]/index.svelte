@@ -1,5 +1,9 @@
 <script lang="ts">
   import { url, params } from "@sveltech/routify";
+  import ForecastChart from "./_components/ForecastChart.svelte";
+  import ProgressBar from "./_components/ProgressBar.svelte";
+  import Tile from "./_components/Tile.svelte";
+
   $: id = $params.id;
 
   $: game = {
@@ -17,23 +21,14 @@
     display: flex;
   }
 
-  section,
-  .tile {
+  section {
     // border: 1px solid $cs-grey-1;
     border-radius: 4px;
     margin: $space-m 0;
     background: $color-background-white;
     box-shadow: $shadow-main;
-
-    &:hover {
-      box-shadow: $shadow-main-hover;
-    }
-    &:active {
-      box-shadow: $shadow-main;
-    }
   }
-  section + section,
-  .tile + .tile {
+  section + section {
     margin-left: $space-xl;
   }
 
@@ -83,7 +78,8 @@
   }
 
   .sample-2 {
-    display: inline-block;
+    display: flex;
+    flex-direction: row;
     min-width: 600px;
     width: 600px;
     height: 200px;
@@ -91,17 +87,16 @@
     border-right: 1px solid $cs-grey-1;
   }
 
-  .tile {
-    display: inline-block;
-    min-width: 200px;
+  .sample-2-progress {
+    flex: 0 0 0;
     width: 200px;
     height: 200px;
-    background-color: white;
-    border-right: 1px solid $cs-grey-1;
+  }
 
-    & + .tile {
-      margin-left: $space-xl;
-    }
+  .sample-2-forecast {
+    flex: 1 0 0;
+    width: 400px;
+    height: 200px;
   }
 
   h1,
@@ -126,16 +121,42 @@
       <div class="sample-footer">Last modified {game.lastModified}</div>
     </div>
   </section>
-  <section class="sample-2" />
+  <section class="sample-2">
+    <div class="sample-2-progress">
+      <ProgressBar />
+    </div>
+    <div class="sample-2-forecast">
+      <ForecastChart />
+    </div>
+  </section>
 </div>
 
 <h2>Planning</h2>
 
-<div class="row">
-  <a class="tile" href={$url('../businessModel')}>Business Model</a>
-  <section class="tile" />
-  <section class="tile" />
-  <section class="tile" />
+<div class="row gdb-row-tiles">
+  <Tile
+    title="Business Model"
+    status={'Done'}
+    href={$url('../businessModel')}
+    imgHref={'/images/BusinessModelCanvas.svg'}
+    lastUpdated="Updated on Dec 3" />
+  <Tile
+    title="Comparables"
+    status={'In Progress'}
+    href={$url('../businessModel')}
+    imgHref={'/images/BusinessModelCanvas.svg'}
+    lastUpdated="Updated on Dec 7" />
+  <Tile
+    title="Financial Forecast"
+    status={'In Progress'}
+    href={$url('../businessModel')}
+    imgHref={'/images/BusinessModelCanvas.svg'}
+    lastUpdated="Updated on Dec 11" />
+  <Tile
+    title="Marketing Plan"
+    status={null}
+    href={$url('../businessModel')}
+    imgHref={'/images/BusinessModelCanvas.svg'} />
 </div>
 
 <h2>Next Stages</h2>
