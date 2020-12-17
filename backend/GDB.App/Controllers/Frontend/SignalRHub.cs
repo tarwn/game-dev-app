@@ -16,6 +16,8 @@ namespace GDB.App.Controllers.Frontend
         private static ConcurrentDictionary<string, string> _connectionGroupAssignments = new ConcurrentDictionary<string, string>();
         private ILogger<SignalRHub> _logger;
 
+        private static ConcurrentDictionary<string, List<string>> _connectionRegistrations = new ConcurrentDictionary<string, List<string>>();
+
         public SignalRHub(ILogger<SignalRHub> logger)
         {
             _logger = logger;
@@ -41,6 +43,30 @@ namespace GDB.App.Controllers.Frontend
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
             }
+        }
+
+        public async Task RegisterForUpdates(string updateTypeId)
+        {
+            // TODO validate user is allowed to access this game id [ch926] or [ch993]
+
+            _logger.LogInformation($"Client connected to '{updateTypeId}': {Context.ConnectionId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, updateTypeId);
+            _connectionRegistrations.AddOrUpdate(Context.ConnectionId, new List<string> { updateTypeId }, (k, list) => {
+                list.Add(updateTypeId);
+                return list;
+            });
+        }
+
+        public async Task UnregisterForUpdates(string updateTypeId)
+        {
+            _logger.LogInformation($"Client leaving '{updateTypeId}': {Context.ConnectionId}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, updateTypeId);
+            if (_connectionRegistrations.TryGetValue(Context.ConnectionId, out var list)) {
+                var newList = list.Select(s => s).ToList();
+                newList.RemoveAll(s => s.Equals(updateTypeId));
+                _connectionRegistrations.TryUpdate(Context.ConnectionId, newList, list);
+            }
+            
         }
 
 

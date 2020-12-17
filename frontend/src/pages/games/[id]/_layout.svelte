@@ -1,15 +1,20 @@
 <script lang="ts">
   import { params } from "@sveltech/routify";
+  import { onDestroy } from "svelte";
+  import { gamesStore } from "../../_stores/gamesStore";
   import TopBar from "./_components/TopBar.svelte";
 
   $: id = $params.id;
 
-  // todo: load game summary?
-  $: gameSummary = {
-    id,
-    name: id == "demo" ? "Demo Game" : "Unknown Game",
+  let games = [];
+  const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
+
+  $: game = {
     icon: "true-Videogames_controller_joystick_games_video_console",
+    ...games.find((g) => g.globalId == id),
   };
+
+  onDestroy(unsubscribe);
 </script>
 
 <style type="text/scss">
@@ -44,11 +49,13 @@
   }
 </style>
 
-<div class="gdp-page">
-  <div class="gdb-page-head">
-    <TopBar {...gameSummary} />
+{#if game}
+  <div class="gdp-page">
+    <div class="gdb-page-head">
+      <TopBar id={game.globalId} {...game} />
+    </div>
+    <div class="gdb-page-content">
+      <slot />
+    </div>
   </div>
-  <div class="gdb-page-content">
-    <slot />
-  </div>
-</div>
+{/if}

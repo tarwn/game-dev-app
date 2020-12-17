@@ -1,7 +1,14 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import MenuItemGame from "../components/layout/MenuItemGame.svelte";
   import MenuItemLink from "../components/layout/MenuItemLink.svelte";
   import Logo from "../components/layout/Logo.svelte";
+  import type { Game } from "./_stores/gamesStore";
+  import { gamesStore } from "./_stores/gamesStore";
+
+  let games = [] as Game[];
+  const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
+  onDestroy(unsubscribe);
 </script>
 
 <style type="text/scss">
@@ -58,15 +65,11 @@
     <nav>
       <div class="gdb-nav-header">Active Games</div>
       <ul class="gdb-nav-list">
-        <li>
-          <MenuItemGame id="demo" name="Demo Game" />
-        </li>
-        <li>
-          <MenuItemGame id="na" name="Example Game" />
-        </li>
-        <li>
-          <MenuItemGame id="na" name="Another Example" />
-        </li>
+        {#each games as game (game.globalId)}
+          <li>
+            <MenuItemGame id={game.globalId} name={game.name} />
+          </li>
+        {/each}
         <li>
           <MenuItemLink
             path="./games/new"

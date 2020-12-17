@@ -1,17 +1,25 @@
 <script lang="ts">
   import { url, params } from "@sveltech/routify";
+  import { onDestroy } from "svelte";
+  import { gamesStore } from "../../_stores/gamesStore";
   import ForecastChart from "./_components/ForecastChart.svelte";
   import ProgressBar from "./_components/ProgressBar.svelte";
   import Tile from "./_components/Tile.svelte";
 
   $: id = $params.id;
 
-  $: game = {
-    id: id,
-    name: "Demo Game",
-    status: "Active",
-    lastModified: "2 days ago by you",
-  };
+  let games = [];
+  const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
+
+  $: game = games.find((g) => g.globalId == id);
+  //  {
+  //   id: id,
+  //   name: "Demo Game",
+  //   status: "Active",
+  //   lastModified: "2 days ago by you",
+  // };
+
+  onDestroy(unsubscribe);
 </script>
 
 <style type="text/scss">
@@ -112,24 +120,26 @@
 
 <h1>Dashboard</h1>
 
-<div class="row">
-  <section class="sample-1">
-    <div class="sample-pic" />
-    <div class="sample-details">
-      <div>Game: {game.name}</div>
-      <div>Status: {game.status}</div>
-      <div class="sample-footer">Last modified {game.lastModified}</div>
-    </div>
-  </section>
-  <section class="sample-2">
-    <div class="sample-2-progress">
-      <ProgressBar />
-    </div>
-    <div class="sample-2-forecast">
-      <ForecastChart />
-    </div>
-  </section>
-</div>
+{#if game}
+  <div class="row">
+    <section class="sample-1">
+      <div class="sample-pic" />
+      <div class="sample-details">
+        <div>Game: {game.name}</div>
+        <div>Status: {game.status}</div>
+        <div class="sample-footer">Last modified {game.lastModified}</div>
+      </div>
+    </section>
+    <section class="sample-2">
+      <div class="sample-2-progress">
+        <ProgressBar />
+      </div>
+      <div class="sample-2-forecast">
+        <ForecastChart />
+      </div>
+    </section>
+  </div>
+{/if}
 
 <h2>Planning</h2>
 
