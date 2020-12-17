@@ -144,7 +144,7 @@
     title="Comparables"
     status={'In Progress'}
     href={$url('../businessModel')}
-    imgHref={'/images/BusinessModelCanvas.svg'}
+    imgHref={'/images/Comparables.svg'}
     lastUpdated="Updated on Dec 7" />
   <Tile
     title="Financial Forecast"
@@ -156,7 +156,7 @@
     title="Marketing Plan"
     status={null}
     href={$url('../businessModel')}
-    imgHref={'/images/BusinessModelCanvas.svg'} />
+    imgHref={'/images/MarketingPlan.svg'} />
 </div>
 
 <h2>Next Stages</h2>

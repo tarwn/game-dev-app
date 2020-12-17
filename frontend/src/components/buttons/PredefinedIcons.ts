@@ -9,7 +9,11 @@ export enum PredefinedIcons {
   Edit,
   Delete,
   InProgress,
-  Check
+  Check,
+  ConstructionAlert,
+  ConstructionPC,
+  GraphicAdd,
+  Pencil
 }
 
 const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
@@ -23,7 +27,11 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.Edit, "true-GraphicDesign_pencil"],
   [PredefinedIcons.Delete, "true-UIEssentials_trash_bin_delete"],
   [PredefinedIcons.InProgress, "true-UIEssentials_time_clock"],
-  [PredefinedIcons.Check, "true-Check"]
+  [PredefinedIcons.Check, "true-Check"],
+  [PredefinedIcons.ConstructionAlert, "true-Construction_attention_alert"],
+  [PredefinedIcons.ConstructionPC, "true-Construction_pc_computer_engineering"],
+  [PredefinedIcons.GraphicAdd, "true-GraphicDesign_picture_add"],
+  [PredefinedIcons.Pencil, "true-GraphicDesign_pencil"]
 ]);
 
 export const getIconString = (icon: PredefinedIcons | string): string => {

@@ -86,6 +86,13 @@
       opacity: 0.9;
     }
 
+    &.gdb-tile-status-none {
+      // border: 2px solid $cs_blue;
+      // background-color: $cs_lightblue;
+      color: $cs_lightblue;
+      opacity: 0.9;
+    }
+
     .gdb-tile:hover & {
       opacity: 0.5;
     }
@@ -119,13 +126,16 @@
       <div class="gdb-tile-status gdb-tile-status-done">
         <Icon icon={PredefinedIcons.Check} />
       </div>
-    {/if}
-    {#if status == 'In Progress'}
+    {:else if status == 'In Progress'}
       <div class="gdb-tile-status gdb-tile-status-inProgress">
         <Icon icon={PredefinedIcons.InProgress} />
+      </div>
+    {:else}
+      <div class="gdb-tile-status gdb-tile-status-none">
+        <Icon icon={PredefinedIcons.Pencil} />
       </div>
     {/if}
     <div class="gdb-tile-title">{title}</div>
   </a>
-  <div class="gdb-last-updated">{lastUpdated || ''}</div>
+  <div class="gdb-last-updated">{lastUpdated || '(not started)'}</div>
 </div>

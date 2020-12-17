@@ -44,7 +44,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -384,9 +384,16 @@
          fill="#24bacc"
          opacity="0.2"
          stroke-width="0.154625" />
+      <path
+         id="path1537-5"
+         class="cls-6"
+         d="m 11.9925,-57.9958 v 6.534343 h 15.86921 v -5.374808 h 5.25728 V -63.36769 H 17.24335 v 5.37329 z m 19.90226,-0.0603 H 18.46548 v -4.09144 h 13.42928 z m -18.68025,1.281852 h 13.42928 v 4.091433 H 13.21451 Z"
+         fill="#24bacc"
+         opacity="0.2"
+         stroke-width="0.154625" />
       <g
          id="g2496"
-         transform="matrix(0.40725959,0,0,0.40725959,88.535603,-118.90342)">
+         transform="matrix(0.40725959,0,0,0.40725959,-54.551142,-120.08925)">
         <g
            id="character-beard"
            transform="matrix(1.2283883,0,0,1.2283883,-243.66685,-178.46392)">
@@ -1197,16 +1204,9 @@
              style="fill:#3e3127;stroke-width:0.365988" />
         </g>
       </g>
-      <path
-         id="path1537-5"
-         class="cls-6"
-         d="m 11.9925,-57.9958 v 6.534343 h 15.86921 v -5.374808 h 5.25728 V -63.36769 H 17.24335 v 5.37329 z m 19.90226,-0.0603 H 18.46548 v -4.09144 h 13.42928 z m -18.68025,1.281852 h 13.42928 v 4.091433 H 13.21451 Z"
-         fill="#24bacc"
-         opacity="0.2"
-         stroke-width="0.154625" />
       <g
          id="table-with-plant"
-         transform="matrix(0.11466992,0,0,0.11466969,-145.77445,23.357898)">
+         transform="matrix(0.11466992,0,0,0.11466969,4.6595036,22.46925)">
         <path
            class="cls-38"
            d="m 1773.2123,-232.68298 h -308.1391 c -5.9413,0 -10.7564,-3.2941 -10.7564,-22.50631 h 329.652 c 0,19.20537 -4.8152,22.50631 -10.7565,22.50631 z"
