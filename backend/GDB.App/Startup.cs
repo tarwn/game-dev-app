@@ -266,7 +266,7 @@ namespace GDB.App
                     if (env.IsDevelopment())
                     {
                         spa.Options.DefaultPage = "/index.html";
-                        spa.Options.StartupTimeout = TimeSpan.FromSeconds(10);
+                        spa.Options.StartupTimeout = TimeSpan.FromSeconds(30);
                         LocalDevelopmentTasks.StartFrontendService(spa, "../../frontend", "yarn", (port) => $"run dev", "Your application is ready");
                     }
                 });

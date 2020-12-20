@@ -17,7 +17,6 @@
     getNextSectionInLine,
     getSectionStatus,
   } from "./_types/businessModelUsage";
-  import WebSocketReceiver from "./_stores/WebSocketReceiver.svelte";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
   import CustomersSection from "./_components/sections/CustomersSection.svelte";
@@ -37,6 +36,7 @@
   import KeyPartnersInstructions from "./_components/sections/KeyPartnersInstructions.svelte";
   import CostStructureSection from "./_components/sections/CostStructureSection.svelte";
   import CostStructureInstructions from "./_components/sections/CostStructureInstructions.svelte";
+  import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -161,16 +161,23 @@
   }
 </style>
 
-<WebSocketReceiver
-  updateChannelId={id}
-  on:receiveUpdate={({ detail }) => {
-    log('WebSocketReceiver.on:receiveUpdate', detail);
+<WebSocketChannel
+  channelId={id}
+  updateType="businessModelUpdate"
+  on:receive={({ detail }) => {
+    log('WebSocketChannel.on:receiveUpdate', detail);
     businessModelEventStore.receiveEvent(detail.gameId, detail.event);
   }}
-  on:channelConnect={({ detail }) => log(
-      'WebSocketReceiver.on:channelConnected',
-      { channel: detail }
+  on:connect={({ detail }) => log('WebSocketChannel.on:channelConnected', {
+      channel: detail,
+    })}
+  on:disconnect={({ detail }) => log(
+      'WebSocketChannel.on:channelDisconnected',
+      {
+        channel: detail,
+      }
     )} />
+
 <div class="gdb-page-bm-header">
   <h1>Business Model</h1>
   <SpacedButtons>

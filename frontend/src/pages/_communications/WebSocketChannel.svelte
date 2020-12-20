@@ -49,6 +49,7 @@
     getConnection()
       .send("unregisterForUpdates", channelId)
       .then(() => {
+        dispatch("disconnect", channelId);
         connectedChannelId = "";
       });
   });
