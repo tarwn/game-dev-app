@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GDB.Common.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,26 @@ namespace GDB.App.ErrorHandling
             {
                 // TODO: Report Exception Here
 
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                context.Result = new ObjectResult(new ErrorDetails
+                if (context.Exception is AccessDeniedException)
                 {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "Internal Server Error.",
-                    Type = typeof(Exception).Name
-                });
+                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Result = new ObjectResult(new ErrorDetails
+                    {
+                        StatusCode = HttpStatusCode.Unauthorized,
+                        Message = context.Exception.Message,
+                        Type = typeof(Exception).Name
+                    });
+                }
+                else
+                {
+                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Result = new ObjectResult(new ErrorDetails
+                    {
+                        StatusCode = HttpStatusCode.InternalServerError,
+                        Message = "Internal Server Error.",
+                        Type = typeof(Exception).Name
+                    });
+                }
 #if !DEBUG
                 context.ExceptionHandled = true;
 #endif

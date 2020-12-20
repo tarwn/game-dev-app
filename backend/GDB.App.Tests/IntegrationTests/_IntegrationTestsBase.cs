@@ -64,6 +64,7 @@ namespace GDB.App.Tests.IntegrationTests
             };
         }
 
+
         public TContentType AssertResponseIs<TResultType, TContentType>(IActionResult result)
             where TResultType : ObjectResult
         {

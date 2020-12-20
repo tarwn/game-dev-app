@@ -11,7 +11,7 @@ namespace GDB.App.Controllers.Frontend
 {
     [Route("api/fe/userProfile")]
     [Authorize(Policy = Policies.InteractiveUserAccess)]
-    public class UserProfileController : Controller
+    public class UserProfileController : BaseController
     {
         private IInteractiveUserQueryService _userQueries;
 
@@ -21,9 +21,15 @@ namespace GDB.App.Controllers.Frontend
         }
 
         [HttpGet]
-        public IActionResult GetUserProfile()
+        public async Task<IActionResult> GetUserProfile()
         {
-            var profile = new { DisplayName = "Demo User" };
+            var authUser = GetUserAuthContext();
+            var user = await _userQueries.GetUserAsync(authUser.UserId, authUser);
+
+            var profile = new { 
+                UserName = user.UserName,
+                DisplayName = user.DisplayName
+            };
             return Ok(profile);
         }
     }

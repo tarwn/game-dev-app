@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
 using GDB.App.Controllers.Frontend;
+using GDB.App.Controllers.General.Utility;
 using GDB.App.ErrorHandling;
 using GDB.App.HealthChecks;
 using GDB.App.Security;
 using GDB.App.StartupConfiguration;
 using GDB.App.StartupConfiguration.Settings;
-using GDB.Business.Authentication;
-using GDB.Common.Authentication;
 using GDB.Common.Persistence;
 using GDB.Persistence;
 using Microsoft.AspNetCore.Authentication;
@@ -65,7 +64,7 @@ namespace GDB.App
                     options.AccessDeniedPath = "/account/accessdenied";
                     options.LogoutPath = "/account/logout";
                 });
-            services.AddScoped<ISignInManager, SignInManager>();
+            services.AddScoped<IAccountCookies, AccountCookies>();
 
             // Policies
             {

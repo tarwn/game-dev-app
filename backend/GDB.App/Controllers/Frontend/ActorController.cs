@@ -12,7 +12,7 @@ namespace GDB.App.Controllers.Frontend
 {
     [Route("api/fe/actors")]
     [Authorize(Policy = Policies.InteractiveUserAccess)]
-    public class ActorController : Controller
+    public class ActorController : BaseController
     {
         private IBusinessModelService _businessModelService;
 
@@ -24,7 +24,7 @@ namespace GDB.App.Controllers.Frontend
         [HttpGet("{actor}/latestSeqNo")]
         public async Task<IActionResult> GetLatestSeqNoAsync(string actor)
         {
-            var user = new UserAuthContext();
+            var user = GetUserAuthContext();
             var result = await _businessModelService.GetLatestSeqNoAsync(actor);
             return Ok(new LatestSeqNoModel()
             {

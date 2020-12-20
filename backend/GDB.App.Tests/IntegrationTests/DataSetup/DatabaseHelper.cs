@@ -20,9 +20,21 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup
             DapperPersistence.PatchDapper();
 
             Customers = new Customers(this);
+            PasswordResetTokens = new PasswordResetTokens(this);
+            Studios = new Studios(this);
+            Users = new Users(this);
         }
 
         public Customers Customers { get; }
+        public PasswordResetTokens PasswordResetTokens { get; }
+        public Studios Studios { get; }
+        public Users Users { get; }
+
+
+
+
+
+
 
         public string GetConnectionString()
         {

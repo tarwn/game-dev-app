@@ -15,10 +15,6 @@
       });
     }
   }
-
-  function handleClick() {
-    alert("clicked");
-  }
 </script>
 
 <style type="text/scss">
@@ -45,6 +41,7 @@
   .gdb-page-header-buttons {
     float: right;
     padding: 0;
+    line-height: 32px;
   }
 </style>
 
@@ -62,9 +59,6 @@
     {/each}
   </div>
   <div class="gdb-page-header-buttons">
-    <IconButton
-      on:click={handleClick}
-      icon={PredefinedIcons.Download}
-      buttonStyle="icon-only" />
+    <a href="/account/logout" target="_self">Logout</a>
   </div>
 </div>

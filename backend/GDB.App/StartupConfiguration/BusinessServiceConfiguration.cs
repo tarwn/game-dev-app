@@ -1,4 +1,6 @@
-﻿using GDB.Business.BusinessLogic;
+﻿using GDB.Business.Authentication;
+using GDB.Business.BusinessLogic;
+using GDB.Common.Authentication;
 using GDB.Common.BusinessLogic;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -17,6 +19,10 @@ namespace GDB.App.StartupConfiguration
             services.AddScoped<IBusinessServiceOperator, BusinessServiceOperatorWithRetry>();
             services.AddScoped<IBusinessModelService, BusinessModelService>();
             services.AddScoped<IInteractiveUserQueryService, InteractiveUserQueryService>();
+
+            // security 
+            services.AddScoped<ISignInManager, SignInManager>();
+            services.AddScoped<ICryptoProvider, CryptoProvider>();
         }
     }
 }

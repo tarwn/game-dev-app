@@ -1,0 +1,34 @@
+﻿@model GDB.App.Controllers.General.Models.StudioChoiceModel
+@{
+    Layout = "../_Layout.cshtml";
+    TempData["title"] = "Login";
+}
+<div class="gdb-floating-box">
+    <h1>Which Studio?</h1>
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="gdb-err-message">@ViewData["ErrorMessage"]</div>
+    }
+    <p>You have access to multiple studios, which do you want to log in to?</p>
+    <form method="post" name="frmStudioChoice">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("UserId", Model.UserId)
+        @Html.Hidden("ReturnUrl", Model.ReturnUrl)
+        @Html.Hidden("StudioId")
+
+
+        @foreach (var studio in Model.Studios)
+        {
+            <div class="gdb-form-row">
+                <a onClick="setStudioAndSubmit('@studio.Id');" class="gdb-button gdb-bs-primary">@studio.Name</a>
+            </div>
+        }
+    </form>
+</div>
+
+<script>
+    function setStudioAndSubmit(studioId) {
+        document.getElementById("StudioId").value = studioId;
+        document.frmStudioChoice.submit();
+    }
+</script>

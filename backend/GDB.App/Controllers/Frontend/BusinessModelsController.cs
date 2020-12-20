@@ -16,7 +16,7 @@ namespace GDB.App.Controllers.Frontend
 
     [Route("api/fe/businessModels")]
     [Authorize(Policy = Policies.InteractiveUserAccess)]
-    public class BusinessModelsController : Controller
+    public class BusinessModelsController : BaseController
     {
         private IInteractiveUserQueryService _queryService;
         private IBusinessModelService _businessModelService;
@@ -32,7 +32,7 @@ namespace GDB.App.Controllers.Frontend
         [HttpGet("{gameId}")]
         public async Task<IActionResult> GetByIdAsync(string gameId)
         {
-            var user = new UserAuthContext();
+            var user = GetUserAuthContext();
             var dto = await _businessModelService.GetOrCreateAsync(gameId, user);
             if (dto == null)
             {
@@ -44,7 +44,7 @@ namespace GDB.App.Controllers.Frontend
         [HttpGet("{gameId}/since/{versionNumber}")]
         public async Task<IActionResult> GetSinceByIdAsync(string gameId, int versionNumber)
         {
-            var user = new UserAuthContext();
+            var user = GetUserAuthContext();
             var events = await _businessModelService.GetSinceAsync(gameId, versionNumber, user);
             if (events == null)
             {
@@ -61,7 +61,7 @@ namespace GDB.App.Controllers.Frontend
                 return BadRequest(ModelState);
             }
 
-            var user = new UserAuthContext();
+            var user = GetUserAuthContext();
             var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change, user);
             await _hubContext.Clients.Group(gameId).SendAsync("businessModelUpdate", savedEvent);
             return Ok(savedEvent);

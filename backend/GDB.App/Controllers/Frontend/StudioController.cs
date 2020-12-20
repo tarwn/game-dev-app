@@ -11,7 +11,7 @@ namespace GDB.App.Controllers.Frontend
 {
     [Route("api/fe/studio")]
     [Authorize(Policy = Policies.InteractiveUserAccess)]
-    public class StudioController : Controller
+    public class StudioController : BaseController
     {
         private IInteractiveUserQueryService _userQueries;
 
@@ -21,9 +21,10 @@ namespace GDB.App.Controllers.Frontend
         }
 
         [HttpGet]
-        public IActionResult GetStudio()
+        public async Task<IActionResult> GetStudioAsync()
         {
-            var studio = new { Name = "Demo Studio" };
+            var user = GetUserAuthContext();
+            var studio = await _userQueries.GetStudioAsync(user.StudioId, user);
             return Ok(studio);
         }
     }

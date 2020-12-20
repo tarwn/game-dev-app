@@ -21,9 +21,19 @@ namespace GDB.Persistence
             PatchDapper();
 
             Customers = new CustomerRepository(_settings.Database);
+            Studios = new StudioRepository(_settings.Database);
+            Users = new UserRepository(_settings.Database);
+            UserSessions = new UserSessionRepository(_settings.Database);
+            PasswordHistory = new PasswordHistoryRepository(_settings.Database);
+            PasswordResetTokens = new PasswordResetTokenRepository(_settings.Database);
         }
 
         public ICustomerRepository Customers { get; }
+        public IStudioRepository Studios { get; set; }
+        public IUserRepository Users { get; set; }
+        public IUserSessionRepository UserSessions { get; set; }
+        public IPasswordResetTokenRepository PasswordResetTokens { get; set; }
+        public IPasswordHistoryRepository PasswordHistory { get; set; }
 
         public static void PatchDapper()
         {
