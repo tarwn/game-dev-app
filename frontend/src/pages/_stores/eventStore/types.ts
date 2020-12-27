@@ -98,10 +98,18 @@ export type ReadableEventStore<T extends Versioned> = Readable<IEventStoreState<
 
 export type VersionEventArgs = (actor: string, seqNo: number) => { type: string, operations: IEventOperation[] };
 
+export enum ReceiveDecision {
+  MismatchedParentIds,
+  MatchedActor,
+  AlreadyAppliedVersion,
+  GapDetectedLoadSince,
+  Applied
+}
+
 export interface IEventStore<T extends Versioned> extends ReadableEventStore<T> {
   initialize: (actor: string, id: any, apiArgs?: any) => Promise<any>;
   loadFullState: () => void;
   createEvent: (builder: VersionEventArgs) => IEvent<T>;
   addEvent: (event: IEvent<T>) => void;
-  receiveEvent: (parentId: string, event: IEvent<T>) => void;
+  receiveEvent: (parentId: string, event: IEvent<T>) => ReceiveDecision;
 }

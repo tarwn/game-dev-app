@@ -20,7 +20,7 @@ export const createFakeStore = () => {
         payload: {
           globalId: 'unit-test-model',
           parentId: 'ROOT',
-          versionNumber: 0,
+          versionNumber: fakeServerVersionNumber,
           change: {
             globalId: 'ut-change',
             parentId: 'unit-test-model',
@@ -34,6 +34,7 @@ export const createFakeStore = () => {
       throw new Error("getSince is not implemented in test store");
     },
     update: () => {
+      console.log("here");
       fakeServerVersionNumber++;
       return Promise.resolve({ versionNumber: fakeServerVersionNumber, previousVersionNumber: fakeServerVersionNumber - 1 });
     }
@@ -49,7 +50,7 @@ export const createFakeStore = () => {
   const testEventStore = createEventStore(api, eventApplier);
   // create the event getters for easy binding
   const events = {
-    onChange: primitiveEventFactory.update.makeGet<TestModel>("UpdateChange", testEventStore)
+    onChange: primitiveEventFactory.update.makeGet<TestModel>("onChange", testEventStore)
   };
 
   return {

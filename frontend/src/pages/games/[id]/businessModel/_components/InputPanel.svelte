@@ -59,14 +59,14 @@
 <div class="gdb-bm-inputPanel">
   <div class="gdb-bm-inputPanel-head">
     <h3>{title}</h3>
-    <IconButton
+    <!-- <IconButton
       icon={PredefinedIcons.Undo}
       disabled={!canUndo}
       buttonStyle="primary" />
     <IconButton
       icon={PredefinedIcons.Redo}
       disabled={!canRedo}
-      buttonStyle="primary" />
+      buttonStyle="primary" /> -->
   </div>
   <div class="gdb-bm-inputPanel-content">
     <slot />

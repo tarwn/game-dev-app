@@ -1,7 +1,8 @@
 import { writable } from 'svelte/store';
 import produce from "immer";
 import { log } from '../../../utilities/logger';
-import type { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
+import { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs, ReceiveDecision } from './types';
+
 
 export function createEventStore<T extends Versioned & Identified>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {
   // api args and id to skip stale API calls coming back
@@ -57,59 +58,69 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
     return evt;
   }
 
-  function addEvent(event: IEvent<T>) {
+  function addEvent(event: IEvent<T>): Promise<any> {
     log("eventStore.addEvent", { event });
     pendingEvents = produce(pendingEvents, (draft) => {
       draft.push(event);
     });
     update(state => ({ ...state, pendingEvents }));
-    sendEvent();
+    return sendEvent();
   }
 
-  function receiveEvent(rootParentId: string, event: IEvent<T>) {
+  function receiveEvent(rootParentId: string, event: IEvent<T>): ReceiveDecision {
     log("eventStore.receiveEvent", { rootParentId, event });
     if (finalState.parentId != rootParentId) {
       console.log(`"Mismatched parentId: ${rootParentId} vs ${finalState.parentId}`);
-      return;
+      return ReceiveDecision.MismatchedParentIds;
     }
 
     if (initState.actor == event.actor) {
       console.log(`"Actor matches, I sent this: ${event.actor} vs ${initState.actor}`);
-      return;
+      return ReceiveDecision.MatchedActor;
     }
 
     if (finalState && finalState.versionNumber >= event.versionNumber) {
       console.log(`Already applied version ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
-      return;
+      return ReceiveDecision.AlreadyAppliedVersion;
     }
 
     if (finalState && finalState.versionNumber < event.versionNumber - 1) {
       console.log(`Detected gap, calling since instead. Received ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
       loadSinceEvents(finalState.versionNumber);
+      return ReceiveDecision.GapDetectedLoadSince;
     }
 
     console.log(`Applying received event for version ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
     finalState = eventApplier.apply(finalState, event);
     update(() => ({ finalState, pendingEvents }));
+    return ReceiveDecision.Applied;
   }
 
   function scheduleNextSafetySendEvent() {
+    if (initState.apiArgs?.noPolling) {
+      return;
+    }
     nextSafetySend = setTimeout(() => sendEvent(), 10000);
   }
 
-  function sendEvent(retryCounter = 0) {
+  function sendEvent(retryCounter = 0): Promise<any> {
+    // if we don't have initial "finalstate" set yet, don't send any events
+    if (!finalState) {
+      return Promise.resolve();
+    }
+
     if (nextSafetySend) {
       clearTimeout(nextSafetySend);
     }
 
     if (currentSending || pendingEvents.length == 0 || pendingEvents[0].versionNumber) {
       scheduleNextSafetySendEvent();
-      return;
+      return Promise.resolve();
     }
     currentSending = { ...pendingEvents[0] };
 
     const thisId = initState.id;
-    api.update(initState.id, currentSending, initState.apiArgs)
+    return api.update(initState.id, currentSending, initState.apiArgs)
       .then(response => {
         if (thisId != initState.id) return;
 
@@ -123,7 +134,7 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
           update(() => ({ finalState, pendingEvents }));
         }
         else if (finalState && finalState.versionNumber < response.versionNumber - 1) {
-          // console.log(`Detected gap, calling since instead. Received ${event.versionNumber}, currently on version ${finalState.versionNumber}`);
+          console.log(`Detected gap, calling since instead. Received ${response.versionNumber}, currently on version ${finalState.versionNumber}`);
           loadSinceEvents(finalState.versionNumber);
         }
         currentSending = null;
@@ -150,9 +161,9 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
       });
   }
 
-  function loadFullState() {
+  function loadFullState(): Promise<any> {
     const thisId = initState.id;
-    api.get(initState.id, initState.apiArgs)
+    return api.get(initState.id, initState.apiArgs)
       .then(response => {
         if (thisId != initState.id) return;
 

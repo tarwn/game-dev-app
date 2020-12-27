@@ -16,6 +16,12 @@
   const dispatch = createEventDispatcher();
 
   $: hasMinimumInfo = businessModel.customers.list.length > 0;
+
+  // - How do we undo the creation of something? we need to know the id that was generated even though it isn't stamped at the time we setup the undo/redo
+  // let undoState = null as null | UndoState;
+  // const undoStore = createUndoStore<IBusinessModel>();
+  // const unsubscribe = undoStore.subscribe(s => undoState = s);
+  // onDestroy(unsubscribe);
 </script>
 
 <style type="text/scss">
