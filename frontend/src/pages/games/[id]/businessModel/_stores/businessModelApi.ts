@@ -1,4 +1,4 @@
-import type { GetActorSeqNoResponse, IEvent, IEventStateApi } from "./eventSystem/types";
+import type { GetActorSeqNoResponse, IEvent, IEventStateApi } from "../../../../_stores/eventStore/types";
 import type { IBusinessModel } from "../_types/businessModel";
 
 const jsonOrThrow = (r: Response) => {

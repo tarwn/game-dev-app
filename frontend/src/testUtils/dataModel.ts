@@ -1,4 +1,4 @@
-import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/games/[id]/businessModel/_stores/eventSystem/types";
+import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/_stores/eventStore/types";
 import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCost, IBusinessModelCustomer, IBusinessModelCustomerRelationships, IBusinessModelKeyActivities, IBusinessModelKeyPartners, IBusinessModelKeyResources, IBusinessModelRevenue, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
 
 export function createEmptyBusinessModel(): IBusinessModel {

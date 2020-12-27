@@ -1,4 +1,4 @@
-import type { IIdentifiedList, IIdentifiedObject, IIdentifiedPrimitive } from "../_stores/eventSystem/types";
+import type { IIdentifiedList, IIdentifiedObject, IIdentifiedPrimitive } from "../../../../_stores/eventStore/types";
 
 export type BusinessModelCustomerType = "both" | "player" | "customer";
 

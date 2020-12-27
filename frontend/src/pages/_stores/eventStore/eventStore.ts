@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import produce from "immer";
-import { log } from '../logger';
+import { log } from '../../../utilities/logger';
 import type { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
 
 export function createEventStore<T extends Versioned & Identified>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {

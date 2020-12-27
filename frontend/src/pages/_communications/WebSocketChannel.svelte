@@ -15,6 +15,7 @@
 
   getConnection().on(updateType, (args: any) => {
     console.log({ signalr: args, channelId, updateType });
+    
     dispatch("receive", args);
   });
 

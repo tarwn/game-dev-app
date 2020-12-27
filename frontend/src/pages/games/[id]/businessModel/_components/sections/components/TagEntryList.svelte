@@ -3,7 +3,7 @@
   import type {
     IIdentifiedList,
     IIdentifiedPrimitive,
-  } from "../../../_stores/eventSystem/types";
+  } from "../../../../../../_stores/eventStore/types";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import IconButton from "../../../../../../../components/buttons/IconButton.svelte";
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";

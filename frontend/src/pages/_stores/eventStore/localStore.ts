@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { log } from '../logger';
+import { log } from '../../../utilities/logger';
 import type { Versioned, IEvent, IEventApplier, ReadableEventStore } from './types';
 
 export function createLocalStore<T extends Versioned>(eventStore: ReadableEventStore<T>, eventApplier: IEventApplier<T>) {

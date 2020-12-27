@@ -12,7 +12,7 @@
     businessModelLocalStore,
   } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
-  import { log } from "./_stores/logger";
+  import { log } from "../../../../utilities/logger";
   import {
     getNextSectionInLine,
     getSectionStatus,

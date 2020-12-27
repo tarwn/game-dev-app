@@ -1,9 +1,10 @@
-import { createEventStore } from "./eventSystem/eventStore";
-import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType } from "./eventSystem/types";
+import { createEventStore } from "../../../../_stores/eventStore/eventStore";
+import { createLocalStore } from "../../../../_stores/eventStore/localStore";
+import { createImmutableEventApplier } from "../../../../_stores/eventStore/eventApplier";
+import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType } from "../../../../_stores/eventStore/types";
 import type { IBusinessModel } from "../_types/businessModel";
-import { createLocalStore } from "./eventSystem/localStore";
-import { createImmutableEventApplier } from "./eventSystem/eventApplier";
 import { api } from "./businessModelApi";
+import { operations } from "../../../../_stores/eventStore/operationsFactory";
 
 type Evt = IEvent<IBusinessModel>;
 type IdentifiedValueUpdate<T> = Identified & { value: T };
@@ -103,10 +104,10 @@ const businessModelEvents = {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddNewCustomer",
         operations: [
-          { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId, insert: true },
-          { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "name", value: "" },
-          { action: OperationType.MakeList, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "entries" },
-          { action: OperationType.Set, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "both" },
+          operations.makeObject(parentId, `${seqNo}@${actor}`),
+          operations.set(`${seqNo}@${actor}`, `${seqNo + 1}@${actor}`, "", "name"),
+          operations.makeList(`${seqNo}@${actor}`, `${seqNo + 2}@${actor}`, "entries"),
+          operations.set(`${seqNo}@${actor}`, `${seqNo + 3}@${actor}`, "both", "type"),
         ]
       }));
     },
