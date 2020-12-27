@@ -11,7 +11,7 @@
   } from "../../_stores/businessModelStore";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
-  import type { Identified } from "../../_stores/eventSystem/types";
+  import type { Identified } from "../../../../../_stores/eventStore/types";
 
   export let businessModel: IBusinessModel;
 
@@ -27,7 +27,6 @@
   }
 
   function handleTypeChange(cost: IBusinessModelCost, e: any) {
-    console.log({ cost, e });
     businessModelEventStore.addEvent(
       events.UpdateCostType({
         parentId: cost.type.parentId,

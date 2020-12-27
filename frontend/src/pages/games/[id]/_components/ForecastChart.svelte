@@ -3,7 +3,7 @@
   import * as d3 from "d3";
   import { curveCardinal, scaleLinear, scaleTime, extent } from "d3";
 
-  let el;
+  let el: any;
 
   var data = [
     { date: new Date("Jan 1, 2020"), value: 15000 },
@@ -28,12 +28,12 @@
   var margin = { top: 5, bottom: 20, left: 30, right: 10 };
 
   // scales
-  const extentX = extent(data, (d) => d.date);
+  const extentX = extent(data, (d: any) => d.date);
   const xScale = scaleTime()
     .domain(extentX)
     .range([margin.left, width - margin.right]);
 
-  const extentY = extent(data, (d) => d.value);
+  //const extentY = extent(data, (d: any) => d.value);
   const yScale = scaleLinear()
     .domain([-5000, 40000])
     .range([height - margin.bottom, margin.top]);
@@ -42,23 +42,23 @@
   const line = d3
     .line()
     .curve(curveCardinal)
-    .x((d) => xScale(d.date))
-    .y((d) => yScale(d.value));
+    .x((d: any) => xScale(d.date))
+    .y((d: any) => yScale(d.value));
 
   const area = d3
     .area()
-    .x((d) => xScale(d.date))
+    .x((d: any) => xScale(d.date))
     .y0(yScale(0))
-    .y1((d) => yScale(d.value))
+    .y1((d: any) => yScale(d.value))
     .curve(curveCardinal);
 
-  const xAxis = () => d3.axisBottom(xScale).ticks(4);
+  //const xAxis = () => d3.axisBottom(xScale).ticks(4);
   //.tickSizeOuter(0);
 
   const yAxis = d3
     .axisLeft(yScale)
     .ticks(6)
-    .tickFormat(function (d) {
+    .tickFormat(function (d: any) {
       return d / 1000 + "k";
     });
 
@@ -80,7 +80,9 @@
         d3
           .axisBottom(xScale)
           .ticks(4)
-          .tickFormat((d) => d.toLocaleDateString("en-US", { month: "short" }))
+          .tickFormat((d: any) =>
+            d.toLocaleDateString("en-US", { month: "short" })
+          )
       );
     xAxisDrawn.select(".domain").remove();
     xAxisDrawn.selectAll("line").remove();

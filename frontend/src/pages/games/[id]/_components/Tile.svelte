@@ -1,6 +1,5 @@
 <script lang="ts">
   import Icon from "../../../../components/buttons/Icon.svelte";
-  import IconButton from "../../../../components/buttons/IconButton.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   export let title: string;
   export let href: string;

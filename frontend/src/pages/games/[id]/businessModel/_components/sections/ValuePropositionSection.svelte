@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import type { IBusinessModel } from "../../_types/businessModel";
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
-  import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import EntryList from "./components/EntryList.svelte";
   import {
     businessModelEventStore,

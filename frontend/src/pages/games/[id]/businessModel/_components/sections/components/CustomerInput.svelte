@@ -4,11 +4,12 @@
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import Row from "../../../../../../../components/inputs/Row.svelte";
+  import type { Identified } from "../../../../../../_stores/eventStore/types";
   import {
     businessModelEventStore,
     events,
   } from "../../../_stores/businessModelStore";
-  import type { Identified } from "../../../_stores/eventSystem/types";
+
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
   import EntryList from "./EntryList.svelte";
 

@@ -1,7 +1,5 @@
 <script lang="ts">
   import { isActive } from "@sveltech/routify";
-  import IconButton from "../../../../components/buttons/IconButton.svelte";
-  import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   export let icon: string;
   export let id: string;
   export let name: string;

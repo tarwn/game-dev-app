@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import type {
     IIdentifiedList,
     IIdentifiedPrimitive,
-  } from "../../../_stores/eventSystem/types";
-  import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
+  } from "../../../../../../_stores/eventStore/types";
 
   export let entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
   export let label: string;

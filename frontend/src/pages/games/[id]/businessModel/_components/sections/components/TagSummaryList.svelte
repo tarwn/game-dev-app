@@ -2,7 +2,7 @@
   import type {
     IIdentifiedList,
     IIdentifiedPrimitive,
-  } from "../../../_stores/eventSystem/types";
+  } from "../../../../../../_stores/eventStore/types";
 
   export let entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
 </script>
