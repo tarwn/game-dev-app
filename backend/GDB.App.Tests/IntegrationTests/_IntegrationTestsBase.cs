@@ -48,7 +48,7 @@ namespace GDB.App.Tests.IntegrationTests
             return DateTime.SpecifyKind(datetime, DateTimeKind.Utc);
         }
 
-        protected ControllerContext GetControllerContextForFrontEnd(int userId = 1, string userName = "none", int sessionId = 2)
+        protected ControllerContext GetControllerContextForFrontEnd(int userId = 1, string userName = "none", int sessionId = 2, int studioId = 3)
         {
             return new ControllerContext
             {
@@ -58,7 +58,8 @@ namespace GDB.App.Tests.IntegrationTests
                         {
                             new Claim(ClaimNames.UserId, userId.ToString()),
                             new Claim(ClaimNames.UserName, userName),
-                            new Claim(ClaimNames.SessionId, sessionId.ToString())
+                            new Claim(ClaimNames.SessionId, sessionId.ToString()),
+                            new Claim(ClaimNames.StudioId, studioId.ToString())
                         }))
                 }
             };

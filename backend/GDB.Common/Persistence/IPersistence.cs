@@ -14,5 +14,7 @@ namespace GDB.Common.Persistence
         IUserSessionRepository UserSessions { get; set; }
         IPasswordHistoryRepository PasswordHistory { get; set; }
         IPasswordResetTokenRepository PasswordResetTokens { get; set; }
+
+        IGameRepository Games{ get; set; }
     }
 }

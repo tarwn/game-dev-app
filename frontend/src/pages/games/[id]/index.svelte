@@ -5,6 +5,8 @@
   import ForecastChart from "./_components/ForecastChart.svelte";
   import ProgressBar from "./_components/ProgressBar.svelte";
   import Tile from "./_components/Tile.svelte";
+  import GameStatus from "../../../components/outputs/GameStatus.svelte";
+  import ShortDate from "../../../components/outputs/ShortDate.svelte";
 
   $: id = $params.id;
 
@@ -126,8 +128,14 @@
       <div class="sample-pic" />
       <div class="sample-details">
         <div>Game: {game.name}</div>
-        <div>Status: {game.status}</div>
-        <div class="sample-footer">Last modified {game.lastModified}</div>
+        <div>
+          Status:
+          <GameStatus status={game.status} />
+        </div>
+        <div class="sample-footer">
+          Last modified
+          <ShortDate date={game.lastModified} />
+        </div>
       </div>
     </section>
     <section class="sample-2">

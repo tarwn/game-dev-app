@@ -5,6 +5,7 @@
 DELETE FROM dbo.Customer;
 DELETE FROM UserSession;
 DELETE FROM UserStudioXref;
+DELETE FROM Game;
 DELETE FROM Studio;
 DELETE FROM PasswordHistory;
 DELETE FROM PasswordResetToken;

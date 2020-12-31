@@ -1,9 +1,12 @@
 import { writable } from 'svelte/store';
 import { jsonOrThrow } from '../_communications/responseHandler';
+import type { GameStatus } from './types';
 
 export type Game = {
   globalId: string;
   name: string;
+  status: GameStatus;
+  lastModified: Date;
 }
 
 function createGamesStore() {
@@ -12,8 +15,12 @@ function createGamesStore() {
   const load = () => {
     return fetch(`/api/fe/games`)
       .then(jsonOrThrow)
-      .then((data) => {
-        set(data as Game[]);
+      .then((data: any[]) => {
+        const games = data.map(d => ({
+          ...d,
+          lastModified: new Date(d.lastModified)
+        })) as Game[];
+        set(games);
       });
   };
 

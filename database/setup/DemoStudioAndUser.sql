@@ -40,3 +40,9 @@ BEGIN
 		AND StudioId = @StudioId;
 END
 
+IF NOT EXISTS (SELECT 1 FROM dbo.Game WHERE StudioId = @StudioId)
+BEGIN
+	INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, LogoUrl, CreatedBy, CreatedOn, UpdatedBy, UpdatedOn)
+	VALUES(@StudioId, 'Snail Run', 3, '2021-06-01 12:00:00.000', NULL, @UserId, GETUTCDATE(), @UserId, GETUTCDATE()),
+		(@StudioId, 'Snails in Space', 1, '2021-06-01 12:00:00.000', NULL, @UserId, GETUTCDATE(), @UserId, GETUTCDATE());
+END

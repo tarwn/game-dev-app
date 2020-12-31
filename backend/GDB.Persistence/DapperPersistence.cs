@@ -21,6 +21,7 @@ namespace GDB.Persistence
             PatchDapper();
 
             Customers = new CustomerRepository(_settings.Database);
+            Games = new GameRepository(_settings.Database);
             Studios = new StudioRepository(_settings.Database);
             Users = new UserRepository(_settings.Database);
             UserSessions = new UserSessionRepository(_settings.Database);
@@ -29,6 +30,7 @@ namespace GDB.Persistence
         }
 
         public ICustomerRepository Customers { get; }
+        public IGameRepository Games{ get; set; }
         public IStudioRepository Studios { get; set; }
         public IUserRepository Users { get; set; }
         public IUserSessionRepository UserSessions { get; set; }

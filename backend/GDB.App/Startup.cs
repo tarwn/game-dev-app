@@ -168,7 +168,7 @@ namespace GDB.App
             {
                 app.UseExceptionHandler("/error");
                 app.UseHsts();
-                // only use HTTPS non-locally to preserver livereload port
+                // only use HTTPS non-locally as livereload/ws proxying to node doesn't work w/ HTTPS
                 app.UseHttpsRedirection();
             }
             app.UseResponseCompression();

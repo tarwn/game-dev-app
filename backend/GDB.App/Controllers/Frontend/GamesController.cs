@@ -22,15 +22,12 @@ namespace GDB.App.Controllers.Frontend
         }
 
         [HttpGet]
-        public IActionResult GetGames()
+        public async Task<IActionResult> GetGamesAsync()
         {
             var user = GetUserAuthContext();
-            var games = new List<GameSummaryModel>() {
-                new GameSummaryModel(){ GlobalId = $"{user.StudioId}:demo", Name="Demo Game", Status="Active", LastModified="5 minutes ago" },
-                new GameSummaryModel(){ GlobalId = $"{user.StudioId}:ex1", Name="Example Game", Status="Active", LastModified="3 days ago" },
-                new GameSummaryModel(){ GlobalId = $"{user.StudioId}:ex2", Name="Another Game", Status="Active", LastModified="4 days ago" },
-            };
-            return Ok(games);
+            var games = await _userQueries.GetAllGamesAsync(user);
+            var result = games.Select(game => new GameSummaryModel(game)).ToList();
+            return Ok(result);
         }
     }
 }
