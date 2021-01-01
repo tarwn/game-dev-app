@@ -9,5 +9,6 @@ namespace GDB.Common.Persistence.Repositories
     public interface IGameRepository
     {
         Task<List<GameDTO>> GetAllAsync(int studioId);
+        Task<GameDTO> GetByIdAsync(int studioId, int gameId);
     }
 }

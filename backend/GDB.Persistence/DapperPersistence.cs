@@ -20,7 +20,9 @@ namespace GDB.Persistence
 
             PatchDapper();
 
+            Actors = new ActorRepository(_settings.Database);
             Customers = new CustomerRepository(_settings.Database);
+            EventStore = new EventStoreRepository(_settings.Database);
             Games = new GameRepository(_settings.Database);
             Studios = new StudioRepository(_settings.Database);
             Users = new UserRepository(_settings.Database);
@@ -29,13 +31,15 @@ namespace GDB.Persistence
             PasswordResetTokens = new PasswordResetTokenRepository(_settings.Database);
         }
 
+        public IActorRepository Actors { get; }
         public ICustomerRepository Customers { get; }
-        public IGameRepository Games{ get; set; }
-        public IStudioRepository Studios { get; set; }
-        public IUserRepository Users { get; set; }
-        public IUserSessionRepository UserSessions { get; set; }
-        public IPasswordResetTokenRepository PasswordResetTokens { get; set; }
-        public IPasswordHistoryRepository PasswordHistory { get; set; }
+        public IEventStoreRepository EventStore { get; }
+        public IGameRepository Games { get; }
+        public IStudioRepository Studios { get; }
+        public IUserRepository Users { get; }
+        public IUserSessionRepository UserSessions { get; }
+        public IPasswordResetTokenRepository PasswordResetTokens { get; }
+        public IPasswordHistoryRepository PasswordHistory { get; }
 
         public static void PatchDapper()
         {

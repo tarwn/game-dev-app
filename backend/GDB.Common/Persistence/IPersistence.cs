@@ -9,12 +9,14 @@ namespace GDB.Common.Persistence
     {
         ICustomerRepository Customers { get; }
 
-        IStudioRepository Studios { get; set; }
-        IUserRepository Users { get; set; }
-        IUserSessionRepository UserSessions { get; set; }
-        IPasswordHistoryRepository PasswordHistory { get; set; }
-        IPasswordResetTokenRepository PasswordResetTokens { get; set; }
+        IStudioRepository Studios { get; }
+        IUserRepository Users { get; }
+        IUserSessionRepository UserSessions { get; }
+        IPasswordHistoryRepository PasswordHistory { get; }
+        IPasswordResetTokenRepository PasswordResetTokens { get; }
 
-        IGameRepository Games{ get; set; }
+        IActorRepository Actors { get; }
+        IGameRepository Games { get; }
+        IEventStoreRepository EventStore { get; }
     }
 }

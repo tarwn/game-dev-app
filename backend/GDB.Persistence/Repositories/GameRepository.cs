@@ -38,5 +38,29 @@ namespace GDB.Persistence.Repositories
                     .ToList();
             }
         }
+
+        public async Task<GameDTO> GetByIdAsync(int studioId, int gameId)
+        {
+            var param = new { studioId };
+            var sql = @"
+                SELECT Id, 
+                        StudioId,
+                        [Name],
+                        Status = GameStatusId,
+                        LaunchDate,
+                        LogoUrl,
+                        CreatedOn,
+                        CreatedBy,
+                        UpdatedOn,
+                        UpdatedBy
+                FROM dbo.Game
+                WHERE StudioId = @StudioId
+                    AND GameId = @GameId;
+            ";
+            using (var conn = GetConnection())
+            {
+                return await conn.QuerySingleOrDefaultAsync<GameDTO>(sql, param);
+            }
+        }
     }
 }
