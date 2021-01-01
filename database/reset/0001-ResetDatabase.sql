@@ -3,10 +3,11 @@
 --	Make sure the order is correct and ignores system-defined data
 
 DELETE FROM dbo.Customer;
-DELETE FROM UserSession;
-DELETE FROM UserStudioXref;
-DELETE FROM Game;
-DELETE FROM Studio;
-DELETE FROM PasswordHistory;
-DELETE FROM PasswordResetToken;
-DELETE FROM [User] WHERE Id > 0;
+DELETE FROM dbo.Actor;
+DELETE FROM dbo.UserSession;
+DELETE FROM dbo.UserStudioXref;
+DELETE FROM dbo.Game;
+DELETE FROM dbo.Studio;
+DELETE FROM dbo.PasswordHistory;
+DELETE FROM dbo.PasswordResetToken;
+DELETE FROM dbo.[User] WHERE Id > 0;

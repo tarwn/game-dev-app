@@ -1,5 +1,6 @@
 ﻿using GDB.App.Security;
 using GDB.App.StartupConfiguration.Settings;
+using GDB.Common.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -15,29 +16,31 @@ namespace GDB.App.Controllers.Frontend
 {
     [Route("api/fe/config")]
     [Authorize(Policy = Policies.InteractiveUserAccess)]
-    public class ConfigController : Controller
+    public class ConfigController : BaseController
     {
         private IOptions<SentryOptions> _sentryConfig;
         private IWebHostEnvironment _webHostEnvironment;
+        private IActorService _actorService;
 
-        public ConfigController(IOptions<SentryOptions> sentryConfig, IWebHostEnvironment webHostEnvironment)
+        public ConfigController(IOptions<SentryOptions> sentryConfig, IWebHostEnvironment webHostEnvironment, IActorService actorService)
         {
             _sentryConfig = sentryConfig;
             _webHostEnvironment = webHostEnvironment;
+            _actorService = actorService;
         }
 
         [HttpGet]
-        public IActionResult GetConfig()
+        public async Task<IActionResult> GetConfigAsync()
         {
-            // temporary - random string for actor id which needs to be unique for 
-            //  all users operating simultaneously on the same game
-            var actorId = RandomString(6);
+            var user = GetUserAuthContext();
+            var actorId = await _actorService.GetActorAsync(user);
+
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             var config = @"
                 window.config = {
                     environment: """ + _webHostEnvironment.EnvironmentName + @""",
                     version: """ + version + @""",
-                    sessionId: ""n/a"",
+                    sessionId: """ + user.SessionId + @""",
                     isFullUser: false,
                     actorId: """ + actorId + @""",
                     sentry: {
@@ -48,21 +51,5 @@ namespace GDB.App.Controllers.Frontend
             return Ok(config);
         }
 
-
-        // temporary
-        //  https://stackoverflow.com/questions/1122483/random-string-generator-returning-same-string
-        private static Random random = new Random((int)DateTime.Now.Ticks);//thanks to McAden
-        private string RandomString(int size)
-        {
-            StringBuilder builder = new StringBuilder();
-            char ch;
-            for (int i = 0; i < size; i++)
-            {
-                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
-                builder.Append(ch);
-            }
-
-            return builder.ToString();
-        }
     }
 }

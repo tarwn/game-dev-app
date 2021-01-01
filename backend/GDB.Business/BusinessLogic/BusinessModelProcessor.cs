@@ -14,18 +14,17 @@ namespace GDB.Business.BusinessLogic
     public class BusinessModelProcessor
     {
         private IPersistence _persistence;
-        private LockObject _curLock = null;
-        private Dictionary<string, List<BusinessModelChangeEvent>> _cache;
+        private BusinessModelStore _store;
 
-        public BusinessModelProcessor(IPersistence persistence)
+        public BusinessModelProcessor(IPersistence persistence, BusinessModelStore store)
         {
             _persistence = persistence;
-            _cache = new Dictionary<string, List<BusinessModelChangeEvent>>();
+            _store = store;
         }
 
         public async Task<BusinessModelDTO> GetByIdAsync(int studioId, int actualGameId, string gameId)
         {
-            using (var lockObj = await GetLockAsync())
+            using (var lockObj = await _store.GetLockAsync())
             {
                 var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
                 return model.Model;
@@ -39,7 +38,7 @@ namespace GDB.Business.BusinessLogic
 
         public async Task<Applied<BusinessModelChangeEvent>> AddAndApplyEventAsync(int studioId, int actualGameId, string gameId, BusinessModelChangeEvent changeEvent)
         {
-            using (var lockObj = await GetLockAsync())
+            using (var lockObj = await _store.GetLockAsync())
             {
                 var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
                 if (model.Model == null && changeEvent.VersionNumber != 1)
@@ -66,9 +65,9 @@ namespace GDB.Business.BusinessLogic
             // future: load the model from cache, call since events + apply only those
             var events = new List<BusinessModelChangeEvent>();
             int since = 0;
-            if (_cache.ContainsKey(busModelId))
+            if (_store.ContainsEventsFor(busModelId))
             {
-                events.AddRange(_cache[busModelId]);
+                events.AddRange(_store.GetEventsFor(busModelId));
                 since = events.Last().VersionNumber;
             }
             var dbevents = await _persistence.EventStore.GetEventsAsync(studioId, actualGameId, BusinessModelEventApplier.ObjectType, since);
@@ -76,22 +75,6 @@ namespace GDB.Business.BusinessLogic
 
             var model = ApplyEvents(gameId, events);
             return model;
-        }
-
-        private async Task<LockObject> GetLockAsync()
-        {
-            var cancellation = new CancellationTokenSource();
-            cancellation.CancelAfter(TimeSpan.FromSeconds(10));
-            do
-            {
-                if (_curLock == null)
-                {
-                    _curLock = new LockObject(() => _curLock = null);
-                    return _curLock;
-                }
-                await Task.Delay(32, cancellation.Token);
-            } while (_curLock != null && !cancellation.Token.IsCancellationRequested);
-            throw new LockTimeoutException("Could not get a lock");
         }
 
         private EventStore<BusinessModelDTO, BusinessModelChangeEvent> ApplyEvents(string gameId, List<BusinessModelChangeEvent> events, EventStore<BusinessModelDTO, BusinessModelChangeEvent> model = null)
@@ -115,14 +98,7 @@ namespace GDB.Business.BusinessLogic
                 ApplyEvent(model, evt);
             }
 
-            if (!_cache.ContainsKey(model.Model.GlobalId))
-            {
-                _cache.Add(model.Model.GlobalId, model.Events);
-            }
-            else
-            {
-                _cache[model.Model.GlobalId] = model.Events;
-            }
+            _store.CacheEvents(model.Model.GlobalId, model.Events);
 
             return model;
         }

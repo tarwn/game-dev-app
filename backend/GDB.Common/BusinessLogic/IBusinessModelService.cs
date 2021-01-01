@@ -12,6 +12,5 @@ namespace GDB.Common.BusinessLogic
         Task<BusinessModelDTO> GetOrCreateAsync(string id, IAuthContext authContext);
         Task<List<BusinessModelChangeEvent>> GetSinceAsync(string gameId, int sinceVersionNumber, IAuthContext authContext);
         Task<Applied<BusinessModelChangeEvent>> ApplyEventAsync(string gameId, IncomingBusinessModelChangeEvent change, IAuthContext authContext);
-        Task<int?> GetLatestSeqNoAsync(string actor);
     }
 }

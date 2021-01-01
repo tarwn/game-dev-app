@@ -30,7 +30,7 @@ namespace GDB.Business.Tests.BusinessLogic
         {
             _persistenceMock = new MockPersistence();
             var busop = new BusinessServiceOperatorWithRetry(_persistenceMock);
-            var processor = new BusinessModelProcessor(_persistenceMock);
+            var processor = new BusinessModelProcessor(_persistenceMock, new BusinessModelStore());
             _businessModelService = new BusinessModelService(busop, processor, _persistenceMock);
         }
 
@@ -177,7 +177,6 @@ namespace GDB.Business.Tests.BusinessLogic
                 await _businessModelService.ApplyEventAsync("123", change, new TestAuthContext(FakeUserId, FakeStudioId))
             );
         }
-
 
         private BusinessModelChangeEvent GetSampleEvent(string value)
         {

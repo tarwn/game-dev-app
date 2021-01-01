@@ -1,5 +1,6 @@
 ﻿using GDB.App.Controllers.Frontend.Models;
 using GDB.App.Security;
+using GDB.Common.Authorization;
 using GDB.Common.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,23 +15,30 @@ namespace GDB.App.Controllers.Frontend
     [Authorize(Policy = Policies.InteractiveUserAccess)]
     public class ActorController : BaseController
     {
-        private IBusinessModelService _businessModelService;
+        private IActorService _actorService;
 
-        public ActorController(IBusinessModelService businessModelService)
+        public ActorController(IActorService actorService)
         {
-            _businessModelService = businessModelService;
+            _actorService = actorService;
         }
 
         [HttpGet("{actor}/latestSeqNo")]
         public async Task<IActionResult> GetLatestSeqNoAsync(string actor)
         {
-            var user = GetUserAuthContext();
-            var result = await _businessModelService.GetLatestSeqNoAsync(actor);
-            return Ok(new LatestSeqNoModel()
+            try
             {
-                Actor = actor,
-                SeqNo = result.GetValueOrDefault(0)
-            }); ;
+                var user = GetUserAuthContext();
+                var result = await _actorService.GetLatestSeqNoAsync(actor, user);
+                return Ok(new LatestSeqNoModel()
+                {
+                    Actor = actor,
+                    SeqNo = result
+                });
+            }
+            catch (AccessDeniedException a)
+            {
+                return BadRequest(new BadRequestResponseModel(a.Message));
+            }
         }
     }
 }

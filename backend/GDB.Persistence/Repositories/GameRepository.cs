@@ -41,7 +41,7 @@ namespace GDB.Persistence.Repositories
 
         public async Task<GameDTO> GetByIdAsync(int studioId, int gameId)
         {
-            var param = new { studioId };
+            var param = new { studioId, gameId };
             var sql = @"
                 SELECT Id, 
                         StudioId,
@@ -55,7 +55,7 @@ namespace GDB.Persistence.Repositories
                         UpdatedBy
                 FROM dbo.Game
                 WHERE StudioId = @StudioId
-                    AND GameId = @GameId;
+                    AND Id = @GameId;
             ";
             using (var conn = GetConnection())
             {

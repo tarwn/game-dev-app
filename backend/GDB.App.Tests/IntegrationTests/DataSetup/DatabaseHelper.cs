@@ -19,6 +19,7 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup
             _connectionString = connectionString;
             DapperPersistence.PatchDapper();
 
+            Actors = new Actors(this);
             Customers = new Customers(this);
             Games = new Games(this);
             PasswordResetTokens = new PasswordResetTokens(this);
@@ -26,6 +27,7 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup
             Users = new Users(this);
         }
 
+        public Actors Actors { get; }
         public Customers Customers { get; }
         public Games Games { get; }
         public PasswordResetTokens PasswordResetTokens { get; }

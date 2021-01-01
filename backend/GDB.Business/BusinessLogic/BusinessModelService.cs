@@ -67,22 +67,10 @@ namespace GDB.Business.BusinessLogic
                 var actualGameId = CheckAndExtractGameId(gameId, authContext);
                 var versionedChange = new BusinessModelChangeEvent(default, change);
                 var applied = await _processor.AddAndApplyEventAsync(authContext.StudioId, actualGameId, gameId, versionedChange);
+                await _persistence.Actors.UpdateActorAsync(change.Actor, change.SeqNo + change.Operations.Count, authContext.UserId, DateTime.UtcNow);
                 return applied;
             });
         }
-
-        public async Task<int?> GetLatestSeqNoAsync(string actor)
-        {
-            return await _busOp.Operation(async (p) =>
-            {
-                return await Task.FromResult<int?>(null);
-                //using (var lockObj = await _store.GetLockAsync())
-                //{
-                //    return _store.GetLatestSeqNo(lockObj, actor);
-                //}
-            });
-        }
-
 
         private int CheckAndExtractGameId(string gameId, IAuthContext authContext)
         {
