@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 {
     [TestFixture]
+    [Category("Integration-Tests")]
     public class CustomersControllerTests : IntegrationTestsBase
     {
         private CustomersController _controller;

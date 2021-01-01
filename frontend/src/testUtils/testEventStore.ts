@@ -1,7 +1,7 @@
 import { createImmutableEventApplier } from "../pages/_stores/eventStore/eventApplier";
 import { createEventStore } from "../pages/_stores/eventStore/eventStore";
 import { primitiveEventFactory } from "../pages/_stores/eventStore/operationsFactory";
-import type { IEventApplier, IEventStateApi, IIdentifiedPrimitive, Versioned } from "../pages/_stores/eventStore/types";
+import type { IEventApplier, IEventStateApi, IEventStore, IIdentifiedPrimitive, Versioned } from "../pages/_stores/eventStore/types";
 
 export type TestModel = Versioned & {
   globalId: string,
@@ -9,7 +9,12 @@ export type TestModel = Versioned & {
   change: IIdentifiedPrimitive<number>;
 };
 
-export const createFakeStore = () => {
+type FakeStore = {
+  testEventStore: IEventStore<TestModel>,
+  events: any
+};
+
+export const createFakeStore = (): FakeStore => {
   let fakeServerVersionNumber = 1;
 
   // minimalist fake API

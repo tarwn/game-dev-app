@@ -27,6 +27,7 @@ export interface IIdentifiedList<T extends Identified> extends Identified {
 
 // Event Types
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface IEvent<T extends Versioned> {
   actor: string;
   seqNo: number;
@@ -94,7 +95,8 @@ export type IEventStoreState<T extends Versioned> = {
   finalState: T
 };
 
-export type ReadableEventStore<T extends Versioned> = Readable<IEventStoreState<T>>
+export type ReadableEventStore<T extends Versioned> = Readable<IEventStoreState<T>>;
+export type ReadableLocalStore<T extends Versioned> = Readable<T>;
 
 export type VersionEventArgs = (actor: string, seqNo: number) => { type: string, operations: IEventOperation[] };
 

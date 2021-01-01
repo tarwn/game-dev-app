@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 import { log } from '../../../utilities/logger';
-import type { Versioned, IEvent, IEventApplier, ReadableEventStore } from './types';
+import type { Versioned, IEvent, IEventApplier, ReadableEventStore, ReadableLocalStore } from './types';
 
-export function createLocalStore<T extends Versioned>(eventStore: ReadableEventStore<T>, eventApplier: IEventApplier<T>) {
+export function createLocalStore<T extends Versioned>(eventStore: ReadableEventStore<T>, eventApplier: IEventApplier<T>): ReadableLocalStore<T> {
   let latestLocalState = null as T | null;
   let latestFinalStateVersion = null as number | null;
   let nextEventInQueue = null as IEvent<T> | null;

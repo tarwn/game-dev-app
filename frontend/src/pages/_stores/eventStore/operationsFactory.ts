@@ -1,11 +1,11 @@
-import { Identified, IEvent, IEventStore, IIdentifiedPrimitive, OperationType, Versioned } from "./types";
+import { Identified, IEvent, IEventOperation, IEventStore, IIdentifiedPrimitive, OperationType, Versioned } from "./types";
 
 type IdentifiedValueUpdate<T> = Identified & { value: T };
 
 export const operations = {
-  makeObject: (parentId: string, objectId: string) => ({ action: OperationType.MakeObject, objectId, parentId, insert: true }),
-  makeList: (parentId: string, objectId: string, field?: string) => ({ action: OperationType.MakeList, objectId, parentId, field }),
-  set: (parentId: string, objectId: string, value: any, field?: string) => ({ action: OperationType.Set, objectId, parentId, field, value })
+  makeObject: (parentId: string, objectId: string): IEventOperation => ({ action: OperationType.MakeObject, objectId, parentId, insert: true }),
+  makeList: (parentId: string, objectId: string, field?: string): IEventOperation => ({ action: OperationType.MakeList, objectId, parentId, field }),
+  set: (parentId: string, objectId: string, value: string | number | boolean, field?: string): IEventOperation => ({ action: OperationType.Set, objectId, parentId, field, value })
 };
 
 export const primitiveEventFactory = {

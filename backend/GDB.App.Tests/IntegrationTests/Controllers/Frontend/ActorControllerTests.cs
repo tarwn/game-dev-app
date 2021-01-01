@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 {
     [TestFixture]
+    [Category("Integration-Tests")]
     public class ActorControllerTests : IntegrationTestsBase
     {
         private ActorController _controller;
