@@ -18,7 +18,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 {
 
     [TestFixture]
-    [Category("Integration-Tests")]
+    [Category("Database-Tests")]
     public class GamesControllerTests : IntegrationTestsBase
     {
         private GamesController _controller;
