@@ -56,6 +56,21 @@ jobs:
             yarn run build
 
       - run:
+          name: Back-end Test
+          command:
+            |
+            cd backend
+            dotnet test --filter "TestCategory!=Integration-test" -l "trx" -r ~/reports/
+
+      - run:
+          name: Back-end Test Results
+          when: always
+          command:
+            dotnet tool install -g trx2junit
+            export PATH="$PATH:/root/.dotnet/tools"
+            trx2junit ~/reports/*.trx
+
+      - run:
           name: Build for Release
           command: 
             |
