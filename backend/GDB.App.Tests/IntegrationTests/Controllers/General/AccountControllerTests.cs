@@ -21,7 +21,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
 {
 
     [TestFixture]
-    [Category("Integration-Tests")]
+    [Category("Database-Tests")]
     public class AccountControllerTests : IntegrationTestsBase
     {
         private AccountController _controller;

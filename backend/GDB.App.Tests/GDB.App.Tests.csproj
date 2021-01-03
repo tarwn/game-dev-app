@@ -5,7 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.none.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\database\reset\0001-ResetDatabase.sql" Link="IntegrationTests\DataSetup\0001-ResetDatabase.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.none.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.json">
