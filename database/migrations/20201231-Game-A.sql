@@ -1,4 +1,7 @@
 
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'GameStatus')
+BEGIN
+
 CREATE TABLE dbo.GameStatus (
 	Id tinyint NOT NULL,
 	[Name] varchar(20) NOT NULL,
@@ -33,4 +36,4 @@ CREATE TABLE dbo.Game (
 	CONSTRAINT FK_Game_User_UpdatedBy FOREIGN KEY (UpdatedBy) REFERENCES dbo.[User](Id)
 );
 
-
+END
