@@ -56,7 +56,7 @@ jobs:
             |
             cd backend
             cp ./GDB.App.Tests/appsettings.none.json ./GDB.App.Tests/appsettings.json
-            dotnet test --filter "TestCategory!=Database-Tests" -l trx -l console -v n -r ~/reports/
+            dotnet test --filter "TestCategory!=Database-Tests" -l trx -l console -v m -r ~/reports/
 
       - run:
           name: Back-end Test Results
