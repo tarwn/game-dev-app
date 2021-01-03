@@ -1,10 +1,13 @@
 ﻿using FluentAssertions;
 using GDB.Business.BusinessLogic;
+using GDB.Business.BusinessLogic.BusinessModelService;
+using GDB.Business.BusinessLogic.EventStore;
 using GDB.Business.Tests.Utilities;
 using GDB.Common.Authorization;
 using GDB.Common.DTOs.BusinessModel;
 using GDB.Common.DTOs.Game;
 using GDB.Common.Persistence;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -30,7 +33,8 @@ namespace GDB.Business.Tests.BusinessLogic
         {
             _persistenceMock = new MockPersistence();
             var busop = new BusinessServiceOperatorWithRetry(_persistenceMock);
-            var processor = new BusinessModelProcessor(_persistenceMock, new BusinessModelStore());
+            var cache = new MemoryCache(new MemoryCacheOptions());
+            var processor = new BusinessModelProcessor(_persistenceMock, new ModelEventStore(cache));
             _businessModelService = new BusinessModelService(busop, processor, _persistenceMock);
         }
 

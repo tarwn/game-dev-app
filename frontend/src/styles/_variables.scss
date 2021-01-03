@@ -16,6 +16,9 @@ $line-height-base: 1.5rem;
 //  touch targets should be min 48x48
 //  click should be min 24x24
 
+// in em because used in full-size and zoomed view of canvas
+$border-radius-tag: 0.15em;
+
 // - Spacing
 //   https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62
 $space-xs: 4px;

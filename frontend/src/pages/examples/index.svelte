@@ -1,1 +1,0 @@
-<h1>Examples page</h1>

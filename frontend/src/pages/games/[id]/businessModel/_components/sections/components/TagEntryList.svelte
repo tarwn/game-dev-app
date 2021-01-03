@@ -68,11 +68,13 @@
     border: 1px solid $cs-grey-1;
     margin: $space-xs;
     padding-left: $space-s;
+    border-radius: $border-radius-tag;
   }
 
   .gdb-entry-tag-text {
     flex: 1 0;
     font-size: $font-size-small;
+    white-space: nowrap;
   }
 
   .gdb-entry-tag-button {

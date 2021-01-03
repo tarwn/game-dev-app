@@ -12,10 +12,10 @@
       return "Pre + Post";
     }
     if (cost.isPreLaunch.value) {
-      return "Pre-Launch.";
+      return "Pre-Launch";
     }
     if (cost.isPostLaunch.value) {
-      return "Post-Launch.";
+      return "Post-Launch";
     }
     return "Other";
   }
@@ -67,6 +67,7 @@
     color: $text-color-light;
     font-size: 0.9em;
     padding: 0.1em;
+    border-radius: $border-radius-tag;
   }
 </style>
 

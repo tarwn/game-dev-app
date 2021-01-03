@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GDB.Business.BusinessLogic
+namespace GDB.Business.BusinessLogic.BusinessModelService
 {
     public class BusinessModelService : IBusinessModelService
     {

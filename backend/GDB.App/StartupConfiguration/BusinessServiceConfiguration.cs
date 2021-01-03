@@ -1,7 +1,10 @@
 ﻿using GDB.Business.Authentication;
 using GDB.Business.BusinessLogic;
+using GDB.Business.BusinessLogic.BusinessModelService;
+using GDB.Business.BusinessLogic.EventStore;
 using GDB.Common.Authentication;
 using GDB.Common.BusinessLogic;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,8 +19,13 @@ namespace GDB.App.StartupConfiguration
         {
             services.AddScoped<IBusinessServiceOperator, BusinessServiceOperatorWithRetry>();
 
-            // temporarily a singleton until real cacge is added
-            services.AddSingleton<BusinessModelStore>();
+            // temporarily a singleton until real cache is added
+            services.AddSingleton<ModelEventStore>(s => {
+                var cache = new MemoryCache(new MemoryCacheOptions() { 
+                     
+                });
+                return new ModelEventStore(cache);
+            });
             //services.AddSingleton<TemporaryBusinessModelStore>();
 
             services.AddScoped<IActorService, ActorService>();

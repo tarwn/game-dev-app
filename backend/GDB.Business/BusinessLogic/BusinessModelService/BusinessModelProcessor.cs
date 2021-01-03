@@ -1,4 +1,5 @@
-﻿using GDB.Common.DTOs.BusinessModel;
+﻿using GDB.Business.BusinessLogic.EventStore;
+using GDB.Common.DTOs.BusinessModel;
 using GDB.Common.DTOs.Interfaces;
 using GDB.Common.Persistence;
 using System;
@@ -9,14 +10,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GDB.Business.BusinessLogic
+namespace GDB.Business.BusinessLogic.BusinessModelService
 {
     public class BusinessModelProcessor
     {
         private IPersistence _persistence;
-        private BusinessModelStore _store;
+        private ModelEventStore _store;
 
-        public BusinessModelProcessor(IPersistence persistence, BusinessModelStore store)
+        public BusinessModelProcessor(IPersistence persistence, ModelEventStore store)
         {
             _persistence = persistence;
             _store = store;

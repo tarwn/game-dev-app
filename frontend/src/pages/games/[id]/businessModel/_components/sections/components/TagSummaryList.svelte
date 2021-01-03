@@ -30,11 +30,13 @@
     border: 1px solid $cs-grey-1;
     margin: 0.25em;
     padding: 0.25em 0.25em;
+    border-radius: $border-radius-tag;
   }
 
   .gdb-summary-tag-text {
     flex: 1 0;
     font-size: 0.85em;
+    white-space: nowrap;
   }
 </style>
 

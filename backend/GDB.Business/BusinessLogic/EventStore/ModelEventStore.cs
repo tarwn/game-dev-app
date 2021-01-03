@@ -1,20 +1,23 @@
 ﻿using GDB.Common.DTOs.BusinessModel;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GDB.Business.BusinessLogic
+namespace GDB.Business.BusinessLogic.EventStore
 {
-    public class BusinessModelStore
+    public class ModelEventStore
     {
-        private Dictionary<string, List<BusinessModelChangeEvent>> _cache;
+        //private Dictionary<string, List<BusinessModelChangeEvent>> _cache;
+        private IMemoryCache _memoryCache;
         private LockObject _curLock = null;
 
-        public BusinessModelStore()
+        public ModelEventStore(IMemoryCache memoryCache)
         {
-            _cache = new Dictionary<string, List<BusinessModelChangeEvent>>();
+            //_cache = new Dictionary<string, List<BusinessModelChangeEvent>>();
+            _memoryCache = memoryCache;
         }
 
         public async Task<LockObject> GetLockAsync()
@@ -35,25 +38,22 @@ namespace GDB.Business.BusinessLogic
 
         public bool ContainsEventsFor(string globalId)
         {
-            return _cache.ContainsKey(globalId);
+            return _memoryCache.TryGetValue(globalId, out List<BusinessModelChangeEvent> events);
         }
 
         public List<BusinessModelChangeEvent> GetEventsFor(string globalId)
         {
-            return _cache[globalId];
+            if (_memoryCache.TryGetValue(globalId, out List<BusinessModelChangeEvent> events))
+                return events;
+            else
+                return null;
         }
 
         public void CacheEvents(string globalId, List<BusinessModelChangeEvent> events)
         {
-            if (!_cache.ContainsKey(globalId))
-            {
-                _cache.Add(globalId, events);
-            }
-            else
-            {
-                _cache[globalId] = events;
-            }
-
+            // all changes are saved almost immediately, so constant use will be fast and coming back after a break will have 
+            //  a blip of longer save time on first save
+            _memoryCache.Set(globalId, events, TimeSpan.FromMinutes(30));
         }
     }
 }
