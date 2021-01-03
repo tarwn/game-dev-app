@@ -42,11 +42,6 @@ jobs:
             yarn run ci:lint --output-file ~/reports/eslint.xml
             yarn run ci:test
             mv ./frontend.xml ~/reports/frontend.xml
-      
-      - store_test_results:
-          path: ~/reports
-      - store_artifacts:
-          path: ~/reports  
 
       - run: 
           name: Front-end Build
@@ -60,6 +55,7 @@ jobs:
           command:
             |
             cd backend
+            cp ./GDB.App.Tests/appsettings.none.json ./GDB.App.Tests/appsettings.json
             dotnet test --filter "TestCategory!=Integration-test" -l "trx" -r ~/reports/
 
       - run:
@@ -67,8 +63,14 @@ jobs:
           when: always
           command:
             dotnet tool install -g trx2junit
-            export PATH="$PATH:/root/.dotnet/tools"
+            PATH="$PATH:/root/.dotnet/tools"
             trx2junit ~/reports/*.trx
+
+                  
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports  
 
       - run:
           name: Build for Release
