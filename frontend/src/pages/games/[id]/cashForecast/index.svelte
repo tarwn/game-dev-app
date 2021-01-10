@@ -7,23 +7,53 @@
   import { getConfig } from "../../../../config";
   import { log } from "../../../../utilities/logger";
   import ForecastChartLarge from "./_components/ForecastChartLarge.svelte";
+  import ForecastChartSmall from "./_components/ForecastChartSmall.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ForecastTable from "./_components/ForecastTable.svelte";
-  import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
 
   // params
   const { actorId } = getConfig();
   $: id = $params.id;
   let isLoading = false;
+  let view: "edit" | "summary" = "summary";
+  let editViewAvailable = false;
 
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
-  function switchToEditView() {}
-  function switchToSummaryView() {}
+  function switchToEditView() {
+    view = "edit";
+    editViewAvailable = false;
+  }
+  function completeSwitchToEditView() {
+    editViewAvailable = true;
+  }
+  function switchToSummaryView() {
+    view = "summary";
+    editViewAvailable = false;
+  }
 </script>
 
 <style type="text/scss">
   @import "../../../../styles/_variables.scss";
+
+  .gdb-page-cf-container {
+    position: absolute;
+    top: 4rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: [start] 420px [center] auto [end];
+    grid-template-rows: [top] 280px [mid] auto [bottom];
+    // align-items: stretch;
+  }
+
+  .gdb-page-cf-fullView {
+    grid-column-start: start;
+    grid-column-end: end;
+    grid-row-start: top;
+    grid-row-end: bottom;
+  }
 
   // duplicate of section in ../index
   //  what are the screen constraints going to be (and how to implement constraint)
@@ -56,34 +86,110 @@
       line-height: 2rem;
     }
   }
+
+  .gdb-page-cf-miniChart {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 240px;
+    padding: $space-m;
+    box-sizing: border-box;
+    border-radius: 4px;
+    margin: $space-m 0;
+    background: $color-background-white;
+    box-shadow: $shadow-main;
+
+    & > h3 {
+      font-size: $font-size-normal;
+      margin: $space-xs 0 $space-s 0;
+      color: $text-color-light;
+      font-weight: normal;
+    }
+  }
+
+  .gdb-page-cf-miniChart-wrapper {
+    padding-top: $space-m;
+  }
+
+  .gdb-page-cf-instructions {
+    grid-column-start: center;
+    grid-column-end: end;
+    grid-row-start: top;
+    grid-row-end: mid;
+    padding: $space-l;
+  }
+
+  .gdb-page-cf-tabbedArea {
+    grid-column-start: start;
+    grid-column-end: end;
+    grid-row-start: mid;
+    grid-row-end: bottom;
+  }
 </style>
 
 <ScreenTitle title="Cash Forecast">
-  <IconTextButton
-    icon={PredefinedIcons.Next}
-    value="Edit"
-    buttonStyle="primary"
-    on:click={switchToEditView}
-    disabled={isLoading} />
+  {#if view == 'summary'}
+    <IconTextButton
+      icon={PredefinedIcons.Next}
+      value="Edit"
+      buttonStyle="primary"
+      on:click={switchToEditView}
+      disabled={isLoading} />
+  {:else}
+    <IconTextButton
+      icon={PredefinedIcons.Expand}
+      value="Return to Summary"
+      buttonStyle="primary"
+      on:click={switchToSummaryView}
+      disabled={isLoading} />
+  {/if}
 </ScreenTitle>
 
-<section>
-  <div class="gdb-chart-placeholder">
-    <ForecastChartLarge />
-  </div>
+<div class="gdb-page-cf-container">
+  {#if view == 'summary'}
+    <section
+      in:receive|local={{ key: 123 }}
+      out:send|local={{ key: 123 }}
+      class="gdb-page-cf-fullView">
+      <div class="gdb-chart-placeholder">
+        <ForecastChartLarge />
+      </div>
 
-  <div class="gdb-table-area">
-    <h2>Cashflow Details</h2>
-    <div class="gdb-title-sub-description">
-      <span> Detailed in- and out-flows of cash each month.</span>
-      <IconTextButton
-        icon={PredefinedIcons.Expand}
-        value="Expand Details"
-        buttonStyle="primary-outline" />
+      <div class="gdb-table-area">
+        <h2>Cashflow Details</h2>
+        <div class="gdb-title-sub-description">
+          <span> Detailed in- and out-flows of cash each month.</span>
+          <IconTextButton
+            icon={PredefinedIcons.Expand}
+            value="Expand Details"
+            buttonStyle="primary-outline" />
+        </div>
+        <ForecastTable />
+      </div>
+    </section>
+  {:else}
+    <div class="gdb-page-cf-fullView">
+      <div
+        in:receive|local={{ key: 123 }}
+        out:send|local={{ key: 123 }}
+        on:introend={completeSwitchToEditView}
+        class="gdb-page-cf-miniChart">
+        <h3>Cashflow Summary</h3>
+        <div class="gdb-page-cf-miniChart-wrapper">
+          <ForecastChartSmall />
+        </div>
+      </div>
     </div>
-    <ForecastTable />
-  </div>
-</section>
+    {#if editViewAvailable}
+      <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
+        instructions
+      </div>
+      <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
+        tabbed area
+      </div>
+    {/if}
+  {/if}
+</div>
 
 <WebSocketChannel
   channelId={id}
