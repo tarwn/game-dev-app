@@ -37,6 +37,7 @@
   import CostStructureSection from "./_components/sections/CostStructureSection.svelte";
   import CostStructureInstructions from "./_components/sections/CostStructureInstructions.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
+  import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
 
   const { actorId } = getConfig();
   let displaySection = null;
@@ -124,14 +125,6 @@
     // align-items: stretch;
   }
 
-  .gdb-page-bm-header {
-    display: flex;
-    align-items: center;
-    & > h1 {
-      flex-grow: 2;
-    }
-  }
-
   // overall screen layout
   .gdb-bm-fullSize {
     grid-column-start: start;
@@ -178,37 +171,32 @@
       }
     )} />
 
-<div class="gdb-page-bm-header">
-  <h1>Business Model</h1>
-  <SpacedButtons>
-    <SaveMessage {hasUnsaved} {lastSaved} />
+<ScreenTitle title="Business Model">
+  <SaveMessage {hasUnsaved} {lastSaved} />
+  <IconTextButton
+    icon={PredefinedIcons.Expand}
+    value="Full View"
+    buttonStyle="primary-outline"
+    on:click={handleOnFullScreen}
+    disabled={isLoading || displaySectionCommit == null} />
+  {#if displaySection == null}
     <IconTextButton
-      icon={PredefinedIcons.Expand}
-      value="Full View"
-      buttonStyle="primary-outline"
-      on:click={handleOnFullScreen}
-      disabled={isLoading || displaySectionCommit == null} />
-    {#if displaySection == null}
-      <IconTextButton
-        icon={PredefinedIcons.Next}
-        value="Start"
-        buttonStyle="primary"
-        on:click={() => handleChangeSection({
-            detail: { section: 'customers' },
-          })}
-        disabled={isLoading} />
-    {:else}
-      <IconTextButton
-        icon={PredefinedIcons.Next}
-        value="Next"
-        buttonStyle="primary"
-        on:click={() => handleChangeSection({
-            detail: { section: getNextSectionInLine(displaySection) },
-          })}
-        disabled={isLoading || businessModel.customers.list.length == 0} />
-    {/if}
-  </SpacedButtons>
-</div>
+      icon={PredefinedIcons.Next}
+      value="Start"
+      buttonStyle="primary"
+      on:click={() => handleChangeSection({ detail: { section: 'customers' } })}
+      disabled={isLoading} />
+  {:else}
+    <IconTextButton
+      icon={PredefinedIcons.Next}
+      value="Next"
+      buttonStyle="primary"
+      on:click={() => handleChangeSection({
+          detail: { section: getNextSectionInLine(displaySection) },
+        })}
+      disabled={isLoading || businessModel.customers.list.length == 0} />
+  {/if}
+</ScreenTitle>
 <div class="gdb-page-bm-container">
   {#if displaySection == null}
     <div

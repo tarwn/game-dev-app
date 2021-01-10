@@ -165,9 +165,9 @@
     imgHref={'/images/Comparables.svg'}
     lastUpdated="Updated on Dec 7" />
   <Tile
-    title="Financial Forecast"
+    title="Cash Forecast"
     status={'In Progress'}
-    href={$url('../businessModel')}
+    href={$url('../cashForecast')}
     imgHref={'/images/FinanceForecast.svg'}
     lastUpdated="Updated on Dec 11" />
   <Tile
