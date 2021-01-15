@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using GDB.Common.DTOs._Events;
 using GDB.Common.DTOs.BusinessModel;
 using GDB.Common.Persistence.Repositories;
 using System;
@@ -15,7 +16,7 @@ namespace GDB.Persistence.Repositories
         public EventStoreRepository(string connectionString) : base(connectionString)
         { }
 
-        public async Task CreateEventAsync(int studioId, int gameId, string objectType, BusinessModelChangeEvent changeEvent)
+        public async Task CreateEventAsync(int studioId, int gameId, string objectType, ChangeEvent changeEvent)
         {
             var param = new { 
                 studioId, 
@@ -35,7 +36,7 @@ namespace GDB.Persistence.Repositories
             }
         }
 
-        public async Task<List<BusinessModelChangeEvent>> GetEventsAsync(int studioId, int gameId, string objectType, int sinceVersionNumber)
+        public async Task<List<ChangeEvent>> GetEventsAsync(int studioId, int gameId, string objectType, int sinceVersionNumber)
         {
             var param = new { studioId, gameId, objectType, sinceVersionNumber };
             var sql = @"
@@ -57,7 +58,7 @@ namespace GDB.Persistence.Repositories
             {
                 var rawEvents = await conn.QueryAsync<EventStoreEntry>(sql, param);
                 var eventsString = "[" + String.Join(',', rawEvents.Select(r => r.RawEvent)) + "]";
-                var events = JsonSerializer.Deserialize<List<BusinessModelChangeEvent>>(eventsString, GetJsonOptions());
+                var events = JsonSerializer.Deserialize<List<ChangeEvent>>(eventsString, GetJsonOptions());
                 return events;
             }
         }

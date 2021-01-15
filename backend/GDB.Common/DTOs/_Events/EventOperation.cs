@@ -1,6 +1,6 @@
-﻿namespace GDB.Common.DTOs.BusinessModel
+﻿namespace GDB.Common.DTOs._Events
 {
-    public class BusinessModelEventOperation
+    public class EventOperation
     {
         public OperationType Action { get; set; }
         public string ObjectId { get; set; }
@@ -10,7 +10,8 @@
         public string? Field { get; set; }
     }
 
-    public enum OperationType {
+    public enum OperationType
+    {
         Set = 1,
         Delete = 2,
         MakeList = 3,

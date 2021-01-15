@@ -3,29 +3,29 @@ using GDB.Common.Authorization;
 using GDB.Common.BusinessLogic;
 using GDB.Common.Context;
 using GDB.Common.DTOs._Events;
-using GDB.Common.DTOs.BusinessModel;
+using GDB.Common.DTOs.CashForecast;
 using GDB.Common.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GDB.Business.BusinessLogic.BusinessModelService
+namespace GDB.Business.BusinessLogic.CashForecastService
 {
-    public class BusinessModelService : IBusinessModelService
+    public class CashForecastService : ICashForecastService
     {
         private IBusinessServiceOperator _busOp;
-        private EventProcessor<BusinessModelDTO, BusinessModelEventApplier> _processor;
+        private EventProcessor<CashForecastDTO, CashForecastEventApplier> _processor;
         private IPersistence _persistence;
 
-        public BusinessModelService(IBusinessServiceOperator busOp, EventProcessor<BusinessModelDTO, BusinessModelEventApplier> processor, IPersistence persistence)
+        public CashForecastService(IBusinessServiceOperator busOp, EventProcessor<CashForecastDTO, CashForecastEventApplier> processor, IPersistence persistence)
         {
             _busOp = busOp;
             _processor = processor;
             _persistence = persistence;
         }
 
-        public async Task<BusinessModelDTO> GetOrCreateAsync(string gameId, IAuthContext authContext)
+        public async Task<CashForecastDTO> GetOrCreateAsync(string gameId, IAuthContext authContext)
         {
             var actualGameId = CheckAndExtractGameId(gameId, authContext);
 
@@ -50,17 +50,6 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             });
         }
 
-
-        public async Task<List<ChangeEvent>> GetSinceAsync(string gameId, int sinceVersionNumber, IAuthContext authContext)
-        {
-            return await _busOp.Query(async (p) =>
-            {
-                var actualGameId = CheckAndExtractGameId(gameId, authContext);
-                return await _persistence.EventStore.GetEventsAsync(authContext.StudioId, actualGameId, _processor.ObjectType, sinceVersionNumber);
-            });
-        }
-
-
         public async Task<Applied<ChangeEvent>> ApplyEventAsync(string gameId, IncomingChangeEvent change, IAuthContext authContext)
         {
             return await _busOp.Operation(async (p) =>
@@ -71,6 +60,17 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                 await _persistence.Actors.UpdateActorAsync(change.Actor, change.SeqNo + change.Operations.Count, authContext.UserId, DateTime.UtcNow);
                 return applied;
             });
+        }
+
+
+        public async Task<List<ChangeEvent>> GetSinceAsync(string gameId, int sinceVersionNumber, IAuthContext authContext)
+        {
+            return await _busOp.Query(async (p) =>
+            {
+                var actualGameId = CheckAndExtractGameId(gameId, authContext);
+                return await _persistence.EventStore.GetEventsAsync(authContext.StudioId, actualGameId, _processor.ObjectType, sinceVersionNumber);
+            });
+
         }
 
         private int CheckAndExtractGameId(string gameId, IAuthContext authContext)

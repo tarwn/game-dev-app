@@ -1,5 +1,6 @@
 import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/_stores/eventStore/types";
 import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCost, IBusinessModelCustomer, IBusinessModelCustomerRelationships, IBusinessModelKeyActivities, IBusinessModelKeyPartners, IBusinessModelKeyResources, IBusinessModelRevenue, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
+import type { ICashForecast, IContractorExpense, IEmployeeExpense, IGenericExpense, ILoanItem, IRevenue } from "../pages/games/[id]/cashForecast/_types/cashForecast";
 
 export function createEmptyBusinessModel(): IBusinessModel {
   return {
@@ -84,3 +85,24 @@ export function createIdentifiedPrimitive<T>(parentId: string, globalId: string,
   };
 }
 
+export function createEmptyCashForecast(): ICashForecast {
+  return {
+    globalId: "unit-test-cf",
+    parentId: "unit-test",
+    versionNumber: 1,
+    bankBalance: {
+      globalId: "unit-test-cf-bb",
+      parentId: "unit-test-cf",
+      name: createIdentifiedPrimitive<string>("unit-test-cf-bb", "unit-test-cf-bb-n", "example account", "name"),
+      date: createIdentifiedPrimitive<Date>("unit-test-cf-bb", "unit-test-cf-bb-d", new Date(), "date"),
+      amount: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-a", 1234.56, "amount"),
+      monthlyInterestRate: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-r", 0.03, "monthlyInterestRate")
+    },
+    loans: createObjectList<ILoanItem>("unit-test-cf", "unit-test-cf-l"),
+    funding: createObjectList<ILoanItem>("unit-test-cf", "unit-test-cf-f"),
+    employees: createObjectList<IEmployeeExpense>("unit-test-cf", "unit-test-cf-ee"),
+    contractors: createObjectList<IContractorExpense>("unit-test-cf", "unit-test-cf-ce"),
+    expenses: createObjectList<IGenericExpense>("unit-test-cf", "unit-test-cf-e"),
+    revenues: createObjectList<IRevenue>("unit-test-cf", "unit-test-cf-r"),
+  };
+}

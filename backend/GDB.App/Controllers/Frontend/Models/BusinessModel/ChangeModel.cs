@@ -1,4 +1,5 @@
-﻿using GDB.Common.DTOs.BusinessModel;
+﻿using GDB.Common.DTOs._Events;
+using GDB.Common.DTOs.BusinessModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace GDB.App.Controllers.Frontend.Models.BusinessModel
     public class ChangeModel
     {
         public int PreviousVersionNumber { get; set; }
-        public BusinessModelChangeEvent Change { get; set; }
+        public ChangeEvent Change { get; set; }
     }
 }

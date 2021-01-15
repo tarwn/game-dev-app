@@ -10,13 +10,20 @@
   import ForecastChartSmall from "./_components/ForecastChartSmall.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ForecastTable from "./_components/ForecastTable.svelte";
+  import {
+    cashForecastEventStore,
+    cashForecastLocalStore,
+  } from "./_stores/cashForecastStore";
+  import type { ICashForecast } from "./_types/cashForecast";
+  import { onDestroy } from "svelte";
 
   // params
   const { actorId } = getConfig();
   $: id = $params.id;
-  let isLoading = false;
   let view: "edit" | "summary" = "summary";
   let editViewAvailable = false;
+  let isLoading = true;
+  let cashForecast = null as null | ICashForecast;
 
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
@@ -31,6 +38,38 @@
     view = "summary";
     editViewAvailable = false;
   }
+
+  // data management
+  let initializedId = null;
+  $: {
+    if (id != null && id != initializedId) {
+      initializedId = id;
+      cashForecastEventStore.initialize(actorId, id).then((initdId) => {
+        if (initdId != id) return;
+        return cashForecastEventStore.loadFullState();
+      });
+    }
+  }
+  const unsubscribe = cashForecastLocalStore.subscribe((update) => {
+    cashForecast = update;
+    if (isLoading) {
+      isLoading = false;
+    }
+  });
+  let hasUnsaved = false;
+  let lastSaved = new Date();
+  const unsubscribe2 = cashForecastEventStore.subscribe((update) => {
+    if (hasUnsaved && update.pendingEvents.length == 0) {
+      lastSaved = new Date();
+    }
+    hasUnsaved = update.pendingEvents.length > 0;
+  });
+
+  onDestroy(() => {
+    // -- end signalR close
+    unsubscribe();
+    unsubscribe2();
+  });
 </script>
 
 <style type="text/scss">

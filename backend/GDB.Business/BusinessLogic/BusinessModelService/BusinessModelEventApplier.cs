@@ -1,179 +1,31 @@
-﻿using GDB.Business.BusinessLogic.EventStore;
+﻿using GDB.Business.BusinessLogic._Generic;
+using GDB.Common.DTOs._Events;
 using GDB.Common.DTOs.BusinessModel;
 using GDB.Common.DTOs.Interfaces;
-using GDB.Common.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace GDB.Business.BusinessLogic.BusinessModelService
 {
-    public class BusinessModelProcessor
+    public class BusinessModelEventApplier : IEventApplier<BusinessModelDTO>
     {
-        private IPersistence _persistence;
-        private ModelEventStore _store;
-
-        public BusinessModelProcessor(IPersistence persistence, ModelEventStore store)
-        {
-            _persistence = persistence;
-            _store = store;
-        }
-
-        public async Task<BusinessModelDTO> GetByIdAsync(int studioId, int actualGameId, string gameId)
-        {
-            using (var lockObj = await _store.GetLockAsync())
-            {
-                var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
-                return model.Model;
-            }
-        }
-
-        public BusinessModelChangeEvent GetCreateBusinessModelEvent(string gameId)
-        {
-            return BusinessModelEventApplier.GetCreateBusinessModelEvent(gameId);
-        }
-
-        public async Task<Applied<BusinessModelChangeEvent>> AddAndApplyEventAsync(int studioId, int actualGameId, string gameId, BusinessModelChangeEvent changeEvent)
-        {
-            using (var lockObj = await _store.GetLockAsync())
-            {
-                var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
-                if (model.Model == null && changeEvent.VersionNumber != 1)
-                {
-                    throw new BusinessModelNotFoundException(gameId);
-                }
-                else if (changeEvent.VersionNumber != 1)
-                {
-                    changeEvent.VersionNumber = model.Model.VersionNumber + 1;
-                }
-
-                await _persistence.EventStore.CreateEventAsync(studioId, actualGameId, BusinessModelEventApplier.ObjectType, changeEvent);
-                ApplyEvents(gameId, new List<BusinessModelChangeEvent> { changeEvent }, model);
-
-                //_globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;
-                return new Applied<BusinessModelChangeEvent>(gameId, changeEvent.PreviousVersionNumber, changeEvent.VersionNumber, changeEvent);
-            }
-        }
-
-        private async Task<EventStore<BusinessModelDTO, BusinessModelChangeEvent>> GetLatestModelAsync(int studioId, int actualGameId, string gameId)
-        {
-            var busModelId = BusinessModelEventApplier.GetRootId(gameId);
-
-            // future: load the model from cache, call since events + apply only those
-            var events = new List<BusinessModelChangeEvent>();
-            int since = 0;
-            if (_store.ContainsEventsFor(busModelId))
-            {
-                events.AddRange(_store.GetEventsFor(busModelId));
-                since = events.Last().VersionNumber;
-            }
-            var dbevents = await _persistence.EventStore.GetEventsAsync(studioId, actualGameId, BusinessModelEventApplier.ObjectType, since);
-            events.AddRange(dbevents);
-
-            var model = ApplyEvents(gameId, events);
-            return model;
-        }
-
-        private EventStore<BusinessModelDTO, BusinessModelChangeEvent> ApplyEvents(string gameId, List<BusinessModelChangeEvent> events, EventStore<BusinessModelDTO, BusinessModelChangeEvent> model = null)
-        {
-            if (model == null && events.Count == 0)
-            {
-                return new EventStore<BusinessModelDTO, BusinessModelChangeEvent>();
-            }
-
-            if (model == null)
-            {
-                if (events[0].VersionNumber != 1)
-                {
-                    throw new Exception($"Event stream '{BusinessModelEventApplier.ObjectType}' for game {gameId} does not start with an init event, 1st event is version {events[0].VersionNumber}");
-                }
-                model = new EventStore<BusinessModelDTO, BusinessModelChangeEvent>();
-            }
-
-            foreach (var evt in events)
-            {
-                ApplyEvent(model, evt);
-            }
-
-            _store.CacheEvents(model.Model.GlobalId, model.Events);
-
-            return model;
-        }
-
-        private void ApplyEvent(EventStore<BusinessModelDTO, BusinessModelChangeEvent> model, BusinessModelChangeEvent evt)
-        {
-            var duplicateIds = evt.Operations.Where(o => o.Insert.GetValueOrDefault(false) && model.Ids.Contains(o.ObjectId))
-                                             .Select(o => o.ObjectId)
-                                             .ToList();
-            if (duplicateIds.Count > 0)
-            {
-                throw new ArgumentException($"Operation cannot insert new object with id(s) {string.Join(",", duplicateIds)}, already in use.");
-            }
-
-            // todo version check?
-
-            BusinessModelEventApplier.ApplyEvent(model, evt);
-            model.Model.VersionNumber = evt.VersionNumber;
-
-            // track new id's for later duplicate checks
-            evt.Operations.ForEach(o =>
-            {
-                if (o.Insert.GetValueOrDefault(false))
-                    model.Ids.Add(o.ObjectId);
-            });
-        }
-
-
-    }
-
-    public class EventStore<TModel, TEvent>
-    {
-        public EventStore()
-        {
-            Events = new List<TEvent>();
-            Model = default;
-            Ids = new HashSet<string>();
-        }
-
-        //public EventStore(List<TEvent> events, TModel model)
-        //{
-        //    Events = events;
-        //    Model = model;
-        //    Ids = new Dictionary<string, object>();
-        //}
-
-        public TModel Model { get; private set; }
-        public List<TEvent> Events { get; }
-        public HashSet<string> Ids { get; }
-
-        public void Init(TModel model)
-        {
-            Model = model;
-        }
-    }
-
-    public static class BusinessModelEventApplier
-    {
-
-        public const string ObjectType = "BusinessModel";
         public const string CreateEventType = "CreateBusinessModel";
+        public string ObjectType => "BusinessModel";
 
-        public static string GetRootId(string gameId)
+        public string GetRootId(string gameId)
         {
             return $"{gameId}:bm";
         }
 
-        public static BusinessModelChangeEvent GetCreateBusinessModelEvent(string gameId)
+        public ChangeEvent GetCreateEvent(string gameId)
         {
-            return new BusinessModelChangeEvent("System", 1, CreateEventType, 1, 0)
+            return new ChangeEvent("System", 1, CreateEventType, 1, 0)
             {
-                Operations = new List<BusinessModelEventOperation>()
+                Operations = new List<EventOperation>()
                 {
-                    new BusinessModelEventOperation()
+                    new EventOperation()
                     {
                         Action = OperationType.MakeObject,
                         ParentId = gameId,
@@ -185,18 +37,18 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             };
         }
 
-        public static void ApplyEvent(EventStore<BusinessModelDTO, BusinessModelChangeEvent> modelStore, BusinessModelChangeEvent change)
+        public void ApplyEvent(EventStore<BusinessModelDTO, ChangeEvent> modelStore, ChangeEvent change)
         {
             var model = modelStore.Model;
 
             switch (change.Type)
             {
                 case CreateEventType:
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     modelStore.Init(new BusinessModelDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId));
                     break;
                 case "AddNewCustomer":
-                    EnsureOperationCount(change, 4);
+                    this.EnsureOperationCount(change, 4);
                     model.Customers.List.Add(new BusinessModelCustomer()
                     {
                         GlobalId = change.Operations[0].ObjectId,
@@ -226,7 +78,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     });
                     break;
                 case "DeleteCustomer":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     model.Customers.List.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
                     break;
                 case "AddCustomerEntry":
@@ -257,7 +109,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     });
                     break;
                 case "UpdateCustomerType":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var customer = model.Customers.List.SingleOrDefault(c => c.Entries.GlobalId == change.Operations[0].ParentId);
                         if (customer != null)
@@ -267,7 +119,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     }
                     break;
                 case "UpdateCustomerName":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var customer = model.Customers.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (customer != null)
@@ -379,7 +231,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     ApplyBasicListDelete(model, change, m => model.KeyPartners.Entries);
                     break;
                 case "AddCost":
-                    EnsureOperationCount(change, 5);
+                    this.EnsureOperationCount(change, 5);
                     model.CostStructure.List.Add(new BusinessModelCost()
                     {
                         GlobalId = change.Operations[0].ObjectId,
@@ -416,11 +268,11 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     });
                     break;
                 case "DeleteCost":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     model.CostStructure.List.RemoveAll(c => c.GlobalId == change.Operations[0].ObjectId);
                     break;
                 case "UpdateCostType":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
@@ -430,7 +282,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     }
                     break;
                 case "UpdateCostSummary":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
@@ -440,7 +292,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     }
                     break;
                 case "UpdateCostIsPreLaunch":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
@@ -450,7 +302,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                     }
                     break;
                 case "UpdateCostIsPostLaunch":
-                    EnsureOperationCount(change, 1);
+                    this.EnsureOperationCount(change, 1);
                     {
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
@@ -465,9 +317,9 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             modelStore.Events.Add(change);
         }
 
-        private static void ApplyBasicListDelete(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        private void ApplyBasicListDelete(BusinessModelDTO model, IncomingChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
         {
-            EnsureOperationCount(change, 1);
+            this.EnsureOperationCount(change, 1);
             {
                 var parent = getParent(model);
                 if (parent != null)
@@ -477,9 +329,9 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             }
         }
 
-        private static void ApplyBasicListUpdate(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        private void ApplyBasicListUpdate(BusinessModelDTO model, IncomingChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
         {
-            EnsureOperationCount(change, 1);
+            this.EnsureOperationCount(change, 1);
             {
                 var parent = getParent(model);
                 if (parent != null)
@@ -493,9 +345,9 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             }
         }
 
-        private static void ApplyBasicListAdd(BusinessModelDTO model, IncomingBusinessModelChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
+        private void ApplyBasicListAdd(BusinessModelDTO model, IncomingChangeEvent change, Func<BusinessModelDTO, IdentifiedList<IdentifiedPrimitive<string>>> getParent)
         {
-            EnsureOperationCount(change, 1);
+            this.EnsureOperationCount(change, 1);
             {
                 var parent = getParent(model);
                 if (parent != null)
@@ -508,14 +360,6 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                         Value = change.Operations[0].Value.ToString()
                     });
                 }
-            }
-        }
-
-        private static void EnsureOperationCount(IncomingBusinessModelChangeEvent evt, int expectedCount)
-        {
-            if (evt.Operations.Count != expectedCount)
-            {
-                throw new ArgumentException($"Operation count is expected to be {expectedCount} for {evt.Type}", nameof(evt));
             }
         }
 
@@ -535,5 +379,6 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             }
             return Convert.ToBoolean(input.ToString());
         }
+
     }
 }

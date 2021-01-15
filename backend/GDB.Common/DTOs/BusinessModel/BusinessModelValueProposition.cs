@@ -1,11 +1,21 @@
 ﻿using GDB.Common.DTOs.Interfaces;
+using System;
 
 namespace GDB.Common.DTOs.BusinessModel
 {
     public class BusinessModelValueProposition : IIdentifiedObject
     {
-        public BusinessModelValueProposition()
+        [Obsolete("serialization only", false)]
+        public BusinessModelValueProposition() { }
+
+        public BusinessModelValueProposition(string parentId, string globalId, string field = null)
         {
+            ParentId = parentId;
+            GlobalId = globalId;
+            Field = field;
+            Genres = new IdentifiedList<IdentifiedPrimitive<string>>(globalId, $"{globalId}:genres", "genres");
+            Platforms = new IdentifiedList<IdentifiedPrimitive<string>>(globalId, $"{globalId}:platforms", "platforms");
+            Entries = new IdentifiedList<IdentifiedPrimitive<string>>(globalId, $"{globalId}:entries", "entries");
         }
 
         public string GlobalId { get; set; }

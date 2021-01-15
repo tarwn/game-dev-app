@@ -1,11 +1,19 @@
 ﻿using GDB.Common.DTOs.Interfaces;
+using System;
 
 namespace GDB.Common.DTOs.BusinessModel
 {
     public class BusinessModelKeyActivities : IIdentifiedObject
     {
-        public BusinessModelKeyActivities()
+        [Obsolete("serialization only", false)]
+        public BusinessModelKeyActivities() { }
+
+        public BusinessModelKeyActivities(string parentId, string globalId, string field = null)
         {
+            ParentId = parentId;
+            GlobalId = globalId;
+            Field = field;
+            Entries = new IdentifiedList<IdentifiedPrimitive<string>>(globalId, $"{globalId}:entries", "entries");
         }
 
         public string ParentId { get; set; }

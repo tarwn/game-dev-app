@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GDB.Common.DTOs.BusinessModel
+namespace GDB.Common.DTOs._Events
 {
-    public class Applied<T> where T: BusinessModelChangeEvent
+    public class Applied<T> where T : ChangeEvent
     {
         public Applied(string gameId, int previousVersionNumber, int versionNumber, T newEvent)
         {
