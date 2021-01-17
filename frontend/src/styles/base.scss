@@ -10,7 +10,7 @@
   color: $text-color-default;
 }
 
-html {
+html, button {
   @include standard-font;
 }
 
@@ -99,6 +99,7 @@ select {
   padding: 0 $space-m 0 $space-m;
   box-shadow: $shadow-main;
   transition: $button-transitions;
+
 
   &:active {
     box-shadow: $shadow-push;

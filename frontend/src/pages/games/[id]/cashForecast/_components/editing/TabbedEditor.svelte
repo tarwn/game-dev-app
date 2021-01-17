@@ -1,5 +1,6 @@
 <script lang="ts">
   import AssetTab from "./AssetTab.svelte";
+  import EmptyTab from "./EmptyTab.svelte";
 
   let selectedTab = 1;
   const tabs = [
@@ -74,10 +75,11 @@
   .gdb-tablist-shadow {
     position: absolute;
     z-index: 1; // below panel + real tabs
+    // margin-top: -32px; // debug purposes
   }
 
   .gdb-tab-container,
-  .gdb-tab-container-shadow {
+  .gdb-tab-shadow {
     display: inline-block;
     list-style: none;
     padding: 0;
@@ -86,34 +88,30 @@
     white-space: nowrap;
   }
 
-  .gdb-tab-container-shadow {
+  .gdb-tab-shadow {
     // matches tab below to sit under it
-    padding: $space-xs $space-m;
+    padding: $space-s $space-m;
     margin-right: $space-xs;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     box-shadow: $shadow-main;
+    color: transparent;
   }
 
   .gdb-tab {
-    // box-shadow: $shadow-main;
-    padding: $space-xs $space-m;
+    padding: $space-s $space-m;
     border: 0;
     margin-right: $space-xs;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     cursor: pointer;
-    // faux shadow
-    border-bottom: 1px solid $cs-grey-0;
-    // and vertical offset
-    border-top: 1px solid transparent;
-
+    box-shadow: $shadow-main-inset-bottom;
     &.selectedTab,
     &.selectedTab:hover,
     &.selectedTab:active {
       background: $color-background-white;
       cursor: default;
-      border-bottom: 1px solid transparent;
+      box-shadow: none;
     }
 
     &:active,
@@ -130,7 +128,7 @@
     border-top-left-radius: 0;
     background: $color-background-white;
     box-shadow: $shadow-main;
-    padding: $space-m;
+    padding: $space-m $space-l;
     z-index: 2; // above shadow tabs, below actual tabs
   }
 
@@ -144,7 +142,7 @@
 <section class="gdb-tabArea">
   <ul aria-hidden="true" class="gdb-tablist-shadow">
     {#each tabs as tab (tab.id)}
-      <li role="presentation" class="gdb-tab-container-shadow">&nbsp;</li>
+      <li role="presentation" class="gdb-tab-shadow">{tab.text}</li>
     {/each}
   </ul>
   <ul role="tablist" class="gdb-tablist">
@@ -163,6 +161,10 @@
   </ul>
   <div role="tabpanel" class="gdb-tabpanel">
     <h3 tabindex={0}>{currentTab.text}</h3>
-    <AssetTab />
+    {#if selectedTab == 1}
+      <AssetTab />
+    {:else}
+      <EmptyTab />
+    {/if}
   </div>
 </section>

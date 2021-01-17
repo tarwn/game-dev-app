@@ -45,7 +45,7 @@
     grid-column-end: end;
     grid-row-start: mid;
     grid-row-end: bottom;
-    margin: $space-l $space-xl $space-s $space-xl;
+    margin: $space-s $space-xl $space-s $space-xl;
   }
 </style>
 

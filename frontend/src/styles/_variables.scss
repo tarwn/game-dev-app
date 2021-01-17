@@ -115,6 +115,8 @@ $shadow-main: rgba(60, 64, 67, 0.1) 0px 1px 2px 0px,
 $shadow-main-hover: 0 14px 28px rgba(0,0,0,0.25),
                     0 10px 10px rgba(0,0,0,0.22);
 
+$shadow-main-inset-bottom: inset rgba(60, 64, 67, 0.1) 0px -7px 9px -7px;
+
 $shadow-nav-button: 1px 0px 2px 0px rgba(60, 64, 67, 0.3);
 $shadow-push: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 

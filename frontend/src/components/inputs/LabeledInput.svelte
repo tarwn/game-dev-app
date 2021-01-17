@@ -18,6 +18,7 @@
       & > .gdb-label-text {
         color: $cs-grey-4;
         font-size: $font-size-smallest;
+        padding-bottom: 0px;
       }
     }
   }

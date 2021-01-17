@@ -88,11 +88,11 @@
   @import "../../../../styles/_variables.scss";
 
   .gdb-page-cf-container {
-    position: absolute;
-    top: 4rem;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    // position: absolute;
+    // top: 4rem;
+    // bottom: 0;
+    // left: 0;
+    // right: 0;
     display: grid;
     grid-template-columns: [start] 420px [center] auto [end];
     grid-template-rows: [top] 280px [mid] auto [bottom];

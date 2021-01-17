@@ -2,13 +2,17 @@
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
+  import TableRowEmpty from "./TableRowEmpty.svelte";
+  import TableRowIndented from "./TableRowIndented.svelte";
+  import TableSubHeaderRow from "./TableSubHeaderRow.svelte";
 </script>
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
 
   .gdb-cf-table {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 
     td {
       padding: $space-xs $space-m;
@@ -17,19 +21,6 @@
 
   .gdb-cf-forecast-row {
     padding-left: 0.1rem; // needs some indent
-  }
-
-  .gdb-cf-table-indent {
-    width: 1rem;
-  }
-
-  .gdb-cf-table-subheader > td {
-    font-weight: bold;
-    padding: $space-l 0 $space-m 0;
-  }
-
-  .gdb-cf-table-subtitle {
-    margin-right: 2rem;
   }
 
   .gdb-input > input {
@@ -43,6 +34,7 @@
     font-size: $font-size-small;
     color: $cs-grey-3;
     width: 6rem;
+    background-color: $color-background-white;
 
     & > input {
       flex: 1 1;
@@ -74,9 +66,8 @@
   </LabeledInput>
 </div>
 <table class="gdb-cf-table">
-  <tr class="gdb-cf-table-subheader"> <td colspan={6}>Bank Balance</td> </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  <TableSubHeaderRow colspan={6} value="Bank Balance" />
+  <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
         <input type="text" placeholder="enter a name" />
@@ -97,16 +88,11 @@
       </LabeledInput>
     </td>
     <td />
-  </tr>
+  </TableRowIndented>
 
   <!-- start loans -->
-  <tr class="gdb-cf-table-subheader">
-    <td colspan={6}>
-      <span class="gdb-cf-table-subtitle">Loans & Credit</span>
-    </td>
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  <TableSubHeaderRow colspan={6} value="Loans & Credit" />
+  <TableRowIndented isRecord={true} isTop={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
         <input type="text" placeholder="enter a name" />
@@ -132,9 +118,8 @@
       </LabeledInput>
     </td>
     <td />
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true} isBottom={true}>
     <td class="gdb-faux-label"> Repayment Terms: </td>
     <td>
       <LabeledInput label="Frequency" vertical={true}>
@@ -160,26 +145,21 @@
         <input type="number" placeholder="24" />
       </LabeledInput>
     </td>
-  </tr>
+  </TableRowIndented>
+  <TableRowEmpty colspan={6} />
   <!-- add row -->
-  <tr>
-    <td />
+  <TableRowIndented>
     <td colspan="4">
       <IconTextButton
         icon={PredefinedIcons.Plus}
         value="Add Loan"
         buttonStyle="primary-outline" />
     </td>
-  </tr>
+  </TableRowIndented>
 
   <!-- start funding -->
-  <tr class="gdb-cf-table-subheader">
-    <td colspan={6}>
-      <span class="gdb-cf-table-subtitle">Funding</span>
-    </td>
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  <TableSubHeaderRow colspan={6} value="Funding" />
+  <TableRowIndented isRecord={true} isTop={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
         <input type="text" placeholder="enter a name" />
@@ -205,9 +185,8 @@
       </LabeledInput>
     </td>
     <td />
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true}>
     <td />
     <td />
     <td>
@@ -219,9 +198,8 @@
       </div>
     </td>
     <td />
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true}>
     <td />
     <td />
     <td>
@@ -232,9 +210,8 @@
     </td>
     <td />
     <td />
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true}>
     <td class="gdb-faux-label-short"> Terms: </td>
     <td>
       <select>
@@ -256,9 +233,8 @@
         $<input type="text" placeholder="0.00" class="gdb-currency" />
       </div>
     </td>
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true}>
     <td />
     <td class="gdb-faux-label-short"> and then </td>
     <td>
@@ -272,9 +248,8 @@
       </select>
     </td>
     <td />
-  </tr>
-  <tr>
-    <td class="gdb-cf-table-indent" />
+  </TableRowIndented>
+  <TableRowIndented isRecord={true} isBottom={true}>
     <td />
     <td />
     <td>
@@ -286,15 +261,15 @@
     </td>
     <td />
     <td />
-  </tr>
+  </TableRowIndented>
+  <TableRowEmpty colspan={6} />
   <!-- add row -->
-  <tr>
-    <td />
+  <TableRowIndented>
     <td colspan="4">
       <IconTextButton
         icon={PredefinedIcons.Plus}
         value="Add Funding"
         buttonStyle="primary-outline" />
     </td>
-  </tr>
+  </TableRowIndented>
 </table>
