@@ -82,12 +82,22 @@ $cs-green-4: #6e8c2a;
 $cs-green-5: #425419;
 $cs-green-6: #161c08;
 
+// https://mdigi.tools/color-shades/#9bc53d
+$cs-blue-0: #e8f6fc;
+$cs-blue-1: #bbe5f7;
+$cs-blue-2: #8dd3f1;
+$cs-blue-3: #60c2ec;
+$cs-blue-4: #1997cd;
+$cs-blue-5: #0e5472;
+$cs-blue-6: #031117;
+
+// 3.5? #32b0e6
 
 // https://mdigi.tools/color-shades/#5bc0eb
 $color-accent-1: $cs_blue;
-$color-accent-1-darker: #32b0e6; //darken($cs_blue, 10%);
-$color-accent-1-lighter: #8dd3f1; //lighten($cs_blue, 10%);
-$color-accent-1-lightest: #e8f6fc;
+$color-accent-1-darker: $cs-blue-4; //#32b0e6; //darken($cs_blue, 10%);
+$color-accent-1-lighter: $cs-blue-2;
+$color-accent-1-lightest: $cs-blue-0;
 $color-accent-2: $cs_orange;
 
 $color-background-white: $ws_white;

@@ -1,0 +1,168 @@
+<script lang="ts">
+  import AssetTab from "./AssetTab.svelte";
+
+  let selectedTab = 1;
+  const tabs = [
+    { id: 1, group: "1", text: "Assets & Funding" },
+    { id: 2, group: "1", text: "People" },
+    { id: 3, group: "1", text: "Tools & Licenses" },
+    { id: 4, group: "1", text: "Services" },
+    { id: 5, group: "1", text: "Other Expenses" },
+    { id: 6, group: "2", text: "Revenue" },
+    { id: 7, group: "3", text: "Table View" },
+  ];
+
+  $: currentTab = tabs.find((t) => t.id === selectedTab);
+
+  function selectTab(id: number) {
+    selectedTab = id;
+  }
+
+  function selectTabFromKeyPress(e: any) {
+    const currentIndex = tabs.findIndex((t) => t.id === selectedTab);
+    let newIndex = undefined;
+    let handled = false;
+
+    if (e.keyCode !== undefined) {
+      if (e.keyCode === 37) {
+        newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        handled = true;
+      } else if (e.keyCode === 39) {
+        newIndex = (currentIndex + 1) % tabs.length;
+        handled = true;
+      }
+    } else if (e.key !== undefined) {
+      if (e.key === "ArrowLeft") {
+        newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        handled = true;
+      } else if (e.key === "ArrowRight") {
+        newIndex = (currentIndex + 1) % tabs.length;
+        handled = true;
+      }
+    }
+
+    if (handled) {
+      e.preventDefault();
+      selectedTab = tabs[newIndex].id;
+      const button = document.getElementsByClassName("gdb-tab")[
+        newIndex
+      ] as HTMLButtonElement;
+      console.log(button);
+      button?.focus();
+    }
+  }
+</script>
+
+<style type="text/scss">
+  @import "../../../../../../styles/_variables.scss";
+
+  .gdb-tabArea {
+    margin: $space-m 0;
+  }
+
+  .gdb-tablist,
+  .gdb-tablist-shadow {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    z-index: 3; // above shadow tabs + panel
+  }
+
+  .gdb-tablist-shadow {
+    position: absolute;
+    z-index: 1; // below panel + real tabs
+  }
+
+  .gdb-tab-container,
+  .gdb-tab-container-shadow {
+    display: inline-block;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 0 0;
+    white-space: nowrap;
+  }
+
+  .gdb-tab-container-shadow {
+    // matches tab below to sit under it
+    padding: $space-xs $space-m;
+    margin-right: $space-xs;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    box-shadow: $shadow-main;
+  }
+
+  .gdb-tab {
+    // box-shadow: $shadow-main;
+    padding: $space-xs $space-m;
+    border: 0;
+    margin-right: $space-xs;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    cursor: pointer;
+    // faux shadow
+    border-bottom: 1px solid $cs-grey-0;
+    // and vertical offset
+    border-top: 1px solid transparent;
+
+    &.selectedTab,
+    &.selectedTab:hover,
+    &.selectedTab:active {
+      background: $color-background-white;
+      cursor: default;
+      border-bottom: 1px solid transparent;
+    }
+
+    &:active,
+    &:hover {
+      background-color: $cs-blue-0;
+    }
+
+    background-color: $cs-blue-1;
+  }
+
+  .gdb-tabpanel {
+    position: relative;
+    border-radius: 4px;
+    border-top-left-radius: 0;
+    background: $color-background-white;
+    box-shadow: $shadow-main;
+    padding: $space-m;
+    z-index: 2; // above shadow tabs, below actual tabs
+  }
+
+  .gdb-input-date {
+    display: inline-block;
+    min-width: 6rem;
+    text-align: right;
+  }
+</style>
+
+<section class="gdb-tabArea">
+  <ul aria-hidden="true" class="gdb-tablist-shadow">
+    {#each tabs as tab (tab.id)}
+      <li role="presentation" class="gdb-tab-container-shadow">&nbsp;</li>
+    {/each}
+  </ul>
+  <ul role="tablist" class="gdb-tablist">
+    {#each tabs as tab (tab.id)}
+      <li role="presentation" class="gdb-tab-container">
+        <button
+          role="tab"
+          class={`gdb-tab gdb-tab-group-${tab.group}`}
+          class:selectedTab={selectedTab === tab.id}
+          aria-selected={selectedTab === tab.id}
+          tabindex={selectedTab === tab.id ? 0 : -1}
+          on:click={() => selectTab(tab.id)}
+          on:keydown={(e) => selectTabFromKeyPress(e)}>{tab.text}</button>
+      </li>
+    {/each}
+  </ul>
+  <div role="tabpanel" class="gdb-tabpanel">
+    <h3 tabindex={0}>{currentTab.text}</h3>
+    <AssetTab />
+  </div>
+</section>

@@ -3,7 +3,7 @@
   import { goto, metatags } from "@sveltech/routify";
   import { gamesStore } from "./_stores/gamesStore";
 
-  metatags.title = "LaunchReady";
+  metatags.title = "[LR] Dashboard";
   metatags.description =
     "Your LaunchReady Dashboard: Select a game, add a new game, or manage the studio.";
 

@@ -56,12 +56,17 @@ a.disabled{
   pointer-events: none;
 }
 
+.gdb-input,
 input[type=text],
 input[type=password],
+input[type=date],
+input[type=number],
 select {
   border: 1px solid $cs-grey-2;
   border-radius: 2px;
   padding: $space-xs;
+  display: inline-block;
+  line-height: 1.5rem;
   @include standard-font;
 
   &.gdb-pronounced {

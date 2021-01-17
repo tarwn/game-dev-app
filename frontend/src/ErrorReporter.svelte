@@ -13,7 +13,10 @@
         "Connection disconnected with error 'Error: WebSocket closed"
       ) >= 0 ||
       message.indexOf("Failed to complete negotiation with the server:") >= 0 ||
-      message.indexOf("Failed to start the connection: ") >= 0
+      message.indexOf("Failed to start the connection: ") >= 0 ||
+      message.indexOf(
+        "Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'"
+      ) >= 0
     );
   }
 
@@ -107,9 +110,8 @@
         the meantime you can continue, which will refresh the browser.
       </p>
       <div class="gdb-right">
-        <button
-          class="gdb-button gdb-bs-primary"
-          on:click={dismissError}>Dismiss</button>
+        <button class="gdb-button gdb-bs-primary" on:click={dismissError}
+          >Dismiss</button>
       </div>
     </div>
   </div>

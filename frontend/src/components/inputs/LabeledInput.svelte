@@ -1,6 +1,7 @@
 <script lang="ts">
   export let label: string = "";
   export let forId: string | null = null;
+  export let vertical: boolean = false;
 </script>
 
 <style type="text/scss">
@@ -9,6 +10,16 @@
   .gdb-label {
     display: block;
     line-height: $line-height-base;
+
+    &.vertical {
+      display: flex;
+      flex-direction: column;
+
+      & > .gdb-label-text {
+        color: $cs-grey-4;
+        font-size: $font-size-smallest;
+      }
+    }
   }
 
   .gdb-label-text {
@@ -19,7 +30,7 @@
   }
 </style>
 
-<label class="gdb-label" for={forId}>
+<label class="gdb-label" class:vertical for={forId}>
   <span class="gdb-label-text">{label}</span>
   <slot />
 </label>

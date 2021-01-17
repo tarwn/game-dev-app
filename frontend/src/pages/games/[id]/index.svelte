@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { url, params } from "@sveltech/routify";
+  import { url, params, metatags } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import ForecastChart from "./_components/ForecastChart.svelte";
@@ -7,6 +7,8 @@
   import Tile from "./_components/Tile.svelte";
   import GameStatus from "../../../components/outputs/GameStatus.svelte";
   import ShortDate from "../../../components/outputs/ShortDate.svelte";
+
+  metatags.title = "[LR] Dashboard";
 
   $: id = $params.id;
 
@@ -154,27 +156,27 @@
 <div class="row gdb-row-tiles">
   <Tile
     title="Business Model"
-    status={'Done'}
-    href={$url('../businessModel')}
-    imgHref={'/images/BusinessModelCanvas.svg'}
+    status={"Done"}
+    href={$url("../businessModel")}
+    imgHref={"/images/BusinessModelCanvas.svg"}
     lastUpdated="Updated on Dec 3" />
   <Tile
     title="Comparables"
-    status={'In Progress'}
-    href={$url('../businessModel')}
-    imgHref={'/images/Comparables.svg'}
+    status={"In Progress"}
+    href={$url("../businessModel")}
+    imgHref={"/images/Comparables.svg"}
     lastUpdated="Updated on Dec 7" />
   <Tile
     title="Cash Forecast"
-    status={'In Progress'}
-    href={$url('../cashForecast')}
-    imgHref={'/images/FinanceForecast.svg'}
+    status={"In Progress"}
+    href={$url("../cashForecast")}
+    imgHref={"/images/FinanceForecast.svg"}
     lastUpdated="Updated on Dec 11" />
   <Tile
     title="Marketing Plan"
     status={null}
-    href={$url('../businessModel')}
-    imgHref={'/images/MarketingPlan.svg'} />
+    href={$url("../businessModel")}
+    imgHref={"/images/MarketingPlan.svg"} />
 </div>
 
 <h2>Next Stages</h2>

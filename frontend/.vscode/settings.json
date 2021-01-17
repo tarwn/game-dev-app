@@ -7,5 +7,10 @@
     "javascript",
     "typescript"
   ],
-  "html.autoClosingTags": false
+  "html.autoClosingTags": false,
+  "emmet.showExpandedAbbreviation": "never",
+  "emmet.excludeLanguages": [
+    "markdown",
+    "svelte"
+  ]
 }

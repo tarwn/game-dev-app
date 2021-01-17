@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { params } from "@sveltech/routify";
+  import { metatags, params } from "@sveltech/routify";
   import { scale, crossfade, fade } from "svelte/transition";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
@@ -16,6 +16,10 @@
   } from "./_stores/cashForecastStore";
   import type { ICashForecast } from "./_types/cashForecast";
   import { onDestroy } from "svelte";
+  import TabbedEditor from "./_components/editing/TabbedEditor.svelte";
+
+  // page title
+  metatags.title = "[LR] Cash Forecast";
 
   // params
   const { actorId } = getConfig();
@@ -25,6 +29,12 @@
   let isLoading = true;
   let cashForecast = null as null | ICashForecast;
 
+  // initialize section view if query present
+  if ($params.view === "edit") {
+    view = "edit";
+    editViewAvailable = true;
+  }
+
   // section change
   const [send, receive] = crossfade({ duration: 500, fallback: scale });
   function switchToEditView() {
@@ -32,9 +42,11 @@
     editViewAvailable = false;
   }
   function completeSwitchToEditView() {
+    history.pushState({}, "", `/games/${id}/cashForecast?view=edit`);
     editViewAvailable = true;
   }
   function switchToSummaryView() {
+    history.pushState({}, "", `/games/${id}/cashForecast`);
     view = "summary";
     editViewAvailable = false;
   }
@@ -167,7 +179,7 @@
 </style>
 
 <ScreenTitle title="Cash Forecast">
-  {#if view == 'summary'}
+  {#if view == "summary"}
     <IconTextButton
       icon={PredefinedIcons.Next}
       value="Edit"
@@ -185,7 +197,7 @@
 </ScreenTitle>
 
 <div class="gdb-page-cf-container">
-  {#if view == 'summary'}
+  {#if view == "summary"}
     <section
       in:receive|local={{ key: 123 }}
       out:send|local={{ key: 123 }}
@@ -224,7 +236,7 @@
         instructions
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
-        tabbed area
+        <TabbedEditor />
       </div>
     {/if}
   {/if}
@@ -234,15 +246,14 @@
   channelId={id}
   updateType="cashForecastUpdate"
   on:receive={({ detail }) => {
-    log('WebSocketChannel.on:receiveUpdate', detail);
+    log("WebSocketChannel.on:receiveUpdate", detail);
     // businessModelEventStore.receiveEvent(detail.gameId, detail.event);
   }}
-  on:connect={({ detail }) => log('WebSocketChannel.on:channelConnected', {
+  on:connect={({ detail }) =>
+    log("WebSocketChannel.on:channelConnected", {
       channel: detail,
     })}
-  on:disconnect={({ detail }) => log(
-      'WebSocketChannel.on:channelDisconnected',
-      {
-        channel: detail,
-      }
-    )} />
+  on:disconnect={({ detail }) =>
+    log("WebSocketChannel.on:channelDisconnected", {
+      channel: detail,
+    })} />

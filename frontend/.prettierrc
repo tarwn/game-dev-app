@@ -1,0 +1,8 @@
+{
+  "svelteSortOrder" : "scripts-styles-options-markup",
+  "svelteStrictMode": false,
+  "svelteBracketNewLine": false,
+  "svelteAllowShorthand": true,
+  "svelteIndentScriptAndStyle": true,
+  "semi": true
+}

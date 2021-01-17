@@ -182,11 +182,11 @@
     className="gdb-board-section gdb-board-keyPartners"
     label="Key Partners"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyPartners'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "keyPartners"}
     isStarted={sectionStatuses.keyPartners}
-    isSelected={selectedSection == 'keyPartners'}
+    isSelected={selectedSection == "keyPartners"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'keyPartners' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "keyPartners" })}>
     <KeyPartnersSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -194,11 +194,11 @@
     className="gdb-board-section gdb-board-keyActivities"
     label="Key Activities"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyActivities'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "keyActivities"}
     isStarted={sectionStatuses.keyActivities}
-    isSelected={selectedSection == 'keyActivities'}
+    isSelected={selectedSection == "keyActivities"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'keyActivities' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "keyActivities" })}>
     <KeyActivitiesSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -206,11 +206,11 @@
     className="gdb-board-section gdb-board-keyResources"
     label="Key Resources"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'keyResources'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "keyResources"}
     isStarted={sectionStatuses.keyResources}
-    isSelected={selectedSection == 'keyResources'}
+    isSelected={selectedSection == "keyResources"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'keyResources' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "keyResources" })}>
     <KeyResourcesSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -218,12 +218,13 @@
     className="gdb-board-section gdb-board-valueProposition"
     label="Value Proposition"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'valueProposition'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "valueProposition"}
     isStarted={sectionStatuses.valueProposition}
-    isSelected={selectedSection == 'valueProposition'}
+    isSelected={selectedSection == "valueProposition"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', {
-        section: 'valueProposition',
+    on:showMe={() =>
+      dispatch("sectionChange", {
+        section: "valueProposition",
       })}>
     <ValuePropositionSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
@@ -232,12 +233,14 @@
     className="gdb-board-section gdb-board-customerRelationships"
     label="Customer Relationships"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'customerRelationships'}
+    isNextToStart={sectionStatuses.nextNonStartedSection ==
+      "customerRelationships"}
     isStarted={sectionStatuses.customerRelationships}
-    isSelected={selectedSection == 'customerRelationships'}
+    isSelected={selectedSection == "customerRelationships"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', {
-        section: 'customerRelationships',
+    on:showMe={() =>
+      dispatch("sectionChange", {
+        section: "customerRelationships",
       })}>
     <CustomerRelationshipsSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
@@ -246,11 +249,11 @@
     className="gdb-board-section gdb-board-channels"
     label="Channels"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'channels'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "channels"}
     isStarted={sectionStatuses.channels}
-    isSelected={selectedSection == 'channels'}
+    isSelected={selectedSection == "channels"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'channels' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "channels" })}>
     <ChannelsSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -258,12 +261,12 @@
     className="gdb-board-section gdb-board-customers"
     label="Customers / Players"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'customers'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "customers"}
     isStarted={sectionStatuses.customers}
-    isSelected={selectedSection == 'customers'}
+    isSelected={selectedSection == "customers"}
     {isMiniMap}
     emptyButtonText="Start Here"
-    on:showMe={() => dispatch('sectionChange', { section: 'customers' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "customers" })}>
     <CustomersSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -271,11 +274,11 @@
     className="gdb-board-section gdb-board-costStructure"
     label="Cost Structure"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'costStructure'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "costStructure"}
     isStarted={sectionStatuses.costStructure}
-    isSelected={selectedSection == 'costStructure'}
+    isSelected={selectedSection == "costStructure"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'costStructure' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "costStructure" })}>
     <CostStructureSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 
@@ -283,11 +286,11 @@
     className="gdb-board-section gdb-board-revenue"
     label="Revenue Streams"
     {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == 'revenue'}
+    isNextToStart={sectionStatuses.nextNonStartedSection == "revenue"}
     isStarted={sectionStatuses.revenue}
-    isSelected={selectedSection == 'revenue'}
+    isSelected={selectedSection == "revenue"}
     {isMiniMap}
-    on:showMe={() => dispatch('sectionChange', { section: 'revenue' })}>
+    on:showMe={() => dispatch("sectionChange", { section: "revenue" })}>
     <RevenueSectionSummary {businessModel} />
   </BusinessModelCanvasSection>
 </div>

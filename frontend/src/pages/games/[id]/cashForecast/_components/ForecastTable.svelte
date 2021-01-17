@@ -114,9 +114,9 @@
         <th
           class:isNegative={month.lowestCash < 0}
           class:isPositive={month.lowestCash > 0}>
-          {month.month.toLocaleDateString('en-US', {
-            month: 'short',
-            year: 'numeric',
+          {month.month.toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
           })}
         </th>
       {/each}
@@ -187,9 +187,9 @@
         <th
           class:isNegative={month.lowestCash < 0}
           class:isPositive={month.lowestCash > 0}>
-          {month.month.toLocaleDateString('en-US', {
-            month: 'short',
-            year: 'numeric',
+          {month.month.toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
           })}
         </th>
       {/each}
