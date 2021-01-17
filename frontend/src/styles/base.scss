@@ -80,6 +80,10 @@ select {
   }
 }
 
+.gdb-input.gdb-input-noneditable{
+  border-color: transparent;
+}
+
 select {
   // -webkit-appearance: none;
   // -moz-appearance: none;

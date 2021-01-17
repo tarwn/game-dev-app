@@ -47,7 +47,7 @@
 
 <div class="gdb-cf-forecast-row">
   <LabeledInput label="Forecast Start Date">
-    <span class="gdb-input gdb-input-date"
+    <span class="gdb-input gdb-input-date gdb-input-noneditable"
       >{new Date().toLocaleDateString("en-US")}</span>
   </LabeledInput>
 </div>
@@ -62,7 +62,7 @@
     <td />
     <td>
       <LabeledInput label="Date" vertical={true}>
-        <span class="gdb-input gdb-input-date"
+        <span class="gdb-input gdb-input-date gdb-input-noneditable"
           >{new Date().toLocaleDateString("en-US")}</span>
       </LabeledInput>
     </td>

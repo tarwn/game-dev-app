@@ -133,7 +133,8 @@
     value={visibleValue}
     on:keydown={filterKeyDown}
     on:focusout={handleFocusOut}
-    role="textbox" />
+    role="textbox"
+    tabIndex={0} />
   <ValidationPopup {isValid}>
     <span slot="message">
       Enter a value between <b>{formattedMin}</b> - <b>{formattedMax}</b>.
