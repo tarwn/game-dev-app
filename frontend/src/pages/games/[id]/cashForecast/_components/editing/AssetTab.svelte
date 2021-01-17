@@ -1,10 +1,20 @@
 <script lang="ts">
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
+  import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
+  import NumberInput from "../../../../../../components/inputs/NumberInput.svelte";
+  import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
   import TableRowEmpty from "./TableRowEmpty.svelte";
   import TableRowIndented from "./TableRowIndented.svelte";
   import TableSubHeaderRow from "./TableSubHeaderRow.svelte";
+
+  let bankBalance = 123.45;
+  function updateBankBalance(newValue) {
+    bankBalance = newValue;
+  }
+
+  let percent = 0.123;
 </script>
 
 <style type="text/scss">
@@ -21,30 +31,6 @@
 
   .gdb-cf-forecast-row {
     padding-left: 0.1rem; // needs some indent
-  }
-
-  .gdb-input > input {
-    padding: 0;
-    border: 0;
-    outline: 0;
-  }
-
-  .gdb-faux-input {
-    display: flex;
-    font-size: $font-size-small;
-    color: $cs-grey-3;
-    width: 6rem;
-    background-color: $color-background-white;
-
-    & > input {
-      flex: 1 1;
-      min-width: 4rem;
-    }
-  }
-
-  .gdb-currency {
-    text-align: right;
-    max-width: 6rem;
   }
 
   td.gdb-faux-label,
@@ -82,9 +68,9 @@
     </td>
     <td>
       <LabeledInput label="Amount" vertical={true}>
-        <div class="gdb-input gdb-faux-input">
-          $<input type="text" placeholder="0.00" class="gdb-currency" />
-        </div>
+        <CurrencyInput
+          value={bankBalance}
+          on:change={(e) => updateBankBalance(e.detail.value)} />
       </LabeledInput>
     </td>
     <td />
@@ -112,9 +98,7 @@
     </td>
     <td>
       <LabeledInput label="Amount" vertical={true}>
-        <div class="gdb-input gdb-faux-input">
-          $<input type="text" placeholder="0.00" class="gdb-currency" />
-        </div>
+        <CurrencyInput />
       </LabeledInput>
     </td>
     <td />
@@ -135,14 +119,12 @@
     </td>
     <td>
       <LabeledInput label="Amount" vertical={true}>
-        <div class="gdb-input gdb-faux-input">
-          $<input type="text" placeholder="0.00" class="gdb-currency" />
-        </div>
+        <CurrencyInput />
       </LabeledInput>
     </td>
     <td>
       <LabeledInput label="Number of Months" vertical={true}>
-        <input type="number" placeholder="24" />
+        <NumberInput value={1} />
       </LabeledInput>
     </td>
   </TableRowIndented>
@@ -179,9 +161,7 @@
     </td>
     <td>
       <LabeledInput label="Amount" vertical={true}>
-        <div class="gdb-input gdb-faux-input">
-          $<input type="text" placeholder="0.00" class="gdb-currency" />
-        </div>
+        <CurrencyInput />
       </LabeledInput>
     </td>
     <td />
@@ -193,9 +173,7 @@
       <input type="date" placeholder="02/01/2019" />
     </td>
     <td>
-      <div class="gdb-input gdb-faux-input">
-        $<input type="text" placeholder="0.00" class="gdb-currency" />
-      </div>
+      <CurrencyInput />
     </td>
     <td />
   </TableRowIndented>
@@ -219,9 +197,7 @@
       </select>
     </td>
     <td>
-      <div class="gdb-input gdb-faux-input">
-        <input type="text" placeholder="0.0" class="gdb-currency" />%
-      </div>
+      <CurrencyInput />
     </td>
     <td>
       <select>
@@ -229,18 +205,16 @@
       </select>
     </td>
     <td>
-      <div class="gdb-input gdb-faux-input">
-        $<input type="text" placeholder="0.00" class="gdb-currency" />
-      </div>
+      <CurrencyInput />
     </td>
   </TableRowIndented>
   <TableRowIndented isRecord={true}>
     <td />
     <td class="gdb-faux-label-short"> and then </td>
     <td>
-      <div class="gdb-input gdb-faux-input">
-        <input type="text" placeholder="0.0" class="gdb-currency" />%
-      </div>
+      <PercentInput
+        value={percent}
+        on:change={(e) => (percent = e.detail.value)} />
     </td>
     <td>
       <select>

@@ -2,6 +2,7 @@
 /dist
 /reports
 junit.xml
+frontend.xml
 
 .DS_Store
 yarn-error.log

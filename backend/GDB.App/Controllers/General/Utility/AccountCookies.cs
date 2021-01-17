@@ -28,7 +28,11 @@ namespace GDB.App.Controllers.General.Utility
                 HttpOnly = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.Strict,
+#if DEBUG
+                Secure = false
+#else
                 Secure = true
+#endif
             });
         }
 
