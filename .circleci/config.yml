@@ -39,10 +39,8 @@ jobs:
             cd frontend
             yarn install
             yarn run ci:validate
-            yarn run ci:lint --output-file ./frontend.xml
+            yarn run ci:lint --output-file ~/reports/eslint.xml
             yarn run ci:test
-            ls
-            mv ./frontend.xml ~/reports/frontend.xml
 
       - run: 
           name: Front-end Build
