@@ -2,9 +2,11 @@
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
+  import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import NumberInput from "../../../../../../components/inputs/NumberInput.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
+  import TextInput from "../../../../../../components/inputs/TextInput.svelte";
   import TableRowEmpty from "./TableRowEmpty.svelte";
   import TableRowIndented from "./TableRowIndented.svelte";
   import TableSubHeaderRow from "./TableSubHeaderRow.svelte";
@@ -15,6 +17,8 @@
   }
 
   let percent = 0.123;
+
+  let forecastDate = new Date(Date.UTC(2021, 0, 1, 0, 0, 0, 0));
 </script>
 
 <style type="text/scss">
@@ -47,8 +51,7 @@
 
 <div class="gdb-cf-forecast-row">
   <LabeledInput label="Forecast Start Date">
-    <span class="gdb-input gdb-input-date gdb-input-noneditable"
-      >{new Date().toLocaleDateString("en-US")}</span>
+    <DateOutput date={forecastDate} />
   </LabeledInput>
 </div>
 <table class="gdb-cf-table">
@@ -56,14 +59,13 @@
   <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
-        <input type="text" placeholder="enter a name" />
+        <TextInput maxLength={10} />
       </LabeledInput>
     </td>
     <td />
     <td>
       <LabeledInput label="Date" vertical={true}>
-        <span class="gdb-input gdb-input-date gdb-input-noneditable"
-          >{new Date().toLocaleDateString("en-US")}</span>
+        <DateOutput date={forecastDate} />
       </LabeledInput>
     </td>
     <td>
@@ -81,7 +83,7 @@
   <TableRowIndented isRecord={true} isTop={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
-        <input type="text" placeholder="enter a name" />
+        <TextInput maxLength={40} />
       </LabeledInput>
     </td>
     <td>
@@ -144,7 +146,7 @@
   <TableRowIndented isRecord={true} isTop={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
-        <input type="text" placeholder="enter a name" />
+        <TextInput maxLength={40} />
       </LabeledInput>
     </td>
     <td>
