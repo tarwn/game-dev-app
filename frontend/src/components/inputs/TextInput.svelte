@@ -59,14 +59,15 @@
   }
 
   function handleFocusOut(e: Event) {
-    const rawValue = (e.target as HTMLInputElement).value;
+    const target = e.target as HTMLInputElement;
+    const rawValue = target.value;
     const parsedValue = parseValue(rawValue);
 
     if (!validateValue(parsedValue)) {
       e.stopPropagation();
       isValid = false;
-      refocusWithDebounce(e.target);
-      visibleValue = (e.target as HTMLInputElement).value;
+      refocusWithDebounce(target);
+      visibleValue = target.value;
       dispatch("validation", { isValid });
       return;
     }
@@ -75,7 +76,7 @@
     isValid = true;
     visibleValue = parsedValue;
     // forced update in case the underlying values haven't changed
-    e.target.value = visibleValue;
+    target.value = visibleValue;
     dispatch("validation", { isValid });
     dispatch("change", { value: parsedValue, formattedValue: visibleValue });
   }
