@@ -83,7 +83,7 @@
   }
   const unsubscribe = businessModelLocalStore.subscribe((update) => {
     businessModel = update;
-    if (isLoading) {
+    if (businessModel && isLoading) {
       isLoading = false;
     }
   });
@@ -111,195 +111,6 @@
   $: sectionStatus = getSectionStatus(businessModel);
   // current section is in displaySection
 </script>
-
-<WebSocketChannel
-  channelId={id}
-  updateType="businessModelUpdate"
-  on:receive={({ detail }) => {
-    log("WebSocketChannel.on:receiveUpdate", detail);
-    businessModelEventStore.receiveEvent(detail.gameId, detail.event);
-  }}
-  on:connect={({ detail }) =>
-    log("WebSocketChannel.on:channelConnected", {
-      channel: detail,
-    })}
-  on:disconnect={({ detail }) =>
-    log("WebSocketChannel.on:channelDisconnected", {
-      channel: detail,
-    })}
-/>
-
-<ScreenTitle title="Business Model">
-  <SaveMessage {hasUnsaved} {lastSaved} />
-  <IconTextButton
-    icon={PredefinedIcons.Expand}
-    value="Full View"
-    buttonStyle="primary-outline"
-    on:click={handleOnFullScreen}
-    disabled={isLoading || displaySectionCommit == null}
-  />
-  {#if displaySection == null}
-    <IconTextButton
-      icon={PredefinedIcons.Next}
-      value="Start"
-      buttonStyle="primary"
-      on:click={() => handleChangeSection({ detail: { section: "customers" } })}
-      disabled={isLoading}
-    />
-  {:else}
-    <IconTextButton
-      icon={PredefinedIcons.Next}
-      value="Next"
-      buttonStyle="primary"
-      on:click={() =>
-        handleChangeSection({
-          detail: { section: getNextSectionInLine(displaySection) },
-        })}
-      disabled={isLoading || businessModel.customers.list.length == 0}
-    />
-  {/if}
-</ScreenTitle>
-<div class="gdb-page-bm-container">
-  {#if displaySection == null}
-    <div
-      in:receive|local={{ key: 123 }}
-      out:send|local={{ key: 123 }}
-      class="gdb-bm-fullSize"
-      class:transitioning={displaySection != null}
-    >
-      {#each [businessModel] as b}
-        <BusinessModelCanvasLarge
-          {isLoading}
-          businessModel={b}
-          isMiniMap={false}
-          selectedSection={null}
-          sectionStatuses={sectionStatus}
-          on:sectionChange={handleChangeSection}
-        />
-      {/each}
-    </div>
-  {:else}
-    <div
-      in:receive|local={{ key: 123 }}
-      out:send|local={{ key: 123 }}
-      on:introend={handleSectionChangeCommit}
-      class="gdb-bm-minimap"
-      class:transitioning={displaySection == null}
-    >
-      {#each [businessModel] as b}
-        <BusinessModelCanvasLarge
-          businessModel={b}
-          isMiniMap={true}
-          selectedSection={displaySection}
-          sectionStatuses={sectionStatus}
-          on:sectionChange={handleChangeSection}
-        />
-      {/each}
-    </div>
-  {/if}
-  {#if !isLoading && displaySectionCommit}
-    {#if displaySection === "customers"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <CustomersSectionInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <CustomersSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("valueProposition")}
-        />
-      </div>
-    {:else if displaySection === "valueProposition"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <ValuePropositionInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <ValuePropositionSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("channels")}
-        />
-      </div>
-    {:else if displaySection === "channels"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <ChannelsInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <ChannelsSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("customerRelationships")}
-        />
-      </div>
-    {:else if displaySection === "customerRelationships"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <CustomerRelationshipsInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <CustomerRelationshipsSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("revenue")}
-        />
-      </div>
-    {:else if displaySection === "revenue"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <RevenueInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <RevenueSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("keyResources")}
-        />
-      </div>
-    {:else if displaySection === "keyResources"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <KeyResourcesInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <KeyResourcesSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("keyActivities")}
-        />
-      </div>
-    {:else if displaySection === "keyActivities"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <KeyActivitiesInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <KeyActivitiesSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("keyPartners")}
-        />
-      </div>
-    {:else if displaySection === "keyPartners"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <KeyPartnersInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <KeyPartnersSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen("costStructure")}
-        />
-      </div>
-    {:else if displaySection === "costStructure"}
-      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
-        <CostStructureInstructions />
-      </div>
-      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
-        <CostStructureSection
-          {businessModel}
-          on:clickFullscreen={handleOnFullScreen}
-          on:clickNext={() => handleOnNextScreen(null)}
-        />
-      </div>
-    {/if}
-  {/if}
-</div>
 
 <style type="text/scss">
   @import "../../../../styles/_variables.scss";
@@ -344,3 +155,175 @@
     padding: 0 0 0 $space-l;
   }
 </style>
+
+<WebSocketChannel
+  channelId={id}
+  updateType="businessModelUpdate"
+  on:receive={({ detail }) => {
+    log("WebSocketChannel.on:receiveUpdate", detail);
+    businessModelEventStore.receiveEvent(detail.gameId, detail.event);
+  }}
+  on:connect={({ detail }) =>
+    log("WebSocketChannel.on:channelConnected", {
+      channel: detail,
+    })}
+  on:disconnect={({ detail }) =>
+    log("WebSocketChannel.on:channelDisconnected", {
+      channel: detail,
+    })} />
+
+<ScreenTitle title="Business Model">
+  <SaveMessage {hasUnsaved} {lastSaved} />
+  <IconTextButton
+    icon={PredefinedIcons.Expand}
+    value="Full View"
+    buttonStyle="primary-outline"
+    on:click={handleOnFullScreen}
+    disabled={isLoading || displaySectionCommit == null} />
+  {#if displaySection == null}
+    <IconTextButton
+      icon={PredefinedIcons.Next}
+      value="Start"
+      buttonStyle="primary"
+      on:click={() => handleChangeSection({ detail: { section: "customers" } })}
+      disabled={isLoading} />
+  {:else}
+    <IconTextButton
+      icon={PredefinedIcons.Next}
+      value="Next"
+      buttonStyle="primary"
+      on:click={() =>
+        handleChangeSection({
+          detail: { section: getNextSectionInLine(displaySection) },
+        })}
+      disabled={isLoading || businessModel.customers.list.length == 0} />
+  {/if}
+</ScreenTitle>
+<div class="gdb-page-bm-container">
+  {#if displaySection == null}
+    <div
+      in:receive|local={{ key: 123 }}
+      out:send|local={{ key: 123 }}
+      class="gdb-bm-fullSize"
+      class:transitioning={displaySection != null}>
+      {#each [businessModel] as b}
+        <BusinessModelCanvasLarge
+          {isLoading}
+          businessModel={b}
+          isMiniMap={false}
+          selectedSection={null}
+          sectionStatuses={sectionStatus}
+          on:sectionChange={handleChangeSection} />
+      {/each}
+    </div>
+  {:else}
+    <div
+      in:receive|local={{ key: 123 }}
+      out:send|local={{ key: 123 }}
+      on:introend={handleSectionChangeCommit}
+      class="gdb-bm-minimap"
+      class:transitioning={displaySection == null}>
+      {#each [businessModel] as b}
+        <BusinessModelCanvasLarge
+          businessModel={b}
+          isMiniMap={true}
+          selectedSection={displaySection}
+          sectionStatuses={sectionStatus}
+          on:sectionChange={handleChangeSection} />
+      {/each}
+    </div>
+  {/if}
+  {#if !isLoading && displaySectionCommit}
+    {#if displaySection === "customers"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CustomersSectionInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CustomersSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("valueProposition")} />
+      </div>
+    {:else if displaySection === "valueProposition"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <ValuePropositionInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <ValuePropositionSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("channels")} />
+      </div>
+    {:else if displaySection === "channels"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <ChannelsInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <ChannelsSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("customerRelationships")} />
+      </div>
+    {:else if displaySection === "customerRelationships"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CustomerRelationshipsInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CustomerRelationshipsSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("revenue")} />
+      </div>
+    {:else if displaySection === "revenue"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <RevenueInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <RevenueSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("keyResources")} />
+      </div>
+    {:else if displaySection === "keyResources"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyResourcesInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyResourcesSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("keyActivities")} />
+      </div>
+    {:else if displaySection === "keyActivities"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyActivitiesInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyActivitiesSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("keyPartners")} />
+      </div>
+    {:else if displaySection === "keyPartners"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <KeyPartnersInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <KeyPartnersSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen("costStructure")} />
+      </div>
+    {:else if displaySection === "costStructure"}
+      <div class="gdb-bm-panel-instructions" in:fade={{ duration: 250 }}>
+        <CostStructureInstructions />
+      </div>
+      <div class="gdb-bm-panel-input" in:fade={{ duration: 250 }}>
+        <CostStructureSection
+          {businessModel}
+          on:clickFullscreen={handleOnFullScreen}
+          on:clickNext={() => handleOnNextScreen(null)} />
+      </div>
+    {/if}
+  {/if}
+</div>

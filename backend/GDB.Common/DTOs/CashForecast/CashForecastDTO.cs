@@ -26,7 +26,9 @@ namespace GDB.Common.DTOs.CashForecast
             ParentId = parentId;
             GlobalId = globalId;
             VersionNumber = 1;
-            BankBalance = new BankBalance(globalId, $"{globalId}:b");
+            var today = DateTime.Now;
+            ForecastStartDate = new IdentifiedPrimitive<DateTime>("globalId", $"{ globalId }:fsd", new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc), "forecastStartDate");
+            BankBalance = new BankBalance(globalId, $"{globalId}:b", ForecastStartDate.Value);
             Loans = new IdentifiedList<LoanItem>(globalId, $"{globalId}:l", "loans");
             Funding = new IdentifiedList<Funding>(globalId, $"{globalId}:f", "funding");
             Employees = new IdentifiedList<EmployeeExpense>(globalId, $"{globalId}:em", "employees");
@@ -39,6 +41,7 @@ namespace GDB.Common.DTOs.CashForecast
         public string ParentId { get; set; }
         public string? Field { get; set; }
         public int VersionNumber { get; set; }
+        public IdentifiedPrimitive<DateTime> ForecastStartDate { get; set; }
         public BankBalance BankBalance { get; set; }
         public IdentifiedList<LoanItem> Loans { get; set; }
         public IdentifiedList<Funding> Funding { get; set; }

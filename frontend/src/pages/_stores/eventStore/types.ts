@@ -44,6 +44,7 @@ export interface IEventOperation {
   value?: any;
   insert?: boolean;
   field?: string;
+  "$type": ValueType;
 }
 
 export enum OperationType {
@@ -51,6 +52,17 @@ export enum OperationType {
   Delete = 2,
   MakeList = 3,
   MakeObject = 4
+}
+
+export enum ValueType {
+  string = "string",
+  date = "date",
+  time = "time",
+  decimal = "decimal",
+  integer = "integer",
+  list = "list",
+  object = "object",
+  boolean = "boolean"
 }
 
 export interface AppliedEvent<T extends IEvent<T>> {

@@ -8,21 +8,15 @@ namespace GDB.Common.DTOs.CashForecast
         [Obsolete("serialization only", false)]
         public BankBalance() { }
 
-        public BankBalance(string parentId, string globalId)
+        public BankBalance(string parentId, string globalId, DateTime startDate)
         {
             ParentId = parentId;
             GlobalId = globalId;
             Field = "bankBalance";
             Name = new IdentifiedPrimitive<string>(GlobalId, $"{GlobalId}:0", "", "name");
-            Date = new IdentifiedPrimitive<DateTime>(GlobalId, $"{GlobalId}:1", GetStartDate(), "date");
+            Date = new IdentifiedPrimitive<DateTime>(GlobalId, $"{GlobalId}:1", startDate, "date");
             Amount = new IdentifiedPrimitive<decimal>(GlobalId, $"{GlobalId}:2", 0, "amount");
             MonthlyInterestRate = new IdentifiedPrimitive<decimal>(GlobalId, $"{GlobalId}:3", 0, "monthlyInterestRate");
-        }
-
-        private DateTime GetStartDate()
-        {
-            var now = DateTime.UtcNow;
-            return new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         }
 
         public string GlobalId { get; set; }

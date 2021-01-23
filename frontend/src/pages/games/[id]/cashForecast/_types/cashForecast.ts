@@ -6,6 +6,10 @@ export enum LoanType {
   Multiple = 3
 }
 
+export const LoanTypes: { id: LoanType, name: string }[] = Object.keys(LoanType)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: LoanType[lt], name: lt }));
+
 export enum RepaymentType {
   OneTime = 1,
   Monthly = 2,
@@ -40,6 +44,7 @@ export enum IExpenseFrequency {
 
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
+  forecastStartDate: IIdentifiedPrimitive<Date>;
   bankBalance: IBankBalance;
   loans: IIdentifiedList<ILoanItem>;
   funding: IIdentifiedList<IFundingItem>;
@@ -59,7 +64,7 @@ export interface IBankBalance extends IIdentifiedObject {
 export interface ILoanItem extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
   type: IIdentifiedPrimitive<LoanType>;
-  cashIn: IIdentifiedList<ICashIn>[];
+  cashIn: IIdentifiedList<ICashIn>;
   repaymentTerms: IRepaymentTerms | null;
 }
 

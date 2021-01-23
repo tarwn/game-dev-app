@@ -81,7 +81,9 @@
     // forced update in case the underlying values haven't changed
     e.target.value = visibleValue;
     dispatch("validation", { isValid });
-    dispatch("change", { value: parsedValue, formattedValue: visibleValue });
+    if (parsedValue != value) {
+      dispatch("change", { value: parsedValue, formattedValue: visibleValue });
+    }
   }
 
   let lastFocusTime = 0;

@@ -8,6 +8,15 @@ namespace GDB.Common.DTOs.CashForecast
         [Obsolete("serialization only", false)]
         public CashIn() { }
 
+        public CashIn(string parentId, string globalId, IdentifiedPrimitive<DateTime> cashInDate, IdentifiedPrimitive<decimal> cashInAmount)
+        {
+            ParentId = parentId;
+            GlobalId = globalId;
+            Field = null;
+            Date = cashInDate;
+            Amount = cashInAmount;
+        }
+
         public string GlobalId { get; set; }
         public string ParentId { get; set; }
         public string Field { get; set; }

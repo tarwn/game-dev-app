@@ -1,7 +1,7 @@
 import { createImmutableEventApplier } from "../pages/_stores/eventStore/eventApplier";
 import { createEventStore } from "../pages/_stores/eventStore/eventStore";
 import { primitiveEventFactory } from "../pages/_stores/eventStore/operationsFactory";
-import type { IEventApplier, IEventStateApi, IEventStore, IIdentifiedPrimitive, Versioned } from "../pages/_stores/eventStore/types";
+import { IEventApplier, IEventStateApi, IEventStore, IIdentifiedPrimitive, ValueType, Versioned } from "../pages/_stores/eventStore/types";
 
 export type TestModel = Versioned & {
   globalId: string,
@@ -55,7 +55,7 @@ export const createFakeStore = (): FakeStore => {
   const testEventStore = createEventStore(api, eventApplier);
   // create the event getters for easy binding
   const events = {
-    onChange: primitiveEventFactory.update.makeGet<TestModel>("onChange", testEventStore)
+    onChange: primitiveEventFactory.update.makeGet<TestModel>("onChange", ValueType.object, testEventStore)
   };
 
   return {

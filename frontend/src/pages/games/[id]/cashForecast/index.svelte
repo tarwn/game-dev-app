@@ -64,7 +64,7 @@
   }
   const unsubscribe = cashForecastLocalStore.subscribe((update) => {
     cashForecast = update;
-    if (isLoading) {
+    if (cashForecast && isLoading) {
       isLoading = false;
     }
   });
@@ -236,7 +236,7 @@
         instructions
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
-        <TabbedEditor />
+        <TabbedEditor {isLoading} {cashForecast} />
       </div>
     {/if}
   {/if}

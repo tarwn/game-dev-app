@@ -1,21 +1,27 @@
-import { Identified, IEvent, IEventOperation, IEventStore, IIdentifiedPrimitive, OperationType, Versioned } from "./types";
+import { Identified, IEvent, IEventOperation, IEventStore, IIdentifiedPrimitive, OperationType, ValueType, Versioned } from "./types";
 
 type IdentifiedValueUpdate<T> = Identified & { value: T };
 
 export const operations = {
-  makeObject: (parentId: string, objectId: string): IEventOperation => ({ action: OperationType.MakeObject, objectId, parentId, insert: true }),
-  makeList: (parentId: string, objectId: string, field?: string): IEventOperation => ({ action: OperationType.MakeList, objectId, parentId, field }),
-  set: (parentId: string, objectId: string, value: string | number | boolean, field?: string): IEventOperation => ({ action: OperationType.Set, objectId, parentId, field, value })
+  makeObject: (parentId: string, objectId: string): IEventOperation => ({
+    action: OperationType.MakeObject, $type: ValueType.object, objectId, parentId, insert: true
+  }),
+  makeList: (parentId: string, objectId: string, field?: string): IEventOperation => ({
+    action: OperationType.MakeList, $type: ValueType.list, objectId, parentId, field
+  }),
+  set: (parentId: string, objectId: string, valueType: ValueType, value: string | number | boolean, field?: string): IEventOperation => ({
+    action: OperationType.Set, $type: valueType, objectId, parentId, field, value
+  })
 };
 
 export const primitiveEventFactory = {
   update: {
-    makeGet: <TModel extends Versioned>(type: string, eventStore: IEventStore<TModel>) => {
+    makeGet: <TModel extends Versioned>(eventName: string, valueType: ValueType, eventStore: IEventStore<TModel>) => {
       return ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): IEvent<TModel> => {
         return eventStore.createEvent(() => ({
-          type,
+          type: eventName,
           operations: [
-            { action: OperationType.Set, objectId: globalId, parentId, value }
+            { action: OperationType.Set, $type: valueType, objectId: globalId, parentId, value }
           ]
         }));
       };

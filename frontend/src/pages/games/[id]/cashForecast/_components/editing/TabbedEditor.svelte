@@ -1,6 +1,11 @@
 <script lang="ts">
+  import type { ICashForecast } from "../../_types/cashForecast";
+
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
+
+  export let cashForecast: ICashForecast;
+  export let isLoading: boolean;
 
   let selectedTab = 1;
   const tabs = [
@@ -161,8 +166,10 @@
   </ul>
   <div role="tabpanel" class="gdb-tabpanel">
     <h3 tabindex={0}>{currentTab.text}</h3>
-    {#if selectedTab == 1}
-      <AssetTab />
+    {#if isLoading}
+      Loading...
+    {:else if selectedTab == 1}
+      <AssetTab {cashForecast} />
     {:else}
       <EmptyTab />
     {/if}

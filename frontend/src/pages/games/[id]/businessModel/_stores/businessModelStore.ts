@@ -1,22 +1,22 @@
 import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
-import { createImmutableEventApplier } from "../../../../_stores/eventStore/eventApplier";
-import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType } from "../../../../_stores/eventStore/types";
+import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType, ValueType } from "../../../../_stores/eventStore/types";
 import type { IBusinessModel } from "../_types/businessModel";
 import { api } from "./businessModelApi";
 import { operations } from "../../../../_stores/eventStore/operationsFactory";
+import { createImmutableEventApplier } from "../../../../_stores/eventStore/eventApplier";
 
 type Evt = IEvent<IBusinessModel>;
 type IdentifiedValueUpdate<T> = Identified & { value: T };
 
 const primitiveFactory = {
-  makeUpdate: <T>(type: string, getPrimitive: (IBusinessModel, Evt) => IIdentifiedPrimitive<T>) => {
+  makeUpdate: <T>(eventName: string, valueType: ValueType, getPrimitive: (IBusinessModel, Evt) => IIdentifiedPrimitive<T>) => {
     return {
       get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
         return businessModelEventStore.createEvent(() => ({
-          type,
+          type: eventName,
           operations: [
-            { action: OperationType.Set, objectId: globalId, parentId, value }
+            { action: OperationType.Set, $type: valueType, objectId: globalId, parentId, value }
           ]
         }));
       },
@@ -30,13 +30,13 @@ const primitiveFactory = {
 };
 
 const basicListFactory = {
-  makeAdd: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+  makeAdd: (eventName: string, valueType: ValueType, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
     return {
       get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
         return businessModelEventStore.createEvent((actor, seqNo) => ({
-          type,
+          type: eventName,
           operations: [
-            { action: OperationType.Set, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
+            { action: OperationType.Set, $type: valueType, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
           ]
         }));
       },
@@ -52,13 +52,13 @@ const basicListFactory = {
       }
     };
   },
-  makeUpdate: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+  makeUpdate: (eventName: string, valueType: ValueType, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
     return {
       get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
         return businessModelEventStore.createEvent(() => ({
-          type,
+          type: eventName,
           operations: [
-            { action: OperationType.Set, objectId: globalId, parentId, value }
+            { action: OperationType.Set, $type: valueType, objectId: globalId, parentId, value }
           ]
         }));
       },
@@ -74,13 +74,13 @@ const basicListFactory = {
       }
     };
   },
-  makeDelete: (type: string, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
+  makeDelete: (eventName: string, valueType: ValueType, getParent: (IBusinessModel, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
     return {
       get: ({ parentId, globalId }: Identified): Evt => {
         return businessModelEventStore.createEvent(() => ({
-          type,
+          type: eventName,
           operations: [
-            { action: OperationType.Delete, objectId: globalId, parentId }
+            { action: OperationType.Delete, $type: valueType, objectId: globalId, parentId }
           ]
         }));
       },
@@ -105,9 +105,9 @@ const businessModelEvents = {
         type: "AddNewCustomer",
         operations: [
           operations.makeObject(parentId, `${seqNo}@${actor}`),
-          operations.set(`${seqNo}@${actor}`, `${seqNo + 1}@${actor}`, "", "name"),
+          operations.set(`${seqNo}@${actor}`, `${seqNo + 1}@${actor}`, ValueType.string, "", "name"),
           operations.makeList(`${seqNo}@${actor}`, `${seqNo + 2}@${actor}`, "entries"),
-          operations.set(`${seqNo}@${actor}`, `${seqNo + 3}@${actor}`, "both", "type"),
+          operations.set(`${seqNo}@${actor}`, `${seqNo + 3}@${actor}`, ValueType.string, "both", "type"),
         ]
       }));
     },
@@ -121,8 +121,8 @@ const businessModelEvents = {
       });
     }
   },
-  "DeleteCustomer": basicListFactory.makeDelete("DeleteCustomer", (model) => model.customers),
-  "AddCustomerEntry": basicListFactory.makeAdd("AddCustomerEntry", (model, event) => {
+  "DeleteCustomer": basicListFactory.makeDelete("DeleteCustomer", ValueType.object, (model) => model.customers),
+  "AddCustomerEntry": basicListFactory.makeAdd("AddCustomerEntry", ValueType.string, (model, event) => {
     const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -130,7 +130,7 @@ const businessModelEvents = {
     }
     return model.customers.list[cIndex].entries;
   }),
-  "UpdateCustomerEntry": basicListFactory.makeUpdate("UpdateCustomerEntry", (model, event) => {
+  "UpdateCustomerEntry": basicListFactory.makeUpdate("UpdateCustomerEntry", ValueType.string, (model, event) => {
     const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -138,7 +138,7 @@ const businessModelEvents = {
     }
     return model.customers.list[cIndex].entries;
   }),
-  "DeleteCustomerEntry": basicListFactory.makeDelete("DeleteCustomerEntry", (model, event) => {
+  "DeleteCustomerEntry": basicListFactory.makeDelete("DeleteCustomerEntry", ValueType.string, (model, event) => {
     const cIndex = model.customers.list.findIndex(c => c.entries.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -146,7 +146,7 @@ const businessModelEvents = {
     }
     return model.customers.list[cIndex].entries;
   }),
-  "UpdateCustomerType": primitiveFactory.makeUpdate("UpdateCustomerType", (model, event) => {
+  "UpdateCustomerType": primitiveFactory.makeUpdate("UpdateCustomerType", ValueType.string, (model, event) => {
     const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -154,7 +154,7 @@ const businessModelEvents = {
     }
     return model.customers.list[cIndex].type;
   }),
-  "UpdateCustomerName": primitiveFactory.makeUpdate("UpdateCustomerName", (model, event) => {
+  "UpdateCustomerName": primitiveFactory.makeUpdate("UpdateCustomerName", ValueType.string, (model, event) => {
     const cIndex = model.customers.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -162,50 +162,50 @@ const businessModelEvents = {
     }
     return model.customers.list[cIndex].name;
   }),
-  "AddValuePropEntry": basicListFactory.makeAdd("AddValuePropEntry", (model) => model.valueProposition.entries),
-  "UpdateValuePropEntry": basicListFactory.makeUpdate("UpdateValuePropEntry", (model) => model.valueProposition.entries),
-  "DeleteValuePropEntry": basicListFactory.makeDelete("DeleteValuePropEntry", (model) => model.valueProposition.entries),
-  "AddValuePropGenre": basicListFactory.makeAdd("AddValuePropGenre", (model) => model.valueProposition.genres),
-  "DeleteValuePropGenre": basicListFactory.makeDelete("DeleteValuePropGenre", (model) => model.valueProposition.genres),
-  "AddValuePropPlatform": basicListFactory.makeAdd("AddValuePropPlatform", (model) => model.valueProposition.platforms),
-  "DeleteValuePropPlatform": basicListFactory.makeDelete("DeleteValuePropPlatform", (model) => model.valueProposition.platforms),
-  "AddChannelsAwarenessEntry": basicListFactory.makeAdd("AddChannelsAwarenessEntry", (model) => model.channels.awareness),
-  "UpdateChannelsAwarenessEntry": basicListFactory.makeUpdate("UpdateChannelsAwarenessEntry", (model) => model.channels.awareness),
-  "DeleteChannelsAwarenessEntry": basicListFactory.makeDelete("DeleteChannelsAwarenessEntry", (model) => model.channels.awareness),
-  "AddChannelsConsiderationEntry": basicListFactory.makeAdd("AddChannelsConsiderationEntry", (model) => model.channels.consideration),
-  "UpdateChannelsConsiderationEntry": basicListFactory.makeUpdate("UpdateChannelsConsiderationEntry", (model) => model.channels.consideration),
-  "DeleteChannelsConsiderationEntry": basicListFactory.makeDelete("DeleteChannelsConsiderationEntry", (model) => model.channels.consideration),
-  "AddChannelsPurchaseEntry": basicListFactory.makeAdd("AddChannelsPurchaseEntry", (model) => model.channels.purchase),
-  "UpdateChannelsPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPurchaseEntry", (model) => model.channels.purchase),
-  "DeleteChannelsPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPurchaseEntry", (model) => model.channels.purchase),
-  "AddChannelsPostPurchaseEntry": basicListFactory.makeAdd("AddChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
-  "UpdateChannelsPostPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
-  "DeleteChannelsPostPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPostPurchaseEntry", (model) => model.channels.postPurchase),
-  "AddCustomerRelationshipsEntry": basicListFactory.makeAdd("AddCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
-  "UpdateCustomerRelationshipsEntry": basicListFactory.makeUpdate("UpdateCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
-  "DeleteCustomerRelationshipsEntry": basicListFactory.makeDelete("DeleteCustomerRelationshipsEntry", (model) => model.customerRelationships.entries),
-  "AddKeyResourcesEntry": basicListFactory.makeAdd("AddKeyResourcesEntry", (model) => model.keyResources.entries),
-  "UpdateKeyResourcesEntry": basicListFactory.makeUpdate("UpdateKeyResourcesEntry", (model) => model.keyResources.entries),
-  "DeleteKeyResourcesEntry": basicListFactory.makeDelete("DeleteKeyResourcesEntry", (model) => model.keyResources.entries),
-  "AddRevenueEntry": basicListFactory.makeAdd("AddRevenueEntry", (model) => model.revenue.entries),
-  "UpdateRevenueEntry": basicListFactory.makeUpdate("UpdateRevenueEntry", (model) => model.revenue.entries),
-  "DeleteRevenueEntry": basicListFactory.makeDelete("DeleteRevenueEntry", (model) => model.revenue.entries),
-  "AddKeyActivitiesEntry": basicListFactory.makeAdd("AddKeyActivitiesEntry", (model) => model.keyActivities.entries),
-  "UpdateKeyActivitiesEntry": basicListFactory.makeUpdate("UpdateKeyActivitiesEntry", (model) => model.keyActivities.entries),
-  "DeleteKeyActivitiesEntry": basicListFactory.makeDelete("DeleteKeyActivitiesEntry", (model) => model.keyActivities.entries),
-  "AddKeyPartnersEntry": basicListFactory.makeAdd("AddKeyPartnersEntry", (model) => model.keyPartners.entries),
-  "UpdateKeyPartnersEntry": basicListFactory.makeUpdate("UpdateKeyPartnersEntry", (model) => model.keyPartners.entries),
-  "DeleteKeyPartnersEntry": basicListFactory.makeDelete("DeleteKeyPartnersEntry", (model) => model.keyPartners.entries),
+  "AddValuePropEntry": basicListFactory.makeAdd("AddValuePropEntry", ValueType.string, (model) => model.valueProposition.entries),
+  "UpdateValuePropEntry": basicListFactory.makeUpdate("UpdateValuePropEntry", ValueType.string, (model) => model.valueProposition.entries),
+  "DeleteValuePropEntry": basicListFactory.makeDelete("DeleteValuePropEntry", ValueType.string, (model) => model.valueProposition.entries),
+  "AddValuePropGenre": basicListFactory.makeAdd("AddValuePropGenre", ValueType.string, (model) => model.valueProposition.genres),
+  "DeleteValuePropGenre": basicListFactory.makeDelete("DeleteValuePropGenre", ValueType.string, (model) => model.valueProposition.genres),
+  "AddValuePropPlatform": basicListFactory.makeAdd("AddValuePropPlatform", ValueType.string, (model) => model.valueProposition.platforms),
+  "DeleteValuePropPlatform": basicListFactory.makeDelete("DeleteValuePropPlatform", ValueType.string, (model) => model.valueProposition.platforms),
+  "AddChannelsAwarenessEntry": basicListFactory.makeAdd("AddChannelsAwarenessEntry", ValueType.string, (model) => model.channels.awareness),
+  "UpdateChannelsAwarenessEntry": basicListFactory.makeUpdate("UpdateChannelsAwarenessEntry", ValueType.string, (model) => model.channels.awareness),
+  "DeleteChannelsAwarenessEntry": basicListFactory.makeDelete("DeleteChannelsAwarenessEntry", ValueType.string, (model) => model.channels.awareness),
+  "AddChannelsConsiderationEntry": basicListFactory.makeAdd("AddChannelsConsiderationEntry", ValueType.string, (model) => model.channels.consideration),
+  "UpdateChannelsConsiderationEntry": basicListFactory.makeUpdate("UpdateChannelsConsiderationEntry", ValueType.string, (model) => model.channels.consideration),
+  "DeleteChannelsConsiderationEntry": basicListFactory.makeDelete("DeleteChannelsConsiderationEntry", ValueType.string, (model) => model.channels.consideration),
+  "AddChannelsPurchaseEntry": basicListFactory.makeAdd("AddChannelsPurchaseEntry", ValueType.string, (model) => model.channels.purchase),
+  "UpdateChannelsPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPurchaseEntry", ValueType.string, (model) => model.channels.purchase),
+  "DeleteChannelsPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPurchaseEntry", ValueType.string, (model) => model.channels.purchase),
+  "AddChannelsPostPurchaseEntry": basicListFactory.makeAdd("AddChannelsPostPurchaseEntry", ValueType.string, (model) => model.channels.postPurchase),
+  "UpdateChannelsPostPurchaseEntry": basicListFactory.makeUpdate("UpdateChannelsPostPurchaseEntry", ValueType.string, (model) => model.channels.postPurchase),
+  "DeleteChannelsPostPurchaseEntry": basicListFactory.makeDelete("DeleteChannelsPostPurchaseEntry", ValueType.string, (model) => model.channels.postPurchase),
+  "AddCustomerRelationshipsEntry": basicListFactory.makeAdd("AddCustomerRelationshipsEntry", ValueType.string, (model) => model.customerRelationships.entries),
+  "UpdateCustomerRelationshipsEntry": basicListFactory.makeUpdate("UpdateCustomerRelationshipsEntry", ValueType.string, (model) => model.customerRelationships.entries),
+  "DeleteCustomerRelationshipsEntry": basicListFactory.makeDelete("DeleteCustomerRelationshipsEntry", ValueType.string, (model) => model.customerRelationships.entries),
+  "AddKeyResourcesEntry": basicListFactory.makeAdd("AddKeyResourcesEntry", ValueType.string, (model) => model.keyResources.entries),
+  "UpdateKeyResourcesEntry": basicListFactory.makeUpdate("UpdateKeyResourcesEntry", ValueType.string, (model) => model.keyResources.entries),
+  "DeleteKeyResourcesEntry": basicListFactory.makeDelete("DeleteKeyResourcesEntry", ValueType.string, (model) => model.keyResources.entries),
+  "AddRevenueEntry": basicListFactory.makeAdd("AddRevenueEntry", ValueType.string, (model) => model.revenue.entries),
+  "UpdateRevenueEntry": basicListFactory.makeUpdate("UpdateRevenueEntry", ValueType.string, (model) => model.revenue.entries),
+  "DeleteRevenueEntry": basicListFactory.makeDelete("DeleteRevenueEntry", ValueType.string, (model) => model.revenue.entries),
+  "AddKeyActivitiesEntry": basicListFactory.makeAdd("AddKeyActivitiesEntry", ValueType.string, (model) => model.keyActivities.entries),
+  "UpdateKeyActivitiesEntry": basicListFactory.makeUpdate("UpdateKeyActivitiesEntry", ValueType.string, (model) => model.keyActivities.entries),
+  "DeleteKeyActivitiesEntry": basicListFactory.makeDelete("DeleteKeyActivitiesEntry", ValueType.string, (model) => model.keyActivities.entries),
+  "AddKeyPartnersEntry": basicListFactory.makeAdd("AddKeyPartnersEntry", ValueType.string, (model) => model.keyPartners.entries),
+  "UpdateKeyPartnersEntry": basicListFactory.makeUpdate("UpdateKeyPartnersEntry", ValueType.string, (model) => model.keyPartners.entries),
+  "DeleteKeyPartnersEntry": basicListFactory.makeDelete("DeleteKeyPartnersEntry", ValueType.string, (model) => model.keyPartners.entries),
   "AddCost": {
     get: ({ parentId }: { parentId: string }): Evt => {
       return businessModelEventStore.createEvent((actor, seqNo) => ({
         type: "AddCost",
         operations: [
-          { action: OperationType.MakeObject, objectId: `${seqNo}@${actor}`, parentId, insert: true },
-          { action: OperationType.Set, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "other" },
-          { action: OperationType.Set, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "summary", value: "" },
-          { action: OperationType.Set, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPreLaunch", value: true },
-          { action: OperationType.Set, objectId: `${seqNo + 4}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPostLaunch", value: true },
+          { action: OperationType.MakeObject, $type: ValueType.object, objectId: `${seqNo}@${actor}`, parentId, insert: true },
+          { action: OperationType.Set, $type: ValueType.integer, objectId: `${seqNo + 1}@${actor}`, parentId: `${seqNo}@${actor}`, field: "type", value: "other" },
+          { action: OperationType.Set, $type: ValueType.string, objectId: `${seqNo + 2}@${actor}`, parentId: `${seqNo}@${actor}`, field: "summary", value: "" },
+          { action: OperationType.Set, $type: ValueType.boolean, objectId: `${seqNo + 3}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPreLaunch", value: true },
+          { action: OperationType.Set, $type: ValueType.boolean, objectId: `${seqNo + 4}@${actor}`, parentId: `${seqNo}@${actor}`, field: "isPostLaunch", value: true },
         ]
       }));
     },
@@ -220,8 +220,8 @@ const businessModelEvents = {
       });
     }
   },
-  "DeleteCost": basicListFactory.makeDelete("DeleteCost", (model) => model.costStructure),
-  "UpdateCostType": primitiveFactory.makeUpdate("UpdateCostType", (model, event) => {
+  "DeleteCost": basicListFactory.makeDelete("DeleteCost", ValueType.string, (model) => model.costStructure),
+  "UpdateCostType": primitiveFactory.makeUpdate("UpdateCostType", ValueType.integer, (model, event) => {
     const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -229,7 +229,7 @@ const businessModelEvents = {
     }
     return model.costStructure.list[cIndex].type;
   }),
-  "UpdateCostSummary": primitiveFactory.makeUpdate("UpdateCostSummary", (model, event) => {
+  "UpdateCostSummary": primitiveFactory.makeUpdate("UpdateCostSummary", ValueType.string, (model, event) => {
     const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -237,7 +237,7 @@ const businessModelEvents = {
     }
     return model.costStructure.list[cIndex].summary;
   }),
-  "UpdateCostIsPreLaunch": primitiveFactory.makeUpdate("UpdateCostIsPreLaunch", (model, event) => {
+  "UpdateCostIsPreLaunch": primitiveFactory.makeUpdate("UpdateCostIsPreLaunch", ValueType.boolean, (model, event) => {
     const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event
@@ -245,7 +245,7 @@ const businessModelEvents = {
     }
     return model.costStructure.list[cIndex].isPreLaunch;
   }),
-  "UpdateCostIsPostLaunch": primitiveFactory.makeUpdate("UpdateCostIsPostLaunch", (model, event) => {
+  "UpdateCostIsPostLaunch": primitiveFactory.makeUpdate("UpdateCostIsPostLaunch", ValueType.boolean, (model, event) => {
     const cIndex = model.costStructure.list.findIndex(c => c.globalId == event.operations[0].parentId);
     if (cIndex == -1) {
       // conflict/out of order event

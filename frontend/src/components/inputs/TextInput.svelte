@@ -41,6 +41,7 @@
   }
   $: {
     console.log("visible value changed: " + visibleValue);
+    console.log({ value, internalValue, visibleValue });
   }
 
   function filterKeyDown(e: KeyboardEvent) {
@@ -78,7 +79,9 @@
     // forced update in case the underlying values haven't changed
     target.value = visibleValue;
     dispatch("validation", { isValid });
-    dispatch("change", { value: parsedValue, formattedValue: visibleValue });
+    if (parsedValue != value) {
+      dispatch("change", { value: parsedValue, formattedValue: visibleValue });
+    }
   }
 
   let lastFocusTime = 0;
@@ -102,8 +105,6 @@
   }
 
   .gdb-faux-input > input {
-    text-align: right;
-    // max-width: 6rem;
     flex: 1 1;
     padding: 0;
     border: 0;

@@ -35,12 +35,28 @@
   @import "../../../../../styles/mixins/_loadingPulse.scss";
   @import "../../../../../styles/mixins/_scrollbar.scss";
 
-  // Board
-  .gdb-board {
-    border: 3px solid $cs-grey-4;
+  .gdb-businessModelSection {
+    border-radius: 4px;
+    // margin: $space-s 0;
+    background: $color-background-white;
+    box-shadow: $shadow-main;
+    padding: 1em;
 
     &.isMiniMap {
+      padding: 0.25em;
+      max-width: 366px;
+    }
+  }
+
+  // Board
+  $borderColor: $cs-grey-1;
+  $borderColorLight: $cs-grey-0;
+  $borderColorHighlight: $cs-blue-1;
+  .gdb-board {
+    border: 3px solid $borderColor;
+    &.isMiniMap {
       border-width: 1px;
+      margin: 0.5em auto;
       // transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       & > .gdb-board-section {
@@ -60,7 +76,7 @@
 
   // Section
   .gdb-board-section {
-    border: 3px solid $cs-grey-4;
+    border: 3px solid $borderColor;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -123,7 +139,7 @@
   // Highlighting + Interaction
   .gdb-board {
     &.isHover {
-      border-color: $cs-grey-1;
+      border-color: $borderColorLight;
       transition: border 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     &.isHover > .gdb-board-section {
@@ -131,14 +147,14 @@
       transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     &.isHover > .gdb-board-section.sectionIsStarted {
-      border: 6px solid $cs-grey-4;
+      border: 6px solid $borderColor;
       margin: -3px;
       opacity: 1;
       z-index: 9;
     }
     &.isHover > .gdb-board-section.sectionIsNext {
       //border: 6px solid $color-accent-1;
-      border: 6px solid $cs-grey-4;
+      border: 6px solid $borderColorHighlight;
       margin: -3px;
       opacity: 1;
       z-index: 10;
@@ -171,126 +187,129 @@
   }
 </style>
 
-<div
-  class="gdb-board"
-  class:isHover={!isMiniMap && isHovered}
-  class:isMiniMap
-  class:isCurrentSelection={isMiniMap && selectedSection}
-  on:mouseenter={onMouseEnter}
-  on:mouseleave={onMouseLeave}>
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-keyPartners"
-    label="Key Partners"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "keyPartners"}
-    isStarted={sectionStatuses.keyPartners}
-    isSelected={selectedSection == "keyPartners"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "keyPartners" })}>
-    <KeyPartnersSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+<section class="gdb-businessModelSection" class:isMiniMap>
+  <div
+    class="gdb-board"
+    class:isHover={!isMiniMap && isHovered}
+    class:isMiniMap
+    class:isCurrentSelection={isMiniMap && selectedSection}
+    on:mouseenter={onMouseEnter}
+    on:mouseleave={onMouseLeave}>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-keyPartners"
+      label="Key Partners"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "keyPartners"}
+      isStarted={sectionStatuses.keyPartners}
+      isSelected={selectedSection == "keyPartners"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "keyPartners" })}>
+      <KeyPartnersSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-keyActivities"
-    label="Key Activities"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "keyActivities"}
-    isStarted={sectionStatuses.keyActivities}
-    isSelected={selectedSection == "keyActivities"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "keyActivities" })}>
-    <KeyActivitiesSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-keyActivities"
+      label="Key Activities"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "keyActivities"}
+      isStarted={sectionStatuses.keyActivities}
+      isSelected={selectedSection == "keyActivities"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "keyActivities" })}>
+      <KeyActivitiesSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-keyResources"
-    label="Key Resources"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "keyResources"}
-    isStarted={sectionStatuses.keyResources}
-    isSelected={selectedSection == "keyResources"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "keyResources" })}>
-    <KeyResourcesSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-keyResources"
+      label="Key Resources"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "keyResources"}
+      isStarted={sectionStatuses.keyResources}
+      isSelected={selectedSection == "keyResources"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "keyResources" })}>
+      <KeyResourcesSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-valueProposition"
-    label="Value Proposition"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "valueProposition"}
-    isStarted={sectionStatuses.valueProposition}
-    isSelected={selectedSection == "valueProposition"}
-    {isMiniMap}
-    on:showMe={() =>
-      dispatch("sectionChange", {
-        section: "valueProposition",
-      })}>
-    <ValuePropositionSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-valueProposition"
+      label="Value Proposition"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection ==
+        "valueProposition"}
+      isStarted={sectionStatuses.valueProposition}
+      isSelected={selectedSection == "valueProposition"}
+      {isMiniMap}
+      on:showMe={() =>
+        dispatch("sectionChange", {
+          section: "valueProposition",
+        })}>
+      <ValuePropositionSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-customerRelationships"
-    label="Customer Relationships"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection ==
-      "customerRelationships"}
-    isStarted={sectionStatuses.customerRelationships}
-    isSelected={selectedSection == "customerRelationships"}
-    {isMiniMap}
-    on:showMe={() =>
-      dispatch("sectionChange", {
-        section: "customerRelationships",
-      })}>
-    <CustomerRelationshipsSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-customerRelationships"
+      label="Customer Relationships"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection ==
+        "customerRelationships"}
+      isStarted={sectionStatuses.customerRelationships}
+      isSelected={selectedSection == "customerRelationships"}
+      {isMiniMap}
+      on:showMe={() =>
+        dispatch("sectionChange", {
+          section: "customerRelationships",
+        })}>
+      <CustomerRelationshipsSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-channels"
-    label="Channels"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "channels"}
-    isStarted={sectionStatuses.channels}
-    isSelected={selectedSection == "channels"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "channels" })}>
-    <ChannelsSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-channels"
+      label="Channels"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "channels"}
+      isStarted={sectionStatuses.channels}
+      isSelected={selectedSection == "channels"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "channels" })}>
+      <ChannelsSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-customers"
-    label="Customers / Players"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "customers"}
-    isStarted={sectionStatuses.customers}
-    isSelected={selectedSection == "customers"}
-    {isMiniMap}
-    emptyButtonText="Start Here"
-    on:showMe={() => dispatch("sectionChange", { section: "customers" })}>
-    <CustomersSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-customers"
+      label="Customers / Players"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "customers"}
+      isStarted={sectionStatuses.customers}
+      isSelected={selectedSection == "customers"}
+      {isMiniMap}
+      emptyButtonText="Start Here"
+      on:showMe={() => dispatch("sectionChange", { section: "customers" })}>
+      <CustomersSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-costStructure"
-    label="Cost Structure"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "costStructure"}
-    isStarted={sectionStatuses.costStructure}
-    isSelected={selectedSection == "costStructure"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "costStructure" })}>
-    <CostStructureSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-costStructure"
+      label="Cost Structure"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "costStructure"}
+      isStarted={sectionStatuses.costStructure}
+      isSelected={selectedSection == "costStructure"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "costStructure" })}>
+      <CostStructureSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
 
-  <BusinessModelCanvasSection
-    className="gdb-board-section gdb-board-revenue"
-    label="Revenue Streams"
-    {isLoading}
-    isNextToStart={sectionStatuses.nextNonStartedSection == "revenue"}
-    isStarted={sectionStatuses.revenue}
-    isSelected={selectedSection == "revenue"}
-    {isMiniMap}
-    on:showMe={() => dispatch("sectionChange", { section: "revenue" })}>
-    <RevenueSectionSummary {businessModel} />
-  </BusinessModelCanvasSection>
-</div>
+    <BusinessModelCanvasSection
+      className="gdb-board-section gdb-board-revenue"
+      label="Revenue Streams"
+      {isLoading}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "revenue"}
+      isStarted={sectionStatuses.revenue}
+      isSelected={selectedSection == "revenue"}
+      {isMiniMap}
+      on:showMe={() => dispatch("sectionChange", { section: "revenue" })}>
+      <RevenueSectionSummary {businessModel} />
+    </BusinessModelCanvasSection>
+  </div>
+</section>

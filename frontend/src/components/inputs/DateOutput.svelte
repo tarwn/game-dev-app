@@ -1,6 +1,8 @@
 <script lang="ts">
   export let date: Date;
-
+  $: {
+    console.log({ date });
+  }
   $: formattedDate = date.toLocaleDateString("en-US", {
     timeZone: "UTC",
     year: "numeric",

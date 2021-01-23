@@ -256,14 +256,14 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                             GlobalId = change.Operations[3].ObjectId,
                             ParentId = change.Operations[3].ParentId,
                             Field = change.Operations[3].Field,
-                            Value = ToBoolean(change.Operations[3].Value)
+                            Value = this.ToBoolean(change.Operations[3].Value)
                         },
                         IsPostLaunch = new IdentifiedPrimitive<bool>()
                         {
                             GlobalId = change.Operations[4].ObjectId,
                             ParentId = change.Operations[4].ParentId,
                             Field = change.Operations[4].Field,
-                            Value = ToBoolean(change.Operations[4].Value)
+                            Value = this.ToBoolean(change.Operations[4].Value)
                         },
                     });
                     break;
@@ -297,7 +297,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
                         {
-                            cost.IsPreLaunch.Value = ToBoolean(change.Operations[0].Value);
+                            cost.IsPreLaunch.Value = this.ToBoolean(change.Operations[0].Value);
                         }
                     }
                     break;
@@ -307,7 +307,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
                         var cost = model.CostStructure.List.SingleOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
                         if (cost != null)
                         {
-                            cost.IsPostLaunch.Value = ToBoolean(change.Operations[0].Value);
+                            cost.IsPostLaunch.Value = this.ToBoolean(change.Operations[0].Value);
                         }
                     }
                     break;
@@ -363,22 +363,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             }
         }
 
-        private static bool ToBoolean(object input)
-        {
-            if (input is JsonElement)
-            {
-                var asJson = (JsonElement)input;
-                if (asJson.ValueKind == JsonValueKind.False)
-                {
-                    return false;
-                }
-                if (asJson.ValueKind == JsonValueKind.True)
-                {
-                    return true;
-                }
-            }
-            return Convert.ToBoolean(input.ToString());
-        }
+        
 
     }
 }
