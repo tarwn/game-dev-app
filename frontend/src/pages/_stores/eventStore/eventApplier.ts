@@ -22,7 +22,7 @@ export function createImmutableEventApplier<T extends Versioned>(eventHandlers: 
   };
 }
 
-export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEventApplier<T> {
+export function createImmutableAutomaticEventApplier<T extends Versioned & Identified>(): IEventApplier<T> {
   return {
     apply: (model: T, event: IEvent<T>) => {
       // log(`Apply(${event.type}):Before`, { event, model });
@@ -44,7 +44,6 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
           // 2. insert prop to object
           // 3. insert prop to list
           else if (o.action == OperationType.Set && o.insert) {
-            console.log({ o, draftState });
             const parentToInsertProp = searchParent(draftState, o.parentId);
             if (!parentToInsertProp)
               return; // parent doesn't exist anymore
@@ -203,7 +202,7 @@ function parseValue(value: any, valueType: ValueType) {
     case ValueType.object:
       return value as Record<string, unknown>;
     case ValueType.string:
-      return value.toString();
+      return value?.toString();
   }
   return value;
 }
@@ -213,7 +212,7 @@ function isIdentifiedArray(obj: any) {
 }
 
 function isIdentifiedPrimitive(obj: any) {
-  return obj.value;
+  return obj.value !== undefined;
 }
 
 function isObject(obj: any) {

@@ -53,7 +53,6 @@
       const button = document.getElementsByClassName("gdb-tab")[
         newIndex
       ] as HTMLButtonElement;
-      console.log(button);
       button?.focus();
     }
   }

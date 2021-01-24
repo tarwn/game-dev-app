@@ -1,8 +1,6 @@
 <script lang="ts">
   import { sampleData } from "../_sampleData";
 
-  console.log(sampleData);
-
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

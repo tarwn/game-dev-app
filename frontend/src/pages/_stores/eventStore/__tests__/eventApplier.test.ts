@@ -620,6 +620,20 @@ describe("event mechanics", () => {
           expect(applied["newThing"].stuff1.globalId).not.toBe(applied["newThing"].stuff4.globalId);
         });
 
+        it("makes passed args available to later ops", () => {
+          const date = new Date();
+          const events = {
+            addObj: eventFactory.createObjectInsert<{ date: Date }>("unittest", "newThing", [
+              (ids, nextId, args) => ({ action: OperationType.Set, parentId: ids[0], objectId: nextId, value: args.date, $type: ValueType.date, field: "stuff1", insert: true })
+            ])
+          };
+          const event = events.addObj(model.globalId, { date });
+          const applied = eventApplier.apply(model, event);
+          expect(applied["newThing"]).not.toBeUndefined();
+          expect(model["newThing"]).toBeUndefined();
+          expect(applied["newThing"].stuff1.value).toEqual(date);
+        });
+
         it("creates a multi-nested object correctly", () => {
           const events = {
             addObj: eventFactory.createObjectInsert("unittest", "newThing", [

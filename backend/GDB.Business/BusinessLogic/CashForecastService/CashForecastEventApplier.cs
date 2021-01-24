@@ -93,7 +93,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
-                        if (loan != null && loan.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (loan != null && loan.Type.GlobalId == change.Operations[0].ObjectId)
                         {
                             loan.Type.Value = this.ToEnum<LoanType>(change.Operations[0].Value);
                         }
@@ -102,7 +102,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                 case "SetLoanCashInDate":
                     this.EnsureOperationCount(change, 1);
                     {
-                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.GlobalId == change.Operations[0].ParentId);
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
                         if (loan != null)
                         {
                             var cashIn = loan.CashIn.List.FirstOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
@@ -116,7 +116,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                 case "SetLoanCashInAmount":
                     this.EnsureOperationCount(change, 1);
                     {
-                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.GlobalId == change.Operations[0].ParentId);
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
                         if (loan != null)
                         {
                             var cashIn = loan.CashIn.List.FirstOrDefault(c => c.GlobalId == change.Operations[0].ParentId);

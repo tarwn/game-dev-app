@@ -1,12 +1,15 @@
 <script lang="ts">
+  import { getDataDetail } from "@microsoft/signalr/dist/esm/Utils";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
+  import DateInput from "../../../../../../components/inputs/DateInput.svelte";
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import NumberInput from "../../../../../../components/inputs/NumberInput.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
   import TextInput from "../../../../../../components/inputs/TextInput.svelte";
+  import ValuePropositionSectionSummary from "../../../businessModel/_components/sections/ValuePropositionSectionSummary.svelte";
   import {
     cashForecastEventStore,
     events,
@@ -23,39 +26,36 @@
   const forecastDate = cashForecast.forecastStartDate.value;
 
   function updateBankBalanceName(value: string) {
-    const { parentId, globalId } = cashForecast.bankBalance.name;
-    publish(events.SetBankBalanceName({ parentId, globalId, value }));
+    publish(events.SetBankBalanceName(cashForecast.bankBalance.name, value));
   }
 
   function updateBankBalanceAmount(value: number) {
-    const { parentId, globalId } = cashForecast.bankBalance.amount;
-    publish(events.SetBankBalanceAmount({ parentId, globalId, value }));
+    publish(
+      events.SetBankBalanceAmount(cashForecast.bankBalance.amount, value)
+    );
   }
 
   function addLoan() {
-    const { globalId } = cashForecast.loans;
-    publish(events.AddLoan({ parentId: globalId, date: forecastDate }));
+    publish(
+      events.AddLoan(cashForecast.loans.globalId, { date: forecastDate })
+    );
   }
 
   function updateLoanName(parentId: string, globalId: string, value: string) {
-    publish(events.SetLoanName({ parentId, globalId, value }));
+    publish(events.SetLoanName({ parentId, globalId }, value));
   }
 
   function updateLoanType(parentId: string, globalId: string, e: any) {
     const value = parseInt(e.target.value) as LoanType;
-    publish(events.SetLoanType({ parentId, globalId, value }));
+    publish(events.SetLoanType({ parentId, globalId }, value));
   }
 
-  function updateLoanCashInDate(parentId: string, globalId: string, e: any) {
-    const selection = new Date(e.target.value);
-    const value = new Date(
-      Date.UTC(
-        selection.getFullYear(),
-        selection.getMonth(),
-        selection.getDay()
-      )
-    );
-    publish(events.SetLoanCashInDate({ parentId, globalId, value }));
+  function updateLoanCashInDate(
+    parentId: string,
+    globalId: string,
+    value: Date
+  ) {
+    publish(events.SetLoanCashInDate({ parentId, globalId }, value));
   }
 
   function updateLoanCashInAmount(
@@ -63,7 +63,7 @@
     globalId: string,
     value: number
   ) {
-    publish(events.SetLoanCashInAmount({ parentId, globalId, value }));
+    publish(events.SetLoanCashInAmount({ parentId, globalId }, value));
   }
 
   // temp values
@@ -153,7 +153,7 @@
           <select
             value={loan.type.value}
             on:change={(e) =>
-              updateLoanType(loan.name.parentId, loan.name.globalId, e)}>
+              updateLoanType(loan.type.parentId, loan.type.globalId, e)}>
             {#each LoanTypes as loanType}
               <option value={loanType.id}>{loanType.name}</option>
             {/each}
@@ -162,15 +162,13 @@
       </td>
       <td>
         <LabeledInput label="Date" vertical={true}>
-          <input
-            type="date"
-            placeholder={forecastDate.toLocaleDateString({ timezone: "UTC" })}
-            value={loan.cashIn.list[0].date.value.getTime()}
-            on:change={(e) =>
+          <DateInput
+            value={loan.cashIn.list[0].date.value}
+            on:change={({ detail }) =>
               updateLoanCashInDate(
                 loan.cashIn.list[0].date.parentId,
                 loan.cashIn.list[0].date.globalId,
-                e
+                detail.value
               )} />
         </LabeledInput>
       </td>
