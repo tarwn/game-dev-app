@@ -44,6 +44,7 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
           // 2. insert prop to object
           // 3. insert prop to list
           else if (o.action == OperationType.Set && o.insert) {
+            console.log({ o, draftState });
             const parentToInsertProp = searchParent(draftState, o.parentId);
             if (!parentToInsertProp)
               return; // parent doesn't exist anymore
@@ -56,6 +57,7 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
               const alreadyInsertedIntoArray = parentToInsertProp.list.find(l => l.globalId === o.objectId);
               if (alreadyInsertedIntoArray) {
                 // ??
+                // TODO - actual conflict resolution - ensure greater actor/seqNo wins
                 return;
               }
               else {
@@ -73,6 +75,7 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
                 }
                 else {
                   // conflict - can't insert field, someone already did (different id)
+                  // TODO - actual conflict resolution - ensure greater actor/seqNo wins
                 }
                 return;
               }
@@ -125,6 +128,7 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
 
             if (parentToAddListTo[o.field]) {
               // do nothing, it's already there
+              // TODO - actual conflict resolution - ensure greater actor/seqNo wins
               return;
             }
             else {
@@ -132,6 +136,47 @@ export function createImmutableAutomaticEventApplier<T extends Versioned>(): IEv
             }
           }
           // 9. create object on object
+          else if (o.action === OperationType.MakeObject) {
+            const parentToAddListTo = searchParent(draftState, o.parentId);
+            if (!parentToAddListTo)
+              return;
+
+            if (isIdentifiedPrimitive(parentToAddListTo)) {
+              throw new Error("Cannot extend primitives with 'MakeObject'");
+            }
+
+            const newObject = {
+              parentId: o.parentId,
+              globalId: o.objectId,
+              field: o.field
+            };
+
+            if (isIdentifiedArray(parentToAddListTo)) {
+              const objectAlreadyInList = search(parentToAddListTo, { parentId: o.parentId, globalId: o.objectId });
+              if (objectAlreadyInList) {
+                // TODO - actual conflict resolution - ensure greater actor/seqNo wins
+                // skip this, it's already been inserted
+                return;
+              }
+              else {
+                parentToAddListTo.list.push(newObject);
+              }
+            }
+            else {
+              if (!o.field) {
+                throw new Error(`Cannot 'MakeObject' on an object without identifying the field in the operation: ${o.action}`);
+              }
+
+              if (parentToAddListTo[o.field]) {
+                // TODO - actual conflict resolution - ensure greater actor/seqNo wins
+                // skip this, it's already been inserted
+                return;
+              }
+              else {
+                parentToAddListTo[o.field] = newObject;
+              }
+            }
+          }
         });
 
         draftState.versionNumber = event.versionNumber || model.versionNumber;

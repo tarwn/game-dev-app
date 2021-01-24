@@ -23,81 +23,9 @@ const primitiveFactory = {
         }));
       },
       apply: (model: ICashForecast, event: Evt): void => {
-        // const primitive = getPrimitive(model, event);
         const primitive = search(model, { parentId: event.operations[0].parentId, globalId: event.operations[0].objectId });
         if (primitive == null) return;
         primitive.value = event.operations[0].value;
-
-        console.log({ isMatch: primitive.globalId == event.operations[0].objectId, primitive, id: { parentId: event.operations[0].parentId, globalId: event.operations[0].objectId } });
-      }
-    };
-  }
-};
-
-const basicListFactory = {
-  makeAdd: (eventName: string, valueType: ValueType, getParent: (ICashForecast, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
-    return {
-      get: ({ parentId, value }: { parentId: string, value: string }): Evt => {
-        return cashForecastEventStore.createEvent((actor, seqNo) => ({
-          type: eventName,
-          operations: [
-            { action: OperationType.Set, $type: valueType, objectId: `${seqNo}@${actor}`, parentId, value, insert: true },
-          ]
-        }));
-      },
-      apply: (model: ICashForecast, event: Evt): void => {
-        const parent = getParent(model, event);
-        if (!parent) return;
-        parent.list.push({
-          globalId: event.operations[0].objectId,
-          parentId: event.operations[0].parentId,
-          value: event.operations[0].value,
-          field: event.operations[0].field
-        });
-      }
-    };
-  },
-  makeUpdate: (eventName: string, valueType: ValueType, getParent: (ICashForecast, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
-    return {
-      get: ({ parentId, globalId, value }: IdentifiedValueUpdate<string>): Evt => {
-        return cashForecastEventStore.createEvent(() => ({
-          type: eventName,
-          operations: [
-            { action: OperationType.Set, $type: valueType, objectId: globalId, parentId, value }
-          ]
-        }));
-      },
-      apply: (model: ICashForecast, event: Evt): void => {
-        const parent = getParent(model, event);
-        if (!parent) return;
-        const eIndex = parent.list.findIndex(e => e.globalId == event.operations[0].objectId);
-        if (eIndex == -1) {
-          // conflict/out of order event
-          return;
-        }
-        parent.list[eIndex].value = event.operations[0].value;
-      }
-    };
-  },
-  makeDelete: (eventName: string, valueType: ValueType, getParent: (ICashForecast, Evt) => IIdentifiedList<IIdentifiedPrimitive<string>>) => {
-    return {
-      get: ({ parentId, globalId }: Identified): Evt => {
-        return cashForecastEventStore.createEvent(() => ({
-          type: eventName,
-          operations: [
-            { action: OperationType.Delete, $type: valueType, objectId: globalId, parentId }
-          ]
-        }));
-      },
-      apply: (model: ICashForecast, event: Evt): void => {
-        const parent = getParent(model, event);
-        if (!parent) return;
-        const eIndex = parent.list.findIndex(e => e.globalId == event.operations[0].objectId);
-        if (eIndex == -1) {
-          // conflict/out of order event
-          return;
-        }
-        parent.list.splice(eIndex, 1);
       }
     };
   }
