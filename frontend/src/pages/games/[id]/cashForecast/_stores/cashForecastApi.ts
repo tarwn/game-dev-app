@@ -20,6 +20,9 @@ function readPayload(data: ICashForecast) {
     loan.cashIn.list.forEach(ci => {
       ci.date.value = new Date(ci.date.value);
     });
+    loan.repaymentTerms?.cashOut.list.forEach(co => {
+      co.startDate.value = new Date(co.startDate.value);
+    });
   });
   return data;
 }

@@ -65,6 +65,7 @@ export interface ILoanItem extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
   type: IIdentifiedPrimitive<LoanType>;
   cashIn: IIdentifiedList<ICashIn>;
+  numberOfMonths: IIdentifiedPrimitive<number> | null;
   repaymentTerms: IRepaymentTerms | null;
 }
 
@@ -82,12 +83,13 @@ export interface ICashIn extends IIdentifiedObject {
 
 export interface IRepaymentTerms extends IIdentifiedObject {
   type: IIdentifiedPrimitive<RepaymentType>;
-  cashOut: IIdentifiedList<ICashOut>[];
+  cashOut: IIdentifiedList<ICashOut>;
 }
 
 export interface ICashOut extends IIdentifiedObject {
   type: IIdentifiedPrimitive<CashOutType>;
   amount: IIdentifiedPrimitive<number>;
+  startDate: IIdentifiedPrimitive<Date>;
   limitFixedAmount: IIdentifiedPrimitive<number | null>;
   numberOfMonths: IIdentifiedPrimitive<number | null>;
 }

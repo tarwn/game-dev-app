@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ValueType = GDB.Common.DTOs._Events.ValueType;
 
 namespace GDB.Business.BusinessLogic._Generic
 {
@@ -110,7 +111,7 @@ namespace GDB.Business.BusinessLogic._Generic
 
         private void ApplyEvent(EventStore<TDTO, ChangeEvent> model, ChangeEvent evt)
         {
-            var duplicateIds = evt.Operations.Where(o => o.Insert.GetValueOrDefault(false) && model.Ids.Contains(o.ObjectId))
+            var duplicateIds = evt.Operations.Where(o => o.Insert.GetValueOrDefault(false) && (o.Type == ValueType.@object || o.Type == ValueType.list) && model.Ids.Contains(o.ObjectId))
                                              .Select(o => o.ObjectId)
                                              .ToList();
             if (duplicateIds.Count > 0)

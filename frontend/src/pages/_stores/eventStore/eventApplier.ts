@@ -219,6 +219,7 @@ function isObject(obj: any) {
   return (typeof obj === "object" || typeof obj === 'function') && (obj !== null);
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function search(obj: any, identifier: Identified): any {
   // console.log({ identifier, globalId: obj?.globalId });
   if (obj == null)
@@ -249,6 +250,7 @@ export function search(obj: any, identifier: Identified): any {
   return null;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function searchParent(obj: any, parentId: string): any {
   // console.log({ identifier, globalId: obj?.globalId });
   if (obj == null)

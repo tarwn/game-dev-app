@@ -46,6 +46,37 @@ namespace GDB.Business.BusinessLogic._Generic
             return Convert.ToDecimal(input.ToString());
         }
 
+        public static int ToInt(this IEventApplier _, object input)
+        {
+            if (input is JsonElement)
+            {
+                var asJson = (JsonElement)input;
+                if (asJson.ValueKind == JsonValueKind.Number)
+                {
+                    return asJson.GetInt32();
+                }
+            }
+            return int.Parse(input.ToString());
+        }
+
+        public static T ToEnum<T>(this IEventApplier _, object input)
+            where T : struct
+        {
+            if (input is JsonElement)
+            {
+                var asJson = (JsonElement)input;
+                if (asJson.ValueKind == JsonValueKind.Number)
+                {
+                    return (T)(object)asJson.GetInt32();
+                }
+                if (asJson.ValueKind == JsonValueKind.String)
+                {
+                    return Enum.Parse<T>(asJson.GetString());
+                }
+            }
+            return Enum.Parse<T>(input.ToString());
+        }
+
         public static DateTime ToDateTime(this IEventApplier _, object input)
         {
             if (input is JsonElement)

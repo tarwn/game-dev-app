@@ -73,7 +73,17 @@ describe("cashForecastEventStore", () => {
       const premodel = createEmptyCashForecast();
       const event = events.AddLoan(premodel.loans.globalId, { date: getUtcDate(2022, 0, 1) });
       const model = eventApplier.apply(premodel, event);
-      console.log({ l: model.loans.list });
+
+
+      it("AddLoan", () => {
+        const originalCount = model.loans.list.length;
+        const expectedValue = getUtcDate(2055, 3, 2);
+        const event = events.AddLoan(model.loans.globalId, { date: expectedValue });
+        const applied = eventApplier.apply(model, event);
+        expect(applied.loans.list.length).toBe(originalCount + 1);
+        expect(applied.loans.list.slice(-1)[0].cashIn.list[0].date.value).toEqual(expectedValue);
+        expect(model.loans.list.length).toBe(originalCount);
+      });
 
       it("SetLoanName", () => {
         const originalValue = model.loans.list[0].name.value;
@@ -82,7 +92,6 @@ describe("cashForecastEventStore", () => {
           parentId: model.loans.list[0].name.parentId,
           globalId: model.loans.list[0].name.globalId
         }, expectedValue);
-        console.log({ op: event.operations[0], l: model.loans.list[0].name });
         const applied = eventApplier.apply(model, event);
         expect(applied.loans.list[0].name.value).toBe(expectedValue);
         expect(model.loans.list[0].name.value).not.toBe(expectedValue);
@@ -124,10 +133,6 @@ describe("cashForecastEventStore", () => {
       });
     });
 
-    // todo: AddCashIn, DeleteCashIn, test the 2 events agsint a 2nd CashIn
-    //        UI for 1 row vs multiple
-    //      Back-end for these events
-    //      What happens if we build a search tree?
 
   });
 });

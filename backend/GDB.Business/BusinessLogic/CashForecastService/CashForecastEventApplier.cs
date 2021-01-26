@@ -99,6 +99,84 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         }
                     }
                     break;
+                case "SetLoanTypeMonthly":
+                    this.EnsureOperationCount(change, 2);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null && loan.Type.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            loan.Type.Value = this.ToEnum<LoanType>(change.Operations[0].Value);
+                            if (loan.NumberOfMonths == null)
+                            {
+                                loan.NumberOfMonths = new IdentifiedPrimitive<int>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToInt(change.Operations[1].Value), change.Operations[1].Field);
+                            }
+                            else if (loan.NumberOfMonths.GlobalId == change.Operations[1].ObjectId)
+                            {
+                                loan.NumberOfMonths.Value = this.ToInt(change.Operations[1].Value);
+                            }
+                            else
+                            {
+                                // no match
+                                // TODO - conflict resolution
+                            }
+                        }
+                    }
+                    break;
+                case "AddLoanNumberOfMonths":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null)
+                        {
+                            if (loan.NumberOfMonths == null)
+                            {
+                                loan.NumberOfMonths = new IdentifiedPrimitive<int>(change.Operations[0].ParentId, change.Operations[0].ObjectId, this.ToInt(change.Operations[0].Value), change.Operations[0].Field);
+                            }
+                            else if (loan.NumberOfMonths.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                loan.NumberOfMonths.Value = this.ToInt(change.Operations[0].Value);
+                            }
+                            else
+                            {
+                                // no match
+                                // TODO - conflict resolution
+                            }
+                        }
+                    }
+                    break;
+                case "SetLoanNumberOfMonths":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null && loan.NumberOfMonths != null)
+                        {
+                            if (loan.NumberOfMonths.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                loan.NumberOfMonths.Value = this.ToInt(change.Operations[0].Value);
+                            }
+                            else
+                            {
+                                // no match
+                                // TODO - conflict resolution
+                            }
+                        }
+                    }
+                    break;
+                case "AddLoanCashIn":
+                    this.EnsureOperationCount(change, 3);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null)
+                        {
+                            loan.CashIn.List.Add(new CashIn(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedPrimitive<DateTime>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToDateTime(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value), change.Operations[2].Field)
+                            ));
+                        }
+                    }
+                    break;
                 case "SetLoanCashInDate":
                     this.EnsureOperationCount(change, 1);
                     {
@@ -127,28 +205,140 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         }
                     }
                     break;
+                case "DeleteLoanCashIn":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
+                        if (loan != null)
+                        {
+                            loan.CashIn.List.RemoveAll(ci => ci.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+                case "AddLoanRepaymentTerms":
+                    this.EnsureOperationCount(change, 9);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
+                        if (loan.RepaymentTerms == null)
+                        {
+                            loan.RepaymentTerms = new RepaymentTerms(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedPrimitive<RepaymentType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<RepaymentType>(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedList<CashOut>(change.Operations[2].ParentId, change.Operations[2].ObjectId, change.Operations[2].Field),
+                                change.Operations[0].Field
+                            );
+                            loan.RepaymentTerms.CashOut.List.Add(new CashOut(
+                                change.Operations[3].ParentId,
+                                change.Operations[3].ObjectId,
+                                new IdentifiedPrimitive<CashOutType>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToEnum<CashOutType>(change.Operations[4].Value), change.Operations[4].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDecimal(change.Operations[5].Value), change.Operations[5].Field),
+                                new IdentifiedPrimitive<DateTime>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDateTime(change.Operations[6].Value), change.Operations[6].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value), change.Operations[7].Field),
+                                new IdentifiedPrimitive<int>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToInt(change.Operations[8].Value), change.Operations[8].Field
+                                ),
+                                change.Operations[3].Field
+                            ));
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsType":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(l => l.RepaymentTerms?.Type.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null)
+                        {
+                            loan.RepaymentTerms.Type.Value = this.ToEnum<RepaymentType>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "AddLoanRepaymentTermsCashOut":
+                    this.EnsureOperationCount(change, 6);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(l => l.RepaymentTerms?.CashOut.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null)
+                        {
+                            loan.RepaymentTerms.CashOut.List.Add(new CashOut(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedPrimitive<CashOutType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<CashOutType>(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value), change.Operations[2].Field),
+                                new IdentifiedPrimitive<DateTime>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDateTime(change.Operations[3].Value), change.Operations[3].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value), change.Operations[4].Field),
+                                new IdentifiedPrimitive<int>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToInt(change.Operations[5].Value), change.Operations[5].Field
+                                ),
+                                change.Operations[0].Field
+                            ));
+                        }
+                    }
+                    break;
+                case "DeleteLoanRepaymentTermsCashOut":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(l => l.RepaymentTerms?.CashOut.GlobalId == change.Operations[0].ParentId);
+                        if (loan != null)
+                        {
+                            loan.RepaymentTerms.CashOut.List.RemoveAll(co => co.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsCashOutType":
+                    this.EnsureOperationCount(change, 2);
+                    {
+                        var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.Type.Value = this.ToEnum<CashOutType>(change.Operations[0].Value);
+                            cashOut.Amount.Value = this.ToDecimal(change.Operations[1].Value);
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsCashOutAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsCashOutStartDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsCashOutLimitFixedAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.LimitFixedAmount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetLoanRepaymentTermsCashOutNumberOfMonths":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.NumberOfMonths.Value = this.ToInt(change.Operations[0].Value);
+                        }
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }
             modelStore.Events.Add(change);
         }
 
-        private T ToEnum<T>(object input)
-            where T : struct
-        {
-            if (input is JsonElement)
-            {
-                var asJson = (JsonElement)input;
-                if (asJson.ValueKind == JsonValueKind.Number)
-                {
-                    return (T)(object)asJson.GetInt32();
-                }
-                if (asJson.ValueKind == JsonValueKind.String)
-                {
-                    return Enum.Parse<T>(asJson.GetString());
-                }
-            }
-            return Enum.Parse<T>(input.ToString());
-        }
+
     }
 }

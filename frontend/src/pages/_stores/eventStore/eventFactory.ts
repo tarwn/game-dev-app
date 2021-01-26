@@ -1,8 +1,8 @@
 import { Identified, IEvent, IEventOperation, IEventStore, OperationType, ValueType, Versioned } from "./types";
 
 interface IEventFactory<TModel extends Versioned> {
-  createPropUpdate: (eventName: string, valueType: ValueType) => (<TType>(target: Identified, value: TType) => IEvent<TModel>);
-  createPropInsert: (eventName: string, valueType: ValueType, field?: string) => (<TType>(parentId: string, value: TType) => IEvent<TModel>);
+  createPropUpdate: <TType>(eventName: string, valueType: ValueType) => ((target: Identified, value: TType) => IEvent<TModel>);
+  createPropInsert: <TType>(eventName: string, valueType: ValueType, field?: string) => ((parentId: string, value: TType) => IEvent<TModel>);
   createDelete: (eventName: string, valueType: ValueType, field?: string) => ((target: Identified) => IEvent<TModel>);
   createListInsert: (eventName: string, field?: string) => ((parentId: string) => IEvent<TModel>);
   createObjectInsert: <T extends null | any>(
@@ -25,14 +25,14 @@ export const opsFactory = {
   insertList: (parentId: string, globalId: string, field?: string): IEventOperation => {
     return { action: OperationType.MakeList, objectId: globalId, parentId, "$type": ValueType.list, field, insert: true };
   },
-  insertObject: <T>(parentId: string, globalId: string, field?: string): IEventOperation => {
+  insertObject: (parentId: string, globalId: string, field?: string): IEventOperation => {
     return { action: OperationType.MakeObject, objectId: globalId, parentId, "$type": ValueType.object, field, insert: true };
   }
 };
 
 export const createAutomaticEventFactory = <TModel extends Versioned>(eventStore: IEventStore<TModel>): IEventFactory<TModel> => ({
-  createPropUpdate: (eventName: string, valueType: ValueType) => {
-    return <TType>({ parentId, globalId }: Identified, value: TType): IEvent<TModel> => {
+  createPropUpdate: <TType>(eventName: string, valueType: ValueType) => {
+    return ({ parentId, globalId }: Identified, value: TType): IEvent<TModel> => {
       return eventStore.createEvent(() => ({
         type: eventName,
         operations: [
@@ -71,7 +71,7 @@ export const createAutomaticEventFactory = <TModel extends Versioned>(eventStore
       }));
     };
   },
-  createObjectInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[], args?: T) => {
+  createObjectInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]) => {
     const ops = operationBuilders ?? [];
     return (parentId: string, args?: T): IEvent<TModel> => {
       return eventStore.createEvent((actor: string, seqNo: number) => {
