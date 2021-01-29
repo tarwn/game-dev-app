@@ -17,10 +17,9 @@ export enum RepaymentType {
   NetRevenueShare = 4
 }
 
-export enum CashOutType {
-  Percent = 1,
-  FixedAmount = 2
-}
+export const RepaymentTypes: { id: LoanType, name: string }[] = Object.keys(RepaymentType)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: RepaymentType[lt], name: lt }));
 
 export enum AdditionalEmployeeExpenseType {
   NetRevenueShare = 1,
@@ -82,12 +81,11 @@ export interface ICashIn extends IIdentifiedObject {
 }
 
 export interface IRepaymentTerms extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<RepaymentType>;
   cashOut: IIdentifiedList<ICashOut>;
 }
 
 export interface ICashOut extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<CashOutType>;
+  type: IIdentifiedPrimitive<RepaymentType>;
   amount: IIdentifiedPrimitive<number>;
   startDate: IIdentifiedPrimitive<Date>;
   limitFixedAmount: IIdentifiedPrimitive<number | null>;

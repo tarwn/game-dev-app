@@ -4,7 +4,11 @@ interface IEventFactory<TModel extends Versioned> {
   createPropUpdate: <TType>(eventName: string, valueType: ValueType) => ((target: Identified, value: TType) => IEvent<TModel>);
   createPropInsert: <TType>(eventName: string, valueType: ValueType, field?: string) => ((parentId: string, value: TType) => IEvent<TModel>);
   createDelete: (eventName: string, valueType: ValueType, field?: string) => ((target: Identified) => IEvent<TModel>);
-  createListInsert: (eventName: string, field?: string) => ((parentId: string) => IEvent<TModel>);
+  createListInsert: <T extends null | any>(
+    eventName: string,
+    field?: string,
+    operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]
+  ) => ((parentId: string, args?: T) => IEvent<TModel>);
   createObjectInsert: <T extends null | any>(
     eventName: string,
     field?: string,
@@ -61,14 +65,26 @@ export const createAutomaticEventFactory = <TModel extends Versioned>(eventStore
       }));
     };
   },
-  createListInsert: (eventName: string, field?: string) => {
-    return (parentId: string): IEvent<TModel> => {
-      return eventStore.createEvent((actor: string, seqNo: number) => ({
-        type: eventName,
-        operations: [
-          opsFactory.insertList(parentId, `${actor}-${seqNo}`, field)
-        ]
-      }));
+  createListInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]) => {
+    const ops = operationBuilders ?? [];
+    return (parentId: string, args?: T): IEvent<TModel> => {
+      return eventStore.createEvent((actor: string, seqNo: number) => {
+        const ids = [
+          `${actor}-${seqNo}`
+        ];
+        const operations: Array<IEventOperation> = [
+          opsFactory.insertList(parentId, ids[0], field)
+        ];
+        ops.forEach((o, i) => {
+          const nextId = `${actor}-${seqNo + i + 1}`;
+          ids.push(nextId);
+          operations.push(o(ids, nextId, args));
+        }, []);
+        return {
+          type: eventName,
+          operations
+        };
+      });
     };
   },
   createObjectInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]) => {

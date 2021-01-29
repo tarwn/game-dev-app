@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getDataDetail } from "@microsoft/signalr/dist/esm/Utils";
   import { listen } from "svelte/internal";
+  import IconButton from "../../../../../../components/buttons/IconButton.svelte";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
@@ -10,9 +10,7 @@
   import NumberInput from "../../../../../../components/inputs/NumberInput.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
   import TextInput from "../../../../../../components/inputs/TextInput.svelte";
-  import { getUtcDate, getUtcToday } from "../../../../../../utilities/date";
-  import type { Identified } from "../../../../../_stores/eventStore/types";
-  import ValuePropositionSectionSummary from "../../../businessModel/_components/sections/ValuePropositionSectionSummary.svelte";
+  import { getUtcToday } from "../../../../../../utilities/date";
   import {
     cashForecastEventStore,
     events,
@@ -20,10 +18,15 @@
   import type {
     ICashForecast,
     ICashIn,
+    ICashOut,
     ILoanItem,
   } from "../../_types/cashForecast";
-  import { LoanType } from "../../_types/cashForecast";
-  import { LoanTypes } from "../../_types/cashForecast";
+  import {
+    LoanType,
+    RepaymentType,
+    LoanTypes,
+    RepaymentTypes,
+  } from "../../_types/cashForecast";
   import TableRowEmpty from "./TableRowEmpty.svelte";
   import TableRowIndented from "./TableRowIndented.svelte";
   import TableSubHeaderRow from "./TableSubHeaderRow.svelte";
@@ -101,6 +104,45 @@
     publish(events.SetLoanCashInAmount(cashIn.amount, value));
   }
 
+  function addLoanRepaymentTerms(loan: ILoanItem) {
+    publish(
+      events.AddLoanRepaymentTerms(loan.globalId, { date: forecastDate })
+    );
+  }
+
+  function addLoanRepaymentTermsCashOut(loan: ILoanItem) {
+    publish(
+      events.AddLoanRepaymentTermsCashOut(
+        loan.repaymentTerms.cashOut.globalId,
+        { date: forecastDate }
+      )
+    );
+  }
+
+  function isShareRepayment(type: RepaymentType) {
+    return (
+      type === RepaymentType.GrossRevenueShare ||
+      type === RepaymentType.NetRevenueShare
+    );
+  }
+
+  function isCurrencyRepayment(type: RepaymentType) {
+    return type === RepaymentType.Monthly || type === RepaymentType.OneTime;
+  }
+
+  function updateRepaymentType(cashOut: ICashOut, e: any) {
+    const value = parseInt(e.target.value) as RepaymentType;
+    let amount = cashOut.amount.value;
+    if (
+      (isShareRepayment(value) && !isShareRepayment(cashOut.type.value)) ||
+      (isCurrencyRepayment(value) && !isCurrencyRepayment(cashOut.type.value))
+    ) {
+      amount = 0;
+    }
+
+    publish(events.SetLoanRepaymentTermsCashOutType(cashOut, value, amount));
+  }
+
   // temp values
   let percent = 0.0123;
 </script>
@@ -131,6 +173,9 @@
   td.gdb-faux-label {
     padding-top: 1.6rem;
   }
+  td.gdb-no-label {
+    padding-top: 1.6rem;
+  }
 </style>
 
 <div class="gdb-cf-forecast-row">
@@ -139,7 +184,7 @@
   </LabeledInput>
 </div>
 <table class="gdb-cf-table">
-  <TableSubHeaderRow colspan={6} value="Bank Balance" />
+  <TableSubHeaderRow colspan={7} value="Bank Balance" />
   <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
@@ -162,6 +207,7 @@
           on:change={({ detail }) => updateBankBalanceAmount(detail.value)} />
       </LabeledInput>
     </td>
+    <td />
     <td />
   </TableRowIndented>
 
@@ -217,6 +263,7 @@
           </LabeledInput>
         {/if}
       </td>
+      <td />
     </TableRowIndented>
     {#if loan.type.value === LoanType.Multiple}
       {#each loan.cashIn.list.slice(1) as cashIn, num (cashIn.globalId)}
@@ -243,6 +290,13 @@
                   updateLoanCashInAmount(cashIn, detail.value)} />
             </LabeledInput>
           </td>
+          <td class="gdb-no-label">
+            <IconButton
+              icon={PredefinedIcons.Delete}
+              buttonStyle="secondary-negative"
+              disabled={false}
+              on:click={() => publish(events.DeleteLoanCashIn(cashIn))} />
+          </td>
           <td />
         </TableRowIndented>
       {/each}
@@ -263,33 +317,124 @@
         </td>
         <td />
         <td />
+        <td />
       </TableRowIndented>
     {/if}
     {#if loan.repaymentTerms}
+      {#each loan.repaymentTerms.cashOut.list as cashOut, i (cashOut.globalId)}
+        <TableRowIndented isRecord={true} isBottom={false}>
+          {#if i == 0}
+            <td class="gdb-faux-label"> Repayment Terms: </td>
+          {:else}
+            <td class="gdb-faux-label"> and then:</td>
+          {/if}
+          <td>
+            <LabeledInput label="Frequency" vertical={true}>
+              <!-- svelte-ignore a11y-no-onchange -->
+              <select
+                value={cashOut.type.value}
+                on:change={(e) => updateRepaymentType(cashOut, e)}>
+                {#each RepaymentTypes as repaymentType}
+                  <option value={repaymentType.id}>{repaymentType.name}</option>
+                {/each}
+              </select>
+            </LabeledInput>
+          </td>
+          <td>
+            <LabeledInput label="Start Date" vertical={true}>
+              <DateInput
+                value={cashOut.startDate.value}
+                on:change={({ detail }) =>
+                  publish(
+                    events.SetLoanRepaymentTermsCashOutStartDate(
+                      cashOut.startDate,
+                      detail.value
+                    )
+                  )} />
+            </LabeledInput>
+          </td>
+          <td>
+            <LabeledInput label="Amount" vertical={true}>
+              {#if isShareRepayment(cashOut.type.value)}
+                <PercentInput
+                  value={cashOut.amount.value}
+                  on:change={({ detail }) =>
+                    publish(
+                      events.SetLoanRepaymentTermsCashOutAmount(
+                        cashOut.amount,
+                        detail.value
+                      )
+                    )} />
+              {:else}
+                <CurrencyInput
+                  value={cashOut.amount.value}
+                  on:change={({ detail }) =>
+                    publish(
+                      events.SetLoanRepaymentTermsCashOutAmount(
+                        cashOut.amount,
+                        detail.value
+                      )
+                    )} />
+              {/if}
+            </LabeledInput>
+          </td>
+          <td>
+            {#if cashOut.type.value === RepaymentType.Monthly}
+              <LabeledInput label="Number of Months" vertical={true}>
+                <NumberInput
+                  min={0}
+                  max={360}
+                  value={cashOut.numberOfMonths.value}
+                  on:change={({ detail }) =>
+                    publish(
+                      events.SetLoanRepaymentTermsCashOutNumberOfMonths(
+                        cashOut.numberOfMonths,
+                        detail.value
+                      )
+                    )} />
+              </LabeledInput>
+            {/if}
+            {#if isShareRepayment(cashOut.type.value)}
+              <LabeledInput label="To a Maximum Of" vertical={true}>
+                <CurrencyInput
+                  min={0}
+                  max={1_000_000_000}
+                  value={cashOut.limitFixedAmount.value}
+                  on:change={({ detail }) =>
+                    publish(
+                      events.SetLoanRepaymentTermsCashOutLimitFixedAmount(
+                        cashOut.limitFixedAmount,
+                        detail.value
+                      )
+                    )} />
+              </LabeledInput>
+            {/if}
+          </td>
+          <td class="gdb-no-label">
+            {#if i > 0}
+              <IconButton
+                icon={PredefinedIcons.Delete}
+                buttonStyle="secondary-negative"
+                disabled={false}
+                on:click={() =>
+                  publish(events.DeleteLoanRepaymentTermsCashOut(cashOut))} />
+            {/if}
+          </td>
+        </TableRowIndented>
+      {/each}
       <TableRowIndented isRecord={true} isBottom={true}>
-        <td class="gdb-faux-label"> Repayment Terms: </td>
+        <td />
+        <td />
         <td>
-          <LabeledInput label="Frequency" vertical={true}>
-            <select>
-              <option>Monthly Payment</option>
-            </select>
-          </LabeledInput>
+          <IconTextButton
+            icon={PredefinedIcons.Plus}
+            value="Add Another Term"
+            buttonStyle="primary-outline"
+            on:click={() => addLoanRepaymentTermsCashOut(loan)} />
         </td>
-        <td>
-          <LabeledInput label="Start Date" vertical={true}>
-            <input type="date" placeholder="02/01/2019" />
-          </LabeledInput>
-        </td>
-        <td>
-          <LabeledInput label="Amount" vertical={true}>
-            <CurrencyInput />
-          </LabeledInput>
-        </td>
-        <td>
-          <LabeledInput label="Number of Months" vertical={true}>
-            <NumberInput value={1} />
-          </LabeledInput>
-        </td>
+        <td />
+        <td />
+        <td />
       </TableRowIndented>
     {:else}
       <TableRowIndented isRecord={true} isBottom={true}>
@@ -300,17 +445,18 @@
             icon={PredefinedIcons.Plus}
             value="Add Repayment Terms"
             buttonStyle="primary-outline"
-            on:click={() => {}} />
+            on:click={() => addLoanRepaymentTerms(loan)} />
         </td>
+        <td />
         <td />
         <td />
       </TableRowIndented>
     {/if}
-    <TableRowEmpty colspan={6} />
+    <TableRowEmpty colspan={7} />
   {/each}
   <!-- add row -->
   <TableRowIndented>
-    <td colspan="4">
+    <td colspan="7">
       <IconTextButton
         icon={PredefinedIcons.Plus}
         value={cashForecast.loans.list.length === 0
@@ -322,7 +468,7 @@
   </TableRowIndented>
 
   <!-- start funding -->
-  <TableSubHeaderRow colspan={6} value="Funding" />
+  <TableSubHeaderRow colspan={7} value="Funding" />
   <TableRowIndented isRecord={true} isTop={true}>
     <td>
       <LabeledInput label="Name" vertical={true}>
@@ -347,6 +493,7 @@
       </LabeledInput>
     </td>
     <td />
+    <td />
   </TableRowIndented>
   <TableRowIndented isRecord={true}>
     <td />
@@ -358,6 +505,7 @@
       <CurrencyInput />
     </td>
     <td />
+    <td />
   </TableRowIndented>
   <TableRowIndented isRecord={true}>
     <td />
@@ -368,6 +516,7 @@
         value="Add"
         buttonStyle="primary-outline" />
     </td>
+    <td />
     <td />
     <td />
   </TableRowIndented>
@@ -389,6 +538,7 @@
     <td>
       <CurrencyInput />
     </td>
+    <td />
   </TableRowIndented>
   <TableRowIndented isRecord={true}>
     <td />
@@ -404,6 +554,7 @@
       </select>
     </td>
     <td />
+    <td />
   </TableRowIndented>
   <TableRowIndented isRecord={true} isBottom={true}>
     <td />
@@ -417,11 +568,12 @@
     </td>
     <td />
     <td />
+    <td />
   </TableRowIndented>
-  <TableRowEmpty colspan={6} />
+  <TableRowEmpty colspan={7} />
   <!-- add row -->
   <TableRowIndented>
-    <td colspan="4">
+    <td colspan="7">
       <IconTextButton
         icon={PredefinedIcons.Plus}
         value="Add Funding"

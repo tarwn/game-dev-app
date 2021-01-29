@@ -8,12 +8,11 @@ namespace GDB.Common.DTOs.CashForecast
         [Obsolete("serialization only", false)]
         public RepaymentTerms() { }
 
-        public RepaymentTerms(string parentId, string globalId, IdentifiedPrimitive<RepaymentType> type, IdentifiedList<CashOut> cashOut, string field = null)
+        public RepaymentTerms(string parentId, string globalId,IdentifiedList<CashOut> cashOut, string field = null)
         {
             ParentId = parentId;
             GlobalId = globalId;
             Field = field;
-            Type = type;
             CashOut = cashOut;
 
         }
@@ -21,7 +20,6 @@ namespace GDB.Common.DTOs.CashForecast
         public string GlobalId { get; set; }
         public string ParentId { get; set; }
         public string Field { get; set; }
-        public IdentifiedPrimitive<RepaymentType> Type { get; set; }
         public IdentifiedList<CashOut> CashOut { get; set; }
     }
 }

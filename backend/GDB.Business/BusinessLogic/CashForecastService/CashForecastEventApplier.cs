@@ -208,7 +208,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                 case "DeleteLoanCashIn":
                     this.EnsureOperationCount(change, 1);
                     {
-                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ObjectId));
                         if (loan != null)
                         {
                             loan.CashIn.List.RemoveAll(ci => ci.GlobalId == change.Operations[0].ObjectId);
@@ -216,7 +216,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
                 case "AddLoanRepaymentTerms":
-                    this.EnsureOperationCount(change, 9);
+                    this.EnsureOperationCount(change, 8);
                     {
                         var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ParentId);
                         if (loan.RepaymentTerms == null)
@@ -224,31 +224,20 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                             loan.RepaymentTerms = new RepaymentTerms(
                                 change.Operations[0].ParentId,
                                 change.Operations[0].ObjectId,
-                                new IdentifiedPrimitive<RepaymentType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<RepaymentType>(change.Operations[1].Value), change.Operations[1].Field),
-                                new IdentifiedList<CashOut>(change.Operations[2].ParentId, change.Operations[2].ObjectId, change.Operations[2].Field),
+                                new IdentifiedList<CashOut>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Field),
                                 change.Operations[0].Field
                             );
                             loan.RepaymentTerms.CashOut.List.Add(new CashOut(
-                                change.Operations[3].ParentId,
-                                change.Operations[3].ObjectId,
-                                new IdentifiedPrimitive<CashOutType>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToEnum<CashOutType>(change.Operations[4].Value), change.Operations[4].Field),
-                                new IdentifiedPrimitive<decimal>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDecimal(change.Operations[5].Value), change.Operations[5].Field),
-                                new IdentifiedPrimitive<DateTime>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDateTime(change.Operations[6].Value), change.Operations[6].Field),
-                                new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value), change.Operations[7].Field),
-                                new IdentifiedPrimitive<int>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToInt(change.Operations[8].Value), change.Operations[8].Field
+                                change.Operations[2].ParentId,
+                                change.Operations[2].ObjectId,
+                                new IdentifiedPrimitive<RepaymentType>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<RepaymentType>(change.Operations[3].Value), change.Operations[3].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value), change.Operations[4].Field),
+                                new IdentifiedPrimitive<DateTime>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDateTime(change.Operations[5].Value), change.Operations[5].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDecimal(change.Operations[6].Value), change.Operations[6].Field),
+                                new IdentifiedPrimitive<int>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToInt(change.Operations[7].Value), change.Operations[7].Field
                                 ),
                                 change.Operations[3].Field
                             ));
-                        }
-                    }
-                    break;
-                case "SetLoanRepaymentTermsType":
-                    this.EnsureOperationCount(change, 1);
-                    {
-                        var loan = model.Loans.List.FirstOrDefault(l => l.RepaymentTerms?.Type.GlobalId == change.Operations[0].ParentId);
-                        if (loan != null)
-                        {
-                            loan.RepaymentTerms.Type.Value = this.ToEnum<RepaymentType>(change.Operations[0].Value);
                         }
                     }
                     break;
@@ -261,7 +250,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                             loan.RepaymentTerms.CashOut.List.Add(new CashOut(
                                 change.Operations[0].ParentId,
                                 change.Operations[0].ObjectId,
-                                new IdentifiedPrimitive<CashOutType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<CashOutType>(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedPrimitive<RepaymentType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<RepaymentType>(change.Operations[1].Value), change.Operations[1].Field),
                                 new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value), change.Operations[2].Field),
                                 new IdentifiedPrimitive<DateTime>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDateTime(change.Operations[3].Value), change.Operations[3].Field),
                                 new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value), change.Operations[4].Field),
@@ -288,7 +277,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         var cashOut = model.Loans.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
                         if (cashOut != null)
                         {
-                            cashOut.Type.Value = this.ToEnum<CashOutType>(change.Operations[0].Value);
+                            cashOut.Type.Value = this.ToEnum<RepaymentType>(change.Operations[0].Value);
                             cashOut.Amount.Value = this.ToDecimal(change.Operations[1].Value);
                         }
                     }
