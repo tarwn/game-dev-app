@@ -5,7 +5,7 @@
 </script>
 
 <style type="text/scss">
-  @import "../../../../../../styles/_variables.scss";
+  @import "../../../../../../../styles/_variables.scss";
 
   $border-color: $cs-grey-1;
   $border-radius: 8px;

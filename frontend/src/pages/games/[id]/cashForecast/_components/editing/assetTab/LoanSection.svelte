@@ -14,9 +14,9 @@
   import type { ICashForecast, ICashOut, ILoanItem } from "../../../_types/cashForecast";
   import { LoanType, RepaymentType, LoanTypes, RepaymentTypes } from "../../../_types/cashForecast";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
-  import TableRowEmpty from "../TableRowEmpty.svelte";
-  import TableRowIndented from "../TableRowIndented.svelte";
-  import TableSubHeaderRow from "../TableSubHeaderRow.svelte";
+  import TableRowEmpty from "../table/TableRowEmpty.svelte";
+  import TableRowIndented from "../table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
@@ -135,7 +135,7 @@
         </LabeledInput>
       {/if}
     </td>
-    <td>
+    <td class="gdb-no-label">
       <IconTextButton
         icon={PredefinedIcons.Delete}
         buttonStyle="secondary-negative"
@@ -200,7 +200,7 @@
           {#if i == 0}
             Repayment:
           {:else}
-            and then:
+            and also:
           {/if}
         </FauxLabelCell>
         <td>
