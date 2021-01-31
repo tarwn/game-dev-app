@@ -12,8 +12,10 @@ export const cashForecastLocalStore = createLocalStore(cashForecastEventStore, e
 
 const eventfactory = createAutomaticEventFactory(cashForecastEventStore);
 export const events = {
+  // bank balance
   "SetBankBalanceName": eventfactory.createPropUpdate<string>("SetBankBalanceName", ValueType.string),
   "SetBankBalanceAmount": eventfactory.createPropUpdate<number>("SetBankBalanceAmount", ValueType.decimal),
+  // loan
   "AddLoan": eventfactory.createObjectInsert<{ date: Date }>("AddLoan", undefined, [
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, LoanType.OneTime, "type"),
@@ -75,5 +77,61 @@ export const events = {
     eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
   "SetLoanRepaymentTermsCashOutNumberOfMonths":
     eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
+  // funding
+  "AddFunding": eventfactory.createObjectInsert<{ date: Date }>("AddFunding", undefined, [
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, LoanType.OneTime, "type"),
+    (ids, nextId) => opsFactory.insertList(ids[0], nextId, "cashIn"),
+    (ids, nextId) => opsFactory.insertObject(ids[3], nextId),
+    (ids, nextId, args) => opsFactory.insertProp(ids[4], nextId, ValueType.date, args.date.toISOString(), "date"),
+    (ids, nextId) => opsFactory.insertProp(ids[4], nextId, ValueType.decimal, 0, "amount")
+  ]),
+  "DeleteFunding": eventfactory.createDelete("DeleteFunding", ValueType.object, undefined),
+  "SetFundingName": eventfactory.createPropUpdate<string>("SetFundingName", ValueType.string),
+  "SetFundingType": eventfactory.createPropUpdate<LoanType>("SetFundingType", ValueType.integer),
+  // no SetFundingTypeMonthly - not a valid option for Funding currently
+  // "AddFundingNumberOfMonths": eventfactory.createPropInsert<number>("AddFundingNumberOfMonths", ValueType.integer, "numberOfMonths"),
+  // "SetFundingNumberOfMonths": eventfactory.createPropUpdate<number>("SetFundingNumberOfMonths", ValueType.integer),
+  "AddFundingCashIn": eventfactory.createObjectInsert<{ date: Date }>("AddFundingCashIn", undefined, [
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date.toISOString(), "date"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount")
+  ]),
+  "SetFundingCashInDate": eventfactory.createPropUpdate<Date>("SetFundingCashInDate", ValueType.date),
+  "SetFundingCashInAmount": eventfactory.createPropUpdate<number>("SetFundingCashInAmount", ValueType.decimal),
+  "DeleteFundingCashIn": eventfactory.createDelete("DeleteFundingCashIn", ValueType.object, undefined),
+  "AddFundingRepaymentTerms": eventfactory.createObjectInsert<{ date: Date, amount: number }>("AddFundingRepaymentTerms", "repaymentTerms", [
+    (ids, nextId) => opsFactory.insertList(ids[0], nextId, "cashOut"),
+    (ids, nextId) => opsFactory.insertObject(ids[1], nextId),
+    (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.integer, RepaymentType.NetRevenueShare, "type"),
+    (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.decimal, 0.8, "amount"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[2], nextId, ValueType.date, args.date.toISOString(), "startDate"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[2], nextId, ValueType.decimal, args.amount, "limitFixedAmount"),
+    (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.integer, 1, "numberOfMonths")
+  ]),
+  "AddFundingRepaymentTermsCashOut": eventfactory.createObjectInsert<{ date: Date }>("AddFundingRepaymentTermsCashOut", undefined, [
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, RepaymentType.NetRevenueShare, "type"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0.0, "amount"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date.toISOString(), "startDate"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "limitFixedAmount"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, 1, "numberOfMonths")
+  ]),
+  "DeleteFundingRepaymentTermsCashOut": eventfactory.createDelete("DeleteFundingRepaymentTermsCashOut", ValueType.object, undefined),
+  "SetFundingRepaymentTermsCashOutType": (cashOut: ICashOut, repaymentType: RepaymentType, amount: number): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "SetFundingRepaymentTermsCashOutType",
+      operations: [
+        opsFactory.updateProp(cashOut.type.parentId, cashOut.type.globalId, ValueType.integer, repaymentType),
+        opsFactory.updateProp(cashOut.amount.parentId, cashOut.amount.globalId, ValueType.decimal, amount),
+      ]
+    }));
+  },
+  "SetFundingRepaymentTermsCashOutAmount":
+    eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutAmount", ValueType.decimal),
+  "SetFundingRepaymentTermsCashOutStartDate":
+    eventfactory.createPropUpdate<Date>("SetFundingRepaymentTermsCashOutStartDate", ValueType.date),
+  "SetFundingRepaymentTermsCashOutLimitFixedAmount":
+    eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
+  "SetFundingRepaymentTermsCashOutNumberOfMonths":
+    eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
 };
 

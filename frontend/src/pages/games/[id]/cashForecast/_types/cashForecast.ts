@@ -10,6 +10,8 @@ export const LoanTypes: { id: LoanType, name: string }[] = Object.keys(LoanType)
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: LoanType[lt], name: lt }));
 
+export const FundingTypes: { id: LoanType, name: string }[] = LoanTypes.filter(lt => lt.id != LoanType.Monthly);
+
 export enum RepaymentType {
   OneTime = 1,
   Monthly = 2,
@@ -71,7 +73,7 @@ export interface ILoanItem extends IIdentifiedObject {
 export interface IFundingItem extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
   type: IIdentifiedPrimitive<LoanType>;
-  cashIn: IIdentifiedList<ICashIn>[];
+  cashIn: IIdentifiedList<ICashIn>;
   repaymentTerms: IRepaymentTerms | null;
 }
 

@@ -332,6 +332,214 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         }
                     }
                     break;
+
+                case "AddFunding":
+                    this.EnsureOperationCount(change, 7);
+                    if (model.Funding.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var type = new IdentifiedPrimitive<LoanType>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<LoanType>(change.Operations[2].Value));
+                        var cashIn = new IdentifiedList<CashIn>(change.Operations[3].ParentId, change.Operations[3].ObjectId);
+                        // skip 4, come back ater next 2
+                        var cashInDate = new IdentifiedPrimitive<DateTime>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDateTime(change.Operations[5].Value));
+                        var cashInAmount = new IdentifiedPrimitive<decimal>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDecimal(change.Operations[6].Value));
+                        // put them together
+                        cashIn.List.Add(new CashIn(change.Operations[4].ParentId, change.Operations[4].ObjectId, cashInDate, cashInAmount));
+                        model.Funding.List.Add(new Funding(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, type, cashIn));
+                    }
+                    break;
+                case "DeleteFunding":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.GlobalId == change.Operations[0].ObjectId);
+                        if (funding != null)
+                        {
+                            model.Funding.List.Remove(funding);
+                        }
+                    }
+                    break;
+                case "SetFundingName":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.GlobalId == change.Operations[0].ParentId);
+                        if (funding != null && funding.Name.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            funding.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "SetFundingType":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.GlobalId == change.Operations[0].ParentId);
+                        if (funding != null && funding.Type.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            funding.Type.Value = this.ToEnum<LoanType>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                // no option for monthly or number of months for Funding
+                case "AddFundingCashIn":
+                    this.EnsureOperationCount(change, 3);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.CashIn.GlobalId == change.Operations[0].ParentId);
+                        if (funding != null)
+                        {
+                            funding.CashIn.List.Add(new CashIn(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedPrimitive<DateTime>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToDateTime(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value), change.Operations[2].Field)
+                            ));
+                        }
+                    }
+                    break;
+                case "SetFundingCashInDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
+                        if (funding != null)
+                        {
+                            var cashIn = funding.CashIn.List.FirstOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                            if (cashIn != null && cashIn.Date.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                cashIn.Date.Value = this.ToDateTime(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "SetFundingCashInAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ParentId));
+                        if (funding != null)
+                        {
+                            var cashIn = funding.CashIn.List.FirstOrDefault(c => c.GlobalId == change.Operations[0].ParentId);
+                            if (cashIn != null && cashIn.Amount.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                cashIn.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "DeleteFundingCashIn":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.CashIn.List.Any(c => c.GlobalId == change.Operations[0].ObjectId));
+                        if (funding != null)
+                        {
+                            funding.CashIn.List.RemoveAll(ci => ci.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+                case "AddFundingRepaymentTerms":
+                    this.EnsureOperationCount(change, 8);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.GlobalId == change.Operations[0].ParentId);
+                        if (funding.RepaymentTerms == null)
+                        {
+                            funding.RepaymentTerms = new RepaymentTerms(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedList<CashOut>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Field),
+                                change.Operations[0].Field
+                            );
+                            funding.RepaymentTerms.CashOut.List.Add(new CashOut(
+                                change.Operations[2].ParentId,
+                                change.Operations[2].ObjectId,
+                                new IdentifiedPrimitive<RepaymentType>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<RepaymentType>(change.Operations[3].Value), change.Operations[3].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value), change.Operations[4].Field),
+                                new IdentifiedPrimitive<DateTime>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDateTime(change.Operations[5].Value), change.Operations[5].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDecimal(change.Operations[6].Value), change.Operations[6].Field),
+                                new IdentifiedPrimitive<int>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToInt(change.Operations[7].Value), change.Operations[7].Field
+                                ),
+                                change.Operations[3].Field
+                            ));
+                        }
+                    }
+                    break;
+                case "AddFundingRepaymentTermsCashOut":
+                    this.EnsureOperationCount(change, 6);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.RepaymentTerms?.CashOut.GlobalId == change.Operations[0].ParentId);
+                        if (funding != null)
+                        {
+                            funding.RepaymentTerms.CashOut.List.Add(new CashOut(
+                                change.Operations[0].ParentId,
+                                change.Operations[0].ObjectId,
+                                new IdentifiedPrimitive<RepaymentType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<RepaymentType>(change.Operations[1].Value), change.Operations[1].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value), change.Operations[2].Field),
+                                new IdentifiedPrimitive<DateTime>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDateTime(change.Operations[3].Value), change.Operations[3].Field),
+                                new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value), change.Operations[4].Field),
+                                new IdentifiedPrimitive<int>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToInt(change.Operations[5].Value), change.Operations[5].Field
+                                ),
+                                change.Operations[0].Field
+                            ));
+                        }
+                    }
+                    break;
+                case "DeleteFundingRepaymentTermsCashOut":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var funding = model.Funding.List.FirstOrDefault(f => f.RepaymentTerms?.CashOut.GlobalId == change.Operations[0].ParentId);
+                        if (funding != null)
+                        {
+                            funding.RepaymentTerms.CashOut.List.RemoveAll(co => co.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+                case "SetFundingRepaymentTermsCashOutType":
+                    this.EnsureOperationCount(change, 2);
+                    {
+                        var cashOut = model.Funding.List.SelectMany(f => f.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.Type.Value = this.ToEnum<RepaymentType>(change.Operations[0].Value);
+                            cashOut.Amount.Value = this.ToDecimal(change.Operations[1].Value);
+                        }
+                    }
+                    break;
+                case "SetFundingRepaymentTermsCashOutAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Funding.List.SelectMany(f => f.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetFundingRepaymentTermsCashOutStartDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Funding.List.SelectMany(f => f.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetFundingRepaymentTermsCashOutLimitFixedAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Funding.List.SelectMany(f => f.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.LimitFixedAmount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetFundingRepaymentTermsCashOutNumberOfMonths":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var cashOut = model.Funding.List.SelectMany(l => l.RepaymentTerms?.CashOut.List.Where(co => co.GlobalId == change.Operations[0].ParentId)).FirstOrDefault(c => c != null);
+                        if (cashOut != null)
+                        {
+                            cashOut.NumberOfMonths.Value = this.ToInt(change.Operations[0].Value);
+                        }
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }

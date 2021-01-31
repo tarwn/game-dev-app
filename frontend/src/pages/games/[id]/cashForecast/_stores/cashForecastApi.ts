@@ -24,6 +24,14 @@ function readPayload(data: ICashForecast) {
       co.startDate.value = new Date(co.startDate.value);
     });
   });
+  data.funding.list.forEach(f => {
+    f.cashIn.list.forEach(ci => {
+      ci.date.value = new Date(ci.date.value);
+    });
+    f.repaymentTerms?.cashOut.list.forEach(co => {
+      co.startDate.value = new Date(co.startDate.value);
+    });
+  });
   return data;
 }
 
