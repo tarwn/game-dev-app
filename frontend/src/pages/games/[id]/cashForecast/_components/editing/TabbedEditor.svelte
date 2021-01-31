@@ -1,27 +1,26 @@
 <script lang="ts">
+  import { createEventDispatcher, onMount } from "svelte";
   import type { ICashForecast } from "../../_types/cashForecast";
 
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
+  import { tabs, TabType } from "./tabList";
 
   export let cashForecast: ICashForecast;
   export let isLoading: boolean;
 
-  let selectedTab = 1;
-  const tabs = [
-    { id: 1, group: "1", text: "Assets & Funding" },
-    { id: 2, group: "1", text: "People" },
-    { id: 3, group: "1", text: "Tools & Licenses" },
-    { id: 4, group: "1", text: "Services" },
-    { id: 5, group: "1", text: "Other Expenses" },
-    { id: 6, group: "2", text: "Revenue" },
-    { id: 7, group: "3", text: "Table View" },
-  ];
+  const dispatch = createEventDispatcher();
 
+  let selectedTab = TabType.AssetsAndFunding;
   $: currentTab = tabs.find((t) => t.id === selectedTab);
 
-  function selectTab(id: number) {
+  onMount(() => {
+    selectTab(TabType.AssetsAndFunding);
+  });
+
+  function selectTab(id: TabType) {
     selectedTab = id;
+    dispatch("selection", selectedTab);
   }
 
   function selectTabFromKeyPress(e: any) {
@@ -49,10 +48,8 @@
 
     if (handled) {
       e.preventDefault();
-      selectedTab = tabs[newIndex].id;
-      const button = document.getElementsByClassName("gdb-tab")[
-        newIndex
-      ] as HTMLButtonElement;
+      selectTab(tabs[newIndex].id);
+      const button = document.getElementsByClassName("gdb-tab")[newIndex] as HTMLButtonElement;
       button?.focus();
     }
   }

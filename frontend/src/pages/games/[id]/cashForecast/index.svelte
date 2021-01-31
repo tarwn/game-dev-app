@@ -10,13 +10,12 @@
   import ForecastChartSmall from "./_components/ForecastChartSmall.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ForecastTable from "./_components/ForecastTable.svelte";
-  import {
-    cashForecastEventStore,
-    cashForecastLocalStore,
-  } from "./_stores/cashForecastStore";
+  import { cashForecastEventStore, cashForecastLocalStore } from "./_stores/cashForecastStore";
   import type { ICashForecast } from "./_types/cashForecast";
   import { onDestroy } from "svelte";
   import TabbedEditor from "./_components/editing/TabbedEditor.svelte";
+  import { TabType } from "./_components/editing/tabList";
+  import AssetInstructions from "./_components/editing/assetTab/AssetInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -50,6 +49,9 @@
     view = "summary";
     editViewAvailable = false;
   }
+
+  // selected tab in edit
+  let selectedTab: TabType | null = null;
 
   // data management
   let initializedId = null;
@@ -198,10 +200,7 @@
 
 <div class="gdb-page-cf-container">
   {#if view == "summary"}
-    <section
-      in:receive|local={{ key: 123 }}
-      out:send|local={{ key: 123 }}
-      class="gdb-page-cf-fullView">
+    <section in:receive|local={{ key: 123 }} out:send|local={{ key: 123 }} class="gdb-page-cf-fullView">
       <div class="gdb-chart-placeholder">
         <ForecastChartLarge />
       </div>
@@ -210,10 +209,7 @@
         <h2>Cashflow Details</h2>
         <div class="gdb-title-sub-description">
           <span> Detailed in- and out-flows of cash each month.</span>
-          <IconTextButton
-            icon={PredefinedIcons.Expand}
-            value="Expand Details"
-            buttonStyle="primary-outline" />
+          <IconTextButton icon={PredefinedIcons.Expand} value="Expand Details" buttonStyle="primary-outline" />
         </div>
         <ForecastTable />
       </div>
@@ -233,10 +229,12 @@
     </div>
     {#if editViewAvailable}
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
-        instructions
+        {#if selectedTab === TabType.AssetsAndFunding}
+          <AssetInstructions />
+        {/if}
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
-        <TabbedEditor {isLoading} {cashForecast} />
+        <TabbedEditor {isLoading} {cashForecast} on:selection={({ detail }) => (selectedTab = detail)} />
       </div>
     {/if}
   {/if}
