@@ -52,12 +52,7 @@
       internalValue = value;
       visibleValue = formatValue(value);
       isValid = validateValue(value);
-    } else if (
-      !e.metaKey &&
-      !e.ctrlKey &&
-      !e.altKey &&
-      !helper.allowedCharacters.has(e.key)
-    ) {
+    } else if (!e.metaKey && !e.ctrlKey && !e.altKey && !helper.allowedCharacters.has(e.key)) {
       e.preventDefault();
     }
   }
@@ -102,8 +97,8 @@
   .gdb-faux-input {
     position: relative;
     display: flex;
-    width: 100%;
-    box-sizing: content-box;
+    // width: 100%; remove because it was overflowin parent after other fixes
+    box-sizing: border-box;
   }
 
   .gdb-faux-input > .gdb-input-symbol {
@@ -115,11 +110,11 @@
 
   .gdb-faux-input > input {
     text-align: right;
-    // max-width: 6rem;
-    flex: 1 1;
+    flex: 1 1 auto;
     padding: 0;
     border: 0;
     outline: 0;
+    min-width: 0; // overrides default browser width so flex can size as expected
   }
 
   .gdb-faux-input.isInvalid {

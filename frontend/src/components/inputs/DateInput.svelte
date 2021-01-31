@@ -19,11 +19,7 @@
     if (!rawValue || parts.length != 3) {
       throw new Error(`Cannot parse entered date in input: '${rawValue}'`);
     }
-    const utc = getUtcDate(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2])
-    );
+    const utc = getUtcDate(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
     // console.log({ rawValue, utc });
     return utc;
   }
@@ -36,9 +32,7 @@
     const year = value.getUTCFullYear().toString();
     const month = (value.getUTCMonth() + 1).toString();
     const day = value.getUTCDate().toString();
-    return `${year}-${(month.length == 1 ? "0" : "") + month}-${
-      (day.length == 1 ? "0" : "") + day
-    }`;
+    return `${year}-${(month.length == 1 ? "0" : "") + month}-${(day.length == 1 ? "0" : "") + day}`;
   }
 
   // this is the value displayed in the box
@@ -114,15 +108,16 @@
   .gdb-faux-input {
     position: relative;
     display: flex;
-    width: 100%;
-    box-sizing: content-box;
+    // width: 100%; remove because it was overflowin parent after other fixes
+    box-sizing: border-box;
   }
 
   .gdb-faux-input > input {
-    flex: 1 1;
+    flex: 1 1 auto;
     padding: 0;
     border: 0;
     outline: 0;
+    min-width: 0; // overrides default browser width so flex can size as expected
   }
 
   .gdb-faux-input.isInvalid {

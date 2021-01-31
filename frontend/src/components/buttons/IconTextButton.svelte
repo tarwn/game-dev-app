@@ -31,6 +31,10 @@
 <style type="text/scss">
   @import "../../styles/_variables.scss";
 
+  .gdb-button {
+    white-space: nowrap;
+  }
+
   .gdb-button-icon {
     display: inline-block;
     vertical-align: top;
@@ -100,10 +104,7 @@
   }
 </style>
 
-<button
-  on:click|preventDefault|stopPropagation
-  class="gdb-button {buttonStyleClass}"
-  {disabled}>
+<button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" {disabled}>
   <i class="gdb-button-icon {iconString} {iconStyleClass}" />
   <span class="gdb-button-text">{value}</span>
 </button>

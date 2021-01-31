@@ -9,7 +9,7 @@ jobs:
       - image: mcr.microsoft.com/dotnet/sdk:3.1-buster
     environment:
       VERSION_NUMBER: 0.0.0.<< pipeline.number >>
-      JEST_JUNIT_OUTPUT_DIR: "~/reports/"
+      JEST_JUNIT_OUTPUT_DIR: "../../reports/"
       JEST_JUNIT_OUTPUT_NAME: "frontend.xml"
       JEST_JUNIT_ANCESTOR_SEPARATOR: " > "
       JEST_JUNIT_SUITE_NAME: "{filename}"

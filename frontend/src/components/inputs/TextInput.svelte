@@ -100,15 +100,16 @@
   .gdb-faux-input {
     position: relative;
     display: flex;
-    width: 100%;
-    box-sizing: content-box;
+    // width: 100%; remove because it was overflowin parent after other fixes
+    box-sizing: border-box;
   }
 
   .gdb-faux-input > input {
-    flex: 1 1;
+    flex: 1 1 auto;
     padding: 0;
     border: 0;
     outline: 0;
+    min-width: 0; // overrides default browser width so flex can size as expected
   }
 
   .gdb-faux-input.isInvalid {

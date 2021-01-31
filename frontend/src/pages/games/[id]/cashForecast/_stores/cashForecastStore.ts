@@ -22,6 +22,7 @@ export const events = {
     (ids, nextId, args) => opsFactory.insertProp(ids[4], nextId, ValueType.date, args.date.toISOString(), "date"),
     (ids, nextId) => opsFactory.insertProp(ids[4], nextId, ValueType.decimal, 0, "amount")
   ]),
+  "DeleteLoan": eventfactory.createDelete("DeleteLoan", ValueType.object, undefined),
   "SetLoanName": eventfactory.createPropUpdate<string>("SetLoanName", ValueType.string),
   "SetLoanType": eventfactory.createPropUpdate<LoanType>("SetLoanType", ValueType.integer),
   "SetLoanTypeMonthly": (loanType: Identified, loanNumOfMonths: Identified, numberOfMonths: number): IEvent<ICashForecast> => {
@@ -70,7 +71,9 @@ export const events = {
   },
   "SetLoanRepaymentTermsCashOutAmount": eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutAmount", ValueType.decimal),
   "SetLoanRepaymentTermsCashOutStartDate": eventfactory.createPropUpdate<Date>("SetLoanRepaymentTermsCashOutStartDate", ValueType.date),
-  "SetLoanRepaymentTermsCashOutLimitFixedAmount": eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
-  "SetLoanRepaymentTermsCashOutNumberOfMonths": eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
+  "SetLoanRepaymentTermsCashOutLimitFixedAmount":
+    eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
+  "SetLoanRepaymentTermsCashOutNumberOfMonths":
+    eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
 };
 

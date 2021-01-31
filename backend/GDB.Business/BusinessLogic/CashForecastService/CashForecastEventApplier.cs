@@ -79,6 +79,16 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         model.Loans.List.Add(new LoanItem(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, type, cashIn));
                     }
                     break;
+                case "DeleteLoan":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var loan = model.Loans.List.FirstOrDefault(loan => loan.GlobalId == change.Operations[0].ObjectId);
+                        if (loan != null)
+                        {
+                            model.Loans.List.Remove(loan);
+                        }
+                    }
+                    break;
                 case "SetLoanName":
                     this.EnsureOperationCount(change, 1);
                     {
