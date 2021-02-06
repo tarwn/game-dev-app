@@ -11,6 +11,7 @@
   import { getUtcToday } from "../../../../../../../utilities/date";
   import type { IEvent } from "../../../../../../_stores/eventStore/types";
   import { events } from "../../../_stores/cashForecastStore";
+  import { isCurrencyRepayment, isShareRepayment } from "../../../_types/cashForecast";
   import type { ICashForecast, ICashOut, IFundingItem } from "../../../_types/cashForecast";
   import { LoanType, RepaymentType, FundingTypes, RepaymentTypes } from "../../../_types/cashForecast";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
@@ -48,14 +49,6 @@
     } else {
       throw new Error("Funding specified a 'Monthly' type but does not support monthly payment receipt");
     }
-  }
-
-  function isShareRepayment(type: RepaymentType) {
-    return type === RepaymentType.GrossRevenueShare || type === RepaymentType.NetRevenueShare;
-  }
-
-  function isCurrencyRepayment(type: RepaymentType) {
-    return type === RepaymentType.Monthly || type === RepaymentType.OneTime;
   }
 
   function updateRepaymentType(cashOut: ICashOut, e: any) {

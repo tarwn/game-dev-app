@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { ConsoleLogger } from "@microsoft/signalr/dist/esm/Utils";
-
   import { createEventDispatcher } from "svelte";
   import { log } from "../../utilities/logger";
   import ValidationPopup from "./ValidationPopup.svelte";

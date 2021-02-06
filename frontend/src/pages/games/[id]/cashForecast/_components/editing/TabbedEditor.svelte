@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import type { ICashForecast } from "../../_types/cashForecast";
+  import { ExpenseCategory } from "../../_types/cashForecast";
 
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
+  import ExpenseTab from "./ExpenseTab.svelte";
   import { tabs, TabType } from "./tabList";
 
   export let cashForecast: ICashForecast;
@@ -164,8 +166,20 @@
     <h3 tabindex={0}>{currentTab.text}</h3>
     {#if isLoading}
       Loading...
-    {:else if selectedTab == 1}
+    {:else if selectedTab == TabType.AssetsAndFunding}
       <AssetTab {cashForecast} />
+    {:else if selectedTab == TabType.DirectExpenses}
+      <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.DirectExpenses} tableLabel={"Direct Expenses"} />
+    {:else if selectedTab == TabType.MarketingAndSales}
+      <ExpenseTab
+        {cashForecast}
+        expenseCategory={ExpenseCategory.MarketingAndSales}
+        tableLabel={"Marketing & Sales Expenses"} />
+    {:else if selectedTab == TabType.GeneralExpenses}
+      <ExpenseTab
+        {cashForecast}
+        expenseCategory={ExpenseCategory.General}
+        tableLabel={"General & Administrative Expenses"} />
     {:else}
       <EmptyTab />
     {/if}

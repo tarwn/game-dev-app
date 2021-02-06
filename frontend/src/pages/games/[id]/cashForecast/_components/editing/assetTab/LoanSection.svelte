@@ -12,6 +12,7 @@
   import type { IEvent } from "../../../../../../_stores/eventStore/types";
   import { events } from "../../../_stores/cashForecastStore";
   import type { ICashForecast, ICashOut, ILoanItem } from "../../../_types/cashForecast";
+  import { isCurrencyRepayment, isShareRepayment } from "../../../_types/cashForecast";
   import { LoanType, RepaymentType, LoanTypes, RepaymentTypes } from "../../../_types/cashForecast";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
   import TableRowEmpty from "../table/TableRowEmpty.svelte";
@@ -55,14 +56,6 @@
     } else {
       publish(events.SetLoanNumberOfMonths(loan.numberOfMonths, value));
     }
-  }
-
-  function isShareRepayment(type: RepaymentType) {
-    return type === RepaymentType.GrossRevenueShare || type === RepaymentType.NetRevenueShare;
-  }
-
-  function isCurrencyRepayment(type: RepaymentType) {
-    return type === RepaymentType.Monthly || type === RepaymentType.OneTime;
   }
 
   function updateRepaymentType(cashOut: ICashOut, e: any) {

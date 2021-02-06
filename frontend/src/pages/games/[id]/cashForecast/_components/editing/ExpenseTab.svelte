@@ -2,12 +2,12 @@
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import { cashForecastEventStore } from "../../_stores/cashForecastStore";
-  import type { ICashForecast } from "../../_types/cashForecast";
-  import BankBalance from "./assetTab/BankBalance.svelte";
-  import FundingSection from "./assetTab/FundingSection.svelte";
-  import LoanSection from "./assetTab/LoanSection.svelte";
+  import type { ExpenseCategory, ICashForecast } from "../../_types/cashForecast";
+  import ExpenseSection from "./expenseTab/ExpenseSection.svelte";
 
   export let cashForecast: ICashForecast;
+  export let expenseCategory: ExpenseCategory;
+  export let tableLabel: string;
   const publish = cashForecastEventStore.addEvent;
   const forecastDate = cashForecast.forecastStartDate.value;
   // TODO - add launch date into cashforecast and default on creation from game data
@@ -45,14 +45,13 @@
   <colgroup>
     <col span="1" style="width: 2rem;" />
     <col span="1" style="width: 14rem;" />
-    <col span="1" style="width: 12rem;" />
+    <col span="1" style="width: 10rem;" />
     <col span="1" style="width: 11rem;" />
     <col span="1" style="width: 10rem;" />
-    <col span="1" style="width: 10rem;" />
-    <col span="1" style="width: 13rem;" />
+    <col span="1" style="width: 11rem;" />
+    <col span="1" style="width: 8rem;" />
+    <col span="1" style="width: 12rem;" />
     <col span="1" style="" /><!-- soak up excess width -->
   </colgroup>
-  <BankBalance {cashForecast} {publish} {forecastDate} colSpan={7} />
-  <LoanSection {cashForecast} {publish} {forecastDate} colSpan={7} />
-  <FundingSection {cashForecast} {publish} {forecastDate} {launchDate} colSpan={7} />
+  <ExpenseSection {publish} {cashForecast} {forecastDate} {launchDate} {expenseCategory} {tableLabel} colSpan={8} />
 </table>

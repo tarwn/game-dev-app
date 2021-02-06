@@ -2,6 +2,7 @@
   export let isRecord: boolean;
   export let isTop: boolean;
   export let isBottom: boolean;
+  export let animate: any;
 </script>
 
 <style type="text/scss">

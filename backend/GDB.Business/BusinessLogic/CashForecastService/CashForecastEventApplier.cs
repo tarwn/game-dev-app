@@ -49,6 +49,9 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     modelStore.Init(new CashForecastDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId));
                     break;
+
+                // ==== BANK BALANCE
+
                 case "SetBankBalanceName":
                     this.EnsureOperationCount(change, 1);
                     if (model.BankBalance.Name.ParentId == change.Operations[0].ParentId && model.BankBalance.Name.GlobalId == change.Operations[0].ObjectId)
@@ -63,6 +66,9 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         model.BankBalance.Amount.Value = this.ToDecimal(change.Operations[0].Value);
                     }
                     break;
+
+                // ==== LOAN
+
                 case "AddLoan":
                     this.EnsureOperationCount(change, 7);
                     if (model.Loans.GlobalId == change.Operations[0].ParentId)
@@ -333,6 +339,8 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
 
+                // ==== FUNDING
+
                 case "AddFunding":
                     this.EnsureOperationCount(change, 7);
                     if (model.Funding.GlobalId == change.Operations[0].ParentId)
@@ -537,6 +545,95 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         if (cashOut != null)
                         {
                             cashOut.NumberOfMonths.Value = this.ToInt(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+
+                // ==== EXPENSE
+
+                case "AddExpense":
+                    this.EnsureOperationCount(change, 8);
+                    if (model.Expenses.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var category = new IdentifiedPrimitive<ExpenseCategory>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<ExpenseCategory>(change.Operations[2].Value));
+                        var frequency = new IdentifiedPrimitive<ExpenseFrequency>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<ExpenseFrequency>(change.Operations[3].Value));
+                        var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDateTime(change.Operations[4].Value));
+                        var until = new IdentifiedPrimitive<ExpenseUntil>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToEnum<ExpenseUntil>(change.Operations[5].Value));
+                        var endDate = new IdentifiedPrimitive<DateTime>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDateTime(change.Operations[6].Value));
+                        var amount = new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value));
+                        // come back to 0 and put it together
+                        model.Expenses.List.Add(new GenericExpense(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, category, frequency, startDate, until, endDate, amount));
+                    }
+                    break;
+                case "DeleteExpense":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                        if (expense != null)
+                        {
+                            model.Expenses.List.Remove(expense);
+                        }
+                    }
+                    break;
+                case "SetExpenseName":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.Name.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "SetExpenseFrequency":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.Frequency.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.Frequency.Value = this.ToEnum<ExpenseFrequency>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetExpenseStartDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.StartDate.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetExpenseUntil":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.Until.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.Until.Value = this.ToEnum<ExpenseUntil>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetExpenseEndDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.EndDate.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.EndDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetExpenseAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var expense = model.Expenses.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (expense != null && expense.Amount.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            expense.Amount.Value = this.ToDecimal(change.Operations[0].Value);
                         }
                     }
                     break;

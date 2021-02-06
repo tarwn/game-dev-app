@@ -5,6 +5,7 @@
         OneTime = 1,
         Monthly = 2,
         GrossRevenueShare = 3,
-        NetRevenueShare = 4
+        GrossProfitShare = 4,
+        NetProfitShare = 5
     }
 }

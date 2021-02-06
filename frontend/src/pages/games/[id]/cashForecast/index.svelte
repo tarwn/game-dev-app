@@ -16,6 +16,7 @@
   import TabbedEditor from "./_components/editing/TabbedEditor.svelte";
   import { TabType } from "./_components/editing/tabList";
   import AssetInstructions from "./_components/editing/assetTab/AssetInstructions.svelte";
+  import DirectExpensesInstructions from "./_components/editing/expenseTab/DirectExpensesInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -231,10 +232,14 @@
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
         {#if selectedTab === TabType.AssetsAndFunding}
           <AssetInstructions />
+        {:else if selectedTab === TabType.DirectExpenses}
+          <DirectExpensesInstructions />
         {/if}
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
-        <TabbedEditor {isLoading} {cashForecast} on:selection={({ detail }) => (selectedTab = detail)} />
+        {#if cashForecast != null}
+          <TabbedEditor {isLoading} {cashForecast} on:selection={({ detail }) => (selectedTab = detail)} />
+        {/if}
       </div>
     {/if}
   {/if}

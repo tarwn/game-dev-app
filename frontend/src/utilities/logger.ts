@@ -5,3 +5,4 @@ export const log = (subject: string, args: Record<string, unknown>): void => {
   console.log(args);
   console.groupEnd();
 };
+

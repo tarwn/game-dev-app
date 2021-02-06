@@ -2,7 +2,7 @@ import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
 import { createImmutableAutomaticEventApplier } from "../../../../_stores/eventStore/eventApplier";
 import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/types";
-import { ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
+import { ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
 import { createAutomaticEventFactory, opsFactory } from "../../../../_stores/eventStore/eventFactory";
 
@@ -102,14 +102,14 @@ export const events = {
   "AddFundingRepaymentTerms": eventfactory.createObjectInsert<{ date: Date, amount: number }>("AddFundingRepaymentTerms", "repaymentTerms", [
     (ids, nextId) => opsFactory.insertList(ids[0], nextId, "cashOut"),
     (ids, nextId) => opsFactory.insertObject(ids[1], nextId),
-    (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.integer, RepaymentType.NetRevenueShare, "type"),
+    (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.integer, RepaymentType.GrossRevenueShare, "type"),
     (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.decimal, 0.8, "amount"),
     (ids, nextId, args) => opsFactory.insertProp(ids[2], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId, args) => opsFactory.insertProp(ids[2], nextId, ValueType.decimal, args.amount, "limitFixedAmount"),
     (ids, nextId) => opsFactory.insertProp(ids[2], nextId, ValueType.integer, 1, "numberOfMonths")
   ]),
   "AddFundingRepaymentTermsCashOut": eventfactory.createObjectInsert<{ date: Date }>("AddFundingRepaymentTermsCashOut", undefined, [
-    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, RepaymentType.NetRevenueShare, "type"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, RepaymentType.GrossRevenueShare, "type"),
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0.0, "amount"),
     (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "limitFixedAmount"),
@@ -133,5 +133,22 @@ export const events = {
     eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
   "SetFundingRepaymentTermsCashOutNumberOfMonths":
     eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
+  "AddExpense": eventfactory.createObjectInsert<{ date: Date, expenseCategory: ExpenseCategory }>("AddExpense", undefined, [
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, args.expenseCategory, "category"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, ExpenseFrequency.OneTime, "frequency"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, ExpenseUntil.Date, "until"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date, "endDate"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount"),
+
+  ]),
+  "DeleteExpense": eventfactory.createDelete("DeleteExpense", ValueType.object, undefined),
+  "SetExpenseName": eventfactory.createPropUpdate<string>("SetExpenseName", ValueType.string),
+  "SetExpenseFrequency": eventfactory.createPropUpdate<ExpenseFrequency>("SetExpenseFrequency", ValueType.integer),
+  "SetExpenseStartDate": eventfactory.createPropUpdate<Date>("SetExpenseStartDate", ValueType.date),
+  "SetExpenseUntil": eventfactory.createPropUpdate<ExpenseUntil>("SetExpenseUntil", ValueType.integer),
+  "SetExpenseEndDate": eventfactory.createPropUpdate<Date>("SetExpenseEndDate", ValueType.date),
+  "SetExpenseAmount": eventfactory.createPropUpdate<number>("SetExpenseAmount", ValueType.decimal),
 };
 

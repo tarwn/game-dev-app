@@ -16,12 +16,21 @@ export enum RepaymentType {
   OneTime = 1,
   Monthly = 2,
   GrossRevenueShare = 3,
-  NetRevenueShare = 4
+  GrossProfitShare = 4,
+  NetProfitShare = 5
 }
 
-export const RepaymentTypes: { id: LoanType, name: string }[] = Object.keys(RepaymentType)
+export const RepaymentTypes: { id: RepaymentType, name: string }[] = Object.keys(RepaymentType)
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: RepaymentType[lt], name: lt }));
+
+export function isShareRepayment(type: RepaymentType): boolean {
+  return type === RepaymentType.GrossRevenueShare || type === RepaymentType.GrossProfitShare || type == RepaymentType.NetProfitShare;
+}
+
+export function isCurrencyRepayment(type: RepaymentType): boolean {
+  return type === RepaymentType.Monthly || type === RepaymentType.OneTime;
+}
 
 export enum AdditionalEmployeeExpenseType {
   NetRevenueShare = 1,
@@ -38,10 +47,33 @@ export enum AdditionalEmployeeExpenseFrequency {
   Annual = 3
 }
 
-export enum IExpenseFrequency {
+export enum ExpenseFrequency {
   Monthly = 1,
   OneTime = 2
 }
+
+export const ExpenseFrequencies: { id: ExpenseFrequency, name: string }[] = Object.keys(ExpenseFrequency)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: ExpenseFrequency[lt], name: lt }));
+
+export enum ExpenseCategory {
+  DirectExpenses = 1,
+  MarketingAndSales = 2,
+  General = 3
+}
+
+export const ExpenseCategories: { id: ExpenseCategory, name: string }[] = Object.keys(ExpenseCategory)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: ExpenseCategory[lt], name: lt }));
+
+export enum ExpenseUntil {
+  Date = 1,
+  Launch = 2
+}
+
+export const ExpenseUntils: { id: ExpenseUntil, name: string }[] = Object.keys(ExpenseUntil)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: ExpenseUntil[lt], name: lt }));
 
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
@@ -116,7 +148,7 @@ export interface IContractorExpense extends IIdentifiedObject {
 }
 
 export interface IContractorPayment extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<IExpenseFrequency>;
+  type: IIdentifiedPrimitive<ExpenseFrequency>;
   startDate: IIdentifiedPrimitive<Date | null>;
   endDate: IIdentifiedPrimitive<Date | null>;
   amount: IIdentifiedPrimitive<number>;
@@ -124,9 +156,11 @@ export interface IContractorPayment extends IIdentifiedObject {
 
 export interface IGenericExpense extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
-  frequency: IIdentifiedPrimitive<IExpenseFrequency>;
-  startDate: IIdentifiedPrimitive<Date | null>;
-  endDate: IIdentifiedPrimitive<Date | null>;
+  category: IIdentifiedPrimitive<ExpenseCategory>;
+  frequency: IIdentifiedPrimitive<ExpenseFrequency>;
+  startDate: IIdentifiedPrimitive<Date>;
+  until: IIdentifiedPrimitive<ExpenseUntil>;
+  endDate: IIdentifiedPrimitive<Date>;
   amount: IIdentifiedPrimitive<number>;
 }
 
