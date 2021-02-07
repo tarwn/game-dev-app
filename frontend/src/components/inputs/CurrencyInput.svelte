@@ -3,10 +3,12 @@
   import { getCurrencyHelper } from "./currencyHelper";
   import ValidationPopup from "./ValidationPopup.svelte";
 
+  export let disabled: boolean = false;
   export let min: number = 0;
   export let max: number = 10000000;
   export let id: string | undefined = undefined;
   export let value: number = 0.0;
+  const ariaLabel: string | null = $$props["aria-label"];
   const DEBOUNCE_LIMIT = 100; // ms
 
   let internalValue = value;
@@ -122,7 +124,7 @@
   }
 </style>
 
-<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid}>
+<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid} class:disabled>
   <span class="gdb-input-symbol">$</span>
   <input
     type="text"
@@ -131,7 +133,9 @@
     on:keydown={filterKeyDown}
     on:focusout={handleFocusOut}
     role="textbox"
-    tabIndex={0} />
+    {disabled}
+    tabIndex={disabled ? -1 : 0}
+    aria-label={ariaLabel} />
   <ValidationPopup {isValid}>
     <span slot="message">
       Enter a value between <b>{formattedMin}</b> - <b>{formattedMax}</b>.

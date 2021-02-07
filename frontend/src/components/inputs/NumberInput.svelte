@@ -3,11 +3,13 @@
   import { getNumberHelper } from "./numberHelper";
   import ValidationPopup from "./ValidationPopup.svelte";
 
+  export let disabled: boolean = false;
   export let min: number = 0;
   export let max: number = 100;
   export let decimalScale = 0;
   export let id: string | undefined = undefined;
   export let value: number = 0.0;
+  const ariaLabel: string | null = $$props["aria-label"];
   const DEBOUNCE_LIMIT = 100; // ms
 
   let internalValue = value;
@@ -130,7 +132,9 @@
     on:keydown={filterKeyDown}
     on:focusout={handleFocusOut}
     role="textbox"
-    tabIndex={0} />
+    {disabled}
+    tabIndex={disabled ? -1 : 0}
+    aria-label={ariaLabel} />
   <ValidationPopup {isValid}>
     <span slot="message">
       Enter a value between <b>{formattedMin}</b> - <b>{formattedMax}</b>.

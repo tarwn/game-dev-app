@@ -7,7 +7,6 @@
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";
   import CurrencyInput from "../../../../../../../components/inputs/CurrencyInput.svelte";
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
-  import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
   import TextInput from "../../../../../../../components/inputs/TextInput.svelte";
   import type { IEvent } from "../../../../../../_stores/eventStore/types";
   import { events } from "../../../_stores/cashForecastStore";
@@ -114,14 +113,18 @@
         aria-label="Start Date"
         on:change={({ detail }) => publish(events.SetExpenseStartDate(expense.startDate, detail.value))} />
     </td>
-    <td>
-      <!-- svelte-ignore a11y-no-onchange -->
-      <select value={expense.until.value} aria-label="Until" on:change={(e) => updateUntil(expense, e)}>
-        {#each ExpenseUntils as until}
-          <option value={until.id}>{until.name}</option>
-        {/each}
-      </select>
-    </td>
+    {#if !isFrequencyRecurring(expense.frequency.value)}
+      <NotApplicableCell />
+    {:else}
+      <td>
+        <!-- svelte-ignore a11y-no-onchange -->
+        <select value={expense.until.value} aria-label="Until" on:change={(e) => updateUntil(expense, e)}>
+          {#each ExpenseUntils as until}
+            <option value={until.id}>{until.name}</option>
+          {/each}
+        </select>
+      </td>
+    {/if}
     {#if !isFrequencyRecurring(expense.frequency.value)}
       <NotApplicableCell />
     {:else if expense.until.value === ExpenseUntil.Date}
@@ -132,7 +135,13 @@
           on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
       </td>
     {:else}
-      <td><DateOutput date={launchDate} /></td>
+      <td>
+        <DateInput
+          value={launchDate}
+          aria-label="End Date"
+          disabled={true}
+          on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
+      </td>
     {/if}
     <td>
       <CurrencyInput

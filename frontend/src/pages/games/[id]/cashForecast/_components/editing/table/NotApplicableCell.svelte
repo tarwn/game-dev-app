@@ -12,4 +12,4 @@
   }
 </style>
 
-<td class="gdb-cell-na">n/a</td>
+<td class="gdb-cell-na">-</td>

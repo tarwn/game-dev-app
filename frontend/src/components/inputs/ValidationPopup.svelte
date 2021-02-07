@@ -37,5 +37,6 @@
     <div class="gdb-validation-note">
       <slot name="note" />
     </div>
+    {#if false}<slot><!-- https://github.com/sveltejs/svelte/issues/4546 --></slot>{/if}
   </div>
 {/if}

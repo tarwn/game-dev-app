@@ -3,8 +3,10 @@
   import { getUtcDate, getUtcToday } from "../../utilities/date";
   import ValidationPopup from "./ValidationPopup.svelte";
 
+  export let disabled: boolean = false;
   export let id: string | undefined = undefined;
   export let value: Date = getUtcToday();
+  const ariaLabel: string | null = $$props["aria-label"];
   const DEBOUNCE_LIMIT = 100; // ms
 
   // TODO - add delayed update - if they pause for a second or two, treat is as an update
@@ -132,7 +134,7 @@
   }
 </style>
 
-<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid}>
+<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid} class:disabled>
   <input
     type="date"
     {id}
@@ -141,7 +143,9 @@
     on:focusout={handleFocusOut}
     on:input={handleInput}
     role="textbox"
-    tabIndex={0} />
+    {disabled}
+    tabIndex={disabled ? -1 : 0}
+    aria-label={ariaLabel} />
   <ValidationPopup {isValid}>
     <span slot="message"> I'm not really sure what goes here yet. </span>
     <span slot="note">

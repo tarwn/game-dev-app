@@ -2,9 +2,11 @@
   import { createEventDispatcher } from "svelte";
   import ValidationPopup from "./ValidationPopup.svelte";
 
+  export let disabled: boolean = false;
   export let id: string | undefined = undefined;
   export let value: string = "";
   export let maxLength: number = 20;
+  const ariaLabel: string | null = $$props["aria-label"];
   const DEBOUNCE_LIMIT = 100; // ms
 
   // TODO - add delayed update - if they pause for a second or two, treat is as an update
@@ -129,7 +131,9 @@
     on:focusout={handleFocusOut}
     on:input={handleInput}
     role="textbox"
-    tabIndex={0} />
+    {disabled}
+    tabIndex={disabled ? -1 : 0}
+    aria-label={ariaLabel} />
   <ValidationPopup {isValid}>
     <span slot="message">
       Enter a value that is {maxLength} characters or less.

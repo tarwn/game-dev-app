@@ -78,6 +78,16 @@ select {
     border: 1px solid $color-accent-1-darker;
     outline: none;
   }
+
+  &.disabled,
+  &[disabled]{
+    background-color: $cs-grey-0;
+    border-color: $cs-grey-1;
+    // border-top-color: $cs-grey-0;
+    // border-left-color: $cs-grey-0;
+    // border-right-color: $cs-grey-0;
+    // color: $cs-grey-4;
+  }
 }
 
 .gdb-input.gdb-input-noneditable{

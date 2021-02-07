@@ -1,7 +1,7 @@
 <script lang="ts">
-  export let isRecord: boolean;
-  export let isTop: boolean;
-  export let isBottom: boolean;
+  export let isRecord: boolean = false;
+  export let isTop: boolean = false;
+  export let isBottom: boolean = false;
 </script>
 
 <style type="text/scss">
