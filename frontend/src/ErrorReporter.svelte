@@ -9,9 +9,7 @@
 
   function looksLikeWebsocket(message: string) {
     return (
-      message.indexOf(
-        "Connection disconnected with error 'Error: WebSocket closed"
-      ) >= 0 ||
+      message.indexOf("Connection disconnected with error 'Error: WebSocket closed") >= 0 ||
       message.indexOf("Failed to complete negotiation with the server:") >= 0 ||
       message.indexOf("Failed to start the connection: ") >= 0 ||
       message.indexOf(
@@ -26,12 +24,12 @@
     release: "frontend@" + config.version,
     environment: config.environment,
     debug: config.environment == "Development",
+    // this looks interesting but it's opt-out and turned on by default
+    autoSessionTracking: false,
     beforeSend: (event) => {
       // ignore websocket errors - hack because I couldn't find a handle in signal connection to eat errors at the source
       if (event.message && looksLikeWebsocket(event.message)) {
-        console.log(
-          "Sentry: Skipping websocket messages, will reconnect when able"
-        );
+        console.log("Sentry: Skipping websocket messages, will reconnect when able");
         return null;
       }
 
@@ -106,12 +104,11 @@
     <div class="gdb-error-reporting-dialog">
       <h3>An Error Occurred</h3>
       <p>
-        Sorry, we ran into an error. It's been reported so we can fix it, but in
-        the meantime you can continue, which will refresh the browser.
+        Sorry, we ran into an error. It's been reported so we can fix it, but in the meantime you can continue, which
+        will refresh the browser.
       </p>
       <div class="gdb-right">
-        <button class="gdb-button gdb-bs-primary" on:click={dismissError}
-          >Dismiss</button>
+        <button class="gdb-button gdb-bs-primary" on:click={dismissError}>Dismiss</button>
       </div>
     </div>
   </div>
