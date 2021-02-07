@@ -169,17 +169,11 @@
     {:else if selectedTab == TabType.AssetsAndFunding}
       <AssetTab {cashForecast} />
     {:else if selectedTab == TabType.DirectExpenses}
-      <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.DirectExpenses} tableLabel={"Direct Expenses"} />
+      <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.DirectExpenses} />
     {:else if selectedTab == TabType.MarketingAndSales}
-      <ExpenseTab
-        {cashForecast}
-        expenseCategory={ExpenseCategory.MarketingAndSales}
-        tableLabel={"Marketing & Sales Expenses"} />
+      <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.MarketingAndSales} />
     {:else if selectedTab == TabType.GeneralExpenses}
-      <ExpenseTab
-        {cashForecast}
-        expenseCategory={ExpenseCategory.General}
-        tableLabel={"General & Administrative Expenses"} />
+      <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
     {:else}
       <EmptyTab />
     {/if}

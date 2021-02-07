@@ -3,6 +3,7 @@
     public enum ExpenseFrequency
     {
         Monthly = 1,
-        OneTime = 2
+        OneTime = 2,
+        Annual = 3
     }
 }

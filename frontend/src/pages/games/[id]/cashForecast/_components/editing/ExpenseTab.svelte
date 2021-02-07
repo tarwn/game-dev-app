@@ -7,7 +7,6 @@
 
   export let cashForecast: ICashForecast;
   export let expenseCategory: ExpenseCategory;
-  export let tableLabel: string;
   const publish = cashForecastEventStore.addEvent;
   const forecastDate = cashForecast.forecastStartDate.value;
   // TODO - add launch date into cashforecast and default on creation from game data
@@ -53,5 +52,5 @@
     <col span="1" style="width: 12rem;" />
     <col span="1" style="" /><!-- soak up excess width -->
   </colgroup>
-  <ExpenseSection {publish} {cashForecast} {forecastDate} {launchDate} {expenseCategory} {tableLabel} colSpan={8} />
+  <ExpenseSection {publish} {cashForecast} {forecastDate} {launchDate} {expenseCategory} colSpan={8} />
 </table>

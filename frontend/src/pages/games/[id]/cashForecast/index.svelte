@@ -17,6 +17,8 @@
   import { TabType } from "./_components/editing/tabList";
   import AssetInstructions from "./_components/editing/assetTab/AssetInstructions.svelte";
   import DirectExpensesInstructions from "./_components/editing/expenseTab/DirectExpensesInstructions.svelte";
+  import MktgAndSalesExpensesInstructions from "./_components/editing/expenseTab/MktgAndSalesExpensesInstructions.svelte";
+  import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -234,6 +236,10 @@
           <AssetInstructions />
         {:else if selectedTab === TabType.DirectExpenses}
           <DirectExpensesInstructions />
+        {:else if selectedTab === TabType.MarketingAndSales}
+          <MktgAndSalesExpensesInstructions />
+        {:else if selectedTab === TabType.GeneralExpenses}
+          <GeneralExpensesInstructions />
         {/if}
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">

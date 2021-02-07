@@ -49,12 +49,17 @@ export enum AdditionalEmployeeExpenseFrequency {
 
 export enum ExpenseFrequency {
   Monthly = 1,
-  OneTime = 2
+  OneTime = 2,
+  Annual = 3
 }
 
 export const ExpenseFrequencies: { id: ExpenseFrequency, name: string }[] = Object.keys(ExpenseFrequency)
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: ExpenseFrequency[lt], name: lt }));
+
+export function isFrequencyRecurring(frequency: ExpenseFrequency): boolean {
+  return frequency !== ExpenseFrequency.OneTime;
+}
 
 export enum ExpenseCategory {
   DirectExpenses = 1,

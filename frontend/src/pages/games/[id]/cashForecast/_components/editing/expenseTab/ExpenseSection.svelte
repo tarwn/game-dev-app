@@ -17,17 +17,18 @@
     ExpenseFrequency,
     ExpenseUntil,
     ExpenseUntils,
+    isFrequencyRecurring,
   } from "../../../_types/cashForecast";
   import type { ICashForecast, IGenericExpense } from "../../../_types/cashForecast";
-  import LabelCell from "../table/LabelCell.svelte";
   import TableRowIndented from "../table/TableRowIndented.svelte";
   import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
+  import NotApplicableCell from "../table/NotApplicableCell.svelte";
+  import LabelCell from "../table/LabelCell.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
   export let launchDate: Date;
   export let expenseCategory: ExpenseCategory;
-  export let tableLabel: string;
   export let colSpan: number;
   export let publish: (event: IEvent<ICashForecast>) => void;
 
@@ -77,7 +78,7 @@
   @import "../../../../../../../styles/_variables.scss";
 </style>
 
-<TableSubHeaderRow colspan={colSpan} value={tableLabel} />
+<TableSubHeaderRow colspan={colSpan} value={"Expenses"} />
 <TableRowIndented>
   <LabelCell>Name</LabelCell>
   <LabelCell>Frequency</LabelCell>
@@ -121,16 +122,18 @@
         {/each}
       </select>
     </td>
-    <td>
-      {#if expense.until.value === ExpenseUntil.Date}
+    {#if !isFrequencyRecurring(expense.frequency.value)}
+      <NotApplicableCell />
+    {:else if expense.until.value === ExpenseUntil.Date}
+      <td>
         <DateInput
           value={expense.endDate.value}
           aria-label="End Date"
           on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
-      {:else}
-        <DateOutput date={launchDate} />
-      {/if}
-    </td>
+      </td>
+    {:else}
+      <td><DateOutput date={launchDate} /></td>
+    {/if}
     <td>
       <CurrencyInput
         value={expense.amount.value}
