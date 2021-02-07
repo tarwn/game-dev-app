@@ -6,9 +6,9 @@
   const dispatch = createEventDispatcher();
 
   let connected = false;
-  let connectedChannelId = null;
+  // let connectedChannelId = null;
 
-  function setConnected(isConnected) {
+  function setConnected(isConnected: boolean) {
     connected = isConnected;
     dispatch(connected ? "connected" : "disconnected");
   }
@@ -57,5 +57,5 @@
 </style>
 
 {#if !connected}
-  <div use:portal={'body'} class="gdb-disconnected">Reconnecting...</div>
+  <div use:portal={"body"} class="gdb-disconnected">Reconnecting...</div>
 {/if}

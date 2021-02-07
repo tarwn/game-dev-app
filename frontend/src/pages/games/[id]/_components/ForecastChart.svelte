@@ -66,9 +66,7 @@
     const svg = d3.select(el);
 
     const yAxisDrawn = svg.append("g").call(yAxis);
-    yAxisDrawn
-      .style("color", "#c3cecd")
-      .attr("transform", "translate(" + [margin.left, 0] + ")");
+    yAxisDrawn.style("color", "#c3cecd").attr("transform", "translate(" + [margin.left, 0] + ")");
     yAxisDrawn.select(".domain").remove();
     yAxisDrawn.selectAll("line").remove();
 
@@ -80,9 +78,7 @@
         d3
           .axisBottom(xScale)
           .ticks(4)
-          .tickFormat((d: any) =>
-            d.toLocaleDateString("en-US", { month: "short" })
-          )
+          .tickFormat((d: any) => d.toLocaleDateString("en-US", { month: "short" }))
       );
     xAxisDrawn.select(".domain").remove();
     xAxisDrawn.selectAll("line").remove();
@@ -111,14 +107,14 @@
       .append("path")
       .datum(data)
       .attr("fill", "#d4e6ab")
-      .attr("d", area)
+      .attr("d", area as any)
       .attr("clip-path", "url(#positive-clip");
 
     svg
       .append("path")
       .datum(data)
       .attr("fill", "#e5adac")
-      .attr("d", area)
+      .attr("d", area as any)
       .attr("clip-path", "url(#negative-clip");
 
     svg
@@ -129,7 +125,7 @@
       .attr("stroke-width", 2.0)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("d", line)
+      .attr("d", line as any)
       .attr("clip-path", "url(#positive-clip");
 
     svg
@@ -140,7 +136,7 @@
       .attr("stroke-width", 2.0)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("d", line)
+      .attr("d", line as any)
       .attr("clip-path", "url(#negative-clip");
   });
 </script>

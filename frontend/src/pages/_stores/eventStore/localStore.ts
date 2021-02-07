@@ -2,7 +2,11 @@ import { writable } from 'svelte/store';
 import { log } from '../../../utilities/logger';
 import type { Versioned, IEvent, IEventApplier, ReadableEventStore, ReadableLocalStore } from './types';
 
-export function createLocalStore<T extends Versioned>(eventStore: ReadableEventStore<T>, eventApplier: IEventApplier<T>): ReadableLocalStore<T> {
+export function createLocalStore<T extends Versioned>(
+  eventStore: ReadableEventStore<T>,
+  eventApplier: IEventApplier<T>
+): ReadableLocalStore<T> {
+
   let latestLocalState = null as T | null;
   let latestFinalStateVersion = null as number | null;
   let nextEventInQueue = null as IEvent<T> | null;
@@ -54,7 +58,11 @@ export function createLocalStore<T extends Versioned>(eventStore: ReadableEventS
   };
 }
 
-function eventQueueStillMatches<T extends Versioned>(queue: IEvent<T>[], previousNextEvent: IEvent<T> | null, lastEventInQueue: IEvent<T> | null): boolean {
+function eventQueueStillMatches<T extends Versioned>(
+  queue: IEvent<T>[],
+  previousNextEvent: IEvent<T> | null,
+  lastEventInQueue: IEvent<T> | null
+): boolean {
   if (previousNextEvent == null) {
     return queue.length == 0;
   }

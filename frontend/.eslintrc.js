@@ -38,7 +38,6 @@ module.exports = {
   rules: {
     "semi": "error",
     "brace-style": ["error", "stroustrup"],
-    "editorconfig/editorconfig": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "max-len": [1, { code: 140, ignoreUrls: true }],

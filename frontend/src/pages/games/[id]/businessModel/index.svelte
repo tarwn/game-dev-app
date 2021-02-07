@@ -5,18 +5,11 @@
   import type { IBusinessModel } from "./_types/businessModel";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
-  import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
-  import {
-    businessModelEventStore,
-    businessModelLocalStore,
-  } from "./_stores/businessModelStore";
+  import { businessModelEventStore, businessModelLocalStore } from "./_stores/businessModelStore";
   import { getConfig } from "../../../../config";
   import { log } from "../../../../utilities/logger";
-  import {
-    getNextSectionInLine,
-    getSectionStatus,
-  } from "./_types/businessModelUsage";
+  import { getNextSectionInLine, getSectionStatus } from "./_types/businessModelUsage";
   import BusinessModelCanvasLarge from "./_components/BusinessModelCanvasLarge.svelte";
   import CustomersSectionInstructions from "./_components/sections/CustomersSectionInstructions.svelte";
   import CustomersSection from "./_components/sections/CustomersSection.svelte";

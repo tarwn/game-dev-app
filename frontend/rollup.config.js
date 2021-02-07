@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy'
 import scss from 'rollup-plugin-scss'
+import css from 'rollup-plugin-css-only';
 import sveltePreprocess from 'svelte-preprocess';
 import { argv } from "yargs";
 import del from "del";
@@ -94,13 +95,16 @@ export default {
       // sourceMapContents: true
     }),
     svelte({
-      // enable run-time checks when not in production
-      dev: !production,
-      // we'll extract any component CSS out into
-      // a separate file - better for performance
-      css: css => {
-        css.write('bundle.css');
+      compilerOptions: {
+        // enable run-time checks when not in production
+        dev: !production
       },
+      // we'll extract any component CSS out into
+      // // a separate file - better for performance
+      // css: css => {
+      //   css.write('bundle.css');
+      // },
+      emitCss: true,
       preprocess: sveltePreprocess({
         sass: {
           implementation: "sass"
@@ -108,6 +112,7 @@ export default {
         postcss: true
       }),
     }),
+    css({ output: 'bundle.css' }),
 
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In

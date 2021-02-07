@@ -109,9 +109,7 @@
     <tr class="gdb-cf-headRow">
       <th />
       {#each sampleData as month}
-        <th
-          class:isNegative={month.lowestCash < 0}
-          class:isPositive={month.lowestCash > 0}>
+        <th class:isNegative={month.lowestCash < 0} class:isPositive={month.lowestCash > 0}>
           {month.month.toLocaleDateString("en-US", {
             month: "short",
             year: "numeric",
@@ -144,9 +142,7 @@
           {sampleData[0].lines[line].name}
         </td>
         {#each sampleData as month}
-          <td
-            class="gdb-cf-currency gdb-cf-line-value"
-            class:isNegative={month.lowestCash < 0}>
+          <td class="gdb-cf-currency gdb-cf-line-value" class:isNegative={month.lowestCash < 0}>
             {formatUSD(month.lines[line].amount)}
           </td>
         {/each}
@@ -154,9 +150,7 @@
       <tr class="gdb-cf-line-space">
         <td class="gdb-cf-line-space" />
         {#each sampleData as month}
-          <td
-            class="gdb-cf-line-space"
-            class:isNegative={month.lowestCash < 0} />
+          <td class="gdb-cf-line-space" class:isNegative={month.lowestCash < 0} />
         {/each}
       </tr>
     {/each}
@@ -182,9 +176,7 @@
     <tr class="gdb-cf-headRow">
       <th />
       {#each sampleData as month}
-        <th
-          class:isNegative={month.lowestCash < 0}
-          class:isPositive={month.lowestCash > 0}>
+        <th class:isNegative={month.lowestCash < 0} class:isPositive={month.lowestCash > 0}>
           {month.month.toLocaleDateString("en-US", {
             month: "short",
             year: "numeric",
@@ -207,9 +199,7 @@
     <tr class="gdb-cf-line gdb-cf-row-balances">
       <td class="gdb-cf-line-title">Lowest Mid-Month</td>
       {#each sampleData as month}
-        <td
-          class="gdb-cf-currency gdb-cf-line-value"
-          class:isNegative={month.lowestCash < 0}>
+        <td class="gdb-cf-currency gdb-cf-line-value" class:isNegative={month.lowestCash < 0}>
           {formatUSD(month.lowestCash)}
         </td>
       {/each}
@@ -217,9 +207,7 @@
     <tr class="gdb-cf-line gdb-cf-row-balances">
       <td class="gdb-cf-line-title">Highest Mid-Month</td>
       {#each sampleData as month}
-        <td
-          class="gdb-cf-currency gdb-cf-line-value"
-          class:isNegative={month.highestCash < 0}>
+        <td class="gdb-cf-currency gdb-cf-line-value" class:isNegative={month.highestCash < 0}>
           {formatUSD(month.highestCash)}
         </td>
       {/each}

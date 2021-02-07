@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { log } from "../../utilities/logger";
   import ValidationPopup from "./ValidationPopup.svelte";
 
   export let id: string | undefined = undefined;

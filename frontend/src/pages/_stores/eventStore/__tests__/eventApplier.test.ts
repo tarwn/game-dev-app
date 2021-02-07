@@ -4,7 +4,17 @@ import { getUtcDate } from "../../../../utilities/date";
 import { createImmutableAutomaticEventApplier, search } from "../eventApplier";
 import { createAutomaticEventFactory, opsFactory } from "../eventFactory";
 import { createEventStore } from "../eventStore";
-import { IEventApplier, IEventStateApi, IEventStore, IIdentifiedList, IIdentifiedObject, IIdentifiedPrimitive, OperationType, ValueType, Versioned } from "../types";
+import {
+  IEventApplier,
+  IEventStateApi,
+  IEventStore,
+  IIdentifiedList,
+  IIdentifiedObject,
+  IIdentifiedPrimitive,
+  OperationType,
+  ValueType,
+  Versioned
+} from "../types";
 
 // fake store with lots of diferent types to experiment on
 export type FakeModel = Versioned & {

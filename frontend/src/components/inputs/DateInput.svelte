@@ -25,7 +25,8 @@
   }
 
   function validateValue(parsedValue: Date) {
-    return true;
+    // placeholder for now
+    return parsedValue !== null;
   }
 
   function formatValue(value: Date) {

@@ -74,10 +74,10 @@
     }
   });
   let hasUnsaved = false;
-  let lastSaved = new Date();
+  // let lastSaved = new Date();
   const unsubscribe2 = cashForecastEventStore.subscribe((update) => {
     if (hasUnsaved && update.pendingEvents.length == 0) {
-      lastSaved = new Date();
+      // lastSaved = new Date();
     }
     hasUnsaved = update.pendingEvents.length > 0;
   });

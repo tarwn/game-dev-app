@@ -1,6 +1,26 @@
 import type { Identified, IIdentifiedList, IIdentifiedPrimitive } from "../pages/_stores/eventStore/types";
-import type { BusinessModelCustomerType, IBusinessModel, IBusinessModelChannels, IBusinessModelCost, IBusinessModelCustomer, IBusinessModelCustomerRelationships, IBusinessModelKeyActivities, IBusinessModelKeyPartners, IBusinessModelKeyResources, IBusinessModelRevenue, IBusinessModelValueProposition } from "../pages/games/[id]/businessModel/_types/businessModel";
-import type { ICashForecast, IContractorExpense, IEmployeeExpense, IFundingItem, IGenericExpense, ILoanItem, IRevenue } from "../pages/games/[id]/cashForecast/_types/cashForecast";
+import type {
+  BusinessModelCustomerType,
+  IBusinessModel,
+  IBusinessModelChannels,
+  IBusinessModelCost,
+  IBusinessModelCustomer,
+  IBusinessModelCustomerRelationships,
+  IBusinessModelKeyActivities,
+  IBusinessModelKeyPartners,
+  IBusinessModelKeyResources,
+  IBusinessModelRevenue,
+  IBusinessModelValueProposition
+} from "../pages/games/[id]/businessModel/_types/businessModel";
+import type {
+  ICashForecast,
+  IContractorExpense,
+  IEmployeeExpense,
+  IFundingItem,
+  IGenericExpense,
+  ILoanItem,
+  IRevenue
+} from "../pages/games/[id]/cashForecast/_types/cashForecast";
 
 export function createEmptyBusinessModel(): IBusinessModel {
   return {
@@ -10,7 +30,8 @@ export function createEmptyBusinessModel(): IBusinessModel {
     customers: createObjectList<IBusinessModelCustomer>("unit-test-bm", "unit-test-bm-c", "customers"),
     valueProposition: createValueProposition("unit-test-bm", "unit-test-bm-vp", "valueProposition"),
     channels: createChannels("unit-test-bm", "unit-test-bm-channels", "channels"),
-    customerRelationships: createWithEntriesOnly<IBusinessModelCustomerRelationships>("unit-test-bm", "unit-test-bm-cr", "customerRelationships"),
+    customerRelationships: createWithEntriesOnly<IBusinessModelCustomerRelationships>(
+      "unit-test-bm", "unit-test-bm-cr", "customerRelationships"),
     revenue: createWithEntriesOnly<IBusinessModelRevenue>("unit-test-bm", "unit-test-bm-rev", "revenue"),
     keyResources: createWithEntriesOnly<IBusinessModelKeyResources>("unit-test-bm", "unit-test-bm-kr", "keyResources"),
     keyActivities: createWithEntriesOnly<IBusinessModelKeyActivities>("unit-test-bm", "unit-test-bm-ka", "keyActivities"),

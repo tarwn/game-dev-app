@@ -10,10 +10,8 @@
     date: d.month,
     value: d.endingCash,
   }));
-  const minAmount =
-    -10000 * Math.ceil(Math.min(-10000, ...data.map((d) => d.value)) / -10000);
-  const maxAmount =
-    10000 * Math.ceil(Math.max(40000, ...data.map((d) => d.value)) / 10000);
+  const minAmount = -10000 * Math.ceil(Math.min(-10000, ...data.map((d) => d.value)) / -10000);
+  const maxAmount = 10000 * Math.ceil(Math.max(40000, ...data.map((d) => d.value)) / 10000);
 
   const width = 400;
   const height = 180;
@@ -58,18 +56,12 @@
     const svg = d3.select(el);
 
     const yAxisDrawn = svg.append("g").call(yAxis);
-    yAxisDrawn
-      .style("color", "#c3cecd")
-      .attr("transform", "translate(" + [margin.left, 0] + ")");
+    yAxisDrawn.style("color", "#c3cecd").attr("transform", "translate(" + [margin.left, 0] + ")");
     yAxisDrawn.select(".domain").remove();
     yAxisDrawn.selectAll("line").remove();
 
-    const yAxisGrid = svg
-      .append("g")
-      .call(yAxis.tickSize(-width, 0, 0).tickFormat(""));
-    yAxisGrid
-      .attr("transform", "translate(" + [margin.left, 0] + ")")
-      .attr("class", "grid");
+    const yAxisGrid = svg.append("g").call(yAxis.tickSize(-width).tickFormat(() => ""));
+    yAxisGrid.attr("transform", "translate(" + [margin.left, 0] + ")").attr("class", "grid");
     yAxisGrid.select(".domain").remove();
     yAxisGrid.selectAll("text").remove();
     yAxisGrid.selectAll("line").attr("class", "gdb-chart-grid-line");
@@ -82,9 +74,7 @@
         d3
           .axisBottom(xScale)
           .ticks(4)
-          .tickFormat((d: any) =>
-            d.toLocaleDateString("en-US", { month: "short" })
-          )
+          .tickFormat((d: any) => d.toLocaleDateString("en-US", { month: "short" }))
       );
     xAxisDrawn.select(".domain").remove();
     xAxisDrawn.selectAll("line").remove();
@@ -113,14 +103,14 @@
       .append("path")
       .datum(data)
       .attr("fill", "#d4e6ab")
-      .attr("d", area)
+      .attr("d", area as any)
       .attr("clip-path", "url(#positive-clip");
 
     svg
       .append("path")
       .datum(data)
       .attr("fill", "#e5adac")
-      .attr("d", area)
+      .attr("d", area as any)
       .attr("clip-path", "url(#negative-clip");
 
     svg
@@ -131,7 +121,7 @@
       .attr("stroke-width", 2.0)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("d", line)
+      .attr("d", line as any)
       .attr("clip-path", "url(#positive-clip");
 
     svg
@@ -142,7 +132,7 @@
       .attr("stroke-width", 2.0)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("d", line)
+      .attr("d", line as any)
       .attr("clip-path", "url(#negative-clip");
   });
 </script>
