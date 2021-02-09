@@ -19,6 +19,7 @@
   import DirectExpensesInstructions from "./_components/editing/expenseTab/DirectExpensesInstructions.svelte";
   import MktgAndSalesExpensesInstructions from "./_components/editing/expenseTab/MktgAndSalesExpensesInstructions.svelte";
   import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
+  import PeopleTab from "./_components/editing/PeopleTab.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";

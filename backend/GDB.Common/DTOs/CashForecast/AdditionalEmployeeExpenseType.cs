@@ -2,11 +2,12 @@
 {
     public enum AdditionalEmployeeExpenseType
     {
-        NetRevenueShare = 1,
-        GrossRevenueShare = 2,
-        BonusPercentOnce = 3,
-        BonusPercentAnnual = 4,
-        BonusDollarsOnce = 5,
-        BonusDollarsAnnual = 6
+        GrossRevenueShare = 1,
+        GrossProfitShare = 2,
+        NetProfitShare = 3,
+        BonusPercentOnce = 4,
+        BonusPercentAnnual = 5,
+        BonusDollarsOnce = 6,
+        BonusDollarsAnnual = 7
     }
 }

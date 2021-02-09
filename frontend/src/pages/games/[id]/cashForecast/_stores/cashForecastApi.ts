@@ -36,6 +36,13 @@ function readPayload(data: ICashForecast) {
     e.startDate.value = new Date(e.startDate.value);
     e.endDate.value = new Date(e.endDate.value);
   });
+  data.employees.list.forEach(e => {
+    e.startDate.value = new Date(e.startDate.value);
+    e.endDate.value = new Date(e.endDate.value);
+    e.additionalPay.list.forEach(ap => {
+      ap.date.value = new Date(ap.date.value);
+    });
+  });
   return data;
 }
 

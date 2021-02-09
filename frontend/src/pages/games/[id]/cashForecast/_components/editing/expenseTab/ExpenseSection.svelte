@@ -164,7 +164,7 @@
   <td colspan={colSpan - 1}>
     <IconTextButton
       icon={PredefinedIcons.Plus}
-      value={cashForecast.loans.list.length === 0 ? "Add an Expense" : "Add another Expense"}
+      value={expenses.length === 0 ? "Add an Expense" : "Add another Expense"}
       buttonStyle="primary-outline"
       on:click={() =>
         publish(events.AddExpense(cashForecast.expenses.globalId, { date: forecastDate, expenseCategory }))} />

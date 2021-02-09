@@ -2,7 +2,7 @@ import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
 import { createImmutableAutomaticEventApplier } from "../../../../_stores/eventStore/eventApplier";
 import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/types";
-import { ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
+import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
 import { createAutomaticEventFactory, opsFactory } from "../../../../_stores/eventStore/eventFactory";
 
@@ -12,10 +12,10 @@ export const cashForecastLocalStore = createLocalStore(cashForecastEventStore, e
 
 const eventfactory = createAutomaticEventFactory(cashForecastEventStore);
 export const events = {
-  // bank balance
+  // === bank balance
   "SetBankBalanceName": eventfactory.createPropUpdate<string>("SetBankBalanceName", ValueType.string),
   "SetBankBalanceAmount": eventfactory.createPropUpdate<number>("SetBankBalanceAmount", ValueType.decimal),
-  // loan
+  // === loan
   "AddLoan": eventfactory.createObjectInsert<{ date: Date }>("AddLoan", undefined, [
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, LoanType.OneTime, "type"),
@@ -77,7 +77,7 @@ export const events = {
     eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
   "SetLoanRepaymentTermsCashOutNumberOfMonths":
     eventfactory.createPropUpdate<number>("SetLoanRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
-  // funding
+  // === funding
   "AddFunding": eventfactory.createObjectInsert<{ date: Date }>("AddFunding", undefined, [
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, LoanType.OneTime, "type"),
@@ -133,6 +133,7 @@ export const events = {
     eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutLimitFixedAmount", ValueType.decimal),
   "SetFundingRepaymentTermsCashOutNumberOfMonths":
     eventfactory.createPropUpdate<number>("SetFundingRepaymentTermsCashOutNumberOfMonths", ValueType.integer),
+  // === expense
   "AddExpense": eventfactory.createObjectInsert<{ date: Date, expenseCategory: ExpenseCategory }>("AddExpense", undefined, [
     (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
     (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, args.expenseCategory, "category"),
@@ -150,5 +151,29 @@ export const events = {
   "SetExpenseUntil": eventfactory.createPropUpdate<ExpenseUntil>("SetExpenseUntil", ValueType.integer),
   "SetExpenseEndDate": eventfactory.createPropUpdate<Date>("SetExpenseEndDate", ValueType.date),
   "SetExpenseAmount": eventfactory.createPropUpdate<number>("SetExpenseAmount", ValueType.decimal),
+  // === employee
+  "AddEmployee": eventfactory.createObjectInsert<{ date: Date, expenseCategory: ExpenseCategory }>("AddEmployee", undefined, [
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.string, "", "name"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, args.expenseCategory, "category"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date, "endDate"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "salaryAmount"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "benefitsPercent"),
+    (ids, nextId) => opsFactory.insertList(ids[0], nextId, "additionalPay"),
+  ]),
+  "DeleteEmployee": eventfactory.createDelete("DeleteEmployee", ValueType.object, undefined),
+  "SetEmployeeName": eventfactory.createPropUpdate<string>("SetEmployeeName", ValueType.string),
+  "SetEmployeeCategory": eventfactory.createPropUpdate<ExpenseCategory>("SetEmployeeCategory", ValueType.integer),
+  "SetEmployeeStartDate": eventfactory.createPropUpdate<Date>("SetEmployeeStartDate", ValueType.date),
+  "SetEmployeeEndDate": eventfactory.createPropUpdate<Date>("SetEmployeeEndDate", ValueType.date),
+  "SetEmployeeAmount": eventfactory.createPropUpdate<number>("SetEmployeeAmount", ValueType.decimal),
+  "SetEmployeeBenefits": eventfactory.createPropUpdate<number>("SetEmployeeBenefits", ValueType.decimal),
+  "AddEmployeeAdditionalPay": eventfactory.createObjectInsert<{ date: Date }>("AddEmployeeAdditionalPay", undefined, [
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, AdditionalEmployeeExpenseType.BonusDollarsOnce, "type"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount"),
+    (ids, nextId) => opsFactory.insertProp(ids[0], nextId, ValueType.integer, AdditionalEmployeeExpenseFrequency.Launch, "frequency"),
+    (ids, nextId, args) => opsFactory.insertProp(ids[0], nextId, ValueType.date, args.date, "date"),
+  ]),
+  "DeleteEmployeeAdditionalPay": eventfactory.createDelete("DeleteEmployeeAdditionalPay", ValueType.boolean, undefined),
 };
 

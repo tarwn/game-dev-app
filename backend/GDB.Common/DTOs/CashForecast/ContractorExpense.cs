@@ -12,7 +12,8 @@ namespace GDB.Common.DTOs.CashForecast
         public string ParentId { get; set; }
         public string Field { get; set; }
 
-        public IdentifiedPrimitive<ExpenseFrequency> Type { get; set; }
+        public IdentifiedPrimitive<ExpenseCategory> Category { get; set; }
+        public IdentifiedPrimitive<ExpenseFrequency> Frequency { get; set; }
         public IdentifiedPrimitive<DateTime?> StartDate { get; set; }
         public IdentifiedPrimitive<DateTime?> EndDate { get; set; }
         public IdentifiedPrimitive<decimal> Amount { get; set; }

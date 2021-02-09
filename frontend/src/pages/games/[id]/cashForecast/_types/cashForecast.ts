@@ -33,12 +33,13 @@ export function isCurrencyRepayment(type: RepaymentType): boolean {
 }
 
 export enum AdditionalEmployeeExpenseType {
-  NetRevenueShare = 1,
-  GrossRevenueShare = 2,
-  BonusPercentOnce = 3,
-  BonusPercentAnnual = 4,
-  BonusDollarsOnce = 5,
-  BonusDollarsAnnual = 6
+  GrossRevenueShare = 1,
+  GrossProfitShare = 2,
+  NetProfitShare = 3,
+  BonusPercentOnce = 4,
+  BonusPercentAnnual = 5,
+  BonusDollarsOnce = 6,
+  BonusDollarsAnnual = 7
 }
 
 export enum AdditionalEmployeeExpenseFrequency {
@@ -133,10 +134,11 @@ export interface ICashOut extends IIdentifiedObject {
 
 export interface IEmployeeExpense extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
+  category: IIdentifiedPrimitive<ExpenseCategory>;
   startDate: IIdentifiedPrimitive<Date | null>;
   endDate: IIdentifiedPrimitive<Date | null>;
   salaryAmount: IIdentifiedPrimitive<number>;
-  benefitsPercents: IIdentifiedPrimitive<number>;
+  benefitsPercent: IIdentifiedPrimitive<number>;
   additionalPay: IIdentifiedList<IAdditionalEmployeeExpense>;
 }
 
@@ -144,7 +146,7 @@ export interface IAdditionalEmployeeExpense extends IIdentifiedObject {
   type: IIdentifiedPrimitive<AdditionalEmployeeExpenseType>;
   amount: IIdentifiedPrimitive<number>;
   frequency: IIdentifiedPrimitive<AdditionalEmployeeExpenseFrequency>;
-  date?: IIdentifiedPrimitive<Date>;
+  date: IIdentifiedPrimitive<Date>;
 }
 
 export interface IContractorExpense extends IIdentifiedObject {
@@ -153,7 +155,8 @@ export interface IContractorExpense extends IIdentifiedObject {
 }
 
 export interface IContractorPayment extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<ExpenseFrequency>;
+  category: IIdentifiedPrimitive<ExpenseCategory>;
+  frequency: IIdentifiedPrimitive<ExpenseFrequency>;
   startDate: IIdentifiedPrimitive<Date | null>;
   endDate: IIdentifiedPrimitive<Date | null>;
   amount: IIdentifiedPrimitive<number>;
