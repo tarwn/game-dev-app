@@ -42,11 +42,50 @@ export enum AdditionalEmployeeExpenseType {
   BonusDollarsAnnual = 7
 }
 
+/*
+  GrossRevShare: no freq, no date
+  GrossProfitShare: no freq, no date
+  NetProfitShare: no freq, no date
+  BonusPercentOnce: freq + maybe date
+  BonusPercentAnnual: freq + maybe date
+  BonusDollarsOnce: freq + maybe date
+  BonusDollarsAnnual: freq + maybe date
+*/
+
+export const AdditionalEmployeeExpenseTypes: { id: AdditionalEmployeeExpenseType, name: string }[] =
+  Object.keys(AdditionalEmployeeExpenseType)
+    .filter(lt => isNaN(Number(lt)))
+    .map(lt => ({ id: AdditionalEmployeeExpenseType[lt], name: lt }));
+
+export function isCurrencyAdditionalEmployeeExpenseType(type: AdditionalEmployeeExpenseType): boolean {
+  return type == AdditionalEmployeeExpenseType.BonusDollarsOnce ||
+    type == AdditionalEmployeeExpenseType.BonusDollarsAnnual;
+}
+
+export function isPercentAdditionalEmployeeExpenseType(type: AdditionalEmployeeExpenseType): boolean {
+  return type == AdditionalEmployeeExpenseType.BonusPercentOnce ||
+    type == AdditionalEmployeeExpenseType.BonusPercentAnnual ||
+    type == AdditionalEmployeeExpenseType.GrossRevenueShare ||
+    type == AdditionalEmployeeExpenseType.GrossProfitShare ||
+    type == AdditionalEmployeeExpenseType.NetProfitShare;
+}
+
+export function isDatedAdditionalEmployeeExpenseType(type: AdditionalEmployeeExpenseType): boolean {
+  return type == AdditionalEmployeeExpenseType.BonusPercentOnce ||
+    type == AdditionalEmployeeExpenseType.BonusPercentAnnual ||
+    type == AdditionalEmployeeExpenseType.BonusDollarsOnce ||
+    type == AdditionalEmployeeExpenseType.BonusDollarsAnnual;
+}
+
 export enum AdditionalEmployeeExpenseFrequency {
   Date = 1,
-  Launch = 2,
-  Annual = 3
+  Launch = 2
 }
+
+export const AdditionalEmployeeExpenseFrequencys: { id: AdditionalEmployeeExpenseFrequency, name: string }[] =
+  Object.keys(AdditionalEmployeeExpenseFrequency)
+    .filter(lt => isNaN(Number(lt)))
+    .map(lt => ({ id: AdditionalEmployeeExpenseFrequency[lt], name: lt }));
 
 export enum ExpenseFrequency {
   Monthly = 1,

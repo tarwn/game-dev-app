@@ -61,8 +61,9 @@
       const style = getComputedStyle(node);
       const transform = style.transform === "none" ? "" : style.transform;
 
+      // duration 0 for fallback so initial/final animation not used
       return {
-        duration: 600,
+        duration: 0,
         easing: quintOut,
         css: (t) => `
 					transform: ${transform} scale(${t});

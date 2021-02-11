@@ -48,9 +48,9 @@
     <col span="1" style="width: 2rem;" />
     <col span="1" style="width: 14rem;" />
     <col span="1" style="width: 10rem;" />
-    <col span="1" style="width: 10rem;" />
-    <col span="1" style="width: 10rem;" />
-    <col span="1" style="width: 8rem;" />
+    <col span="1" style="width: 10.5rem;" />
+    <col span="1" style="width: 10.5rem;" />
+    <col span="1" style="width: 10.5rem;" />
     <col span="1" style="width: 6rem;" />
     <col span="1" style="width: 20rem;" />
     <col span="1" style="" /><!-- soak up excess width -->

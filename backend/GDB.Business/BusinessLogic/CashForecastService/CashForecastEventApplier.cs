@@ -680,7 +680,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (employee != null && employee.Category.GlobalId == change.Operations[0].ObjectId)
                         {
                             employee.Category.Value = this.ToEnum<ExpenseCategory>(change.Operations[0].Value);
                         }
@@ -690,7 +690,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (employee != null && employee.StartDate.GlobalId == change.Operations[0].ObjectId)
                         {
                             employee.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
                         }
@@ -700,7 +700,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (employee != null && employee.EndDate.GlobalId == change.Operations[0].ObjectId)
                         {
                             employee.EndDate.Value = this.ToDateTime(change.Operations[0].Value);
                         }
@@ -710,7 +710,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (employee != null && employee.SalaryAmount.GlobalId == change.Operations[0].ObjectId)
                         {
                             employee.SalaryAmount.Value = this.ToDecimal(change.Operations[0].Value);
                         }
@@ -720,7 +720,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     this.EnsureOperationCount(change, 1);
                     {
                         var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        if (employee != null && employee.BenefitsPercent.GlobalId == change.Operations[0].ObjectId)
                         {
                             employee.BenefitsPercent.Value = this.ToDecimal(change.Operations[0].Value);
                         }
@@ -729,8 +729,8 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                 case "AddEmployeeAdditionalPay":
                     this.EnsureOperationCount(change, 5);
                     {
-                        var employee = model.Employees.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
-                        if (employee != null && employee.Name.GlobalId == change.Operations[0].ObjectId)
+                        var employee = model.Employees.List.FirstOrDefault(e => e.AdditionalPay.GlobalId == change.Operations[0].ParentId);
+                        if (employee != null)
                         {
                             // skip 0 and come back
                             var type = new IdentifiedPrimitive<AdditionalEmployeeExpenseType>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToEnum<AdditionalEmployeeExpenseType>(change.Operations[1].Value));
@@ -740,6 +740,62 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                             // put it together
                             var additionalPay = new AdditionalEmployeeExpense(change.Operations[0].ParentId, change.Operations[0].ObjectId, type, amount, frequency, date);
                             employee.AdditionalPay.List.Add(additionalPay);
+                        }
+                    }
+                    break;
+                case "SetEmployeeAdditionalPayType":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var employee = model.Employees.List.FirstOrDefault(e => e.AdditionalPay.List.Any(ap => ap.GlobalId == change.Operations[0].ParentId));
+                        if (employee != null)
+                        {
+                            var ap = employee.AdditionalPay.List.Single(ap => ap.GlobalId == change.Operations[0].ParentId);
+                            if (ap.Type.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                ap.Type.Value = this.ToEnum<AdditionalEmployeeExpenseType>(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "SetAdditionalEmployeePayAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var employee = model.Employees.List.FirstOrDefault(e => e.AdditionalPay.List.Any(ap => ap.GlobalId == change.Operations[0].ParentId));
+                        if (employee != null)
+                        {
+                            var ap = employee.AdditionalPay.List.Single(ap => ap.GlobalId == change.Operations[0].ParentId);
+                            if (ap.Amount.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                ap.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "SetEmployeeAdditionalPayFrequency":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var employee = model.Employees.List.FirstOrDefault(e => e.AdditionalPay.List.Any(ap => ap.GlobalId == change.Operations[0].ParentId));
+                        if (employee != null)
+                        {
+                            var ap = employee.AdditionalPay.List.Single(ap => ap.GlobalId == change.Operations[0].ParentId);
+                            if (ap.Frequency.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                ap.Frequency.Value = this.ToEnum<AdditionalEmployeeExpenseFrequency>(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "SetEmployeeAdditionalPayDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var employee = model.Employees.List.FirstOrDefault(e => e.AdditionalPay.List.Any(ap => ap.GlobalId == change.Operations[0].ParentId));
+                        if (employee != null)
+                        {
+                            var ap = employee.AdditionalPay.List.Single(ap => ap.GlobalId == change.Operations[0].ParentId);
+                            if (ap.Date.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                ap.Date.Value = this.ToDateTime(change.Operations[0].Value);
+                            }
                         }
                     }
                     break;

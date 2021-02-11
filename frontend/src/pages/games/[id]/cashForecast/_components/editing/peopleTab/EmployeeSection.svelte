@@ -8,21 +8,25 @@
   import CurrencyInput from "../../../../../../../components/inputs/CurrencyInput.svelte";
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
   import TextInput from "../../../../../../../components/inputs/TextInput.svelte";
-  import type { IEvent } from "../../../../../../_stores/eventStore/types";
+  import type { IEvent, IIdentifiedPrimitive } from "../../../../../../_stores/eventStore/types";
   import { events } from "../../../_stores/cashForecastStore";
   import type { ICashForecast, IEmployeeExpense } from "../../../_types/cashForecast";
   import {
-    AdditionalEmployeeExpenseFrequency,
-    ExpenseCategories,
-    ExpenseCategory,
-    ExpenseFrequency,
+    AdditionalEmployeeExpenseFrequencys,
+    AdditionalEmployeeExpenseType,
+    AdditionalEmployeeExpenseTypes,
+    isCurrencyAdditionalEmployeeExpenseType,
+    isDatedAdditionalEmployeeExpenseType,
   } from "../../../_types/cashForecast";
+  import { AdditionalEmployeeExpenseFrequency, ExpenseCategories, ExpenseCategory } from "../../../_types/cashForecast";
   import TableRowIndented from "../table/TableRowIndented.svelte";
   import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
   import LabelCell from "../table/LabelCell.svelte";
   import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
   import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
+  import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
+  import { listen } from "svelte/internal";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
@@ -31,15 +35,16 @@
   export let publish: (event: IEvent<ICashForecast>) => void;
 
   // subset of relevant expenses, sorted
-  // const sortFn = (a: IEmployeeExpense, b: IEmployeeExpense) => {
-  //   if (a.name.value.toLocaleLowerCase() > b.name.value.toLocaleLowerCase()) {
-  //     return 1;
-  //   } else if (a.name.value.toLocaleLowerCase() < b.name.value.toLocaleLowerCase()) {
-  //     return -1;
-  //   }
+  const sortFn = (a: IEmployeeExpense, b: IEmployeeExpense) => {
+    if (a.name.value.toLocaleLowerCase() > b.name.value.toLocaleLowerCase()) {
+      return 1;
+    } else if (a.name.value.toLocaleLowerCase() < b.name.value.toLocaleLowerCase()) {
+      return -1;
+    }
 
-  //   return a.startDate.value.getTime() - b.startDate.value.getTime();
-  // };
+    return a.startDate.value.getTime() - b.startDate.value.getTime();
+  };
+  $: sortedEmployees = cashForecast.employees.list.slice().sort(sortFn);
 
   // complex event updates
   function updateCategory(employee: IEmployeeExpense, e: any) {
@@ -47,15 +52,30 @@
     publish(events.SetEmployeeCategory(employee.category, value));
   }
 
+  function updateAdditionalPayType(additionalPayType: IIdentifiedPrimitive<AdditionalEmployeeExpenseType>, e: any) {
+    const value = parseInt(e.target.value) as AdditionalEmployeeExpenseType;
+    publish(events.SetEmployeeAdditionalPayType(additionalPayType, value));
+  }
+
+  function updateAdditionalPayFrequency(
+    additionalPayFreq: IIdentifiedPrimitive<AdditionalEmployeeExpenseFrequency>,
+    e: any
+  ) {
+    const value = parseInt(e.target.value) as AdditionalEmployeeExpenseFrequency;
+    publish(events.SetEmployeeAdditionalPayFrequency(additionalPayFreq, value));
+  }
+
   // animation
+  // this gives us a nice animation during sorting but not on create/delete
   const [send, receive] = crossfade({
     duration: (d) => Math.sqrt(d * 200),
     fallback(node) {
       const style = getComputedStyle(node);
       const transform = style.transform === "none" ? "" : style.transform;
 
+      // duration 0 for fallback so initial/final animation not used
       return {
-        duration: 600,
+        duration: 0,
         easing: quintOut,
         css: (t) => `
 					transform: ${transform} scale(${t});
@@ -79,11 +99,11 @@
   <LabelCell>Pay Amount (monthly)</LabelCell>
   <LabelCell>Benefits / Taxes</LabelCell>
 </TableRowIndented>
-{#each cashForecast.employees.list as employee (employee.globalId)}
+{#each sortedEmployees as employee (employee.globalId)}
   <tbody
+    animate:flip={{ duration: 500 }}
     in:receive|local={{ key: employee.globalId }}
-    out:send|local={{ key: employee.globalId }}
-    animate:flip={{ duration: 500 }}>
+    out:send|local={{ key: employee.globalId }}>
     <tr>
       <td />
       <td>
@@ -154,16 +174,85 @@
         {#if i == 0}
           <FauxLabelCell isShort={true}>Addtl Pay:</FauxLabelCell>
         {:else}
-          <td />
+          <FauxLabelCell isShort={true}>and:</FauxLabelCell>
         {/if}
-        <td> Select </td>
-        <td> amount </td>
-        <td>freq OR colspan 3 text</td>
-        <td>opt date</td>
-        <td>delete</td>
+        <td>
+          <!-- svelte-ignore a11y-no-onchange -->
+          <select
+            value={additionalPay.type.value}
+            aria-label="Additional pay type"
+            on:change={(e) => updateAdditionalPayType(additionalPay.type, e)}>
+            {#each AdditionalEmployeeExpenseTypes as type}
+              <option value={type.id}>{type.name}</option>
+            {/each}
+          </select>
+        </td>
+        <td>
+          {#if isCurrencyAdditionalEmployeeExpenseType(additionalPay.type.value)}
+            <CurrencyInput
+              value={additionalPay.amount.value}
+              aria-label="Dollar amount"
+              on:change={({ detail }) =>
+                publish(events.SetAdditionalEmployeePayAmount(additionalPay.amount, detail.value))} />
+          {:else}
+            <PercentInput
+              value={additionalPay.amount.value}
+              aria-label="Percent amount"
+              on:change={({ detail }) =>
+                publish(events.SetAdditionalEmployeePayAmount(additionalPay.amount, detail.value))} />
+          {/if}
+        </td>
+        <td>
+          {#if isDatedAdditionalEmployeeExpenseType(additionalPay.type.value)}
+            <!-- svelte-ignore a11y-no-onchange -->
+            <select
+              value={additionalPay.frequency.value}
+              aria-label="Pay date"
+              on:change={(e) => updateAdditionalPayFrequency(additionalPay.frequency, e)}>
+              {#each AdditionalEmployeeExpenseFrequencys as frequency}
+                <option value={frequency.id}>{frequency.name}</option>
+              {/each}
+            </select>
+          {/if}
+        </td>
+        <td>
+          {#if isDatedAdditionalEmployeeExpenseType(additionalPay.type.value)}
+            {#if additionalPay.frequency.value == AdditionalEmployeeExpenseFrequency.Launch}
+              <DateOutput date={launchDate} />
+            {:else}
+              <DateInput
+                value={additionalPay.date.value}
+                aria-label="Start Date"
+                on:change={({ detail }) =>
+                  publish(events.SetEmployeeAdditionalPayDate(additionalPay.date, detail.value))} />
+            {/if}
+          {/if}
+        </td>
+        <td>
+          <IconTextButton
+            icon={PredefinedIcons.Delete}
+            buttonStyle="secondary-negative"
+            disabled={false}
+            value=""
+            on:click={() => publish(events.DeleteEmployeeAdditionalPay(additionalPay))} />
+        </td>
         <td />
       </TableRowIndented>
     {/each}
+    {#if employee.additionalPay.list.length > 0}
+      <TableRowIndented>
+        <td />
+        <td colSpan={colSpan - 2}>
+          <IconTextButton
+            icon={PredefinedIcons.Plus}
+            buttonStyle="primary-outline"
+            disabled={false}
+            value="Add more additional pay"
+            on:click={() =>
+              publish(events.AddEmployeeAdditionalPay(employee.additionalPay.globalId, { date: launchDate }))} />
+        </td>
+      </TableRowIndented>
+    {/if}
   </tbody>
 {/each}
 <!-- add row -->
