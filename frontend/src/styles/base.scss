@@ -67,6 +67,7 @@ select {
   padding: $space-xs;
   display: inline-block;
   line-height: 1.5rem;
+  background-color: white;
   @include standard-font;
 
   &.gdb-pronounced {

@@ -810,6 +810,130 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
 
+                // ==== Contractor
+
+                case "AddContractor":
+                    this.EnsureOperationCount(change, 9);
+                    if (model.Contractors.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var category = new IdentifiedPrimitive<ExpenseCategory>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<ExpenseCategory>(change.Operations[2].Value));
+                        var frequency = new IdentifiedPrimitive<ContractorExpenseFrequency>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<ContractorExpenseFrequency>(change.Operations[3].Value));
+                        // skip 4 + 5, come back
+                        var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[6].ParentId, change.Operations[6].ObjectId, this.ToDateTime(change.Operations[6].Value));
+                        var amount = new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value));
+                        var endDate = new IdentifiedPrimitive<DateTime>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToDateTime(change.Operations[8].Value));
+                        // come back to 4 + 5
+                        var payment = new ContractorPayment(change.Operations[5].ParentId, change.Operations[5].ObjectId, startDate, amount, endDate);
+                        var payments = new IdentifiedList<ContractorPayment>(change.Operations[4].ParentId, change.Operations[4].ObjectId);
+                        payments.List.Add(payment);
+                        // come back to 0 and put it together
+
+                        model.Contractors.List.Add(new ContractorExpense(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, category, frequency, payments));
+                    }
+                    break;
+                case "DeleteContractor":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                        if (contractor != null)
+                        {
+                            model.Contractors.List.Remove(contractor);
+                        }
+                    }
+                    break;
+                case "SetContractorName":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (contractor != null)
+                        {
+                            contractor.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "SetContractorCategory":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (contractor != null)
+                        {
+                            contractor.Category.Value = this.ToEnum<ExpenseCategory>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetContractorFrequency":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (contractor != null)
+                        {
+                            contractor.Frequency.Value = this.ToEnum<ContractorExpenseFrequency>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "AddContractorPayment":
+                    this.EnsureOperationCount(change, 4);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.Payments.GlobalId == change.Operations[0].ParentId);
+                        if (contractor != null)
+                        {
+                            // skip 0
+                            var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToDateTime(change.Operations[1].Value));
+                            var amount = new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value));
+                            var endDate = new IdentifiedPrimitive<DateTime>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDateTime(change.Operations[3].Value));
+                            // come back to 0
+                            var payment = new ContractorPayment(change.Operations[0].ParentId, change.Operations[0].ObjectId, startDate, amount, endDate);
+                            contractor.Payments.List.Add(payment);
+                        }
+                    }
+                    break;
+                case "SetContractorPaymentStartDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.Payments.List.Any(p => p.GlobalId == change.Operations[0].ParentId));
+                        if (contractor != null)
+                        {
+                            var payment = contractor.Payments.List.Single(p => p.GlobalId == change.Operations[0].ParentId);
+                            payment.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetContractorPaymentAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.Payments.List.Any(p => p.GlobalId == change.Operations[0].ParentId));
+                        if (contractor != null)
+                        {
+                            var payment = contractor.Payments.List.Single(p => p.GlobalId == change.Operations[0].ParentId);
+                            payment.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetContractorPaymentEndDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.Payments.List.Any(p => p.GlobalId == change.Operations[0].ParentId));
+                        if (contractor != null)
+                        {
+                            var payment = contractor.Payments.List.Single(p => p.GlobalId == change.Operations[0].ParentId);
+                            payment.EndDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "DeleteContractorPayment":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var contractor = model.Contractors.List.FirstOrDefault(e => e.Payments.GlobalId == change.Operations[0].ParentId);
+                        if (contractor != null)
+                        {
+                            contractor.Payments.List.RemoveAll(p => p.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+
+
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
             }

@@ -120,6 +120,15 @@ export const ExpenseUntils: { id: ExpenseUntil, name: string }[] = Object.keys(E
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: ExpenseUntil[lt], name: lt }));
 
+export enum ContractorExpenseFrequency {
+  Monthly = 1,
+  Custom = 2
+}
+
+export const ContractorExpenseFrequencys: { id: ContractorExpenseFrequency, name: string }[] = Object.keys(ContractorExpenseFrequency)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: ContractorExpenseFrequency[lt], name: lt }));
+
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
@@ -190,12 +199,12 @@ export interface IAdditionalEmployeeExpense extends IIdentifiedObject {
 
 export interface IContractorExpense extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
+  category: IIdentifiedPrimitive<ExpenseCategory>;
+  frequency: IIdentifiedPrimitive<ContractorExpenseFrequency>;
   payments: IIdentifiedList<IContractorPayment>;
 }
 
 export interface IContractorPayment extends IIdentifiedObject {
-  category: IIdentifiedPrimitive<ExpenseCategory>;
-  frequency: IIdentifiedPrimitive<ExpenseFrequency>;
   startDate: IIdentifiedPrimitive<Date | null>;
   endDate: IIdentifiedPrimitive<Date | null>;
   amount: IIdentifiedPrimitive<number>;

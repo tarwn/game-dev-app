@@ -7,8 +7,9 @@
 <style type="text/scss">
   @import "../../../../../../../styles/_variables.scss";
 
-  $border-color: $cs-grey-1;
-  $border-radius: 8px;
+  $border-color: $cs-grey-0;
+  $background-color: lighten($cs-grey-0, 5%);
+  $border-radius: 2px;
 
   // first non-indented cell, top left, bottom left
   .gdb-cf-table-row.isRecord > .gdb-cf-table-indent + :global(td) {
@@ -49,6 +50,10 @@
   }
   .gdb-cf-table-row.isRecord.isBottom > .gdb-cf-table-indent {
     border-bottom: 0;
+  }
+
+  .gdb-cf-table-row.isRecord > :global(td:not(.gdb-cf-table-indent)) {
+    background-color: $background-color;
   }
 
   // bottom padding for maximum confusion later

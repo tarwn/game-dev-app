@@ -27,6 +27,8 @@
   import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
   import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
   import { listen } from "svelte/internal";
+  import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
+  import TableRowEmpty from "../table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
@@ -104,8 +106,7 @@
     animate:flip={{ duration: 500 }}
     in:receive|local={{ key: employee.globalId }}
     out:send|local={{ key: employee.globalId }}>
-    <tr>
-      <td />
+    <TableRowIndented isRecord={true} isTop={true} isBottom={employee.additionalPay.list.length == 0}>
       <td>
         <TextInput
           maxLength={30}
@@ -149,7 +150,7 @@
           title="Percent for benefits and taxes"
           on:change={({ detail }) => publish(events.SetEmployeeBenefits(employee.benefitsPercent, detail.value))} />
       </td>
-      <td>
+      <td colspan="2">
         <SpacedButtons>
           {#if employee.additionalPay.list.length === 0}
             <IconTextButton
@@ -168,9 +169,9 @@
             on:click={() => publish(events.DeleteEmployee(employee))} />
         </SpacedButtons>
       </td>
-    </tr>
+    </TableRowIndented>
     {#each employee.additionalPay.list as additionalPay, i (additionalPay.globalId)}
-      <TableRowIndented>
+      <TableRowIndented isRecord={true}>
         {#if i == 0}
           <FauxLabelCell isShort={true}>Addtl Pay:</FauxLabelCell>
         {:else}
@@ -236,11 +237,11 @@
             value=""
             on:click={() => publish(events.DeleteEmployeeAdditionalPay(additionalPay))} />
         </td>
-        <td />
+        <td colspan="2" />
       </TableRowIndented>
     {/each}
     {#if employee.additionalPay.list.length > 0}
-      <TableRowIndented>
+      <TableRowIndented isRecord={true} isBottom={true}>
         <td />
         <td colSpan={colSpan - 2}>
           <IconTextButton
@@ -253,6 +254,7 @@
         </td>
       </TableRowIndented>
     {/if}
+    <TableRowEmpty colspan={colSpan} />
   </tbody>
 {/each}
 <!-- add row -->

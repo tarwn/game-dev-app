@@ -3,6 +3,7 @@
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import { cashForecastEventStore } from "../../_stores/cashForecastStore";
   import type { ExpenseCategory, ICashForecast } from "../../_types/cashForecast";
+  import ContractorSection from "./peopleTab/ContractorSection.svelte";
   import EmployeeSection from "./peopleTab/EmployeeSection.svelte";
 
   export let cashForecast: ICashForecast;
@@ -52,8 +53,10 @@
     <col span="1" style="width: 10.5rem;" />
     <col span="1" style="width: 10.5rem;" />
     <col span="1" style="width: 6rem;" />
-    <col span="1" style="width: 20rem;" />
+    <col span="1" style="width: 4rem;" />
+    <col span="1" style="width: 16rem;" />
     <col span="1" style="" /><!-- soak up excess width -->
   </colgroup>
-  <EmployeeSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={9} />
+  <EmployeeSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />
+  <ContractorSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />
 </table>

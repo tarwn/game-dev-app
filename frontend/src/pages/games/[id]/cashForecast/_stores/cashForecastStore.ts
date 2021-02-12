@@ -2,7 +2,7 @@ import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
 import { createImmutableAutomaticEventApplier } from "../../../../_stores/eventStore/eventApplier";
 import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/types";
-import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
+import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ContractorExpenseFrequency, ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
 import { createAutomaticEventFactory, opsFactory } from "../../../../_stores/eventStore/eventFactory";
 
@@ -182,5 +182,32 @@ export const events = {
     "SetEmployeeAdditionalPayFrequency", ValueType.integer),
   "SetAdditionalEmployeePayAmount": ef.createPropUpdate<number>("SetAdditionalEmployeePayAmount", ValueType.decimal),
   "SetEmployeeAdditionalPayDate": ef.createPropUpdate<Date>("SetEmployeeAdditionalPayDate", ValueType.date),
+
+  // --- contractor
+
+  "AddContractor": ef.createObjectInsert<{ date: Date, expenseCategory: ExpenseCategory, frequency: ContractorExpenseFrequency }>
+    ("AddContractor", undefined, [
+      (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.string, "", "name"),
+      (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.integer, args.expenseCategory, "category"),
+      (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.integer, args.frequency, "frequency"),
+      (ids, nextId) => of.insertList(ids[0], nextId, "payments"),
+      (ids, nextId) => of.insertObject(ids[4], nextId, undefined),
+      (ids, nextId, args) => of.insertProp(ids[5], nextId, ValueType.date, args.date, "startDate"),
+      (ids, nextId) => of.insertProp(ids[5], nextId, ValueType.decimal, 0, "amount"),
+      (ids, nextId, args) => of.insertProp(ids[5], nextId, ValueType.date, args.date, "endDate"),
+    ]),
+  "DeleteContractor": ef.createDelete("DeleteContractor", ValueType.object, undefined),
+  "SetContractorName": ef.createPropUpdate<string>("SetContractorName", ValueType.string),
+  "SetContractorCategory": ef.createPropUpdate<ExpenseCategory>("SetContractorCategory", ValueType.integer),
+  "SetContractorFrequency": ef.createPropUpdate<ContractorExpenseFrequency>("SetContractorFrequency", ValueType.integer),
+  "AddContractorPayment": ef.createObjectInsert<{ date: Date }>("AddContractorPayment", undefined, [
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "endDate"),
+  ]),
+  "SetContractorPaymentStartDate": ef.createPropUpdate<Date>("SetContractorPaymentStartDate", ValueType.date),
+  "SetContractorPaymentAmount": ef.createPropUpdate<number>("SetContractorPaymentAmount", ValueType.decimal),
+  "SetContractorPaymentEndDate": ef.createPropUpdate<Date>("SetEmployeeEndDate", ValueType.date),
+  "DeleteContractorPayment": ef.createDelete("DeleteContractorPayment", ValueType.object, undefined),
 };
 
