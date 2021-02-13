@@ -2,7 +2,7 @@
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import { cashForecastEventStore } from "../../_stores/cashForecastStore";
-  import type { ExpenseCategory, ICashForecast } from "../../_types/cashForecast";
+  import type { ICashForecast } from "../../_types/cashForecast";
   import ContractorSection from "./peopleTab/ContractorSection.svelte";
   import EmployeeSection from "./peopleTab/EmployeeSection.svelte";
 

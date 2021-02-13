@@ -57,7 +57,7 @@
   }
 
   // bottom padding for maximum confusion later
-  .gdb-cf-table-row.isRecord.isBottom > :global(td) {
+  .gdb-cf-table-row.isRecord.isBottom:not(.isTop) > :global(td) {
     padding-bottom: $space-s;
   }
 

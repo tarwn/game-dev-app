@@ -5,11 +5,6 @@
 
 <style type="text/scss">
   @import "../../../../../../../styles/_variables.scss";
-
-  .gdb-indented {
-    margin-top: $space-xs;
-    margin-left: $space-m;
-  }
 </style>
 
 <p>

@@ -23,6 +23,7 @@
   import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
   import NotApplicableCell from "../table/NotApplicableCell.svelte";
   import LabelCell from "../table/LabelCell.svelte";
+  import TableRowEmpty from "../table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
@@ -76,14 +77,6 @@
 
 <style type="text/scss">
   @import "../../../../../../../styles/_variables.scss";
-
-  // matches TableRowIndented
-  $border-color: $cs-grey-0;
-  $background-color: lighten($cs-grey-0, 5%);
-
-  .gdb-table-zebra {
-    background-color: $cs-grey-0;
-  }
 </style>
 
 <TableSubHeaderRow colspan={colSpan} value={"Expenses"} />
@@ -95,79 +88,80 @@
   <LabelCell>End Date</LabelCell>
   <LabelCell>Amount</LabelCell>
 </TableRowIndented>
-{#each expenses as expense, expenseIndex (expense.globalId)}
-  <tr
+{#each expenses as expense (expense.globalId)}
+  <tbody
     in:receive|local={{ key: expense.globalId }}
     out:send|local={{ key: expense.globalId }}
-    animate:flip={{ duration: 500 }}
-    class={expenseIndex % 2 === 0 ? "gdb-table-zebra" : ""}>
-    <td />
-    <td>
-      <TextInput
-        maxLength={30}
-        value={expense.name.value}
-        aria-label="Expense name"
-        on:change={({ detail }) => publish(events.SetExpenseName(expense.name, detail.value))} />
-    </td>
-    <td>
-      <!-- svelte-ignore a11y-no-onchange -->
-      <select value={expense.frequency.value} aria-label="Frequency" on:change={(e) => updateFrequency(expense, e)}>
-        {#each ExpenseFrequencies as frequency}
-          <option value={frequency.id}>{frequency.name}</option>
-        {/each}
-      </select>
-    </td>
-    <td>
-      <DateInput
-        value={expense.startDate.value}
-        aria-label="Start Date"
-        on:change={({ detail }) => publish(events.SetExpenseStartDate(expense.startDate, detail.value))} />
-    </td>
-    {#if !isFrequencyRecurring(expense.frequency.value)}
-      <NotApplicableCell />
-    {:else}
+    animate:flip={{ duration: 500 }}>
+    <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+      <td>
+        <TextInput
+          maxLength={30}
+          value={expense.name.value}
+          aria-label="Expense name"
+          on:change={({ detail }) => publish(events.SetExpenseName(expense.name, detail.value))} />
+      </td>
       <td>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select value={expense.until.value} aria-label="Until" on:change={(e) => updateUntil(expense, e)}>
-          {#each ExpenseUntils as until}
-            <option value={until.id}>{until.name}</option>
+        <select value={expense.frequency.value} aria-label="Frequency" on:change={(e) => updateFrequency(expense, e)}>
+          {#each ExpenseFrequencies as frequency}
+            <option value={frequency.id}>{frequency.name}</option>
           {/each}
         </select>
       </td>
-    {/if}
-    {#if !isFrequencyRecurring(expense.frequency.value)}
-      <NotApplicableCell />
-    {:else if expense.until.value === ExpenseUntil.Date}
       <td>
         <DateInput
-          value={expense.endDate.value}
-          aria-label="End Date"
-          on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
+          value={expense.startDate.value}
+          aria-label="Start Date"
+          on:change={({ detail }) => publish(events.SetExpenseStartDate(expense.startDate, detail.value))} />
       </td>
-    {:else}
+      {#if !isFrequencyRecurring(expense.frequency.value)}
+        <NotApplicableCell />
+      {:else}
+        <td>
+          <!-- svelte-ignore a11y-no-onchange -->
+          <select value={expense.until.value} aria-label="Until" on:change={(e) => updateUntil(expense, e)}>
+            {#each ExpenseUntils as until}
+              <option value={until.id}>{until.name}</option>
+            {/each}
+          </select>
+        </td>
+      {/if}
+      {#if !isFrequencyRecurring(expense.frequency.value)}
+        <NotApplicableCell />
+      {:else if expense.until.value === ExpenseUntil.Date}
+        <td>
+          <DateInput
+            value={expense.endDate.value}
+            aria-label="End Date"
+            on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
+        </td>
+      {:else}
+        <td>
+          <DateInput
+            value={launchDate}
+            aria-label="End Date"
+            disabled={true}
+            on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
+        </td>
+      {/if}
       <td>
-        <DateInput
-          value={launchDate}
-          aria-label="End Date"
-          disabled={true}
-          on:change={({ detail }) => publish(events.SetExpenseEndDate(expense.endDate, detail.value))} />
+        <CurrencyInput
+          value={expense.amount.value}
+          aria-label="Amount"
+          on:change={({ detail }) => publish(events.SetExpenseAmount(expense.amount, detail.value))} />
       </td>
-    {/if}
-    <td>
-      <CurrencyInput
-        value={expense.amount.value}
-        aria-label="Amount"
-        on:change={({ detail }) => publish(events.SetExpenseAmount(expense.amount, detail.value))} />
-    </td>
-    <td>
-      <IconTextButton
-        icon={PredefinedIcons.Delete}
-        buttonStyle="secondary-negative"
-        disabled={false}
-        value="Delete"
-        on:click={() => publish(events.DeleteExpense(expense))} />
-    </td>
-  </tr>
+      <td>
+        <IconTextButton
+          icon={PredefinedIcons.Delete}
+          buttonStyle="secondary-negative"
+          disabled={false}
+          value="Delete"
+          on:click={() => publish(events.DeleteExpense(expense))} />
+      </td>
+    </TableRowIndented>
+    <TableRowEmpty colspan={colSpan} />
+  </tbody>
 {/each}
 <!-- add row -->
 <TableRowIndented>
