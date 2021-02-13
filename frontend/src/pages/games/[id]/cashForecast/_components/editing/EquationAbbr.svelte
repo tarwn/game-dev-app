@@ -11,6 +11,8 @@
     border-radius: 4px;
     background-color: $cs-green-1;
     border-bottom: 1px solid $cs-green-2;
+    font-size: $font-size-small;
+    font-family: $font-family;
   }
 </style>
 

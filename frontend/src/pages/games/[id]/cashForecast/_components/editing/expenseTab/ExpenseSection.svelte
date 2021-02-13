@@ -76,6 +76,14 @@
 
 <style type="text/scss">
   @import "../../../../../../../styles/_variables.scss";
+
+  // matches TableRowIndented
+  $border-color: $cs-grey-0;
+  $background-color: lighten($cs-grey-0, 5%);
+
+  .gdb-table-zebra {
+    background-color: $cs-grey-0;
+  }
 </style>
 
 <TableSubHeaderRow colspan={colSpan} value={"Expenses"} />
@@ -87,11 +95,12 @@
   <LabelCell>End Date</LabelCell>
   <LabelCell>Amount</LabelCell>
 </TableRowIndented>
-{#each expenses as expense (expense.globalId)}
+{#each expenses as expense, expenseIndex (expense.globalId)}
   <tr
     in:receive|local={{ key: expense.globalId }}
     out:send|local={{ key: expense.globalId }}
-    animate:flip={{ duration: 500 }}>
+    animate:flip={{ duration: 500 }}
+    class={expenseIndex % 2 === 0 ? "gdb-table-zebra" : ""}>
     <td />
     <td>
       <TextInput
