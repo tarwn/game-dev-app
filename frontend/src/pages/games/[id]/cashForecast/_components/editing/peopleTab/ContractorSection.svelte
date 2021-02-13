@@ -16,13 +16,10 @@
   import TableRowIndented from "../table/TableRowIndented.svelte";
   import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
-  import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
-  import FauxLabelCell from "../table/FauxLabelCell.svelte";
   import TableRowEmpty from "../table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;
-  export let launchDate: Date;
   export let colSpan: number;
   export let publish: (event: IEvent<ICashForecast>) => void;
 

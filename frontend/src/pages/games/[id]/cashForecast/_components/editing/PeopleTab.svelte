@@ -58,5 +58,5 @@
     <col span="1" style="" /><!-- soak up excess width -->
   </colgroup>
   <EmployeeSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />
-  <ContractorSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />
+  <ContractorSection {publish} {cashForecast} {forecastDate} colSpan={10} />
 </table>

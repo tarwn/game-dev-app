@@ -13,13 +13,10 @@
 </style>
 
 <p>
-  <b>Direct expenses</b> are costs from building and supporting the game. These include charges like computer equipment for
-  development, licensing for tools or assets, support expenses, and so on.
+  <b>People expenses</b> are costs for employees and contractors and can be categorized as Direct, Marketing & Sales, or
+  General. Direct means they are directly part of building or supporting the game.
 </p>
-<p>
-  These expenses can be entered as one-time expenses or monthly, with a fixed ending date or "launch" to automatically
-  adjust as the launch date is adjusted.
-</p>
+<p />
 <p>
   <b>Gross Profit:</b> Direct expenses are also called "Cost of Goods Sold".<br />
   <Equation>
@@ -30,6 +27,16 @@
       <EquationAbbr title="Repayment for funding/loans listed as 'Gross Revenue %'">Gross Revenue %</EquationAbbr> -
       <EquationAbbr title="Direct expenses from the People tab">Direct Personnel</EquationAbbr> -
       <EquationAbbr title="Direct expenses on this tab">Direct Expenses</EquationAbbr>
+    </div>
+    <br />
+    <EquationAbbr title="Net Profit is your net of Revenue after all costs">Net Profit</EquationAbbr> =<br />
+    <div class="gdb-indented">
+      <EquationAbbr title="Gross Profit/Margin (Gross Revenue - Rev Share %'s - Direct Expenses)"
+        >Gross Profit</EquationAbbr> -
+      <EquationAbbr title="Repayment for funding/loans listed as 'Gross Profit %'">Gross Profit %</EquationAbbr> -
+      <EquationAbbr title="Marketing & Sales expenses">M&S</EquationAbbr> -
+      <EquationAbbr title="General & misc expenses">General Expenses</EquationAbbr> -
+      <EquationAbbr title="People costs for indirect personnel">Indirect Personnel</EquationAbbr>
     </div>
   </Equation>
 </p>

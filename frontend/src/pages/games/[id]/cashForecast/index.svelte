@@ -19,7 +19,7 @@
   import DirectExpensesInstructions from "./_components/editing/expenseTab/DirectExpensesInstructions.svelte";
   import MktgAndSalesExpensesInstructions from "./_components/editing/expenseTab/MktgAndSalesExpensesInstructions.svelte";
   import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
-  import PeopleTab from "./_components/editing/PeopleTab.svelte";
+  import PeopleInstructions from "./_components/editing/peopleTab/PeopleInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -235,6 +235,8 @@
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
         {#if selectedTab === TabType.AssetsAndFunding}
           <AssetInstructions />
+        {:else if selectedTab === TabType.People}
+          <PeopleInstructions />
         {:else if selectedTab === TabType.DirectExpenses}
           <DirectExpensesInstructions />
         {:else if selectedTab === TabType.MarketingAndSales}

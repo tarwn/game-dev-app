@@ -26,8 +26,6 @@
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
   import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
   import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
-  import { listen } from "svelte/internal";
-  import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import TableRowEmpty from "../table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
