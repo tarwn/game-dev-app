@@ -7,7 +7,7 @@ export type Game = {
   name: string;
   status: GameStatus;
   lastModified: Date;
-}
+};
 
 function createGamesStore() {
   const { subscribe, set } = writable(null);

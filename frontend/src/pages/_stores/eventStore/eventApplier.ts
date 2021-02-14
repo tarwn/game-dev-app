@@ -5,6 +5,7 @@ import { Identified, IEvent, IEventApplier, OperationType, ValueType, Versioned 
 
 type MutableEventReducer<T extends Versioned> = (model: T, event: IEvent<T>) => void;
 
+// eslint-disable-next-line max-len
 export function createImmutableEventApplier<T extends Versioned>(eventHandlers: { [key: string]: MutableEventReducer<T> }): IEventApplier<T> {
   return {
     apply: (model: T, event: IEvent<T>) => {
@@ -79,7 +80,12 @@ export function createImmutableAutomaticEventApplier<T extends Versioned & Ident
                 return;
               }
               // insert
-              parentToInsertProp[o.field] = createIdentifiedPrimitive<Identified & any>(o.parentId, o.objectId, parseValue(o.value, o.$type), o.field);
+              parentToInsertProp[o.field] = createIdentifiedPrimitive<Identified & any>(
+                o.parentId,
+                o.objectId,
+                parseValue(o.value, o.$type),
+                o.field
+              );
             }
           }
           // 4. delete prop from object

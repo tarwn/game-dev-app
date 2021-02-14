@@ -129,6 +129,24 @@ export const ContractorExpenseFrequencys: { id: ContractorExpenseFrequency, name
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: ContractorExpenseFrequency[lt], name: lt }));
 
+export enum NetIncomeCategory {
+  GrossRevenueShare = 1,
+  GrossProfitShare = 2,
+  NetProfitShare = 3,
+}
+
+export const NetIncomeCategorys: { id: NetIncomeCategory, name: string }[] = Object.keys(NetIncomeCategory)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: NetIncomeCategory[lt], name: lt }));
+
+export enum TaxSchedule {
+  Annual = 1
+}
+
+export const TaxSchedules: { id: TaxSchedule, name: string }[] = Object.keys(TaxSchedule)
+  .filter(lt => isNaN(Number(lt)))
+  .map(lt => ({ id: TaxSchedule[lt], name: lt }));
+
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
@@ -138,6 +156,7 @@ export interface ICashForecast extends IIdentifiedObject {
   employees: IIdentifiedList<IEmployeeExpense>;
   contractors: IIdentifiedList<IContractorExpense>;
   expenses: IIdentifiedList<IGenericExpense>;
+  taxes: IIdentifiedList<ITax>;
   revenues: IIdentifiedList<IRevenue>;
 }
 
@@ -218,6 +237,14 @@ export interface IGenericExpense extends IIdentifiedObject {
   until: IIdentifiedPrimitive<ExpenseUntil>;
   endDate: IIdentifiedPrimitive<Date>;
   amount: IIdentifiedPrimitive<number>;
+}
+
+export interface ITax extends IIdentifiedObject {
+  name: IIdentifiedPrimitive<string>;
+  basedOn: IIdentifiedPrimitive<NetIncomeCategory>;
+  amount: IIdentifiedPrimitive<number>;
+  schedule: IIdentifiedPrimitive<TaxSchedule>;
+  dueDate: IIdentifiedPrimitive<Date>;
 }
 
 export interface IRevenue extends IIdentifiedObject {

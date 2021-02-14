@@ -933,6 +933,83 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
 
+                // ==== Taxes
+
+                case "AddTax":
+                    this.EnsureOperationCount(change, 6);
+                    if (model.Taxes.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var basedOn = new IdentifiedPrimitive<NetIncomeCategory>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<NetIncomeCategory>( change.Operations[2].Value));
+                        var amount = new IdentifiedPrimitive<decimal>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDecimal(change.Operations[3].Value));
+                        var schedule = new IdentifiedPrimitive<TaxSchedule>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToEnum<TaxSchedule>(change.Operations[4].Value));
+                        var dueDate = new IdentifiedPrimitive<DateTime>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDateTime(change.Operations[5].Value));
+                        // come back to 0 and put it together
+                        model.Taxes.List.Add(new Tax(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, basedOn, amount, schedule, dueDate));
+                    }
+                    break;
+                case "DeleteTax":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                        if (tax != null)
+                        {
+                            model.Taxes.List.Remove(tax);
+                        }
+                    }
+                    break;
+                case "SetTaxName":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (tax != null)
+                        {
+                            tax.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "SetTaxBasedOn":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (tax != null)
+                        {
+                            tax.BasedOn.Value = this.ToEnum<NetIncomeCategory>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetTaxAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (tax != null)
+                        {
+                            tax.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetTaxSchedule":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (tax != null)
+                        {
+                            tax.Schedule.Value = this.ToEnum<TaxSchedule>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetTaxDueDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var tax = model.Taxes.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (tax != null)
+                        {
+                            tax.DueDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+
 
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));

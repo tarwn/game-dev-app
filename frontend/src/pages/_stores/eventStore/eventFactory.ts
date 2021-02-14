@@ -2,7 +2,11 @@ import { Identified, IEvent, IEventOperation, IEventStore, OperationType, ValueT
 
 interface IEventFactory<TModel extends Versioned> {
   createPropUpdate: <TType>(eventName: string, valueType: ValueType) => ((target: Identified, value: TType) => IEvent<TModel>);
-  createPropInsert: <TType>(eventName: string, valueType: ValueType, field?: string) => ((parentId: string, value: TType) => IEvent<TModel>);
+  createPropInsert: <TType>(
+    eventName: string,
+    valueType: ValueType,
+    field?: string
+  ) => ((parentId: string, value: TType) => IEvent<TModel>);
   createDelete: (eventName: string, valueType: ValueType, field?: string) => ((target: Identified) => IEvent<TModel>);
   createListInsert: <T extends null | any>(
     eventName: string,
@@ -65,6 +69,7 @@ export const createAutomaticEventFactory = <TModel extends Versioned>(eventStore
       }));
     };
   },
+  // eslint-disable-next-line max-len
   createListInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]) => {
     const ops = operationBuilders ?? [];
     return (parentId: string, args?: T): IEvent<TModel> => {
@@ -87,6 +92,7 @@ export const createAutomaticEventFactory = <TModel extends Versioned>(eventStore
       });
     };
   },
+  // eslint-disable-next-line max-len
   createObjectInsert: <T extends null | any>(eventName: string, field?: string, operationBuilders?: ((prevIds: string[], newOperationId: string, args?: T) => IEventOperation)[]) => {
     const ops = operationBuilders ?? [];
     return (parentId: string, args?: T): IEvent<TModel> => {

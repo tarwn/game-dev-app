@@ -20,6 +20,7 @@
   import MktgAndSalesExpensesInstructions from "./_components/editing/expenseTab/MktgAndSalesExpensesInstructions.svelte";
   import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
   import PeopleInstructions from "./_components/editing/peopleTab/PeopleInstructions.svelte";
+  import TaxInstructions from "./_components/editing/taxesTab/TaxInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -243,6 +244,8 @@
           <MktgAndSalesExpensesInstructions />
         {:else if selectedTab === TabType.GeneralExpenses}
           <GeneralExpensesInstructions />
+        {:else if selectedTab === TabType.Taxes}
+          <TaxInstructions />
         {/if}
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">

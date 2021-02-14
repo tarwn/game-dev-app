@@ -8,6 +8,7 @@
   import ExpenseTab from "./ExpenseTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
   import { tabs, TabType } from "./tabList";
+  import TaxesTab from "./TaxesTab.svelte";
 
   export let cashForecast: ICashForecast;
   export let isLoading: boolean;
@@ -177,6 +178,8 @@
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.MarketingAndSales} />
     {:else if selectedTab == TabType.GeneralExpenses}
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
+    {:else if selectedTab == TabType.Taxes}
+      <TaxesTab {cashForecast} />
     {:else}
       <EmptyTab />
     {/if}

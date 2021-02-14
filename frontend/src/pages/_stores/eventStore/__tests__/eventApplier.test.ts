@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { produce } from "immer";
 import { createIdentifiedPrimitive, createObjectList } from "../../../../testUtils/dataModel";
 import { getUtcDate } from "../../../../utilities/date";

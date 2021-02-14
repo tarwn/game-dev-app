@@ -2,7 +2,20 @@ import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
 import { createImmutableAutomaticEventApplier } from "../../../../_stores/eventStore/eventApplier";
 import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/types";
-import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ContractorExpenseFrequency, ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast, ICashOut, LoanType, RepaymentType } from "../_types/cashForecast";
+import {
+  AdditionalEmployeeExpenseFrequency,
+  AdditionalEmployeeExpenseType,
+  ContractorExpenseFrequency,
+  ExpenseCategory,
+  ExpenseFrequency,
+  ExpenseUntil,
+  ICashForecast,
+  ICashOut,
+  LoanType,
+  NetIncomeCategory,
+  RepaymentType,
+  TaxSchedule
+} from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
 import { createAutomaticEventFactory, opsFactory } from "../../../../_stores/eventStore/eventFactory";
 
@@ -33,6 +46,7 @@ export const events = {
       type: "SetLoanTypeMonthly",
       operations: [
         of.updateProp(loanType.parentId, loanType.globalId, ValueType.integer, LoanType.Monthly),
+        // eslint-disable-next-line max-len
         of.insertProp(loanType.parentId, loanNumOfMonths?.globalId ?? `${actor}-${seqNo + 1}`, ValueType.integer, numberOfMonths, "numberOfMonths")
       ]
     }));
@@ -209,5 +223,20 @@ export const events = {
   "SetContractorPaymentAmount": ef.createPropUpdate<number>("SetContractorPaymentAmount", ValueType.decimal),
   "SetContractorPaymentEndDate": ef.createPropUpdate<Date>("SetEmployeeEndDate", ValueType.date),
   "DeleteContractorPayment": ef.createDelete("DeleteContractorPayment", ValueType.object, undefined),
+
+  // --- taxes
+  "AddTax": ef.createObjectInsert<{ date: Date, basedOn: NetIncomeCategory, schedule: TaxSchedule }>("AddTax", undefined, [
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.string, "", "name"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.integer, args.basedOn, "basedOn"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.integer, args.schedule, "schedule"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "dueDate"),
+  ]),
+  "DeleteTax": ef.createDelete("DeleteTax", ValueType.object, undefined),
+  "SetTaxName": ef.createPropUpdate<string>("SetTaxName", ValueType.string),
+  "SetTaxBasedOn": ef.createPropUpdate<NetIncomeCategory>("SetTaxBasedOn", ValueType.integer),
+  "SetTaxAmount": ef.createPropUpdate<number>("SetTaxAmount", ValueType.decimal),
+  "SetTaxSchedule": ef.createPropUpdate<TaxSchedule>("SetTaxSchedule", ValueType.integer),
+  "SetTaxDueDate": ef.createPropUpdate<Date>("SetTaxDueDate", ValueType.date),
 };
 

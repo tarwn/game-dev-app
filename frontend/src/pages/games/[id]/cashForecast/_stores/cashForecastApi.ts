@@ -49,6 +49,9 @@ function readPayload(data: ICashForecast) {
       p.endDate.value = new Date(p.endDate.value);
     });
   });
+  data.taxes.list.forEach(t => {
+    t.dueDate.value = new Date(t.dueDate.value);
+  });
   return data;
 }
 

@@ -130,7 +130,7 @@
   }
 </style>
 
-<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid}>
+<div class="gdb-input gdb-faux-input" class:isInvalid={!isValid} class:disabled>
   <input
     type="text"
     {id}

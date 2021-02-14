@@ -305,6 +305,7 @@ export const events = {
   "UpdateCostIsPostLaunch": businessModelEvents.UpdateCostIsPostLaunch.get,
 };
 
+// eslint-disable-next-line max-len
 export const eventApplier: IEventApplier<IBusinessModel> = createImmutableEventApplier(Object.keys(businessModelEvents).reduce((result, key) => {
   result[key] = businessModelEvents[key].apply;
   return result;
