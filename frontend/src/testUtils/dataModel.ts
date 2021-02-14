@@ -19,7 +19,8 @@ import type {
   IFundingItem,
   IGenericExpense,
   ILoanItem,
-  IRevenue
+  IRevenue,
+  ITax
 } from "../pages/games/[id]/cashForecast/_types/cashForecast";
 
 export function createEmptyBusinessModel(): IBusinessModel {
@@ -125,6 +126,7 @@ export function createEmptyCashForecast(): ICashForecast {
     employees: createObjectList<IEmployeeExpense>("unit-test-cf", "unit-test-cf-ee"),
     contractors: createObjectList<IContractorExpense>("unit-test-cf", "unit-test-cf-ce"),
     expenses: createObjectList<IGenericExpense>("unit-test-cf", "unit-test-cf-e"),
+    taxes: createObjectList<ITax>("unit-test-cf", "unit-test-cf-tax"),
     revenues: createObjectList<IRevenue>("unit-test-cf", "unit-test-cf-r"),
   };
 }
