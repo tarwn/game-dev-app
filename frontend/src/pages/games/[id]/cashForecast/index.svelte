@@ -32,6 +32,7 @@
   let editViewAvailable = false;
   let isLoading = true;
   let cashForecast = null as null | ICashForecast;
+  // let projectedCashForecast = null as null | IProjectedCashForecast;
 
   // initialize section view if query present
   if ($params.view === "edit") {
@@ -71,6 +72,7 @@
   }
   const unsubscribe = cashForecastLocalStore.subscribe((update) => {
     cashForecast = update;
+    // updateProjectedCashForecast();
     if (cashForecast && isLoading) {
       isLoading = false;
     }
