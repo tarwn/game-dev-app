@@ -3,12 +3,12 @@ using System;
 
 namespace GDB.Common.DTOs.CashForecast
 {
-    public class RepaymentTerms : IIdentifiedObject
+    public class LoanRepaymentTerms : IIdentifiedObject
     {
         [Obsolete("serialization only", false)]
-        public RepaymentTerms() { }
+        public LoanRepaymentTerms() { }
 
-        public RepaymentTerms(string parentId, string globalId,IdentifiedList<CashOut> cashOut, string field = null)
+        public LoanRepaymentTerms(string parentId, string globalId,IdentifiedList<LoanCashOut> cashOut, string field = null)
         {
             ParentId = parentId;
             GlobalId = globalId;
@@ -20,6 +20,6 @@ namespace GDB.Common.DTOs.CashForecast
         public string GlobalId { get; set; }
         public string ParentId { get; set; }
         public string Field { get; set; }
-        public IdentifiedList<CashOut> CashOut { get; set; }
+        public IdentifiedList<LoanCashOut> CashOut { get; set; }
     }
 }

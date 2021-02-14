@@ -5,15 +5,12 @@
   import CurrencyInput from "../../../../../../../components/inputs/CurrencyInput.svelte";
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
-  import NumberInput from "../../../../../../../components/inputs/NumberInput.svelte";
   import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
   import TextInput from "../../../../../../../components/inputs/TextInput.svelte";
-  import { getUtcToday } from "../../../../../../../utilities/date";
   import type { IEvent } from "../../../../../../_stores/eventStore/types";
   import { events } from "../../../_stores/cashForecastStore";
-  import { isCurrencyRepayment, isShareRepayment } from "../../../_types/cashForecast";
-  import type { ICashForecast, ICashOut, IFundingItem } from "../../../_types/cashForecast";
-  import { LoanType, RepaymentType, FundingTypes, RepaymentTypes } from "../../../_types/cashForecast";
+  import type { ICashForecast, IFundingCashOut, IFundingItem } from "../../../_types/cashForecast";
+  import { LoanType, FundingRepaymentType, FundingTypes, FundingRepaymentTypes } from "../../../_types/cashForecast";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
   import TableRowEmpty from "../table/TableRowEmpty.svelte";
   import TableRowIndented from "../table/TableRowIndented.svelte";
@@ -51,17 +48,9 @@
     }
   }
 
-  function updateRepaymentType(cashOut: ICashOut, e: any) {
-    const value = parseInt(e.target.value) as RepaymentType;
-    let amount = cashOut.amount.value;
-    if (
-      (isShareRepayment(value) && !isShareRepayment(cashOut.type.value)) ||
-      (isCurrencyRepayment(value) && !isCurrencyRepayment(cashOut.type.value))
-    ) {
-      amount = 0;
-    }
-
-    publish(events.SetFundingRepaymentTermsCashOutType(cashOut, value, amount));
+  function updateRepaymentType(cashOut: IFundingCashOut, e: any) {
+    const value = parseInt(e.target.value) as FundingRepaymentType;
+    publish(events.SetFundingRepaymentTermsCashOutType(cashOut.type, value));
   }
 
   function addFundingRepaymentTerms(funding: IFundingItem) {
@@ -171,7 +160,7 @@
           on:click={() =>
             publish(
               events.AddFundingCashIn(funding.cashIn.globalId, {
-                date: getUtcToday(),
+                date: funding.cashIn.list.slice(-1)[0].date.value,
               })
             )} />
       </td>
@@ -186,70 +175,49 @@
         <FauxLabelCell>
           {#if i == 0}
             Terms:
-          {:else}
-            and:
           {/if}
         </FauxLabelCell>
+        {#if i == 0}
+          <td>
+            <LabeledInput label="Start Date" vertical={true}>
+              <DateInput
+                value={cashOut.startDate.value}
+                on:change={({ detail }) =>
+                  publish(events.SetFundingRepaymentTermsCashOutStartDate(cashOut.startDate, detail.value))} />
+            </LabeledInput>
+          </td>
+        {:else}
+          <FauxLabelCell>and then:</FauxLabelCell>
+        {/if}
         <td>
-          <LabeledInput label="Frequency" vertical={true}>
+          <LabeledInput label="Share of" vertical={true}>
             <!-- svelte-ignore a11y-no-onchange -->
             <select value={cashOut.type.value} on:change={(e) => updateRepaymentType(cashOut, e)}>
-              {#each RepaymentTypes as repaymentType}
+              {#each FundingRepaymentTypes as repaymentType}
                 <option value={repaymentType.id}>{repaymentType.name}</option>
               {/each}
             </select>
           </LabeledInput>
         </td>
         <td>
-          <LabeledInput
-            label={cashOut.type.value === RepaymentType.OneTime ? "Payment Date" : "Start Date"}
-            vertical={true}>
-            <DateInput
-              value={cashOut.startDate.value}
+          <LabeledInput label="Percent Share" vertical={true}>
+            <PercentInput
+              value={cashOut.amount.value}
               on:change={({ detail }) =>
-                publish(events.SetFundingRepaymentTermsCashOutStartDate(cashOut.startDate, detail.value))} />
+                publish(events.SetFundingRepaymentTermsCashOutAmount(cashOut.amount, detail.value))} />
           </LabeledInput>
         </td>
         <td>
-          <LabeledInput label={isShareRepayment(cashOut.type.value) ? "Percent Share" : "Amount"} vertical={true}>
-            {#if isShareRepayment(cashOut.type.value)}
-              <PercentInput
-                value={cashOut.amount.value}
-                on:change={({ detail }) =>
-                  publish(events.SetFundingRepaymentTermsCashOutAmount(cashOut.amount, detail.value))} />
-            {:else}
-              <CurrencyInput
-                value={cashOut.amount.value}
-                on:change={({ detail }) =>
-                  publish(events.SetFundingRepaymentTermsCashOutAmount(cashOut.amount, detail.value))} />
-            {/if}
+          <LabeledInput label="To a Maximum Of" vertical={true}>
+            <CurrencyInput
+              min={0}
+              max={1_000_000_000}
+              value={cashOut.limitFixedAmount.value}
+              on:change={({ detail }) =>
+                publish(
+                  events.SetFundingRepaymentTermsCashOutLimitFixedAmount(cashOut.limitFixedAmount, detail.value)
+                )} />
           </LabeledInput>
-        </td>
-        <td>
-          {#if cashOut.type.value === RepaymentType.Monthly}
-            <LabeledInput label="Number of Months" vertical={true}>
-              <NumberInput
-                min={0}
-                max={360}
-                value={cashOut.numberOfMonths.value}
-                on:change={({ detail }) =>
-                  publish(
-                    events.SetFundingRepaymentTermsCashOutNumberOfMonths(cashOut.numberOfMonths, detail.value)
-                  )} />
-            </LabeledInput>
-          {/if}
-          {#if isShareRepayment(cashOut.type.value)}
-            <LabeledInput label="To a Maximum Of" vertical={true}>
-              <CurrencyInput
-                min={0}
-                max={1_000_000_000}
-                value={cashOut.limitFixedAmount.value}
-                on:change={({ detail }) =>
-                  publish(
-                    events.SetFundingRepaymentTermsCashOutLimitFixedAmount(cashOut.limitFixedAmount, detail.value)
-                  )} />
-            </LabeledInput>
-          {/if}
         </td>
         <td class="gdb-no-label">
           {#if i > 0}

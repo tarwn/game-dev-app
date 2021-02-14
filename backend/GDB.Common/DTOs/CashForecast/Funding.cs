@@ -8,7 +8,7 @@ namespace GDB.Common.DTOs.CashForecast
         [Obsolete("serialization only", false)]
         public Funding() { }
 
-        public Funding(string parentId, string globalId, IdentifiedPrimitive<string> name, IdentifiedPrimitive<LoanType> type, IdentifiedList<CashIn> cashIn, RepaymentTerms repaymentTerms = null)
+        public Funding(string parentId, string globalId, IdentifiedPrimitive<string> name, IdentifiedPrimitive<LoanType> type, IdentifiedList<CashIn> cashIn, FundingRepaymentTerms repaymentTerms = null)
         {
             ParentId = parentId;
             GlobalId = globalId;
@@ -25,6 +25,6 @@ namespace GDB.Common.DTOs.CashForecast
         public IdentifiedPrimitive<string> Name { get; set; }
         public IdentifiedPrimitive<LoanType> Type{ get; set; }
         public IdentifiedList<CashIn> CashIn { get; set; }
-        public RepaymentTerms? RepaymentTerms { get; set; }
+        public FundingRepaymentTerms? RepaymentTerms { get; set; }
     }
 }

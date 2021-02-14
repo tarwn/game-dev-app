@@ -9,11 +9,11 @@ import {
   ExpenseCategory,
   ExpenseFrequency,
   ExpenseUntil,
+  FundingRepaymentType,
   ICashForecast,
-  ICashOut,
+  LoanRepaymentType,
   LoanType,
   NetIncomeCategory,
-  RepaymentType,
   TaxSchedule
 } from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
@@ -63,29 +63,21 @@ export const events = {
   "AddLoanRepaymentTerms": ef.createObjectInsert<{ date: Date }>("AddLoanRepaymentTerms", "repaymentTerms", [
     (ids, nextId) => of.insertList(ids[0], nextId, "cashOut"),
     (ids, nextId) => of.insertObject(ids[1], nextId),
-    (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, RepaymentType.Monthly, "type"),
+    (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, LoanRepaymentType.Monthly, "type"),
     (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.decimal, 0, "amount"),
     (ids, nextId, args) => of.insertProp(ids[2], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.decimal, 1, "limitFixedAmount"),
     (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, 1, "numberOfMonths")
   ]),
   "AddLoanRepaymentTermsCashOut": ef.createObjectInsert<{ date: Date }>("AddLoanRepaymentTermsCashOut", undefined, [
-    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, RepaymentType.OneTime, "type"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, LoanRepaymentType.OneTime, "type"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 0, "amount"),
     (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 1, "limitFixedAmount"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, 1, "numberOfMonths")
   ]),
   "DeleteLoanRepaymentTermsCashOut": ef.createDelete("DeleteLoanRepaymentTermsCashOut", ValueType.object, undefined),
-  "SetLoanRepaymentTermsCashOutType": (cashOut: ICashOut, repaymentType: RepaymentType, amount: number): IEvent<ICashForecast> => {
-    return cashForecastEventStore.createEvent(() => ({
-      type: "SetLoanRepaymentTermsCashOutType",
-      operations: [
-        of.updateProp(cashOut.type.parentId, cashOut.type.globalId, ValueType.integer, repaymentType),
-        of.updateProp(cashOut.amount.parentId, cashOut.amount.globalId, ValueType.decimal, amount),
-      ]
-    }));
-  },
+  "SetLoanRepaymentTermsCashOutType": ef.createPropUpdate<LoanRepaymentType>("SetLoanRepaymentTermsCashOutType", ValueType.integer),
   "SetLoanRepaymentTermsCashOutAmount": ef.createPropUpdate<number>("SetLoanRepaymentTermsCashOutAmount", ValueType.decimal),
   "SetLoanRepaymentTermsCashOutStartDate": ef.createPropUpdate<Date>("SetLoanRepaymentTermsCashOutStartDate", ValueType.date),
   "SetLoanRepaymentTermsCashOutLimitFixedAmount":
@@ -117,29 +109,22 @@ export const events = {
   "AddFundingRepaymentTerms": ef.createObjectInsert<{ date: Date, amount: number }>("AddFundingRepaymentTerms", "repaymentTerms", [
     (ids, nextId) => of.insertList(ids[0], nextId, "cashOut"),
     (ids, nextId) => of.insertObject(ids[1], nextId),
-    (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, RepaymentType.GrossRevenueShare, "type"),
+    (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, FundingRepaymentType.GrossRevenueAfterPublisher, "type"),
     (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.decimal, 0.8, "amount"),
     (ids, nextId, args) => of.insertProp(ids[2], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId, args) => of.insertProp(ids[2], nextId, ValueType.decimal, args.amount, "limitFixedAmount"),
     (ids, nextId) => of.insertProp(ids[2], nextId, ValueType.integer, 1, "numberOfMonths")
   ]),
   "AddFundingRepaymentTermsCashOut": ef.createObjectInsert<{ date: Date }>("AddFundingRepaymentTermsCashOut", undefined, [
-    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, RepaymentType.GrossRevenueShare, "type"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, FundingRepaymentType.GrossRevenueAfterPublisher, "type"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 0.0, "amount"),
     (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date.toISOString(), "startDate"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.decimal, 0, "limitFixedAmount"),
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, 1, "numberOfMonths")
   ]),
   "DeleteFundingRepaymentTermsCashOut": ef.createDelete("DeleteFundingRepaymentTermsCashOut", ValueType.object, undefined),
-  "SetFundingRepaymentTermsCashOutType": (cashOut: ICashOut, repaymentType: RepaymentType, amount: number): IEvent<ICashForecast> => {
-    return cashForecastEventStore.createEvent(() => ({
-      type: "SetFundingRepaymentTermsCashOutType",
-      operations: [
-        of.updateProp(cashOut.type.parentId, cashOut.type.globalId, ValueType.integer, repaymentType),
-        of.updateProp(cashOut.amount.parentId, cashOut.amount.globalId, ValueType.decimal, amount),
-      ]
-    }));
-  },
+  "SetFundingRepaymentTermsCashOutType":
+    ef.createPropUpdate<FundingRepaymentType>("SetFundingRepaymentTermsCashOutType", ValueType.integer),
   "SetFundingRepaymentTermsCashOutAmount":
     ef.createPropUpdate<number>("SetFundingRepaymentTermsCashOutAmount", ValueType.decimal),
   "SetFundingRepaymentTermsCashOutStartDate":

@@ -6,35 +6,43 @@ export enum LoanType {
   Multiple = 3
 }
 
-export const LoanTypes: { id: LoanType, name: string }[] = Object.keys(LoanType)
-  .filter(lt => isNaN(Number(lt)))
-  .map(lt => ({ id: LoanType[lt], name: lt }));
+export const LoanTypes: { id: LoanType, name: string }[] = [
+  { id: LoanType.OneTime, name: "Single payment" },
+  { id: LoanType.Monthly, name: "Monthly" },
+  { id: LoanType.Multiple, name: "Multiple payments" },
+];
 
 export const FundingTypes: { id: LoanType, name: string }[] = LoanTypes.filter(lt => lt.id != LoanType.Monthly);
 
-export enum RepaymentType {
+export enum LoanRepaymentType {
   OneTime = 1,
-  Monthly = 2,
-  GrossRevenueShare = 3,
-  GrossProfitShare = 4,
-  NetProfitShare = 5
+  Monthly = 2
 }
 
-export const RepaymentTypes: { id: RepaymentType, name: string }[] = Object.keys(RepaymentType)
-  .filter(lt => isNaN(Number(lt)))
-  .map(lt => ({ id: RepaymentType[lt], name: lt }));
+export const LoanRepaymentTypes: { id: LoanRepaymentType, name: string }[] = [
+  { id: LoanRepaymentType.OneTime, name: "Single payment" },
+  { id: LoanRepaymentType.Monthly, name: "Monthly" }
+];
 
-export function isShareRepayment(type: RepaymentType): boolean {
-  return type === RepaymentType.GrossRevenueShare || type === RepaymentType.GrossProfitShare || type == RepaymentType.NetProfitShare;
+export enum FundingRepaymentType {
+  GrossRevenueAfterSales = 1,
+  GrossRevenueAfterPlatform = 2,
+  GrossRevenueAfterDistributor = 3,
+  GrossRevenueAfterPublisher = 4,
+  GrossProfitShare = 5,
+  NetProfitShare = 6
 }
 
-export function isCurrencyRepayment(type: RepaymentType): boolean {
-  return type === RepaymentType.Monthly || type === RepaymentType.OneTime;
-}
+export const FundingRepaymentTypes: { id: FundingRepaymentType, name: string }[] = [
+  { id: FundingRepaymentType.GrossRevenueAfterSales, name: "Gross After Sales" },
+  { id: FundingRepaymentType.GrossRevenueAfterPlatform, name: "Gross After Platform" },
+  { id: FundingRepaymentType.GrossRevenueAfterDistributor, name: "Gross After Distributor" },
+  { id: FundingRepaymentType.GrossRevenueAfterPublisher, name: "Gross After Publisher" },
+  { id: FundingRepaymentType.GrossProfitShare, name: "Gross Profit" },
+  { id: FundingRepaymentType.NetProfitShare, name: "Net Profit" },
+];
 
 export enum AdditionalEmployeeExpenseType {
-  GrossRevenueShare = 1,
-  GrossProfitShare = 2,
   NetProfitShare = 3,
   BonusPercentOnce = 4,
   BonusPercentAnnual = 5,
@@ -43,8 +51,6 @@ export enum AdditionalEmployeeExpenseType {
 }
 
 /*
-  GrossRevShare: no freq, no date
-  GrossProfitShare: no freq, no date
   NetProfitShare: no freq, no date
   BonusPercentOnce: freq + maybe date
   BonusPercentAnnual: freq + maybe date
@@ -65,8 +71,6 @@ export function isCurrencyAdditionalEmployeeExpenseType(type: AdditionalEmployee
 export function isPercentAdditionalEmployeeExpenseType(type: AdditionalEmployeeExpenseType): boolean {
   return type == AdditionalEmployeeExpenseType.BonusPercentOnce ||
     type == AdditionalEmployeeExpenseType.BonusPercentAnnual ||
-    type == AdditionalEmployeeExpenseType.GrossRevenueShare ||
-    type == AdditionalEmployeeExpenseType.GrossProfitShare ||
     type == AdditionalEmployeeExpenseType.NetProfitShare;
 }
 
@@ -172,14 +176,26 @@ export interface ILoanItem extends IIdentifiedObject {
   type: IIdentifiedPrimitive<LoanType>;
   cashIn: IIdentifiedList<ICashIn>;
   numberOfMonths: IIdentifiedPrimitive<number> | null;
-  repaymentTerms: IRepaymentTerms | null;
+  repaymentTerms: ILoanRepaymentTerms | null;
+}
+
+export interface ILoanRepaymentTerms extends IIdentifiedObject {
+  cashOut: IIdentifiedList<ILoanCashOut>;
+}
+
+export interface ILoanCashOut extends IIdentifiedObject {
+  type: IIdentifiedPrimitive<LoanRepaymentType>;
+  amount: IIdentifiedPrimitive<number>;
+  startDate: IIdentifiedPrimitive<Date>;
+  limitFixedAmount: IIdentifiedPrimitive<number | null>;
+  numberOfMonths: IIdentifiedPrimitive<number | null>;
 }
 
 export interface IFundingItem extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
   type: IIdentifiedPrimitive<LoanType>;
   cashIn: IIdentifiedList<ICashIn>;
-  repaymentTerms: IRepaymentTerms | null;
+  repaymentTerms: IFundingRepaymentTerms | null;
 }
 
 export interface ICashIn extends IIdentifiedObject {
@@ -187,12 +203,13 @@ export interface ICashIn extends IIdentifiedObject {
   amount: IIdentifiedPrimitive<number>;
 }
 
-export interface IRepaymentTerms extends IIdentifiedObject {
-  cashOut: IIdentifiedList<ICashOut>;
+export interface IFundingRepaymentTerms extends IIdentifiedObject {
+  cashOut: IIdentifiedList<IFundingCashOut>;
 }
 
-export interface ICashOut extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<RepaymentType>;
+
+export interface IFundingCashOut extends IIdentifiedObject {
+  type: IIdentifiedPrimitive<LoanRepaymentType>;
   amount: IIdentifiedPrimitive<number>;
   startDate: IIdentifiedPrimitive<Date>;
   limitFixedAmount: IIdentifiedPrimitive<number | null>;
