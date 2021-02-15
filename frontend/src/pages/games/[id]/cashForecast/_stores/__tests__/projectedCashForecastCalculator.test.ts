@@ -1,6 +1,7 @@
-import { createEmptyCashForecast } from "../../../../../../testUtils/dataModel";
+import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../testUtils/dataModel";
 import { getUtcDate } from "../../../../../../utilities/date";
-import { cashForecastEventStore } from "../cashForecastStore";
+import type { IIdentifiedList } from "../../../../../_stores/eventStore/types";
+import { ICashForecast, ICashIn, ILoanCashOut, ILoanItem, ILoanRepaymentTerms, LoanRepaymentType, LoanType } from "../../_types/cashForecast";
 import { calculate, getEmptyProjection, SubTotalType, ICashValue } from "../projectedCashForecastCalculator";
 
 const FIVE_YEARS_OF_ENTRIES = 12 * 5;
@@ -72,7 +73,7 @@ describe("calculate", () => {
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
       forecast.bankBalance.date.value = getUtcDate(2017, 5, 1);
       forecast.bankBalance.amount.value = 0;
-      const secondProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
 
       //= bank balance injection subtotal
       const bankBalance1 = initialProjection.BeginningCash_Balances;
@@ -99,5 +100,761 @@ describe("calculate", () => {
       expect(Array.from(details2.keys())).toEqual([forecast.bankBalance.globalId]);
       expect(details2.get(forecast.bankBalance.globalId).length).toBe(60);
     });
+
+    it("increasing length of forecast expands length of projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      // first pass
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.bankBalance.date.value = getUtcDate(2017, 5, 1);
+      forecast.bankBalance.amount.value = 1234.56;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      // second pass
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
+
+      {
+        //= initial pass - 5 year
+        expect(initialProjection.BeginningCash_Balances.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.BeginningCash_Balances[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(0);
+        // detail
+        // beginning + ending cash subtotal
+        expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+        expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+        // details are present too
+        const details = initialProjection.details.get(SubTotalType.BeginningCash_Balances)
+          .get(forecast.bankBalance.globalId);
+        expect(details.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      }
+      {
+        //= second pass - 6 year
+        const sixYears = 12 * 6;
+        expect(secondProjection.BeginningCash_Balances.length).toBe(sixYears);
+        expect(secondProjection.BeginningCash_Balances[sixYears - 1].amount).toBe(0);
+        // detail
+        // beginning + ending cash subtotal
+        expect(secondProjection.BeginningCash.length).toBe(sixYears);
+        expect(secondProjection.BeginningCash[sixYears - 1].amount).toBe(1234.56);
+        expect(secondProjection.EndingCash.length).toBe(sixYears);
+        expect(secondProjection.EndingCash[sixYears - 1].amount).toBe(1234.56);
+        // details are present too
+        const details = secondProjection.details.get(SubTotalType.BeginningCash_Balances)
+          .get(forecast.bankBalance.globalId);
+        expect(details.length).toBe(sixYears);
+      }
+    });
+
+    it("reducing length of forecast truncates length of projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      // first pass
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.bankBalance.date.value = getUtcDate(2017, 5, 1);
+      forecast.bankBalance.amount.value = 1234.56;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      // second pass
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
+
+      {
+        //= initial pass - 5 year
+        expect(initialProjection.BeginningCash_Balances.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.BeginningCash_Balances[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(0);
+        // detail
+        // beginning + ending cash subtotal
+        expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+        expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+        expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+        // details are present too
+        const details = initialProjection.details.get(SubTotalType.BeginningCash_Balances)
+          .get(forecast.bankBalance.globalId);
+        expect(details.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      }
+      {
+        //= second pass - 4 year
+        const fourYears = 12 * 4;
+        expect(secondProjection.BeginningCash_Balances.length).toBe(fourYears);
+        expect(secondProjection.BeginningCash_Balances[fourYears - 1].amount).toBe(0);
+        // detail
+        // beginning + ending cash subtotal
+        expect(secondProjection.BeginningCash.length).toBe(fourYears);
+        expect(secondProjection.BeginningCash[fourYears - 1].amount).toBe(1234.56);
+        expect(secondProjection.EndingCash.length).toBe(fourYears);
+        expect(secondProjection.EndingCash[fourYears - 1].amount).toBe(1234.56);
+        // details are present too
+        const details = secondProjection.details.get(SubTotalType.BeginningCash_Balances)
+          .get(forecast.bankBalance.globalId);
+        expect(details.length).toBe(fourYears);
+      }
+    });
+  });
+
+  describe("loan - inflow", () => {
+    it("adds one-time loan inflow on correct date to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(1234.56);
+      expect(detail[25].amount).toBe(0);
+      expect(OtherCash_LoanIn[24].amount).toBe(1234.56);
+      expect(OtherCash_LoanIn[25].amount).toBe(0);
+      expect(OtherCash[23].amount).toBe(0);
+      expect(OtherCash[24].amount).toBe(1234.56);
+      expect(OtherCash[25].amount).toBe(0);
+    });
+
+    it("adds monthly loan inflow on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.Monthly, getUtcDate(2017, 5, 1), 1234.56, 4)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      [0, 1234.56, 1234.56, 1234.56, 1234.56, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_LoanIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds multiple loan inflow on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.Multiple, getUtcDate(2017, 5, 15), 1234.56);
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 6, 1), 2234.56));
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 8, 1), 3234.56));
+      forecast.loans.list.push({
+        ...loan
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      [0, 1234.56, 2234.56, 0, 3234.56, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_LoanIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds single loan inflow w/extraneous cashIns on correct date to loan, subtotal, and total", () => {
+      // this is same as last test, but expect to only read first cashIn
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 15), 1234.56);
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 6, 1), 2234.56));
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 8, 1), 3234.56));
+      forecast.loans.list.push({
+        ...loan
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      [0, 1234.56, 0, 0, 0, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_LoanIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds monthly loan inflow w/extraneous cashIns on correct dates to loan, subtotal, and total", () => {
+      // this is same as multime test, but expect values to be set only from first item
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.Monthly, getUtcDate(2017, 5, 15), 1234.56, 3);
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 6, 1), 2234.56));
+      loan.cashIn.list.push(createLoanCashIn(loan.cashIn, getUtcDate(2017, 8, 1), 3234.56));
+      forecast.loans.list.push({
+        ...loan
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      [0, 1234.56, 1234.56, 1234.56, 0, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_LoanIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("removes loan inflow when deleted from forecast", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56)
+      });
+      const loanGlobalId = forecast.loans.list[0].globalId;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.loans.list.pop();
+      const finalProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initialProjection is untouched
+      {
+        const { OtherCash_LoanIn, OtherCash } = initialProjection;
+        const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+          .get(loanGlobalId);
+        expect(detail[24].amount).toBe(1234.56);
+        expect(OtherCash_LoanIn[24].amount).toBe(1234.56);
+        expect(OtherCash[24].amount).toBe(1234.56);
+      }
+      // final projection is 0'd
+      {
+        const { OtherCash_LoanIn, OtherCash } = finalProjection;
+        expect(finalProjection.details.get(SubTotalType.OtherCash_LoanIn).size).toBe(0);
+        expect(OtherCash_LoanIn[24].amount).toBe(0);
+        expect(OtherCash[24].amount).toBe(0);
+      }
+    });
+
+    it("adds loans not present in first projection to later ones", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56)
+      });
+      const finalProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initialProjection is untouched
+      {
+        const { OtherCash_LoanIn, OtherCash } = initialProjection;
+        expect(initialProjection.details.get(SubTotalType.OtherCash_LoanIn).size).toBe(0);
+        expect(OtherCash_LoanIn[24].amount).toBe(0);
+        expect(OtherCash[24].amount).toBe(0);
+      }
+      // final projection is 0'd
+      {
+        const { OtherCash_LoanIn, OtherCash } = finalProjection;
+        const detail = finalProjection.details.get(SubTotalType.OtherCash_LoanIn)
+          .get(forecast.loans.list[0].globalId);
+        expect(detail[24].amount).toBe(1234.56);
+        expect(OtherCash_LoanIn[24].amount).toBe(1234.56);
+        expect(OtherCash[24].amount).toBe(1234.56);
+      }
+    });
+
+    it("adds multiple loan inflows together", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 10), 1234.56)
+      });
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 15), 1000.04)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail1 = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      const detail2 = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[1].globalId);
+      expect(detail1[24].amount).toBe(1234.56);
+      expect(detail2[24].amount).toBe(1000.04);
+      expect(initialProjection.OtherCash_LoanIn[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.OtherCash[24].amount).toBe(1234.56 + 1000.04);
+    });
+
+    it("adds loan inflows into all subtotals to ending cash", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 10), 1234.56)
+      });
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 15), 1000.04)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      expect(initialProjection.EndingCash[23].amount).toBe(0);
+      expect(initialProjection.BeginningCash[24].amount).toBe(0);
+      expect(initialProjection.OtherCash_LoanIn[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.OtherCash[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.EndingCash[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.BeginningCash[25].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56 + 1000.04);
+    });
+
+    it("increasing length of forecast extends projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 10), 1234.56)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
+
+      const sixYears = FIVE_YEARS_OF_ENTRIES + 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_LoanIn.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(secondDetail.length).toBe(sixYears);
+      expect(secondProjection.OtherCash_LoanIn.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash[sixYears - 1].amount).toBe(1234.56);
+      expect(secondProjection.EndingCash.length).toBe(sixYears);
+      expect(secondProjection.EndingCash[sixYears - 1].amount).toBe(1234.56);
+    });
+
+    it("decreasing length of forecast truncates projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.loans.list.push({
+        ...createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 10), 1234.56)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
+
+      const fourYears = FIVE_YEARS_OF_ENTRIES - 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_LoanIn.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(secondDetail.length).toBe(fourYears);
+      expect(secondProjection.OtherCash_LoanIn.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash[fourYears - 1].amount).toBe(1234.56);
+      expect(secondProjection.EndingCash.length).toBe(fourYears);
+      expect(secondProjection.EndingCash[fourYears - 1].amount).toBe(1234.56);
+    });
+  });
+
+  describe("loan - outflow", () => {
+    it("adds one-time loan outflow on correct date to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanOut, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[0].globalId);
+      expect(detail[26].amount).toBe(0);
+      expect(detail[27].amount).toBe(-2222.33);
+      expect(detail[28].amount).toBe(0);
+      expect(OtherCash_LoanOut[27].amount).toBe(-2222.33);
+      expect(OtherCash_LoanOut[28].amount).toBe(0);
+      expect(OtherCash[26].amount).toBe(0);
+      expect(OtherCash[27].amount).toBe(-2222.33);
+      expect(OtherCash[28].amount).toBe(0);
+    });
+
+    it("adds monthly loan outflow on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.Monthly, getUtcDate(2017, 8, 15), 222.33, 3);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanOut, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[0].globalId);
+      [0, -222.33, -222.33, -222.33, 0].forEach((amt, i) => {
+        expect(detail[26 + i].amount).toBe(amt);
+        expect(OtherCash_LoanOut[26 + i].amount).toBe(amt);
+        expect(OtherCash[26 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds one-time loan outflow w/ extraneous monthly detail on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 15), 222.33, 3);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanOut, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[0].globalId);
+      [0, -222.33, 0, 0, 0].forEach((amt, i) => {
+        expect(detail[26 + i].amount).toBe(amt);
+        expect(OtherCash_LoanOut[26 + i].amount).toBe(amt);
+        expect(OtherCash[26 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds multiple loan outflows on correct date to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      repaymentTerms.cashOut.list.push(
+        createLoanRepaymentCashOut(repaymentTerms.cashOut, LoanRepaymentType.OneTime, getUtcDate(2017, 9, 1), 1000.07)
+      );
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanOut, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[0].globalId);
+      expect(detail[26].amount).toBe(0);
+      expect(detail[27].amount).toBe(-2222.33);
+      expect(detail[28].amount).toBe(-1000.07);
+      expect(detail[29].amount).toBe(0);
+      expect(OtherCash_LoanOut[26].amount).toBe(0);
+      expect(OtherCash_LoanOut[27].amount).toBe(-2222.33);
+      expect(OtherCash_LoanOut[28].amount).toBe(-1000.07);
+      expect(OtherCash_LoanOut[29].amount).toBe(0);
+      expect(OtherCash[26].amount).toBe(0);
+      expect(OtherCash[27].amount).toBe(-2222.33);
+      expect(OtherCash[28].amount).toBe(-1000.07);
+      expect(OtherCash[29].amount).toBe(0);
+    });
+
+    it("adds multiple loans w/ multiple outflows on correct date to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan1 = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms1 = createLoanRepaymentTerms(loan1, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      repaymentTerms1.cashOut.list.push(
+        createLoanRepaymentCashOut(repaymentTerms1.cashOut, LoanRepaymentType.OneTime, getUtcDate(2017, 9, 1), 1000.07)
+      );
+      forecast.loans.list.push({
+        ...loan1,
+        repaymentTerms: repaymentTerms1
+      });
+      const loan2 = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms2 = createLoanRepaymentTerms(loan2, LoanRepaymentType.Monthly, getUtcDate(2017, 10, 1), 33.44, 2);
+      forecast.loans.list.push({
+        ...loan2,
+        repaymentTerms: repaymentTerms2
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_LoanOut, OtherCash } = initialProjection;
+      const detail1 = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[0].globalId);
+      const detail2 = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+        .get(forecast.loans.list[1].globalId);
+      expect(detail1[26].amount).toBe(0);
+      expect(detail1[27].amount).toBe(-2222.33);
+      expect(detail1[28].amount).toBe(-1000.07);
+      expect(detail1[29].amount).toBe(0);
+      expect(detail1[30].amount).toBe(0);
+      expect(detail1[31].amount).toBe(0);
+      expect(detail2[26].amount).toBe(0);
+      expect(detail2[27].amount).toBe(0);
+      expect(detail2[28].amount).toBe(0);
+      expect(detail2[29].amount).toBe(-33.44);
+      expect(detail2[30].amount).toBe(-33.44);
+      expect(detail2[31].amount).toBe(0);
+      expect(OtherCash_LoanOut[26].amount).toBe(0);
+      expect(OtherCash_LoanOut[27].amount).toBe(-2222.33);
+      expect(OtherCash_LoanOut[28].amount).toBe(-1000.07);
+      expect(OtherCash_LoanOut[29].amount).toBe(-33.44);
+      expect(OtherCash_LoanOut[30].amount).toBe(-33.44);
+      expect(OtherCash_LoanOut[31].amount).toBe(0);
+      expect(OtherCash[26].amount).toBe(0);
+      expect(OtherCash[27].amount).toBe(-2222.33);
+      expect(OtherCash[28].amount).toBe(-1000.07);
+      expect(OtherCash[29].amount).toBe(-33.44);
+      expect(OtherCash[30].amount).toBe(-33.44);
+      expect(OtherCash[31].amount).toBe(0);
+    });
+
+    it("removes loan outflow when loan deleted from forecast", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+      const loanId = loan.globalId;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.loans.list.pop();
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initial
+      {
+        const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+          .get(loanId);
+        expect(detail[27].amount).toBe(-2222.33);
+        expect(initialProjection.OtherCash_LoanOut[27].amount).toBe(-2222.33);
+        expect(initialProjection.OtherCash[27].amount).toBe(-2222.33);
+      }
+      // second
+      {
+        expect(secondProjection.details.get(SubTotalType.OtherCash_LoanOut).size).toBe(0);
+        expect(secondProjection.OtherCash_LoanOut[27].amount).toBe(0);
+        expect(secondProjection.OtherCash[27].amount).toBe(0);
+      }
+    });
+
+    it("removes loan outflow when cashOut deleted from forecast loan", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 444.33);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+      const loanId = loan.globalId;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.loans.list[0].repaymentTerms = null;
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initial
+      {
+        const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+          .get(loanId);
+        expect(detail[27].amount).toBe(-444.33);
+        expect(initialProjection.OtherCash_LoanOut[27].amount).toBe(-444.33);
+        expect(initialProjection.OtherCash[27].amount).toBe(-444.33);
+      }
+      // second
+      {
+        const detail = secondProjection.details.get(SubTotalType.OtherCash_LoanOut)
+          .get(loanId);
+        expect(detail[27].amount).toBe(0);
+        expect(secondProjection.OtherCash_LoanOut[27].amount).toBe(0);
+        expect(secondProjection.OtherCash[27].amount).toBe(0);
+      }
+    });
+
+    it("reduces loan outflow when one of multiple cash flows is deleted", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      repaymentTerms.cashOut.list.push(
+        createLoanRepaymentCashOut(repaymentTerms.cashOut, LoanRepaymentType.OneTime, getUtcDate(2017, 9, 1), 1000.07)
+      );
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.loans.list[0].repaymentTerms.cashOut.list.pop();
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initial
+      {
+        const detail = initialProjection.details.get(SubTotalType.OtherCash_LoanOut)
+          .get(forecast.loans.list[0].globalId);
+        expect(detail[27].amount).toBe(-2222.33);
+        expect(detail[28].amount).toBe(-1000.07);
+        expect(initialProjection.OtherCash_LoanOut[27].amount).toBe(-2222.33);
+        expect(initialProjection.OtherCash_LoanOut[28].amount).toBe(-1000.07);
+        expect(initialProjection.OtherCash[27].amount).toBe(-2222.33);
+        expect(initialProjection.OtherCash[28].amount).toBe(-1000.07);
+      }
+      // second
+      {
+        const detail = secondProjection.details.get(SubTotalType.OtherCash_LoanOut)
+          .get(forecast.loans.list[0].globalId);
+        expect(detail[27].amount).toBe(-2222.33);
+        expect(detail[28].amount).toBe(0);
+        expect(secondProjection.OtherCash_LoanOut[27].amount).toBe(-2222.33);
+        expect(secondProjection.OtherCash_LoanOut[28].amount).toBe(0);
+        expect(secondProjection.OtherCash[27].amount).toBe(-2222.33);
+        expect(secondProjection.OtherCash[28].amount).toBe(0);
+      }
+    });
+
+    it("increasing length of forecast extends projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1000.33);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
+
+      const sixYears = FIVE_YEARS_OF_ENTRIES + 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_LoanOut.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(-1222.00);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(-1222.00);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(secondDetail.length).toBe(sixYears);
+      expect(secondProjection.OtherCash_LoanOut.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash[sixYears - 1].amount).toBe(-1222.00);
+      expect(secondProjection.EndingCash.length).toBe(sixYears);
+      expect(secondProjection.EndingCash[sixYears - 1].amount).toBe(-1222.00);
+    });
+
+    it("decreasing length of forecast truncates projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const loan = createLoan(forecast.loans, LoanType.OneTime, getUtcDate(2017, 5, 1), 1000.33);
+      const repaymentTerms = createLoanRepaymentTerms(loan, LoanRepaymentType.OneTime, getUtcDate(2017, 8, 1), 2222.33);
+      forecast.loans.list.push({
+        ...loan,
+        repaymentTerms
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
+
+      const fourYears = FIVE_YEARS_OF_ENTRIES - 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_LoanIn.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(-1222.00);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(-1222.00);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_LoanIn)
+        .get(forecast.loans.list[0].globalId);
+      expect(secondDetail.length).toBe(fourYears);
+      expect(secondProjection.OtherCash_LoanIn.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash[fourYears - 1].amount).toBe(-1222.00);
+      expect(secondProjection.EndingCash.length).toBe(fourYears);
+      expect(secondProjection.EndingCash[fourYears - 1].amount).toBe(-1222.00);
+    });
   });
 });
+
+
+function createLoan(loans: IIdentifiedList<ILoanItem>, type: LoanType, date: Date, amount: number, numberOfMonths?: number): ILoanItem {
+  const globalId = loans.globalId + ":" + (loans.list.length + 1);
+  const loan = {
+    parentId: loans.globalId,
+    globalId,
+    name: createIdentifiedPrimitive<string>(globalId, globalId + 'n', 'unit test loan'),
+    type: createIdentifiedPrimitive<LoanType>(globalId, globalId + 't', type),
+    numberOfMonths: createIdentifiedPrimitive<number>(globalId, globalId + 'nu', numberOfMonths ?? 1),
+    cashIn: createObjectList<ICashIn>(globalId, globalId + 'ci'),
+    repaymentTerms: null
+  };
+  loan.cashIn.list.push(createLoanCashIn(loan.cashIn, date, amount));
+  return loan;
+}
+
+function createLoanCashIn(cashIns: IIdentifiedList<ICashIn>, date: Date, amount: number): ICashIn {
+  const ciGlobalId = cashIns.globalId + ':' + (cashIns.list.length + 1);
+  return {
+    parentId: cashIns.globalId,
+    globalId: ciGlobalId,
+    date: createIdentifiedPrimitive<Date>(ciGlobalId, ciGlobalId + "d", date),
+    amount: createIdentifiedPrimitive<number>(ciGlobalId, ciGlobalId + "a", amount)
+  };
+}
+
+
+function createLoanRepaymentTerms(loan: ILoanItem, type: LoanRepaymentType, date: Date, amount: number, numberOfMonths?: number) {
+  const repaymentTerms = {
+    parentId: loan.globalId,
+    globalId: loan.globalId + "r",
+    cashOut: createObjectList<ILoanCashOut>(loan.globalId + "r", loan.globalId + "rl")
+  };
+  repaymentTerms.cashOut.list.push(
+    createLoanRepaymentCashOut(repaymentTerms.cashOut, type, date, amount, numberOfMonths)
+  );
+  return repaymentTerms;
+}
+
+function createLoanRepaymentCashOut(cashOuts: IIdentifiedList<ILoanCashOut>, type: LoanRepaymentType, date: Date, amount: number, numberOfMonths?: number) {
+  const coGlobalId = cashOuts.globalId + (cashOuts.list.length + 1);
+  return {
+    parentId: cashOuts.globalId,
+    globalId: coGlobalId,
+    type: createIdentifiedPrimitive<LoanRepaymentType>(coGlobalId, coGlobalId + "t", type),
+    startDate: createIdentifiedPrimitive<Date>(coGlobalId, coGlobalId + "d", date),
+    amount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "a", amount),
+    limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", 0),
+    numberOfMonths: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "n", numberOfMonths ?? 1)
+  };
+}

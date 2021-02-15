@@ -118,8 +118,8 @@ export function createEmptyCashForecast(): ICashForecast {
       parentId: "unit-test-cf",
       name: createIdentifiedPrimitive<string>("unit-test-cf-bb", "unit-test-cf-bb-n", "example account", "name"),
       date: createIdentifiedPrimitive<Date>("unit-test-cf-bb", "unit-test-cf-bb-d", new Date(), "date"),
-      amount: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-a", 1234.56, "amount"),
-      monthlyInterestRate: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-r", 0.03, "monthlyInterestRate")
+      amount: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-a", 0, "amount"),
+      monthlyInterestRate: createIdentifiedPrimitive<number>("unit-test-cf-bb", "unit-test-cf-bb-r", 0.0, "monthlyInterestRate")
     },
     loans: createObjectList<ILoanItem>("unit-test-cf", "unit-test-cf-l"),
     funding: createObjectList<IFundingItem>("unit-test-cf", "unit-test-cf-f"),
