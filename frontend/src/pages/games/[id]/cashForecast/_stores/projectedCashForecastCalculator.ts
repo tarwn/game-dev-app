@@ -1,8 +1,9 @@
 import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
+import { roundCurrency } from "../../../../../utilities/currency";
 import { getUtcDate } from "../../../../../utilities/date";
-import { ICashForecast, LoanRepaymentType, LoanType } from "../_types/cashForecast";
+import { ICashForecast, LoanRepaymentType, LoanType, RevenueModelType, SalesRevenueShareType } from "../_types/cashForecast";
 
 enableMapSet();
 
@@ -127,24 +128,35 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
     // update all values
     for (let i = 0; i < forecastMonthCount; i++) {
       const monthStart = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i, 1);
-      const monthEnd = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i + 1, 0);
+      const monthEnd = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i + 1, 1);
       // - Beginning Cash
       // bank balance
       applyBankBalance(draftState, forecast, i, monthStart, monthEnd);
 
+      // - cash
+      // loans - in + out
+      applyLoansIn(draftState, forecast, i, monthStart, monthEnd);
+      applyLoansOut(draftState, forecast, i, monthStart, monthEnd);
+      // funding - in
+      applyFundingIn(draftState, forecast, i, monthStart, monthEnd);
+      // other cash subtotal
+      draftState.OtherCash[i] = {
+        amount: draftState.OtherCash_LoanIn[i].amount +
+          draftState.OtherCash_LoanOut[i].amount +
+          draftState.OtherCash_FundingIn[i].amount
+      };
+
       // - gross rev
       // revenues - in
-      draftState.GrossRevenue_SalesRevenue[i] = { amount: 0 };
-      // revenues platform out
-      // funding platform out
-      draftState.GrossRevenue_PlatformShares[i] = { amount: 0 };
+      applySalesRevenue(draftState, forecast, i, monthStart, monthEnd);
+      applyPlatformShares(draftState, forecast, i);
       draftState.GrossRevenue_RevenueAfterPlatform[i] = {
         amount: draftState.GrossRevenue_SalesRevenue[i].amount +
           draftState.GrossRevenue_PlatformShares[i].amount
       };
       // revenues distribution out
-      // funding distribution out
-      draftState.GrossRevenue_DistributionShares[i] = { amount: 0 };
+      // TODO: funding distribution out
+      applyDistributionShares(draftState, forecast, i);
       draftState.GrossRevenue_RevenueAfterDistribution[i] = {
         amount: draftState.GrossRevenue_RevenueAfterPlatform[i].amount +
           draftState.GrossRevenue_DistributionShares[i].amount
@@ -201,19 +213,6 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
           draftState.TaxesAndProfitSharing_ProfitSharing[i].amount
       };
 
-      // - cash
-      // loans - in + out
-      applyLoansIn(draftState, forecast, i, monthStart, monthEnd);
-      applyLoansOut(draftState, forecast, i, monthStart, monthEnd);
-      // funding - in
-      draftState.OtherCash_FundingIn[i] = { amount: 0 };
-      // other cash subtotal
-      draftState.OtherCash[i] = {
-        amount: draftState.OtherCash_LoanIn[i].amount +
-          draftState.OtherCash_LoanOut[i].amount +
-          draftState.OtherCash_FundingIn[i].amount
-      };
-
       // - ending cash
       draftState.EndingCash[i] = {
         amount: draftState.BeginningCash[i].amount +
@@ -238,6 +237,7 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
 }
 
 function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, forecastMonthCount: number) {
+  // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);
   draftState.BeginningCash_Balances = sizeSubTotal(draftState.BeginningCash_Balances, forecastMonthCount);
   if (!draftState.details.has(SubTotalType.BeginningCash_Balances)) {
@@ -249,6 +249,46 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
     const draftDetails = draftState.details.get(SubTotalType.BeginningCash_Balances);
     sizeDetails(draftDetails, forecast.bankBalance.globalId, forecastMonthCount);
   }
+
+  // gross revenue sub-totals
+  draftState.GrossRevenue_SalesRevenue = sizeSubTotal(draftState.GrossRevenue_SalesRevenue, forecastMonthCount);
+  draftState.GrossRevenue_PlatformShares = sizeSubTotal(draftState.GrossRevenue_PlatformShares, forecastMonthCount);
+  draftState.GrossRevenue_RevenueAfterPlatform = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPlatform, forecastMonthCount);
+  draftState.GrossRevenue_DistributionShares = sizeSubTotal(draftState.GrossRevenue_DistributionShares, forecastMonthCount);
+  draftState.GrossRevenue_RevenueAfterDistribution = sizeSubTotal(draftState.GrossRevenue_RevenueAfterDistribution, forecastMonthCount);
+  draftState.GrossRevenue_PublisherShares = sizeSubTotal(draftState.GrossRevenue_PublisherShares, forecastMonthCount);
+  draftState.GrossRevenue_RevenueAfterPublisher = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPublisher, forecastMonthCount);
+  draftState.GrossRevenue = sizeSubTotal(draftState.GrossRevenue, forecastMonthCount);
+  // gross revenue details
+  [
+    SubTotalType.GrossRevenue_SalesRevenue,
+    SubTotalType.GrossRevenue_PlatformShares,
+    SubTotalType.GrossRevenue_DistributionShares
+  ].forEach(type => {
+    if (!draftState.details.has(type)) {
+      const values = [
+        ...forecast.revenues.list.map(rev => [rev.globalId, getEmptyValues(forecastMonthCount)]),
+        ...forecast.funding.list.map(funding => [funding.globalId, getEmptyValues(forecastMonthCount)])
+      ] as [];
+      draftState.details.set(type, new Map<string, Array<ICashValue>>(values));
+    }
+    else {
+      const correctIds = new Set<string>(forecast.revenues.list.map(rev => rev.globalId));
+      const draftDetails = draftState.details.get(type);
+      // if we have an item that's not present any more, remove from projection
+      Array.from(draftDetails.keys()).forEach(k => {
+        if (!correctIds.has(k))
+          draftDetails.delete(k);
+      });
+      // if we're missing one: add it, if it's there: verify size
+      forecast.revenues.list.forEach(rev => {
+        sizeDetails(draftDetails, rev.globalId, forecastMonthCount);
+      });
+    }
+  });
+
+  // gross profit
+
 
   // loan in
   draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);
@@ -292,6 +332,26 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
     });
   }
 
+  // funding in
+  draftState.OtherCash_FundingIn = sizeSubTotal(draftState.OtherCash_FundingIn, forecastMonthCount);
+  if (!draftState.details.has(SubTotalType.OtherCash_FundingIn)) {
+    draftState.details.set(SubTotalType.OtherCash_FundingIn, new Map<string, Array<ICashValue>>(
+      forecast.funding.list.map(loan => [loan.globalId, getEmptyValues(forecastMonthCount)])
+    ));
+  }
+  else {
+    const correctIds = new Set<string>(forecast.funding.list.map(funding => funding.globalId));
+    const draftDetails = draftState.details.get(SubTotalType.OtherCash_FundingIn);
+    // if we have a funding that's not present any more, remove from projection
+    Array.from(draftDetails.keys()).forEach(k => {
+      if (!correctIds.has(k))
+        draftDetails.delete(k);
+    });
+    // if we're missing one: add it, if it's there: verify size
+    forecast.funding.list.forEach(funding => {
+      sizeDetails(draftDetails, funding.globalId, forecastMonthCount);
+    });
+  }
 
   // Ending Cash
   draftState.EndingCash = sizeSubTotal(draftState.EndingCash, forecastMonthCount);
@@ -320,7 +380,7 @@ function applyBankBalance(draftState: WritableDraft<IProjectedCashFlowData>, for
   i: number, monthStart: Date, monthEnd: Date
 ) {
   draftState.details.get(SubTotalType.BeginningCash_Balances).get(forecast.bankBalance.globalId)[i].amount =
-    (forecast.bankBalance.date.value >= monthStart && forecast.bankBalance.date.value <= monthEnd)
+    (forecast.bankBalance.date.value >= monthStart && forecast.bankBalance.date.value < monthEnd)
       ? forecast.bankBalance.amount.value
       : 0;
 
@@ -330,6 +390,88 @@ function applyBankBalance(draftState: WritableDraft<IProjectedCashFlowData>, for
   draftState.BeginningCash[i].amount =
     draftState.BeginningCash_Balances[i].amount +
     (i === 0 ? 0 : draftState.EndingCash[i - 1].amount);
+}
+
+function applySalesRevenue(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast,
+  i: number, monthStart: Date, monthEnd: Date
+) {
+  draftState.GrossRevenue_SalesRevenue[i].amount = 0;
+  forecast.revenues.list.forEach(revenue => {
+    const detail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
+    detail.amount = 0;
+    switch (revenue.type.value) {
+      case RevenueModelType.ExplicitValues:
+        detail.amount = revenue.values.list.reduce((ttl, v) => {
+          if (v.date.value >= monthStart && v.date.value < monthEnd) {
+            return ttl + v.amount.value;
+          }
+          return ttl;
+        }, 0);
+        break;
+    }
+    draftState.GrossRevenue_SalesRevenue[i].amount += detail.amount;
+  });
+}
+
+function applyPlatformShares(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, i: number) {
+  draftState.GrossRevenue_PlatformShares[i].amount = 0;
+  forecast.revenues.list.forEach(revenue => {
+    const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
+    const detail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(revenue.globalId)[i];
+    detail.amount = 0;
+    revenue.revenueShare.list.forEach(rs => {
+      switch (rs.type.value) {
+        case SalesRevenueShareType.GrossRevenueAfterSales:
+          detail.amount += roundCurrency(salesGrossDetail.amount * rs.percent.value * -1);
+      }
+    });
+    draftState.GrossRevenue_PlatformShares[i].amount += detail.amount;
+  });
+}
+
+function applyDistributionShares(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, i: number) {
+  draftState.GrossRevenue_DistributionShares[i].amount = 0;
+  // revenue
+  forecast.revenues.list.forEach(revenue => {
+    // TODO - does distribution get a slice of sales gross or post platform?
+    const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
+    const platformShareDetail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(revenue.globalId)[i];
+    const postPlatformAmount = salesGrossDetail.amount - platformShareDetail.amount;
+    const detail = draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).get(revenue.globalId)[i];
+    detail.amount = 0;
+    revenue.revenueShare.list.forEach(rs => {
+      switch (rs.type.value) {
+        case SalesRevenueShareType.GrossRevenueAfterPlatform:
+          detail.amount += roundCurrency(postPlatformAmount * rs.percent.value * -1);
+      }
+    });
+    draftState.GrossRevenue_DistributionShares[i].amount += detail.amount;
+  });
+  // funding out
+  forecast.funding.list.forEach(funding => {
+    // const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(funding.globalId)[i];
+    // const platformShareDetail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(funding.globalId)[i];
+    // const postPlatformAmount = salesGrossDetail.amount - platformShareDetail.amount;
+    // const detail = draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).get(funding.globalId)[i];
+    // detail.amount = 0;
+    // funding.repaymentTerms?.cashOut.list.forEach(co => {
+    //   // checking funding SoFarAmt to find cashOut to apply
+    //   //  mark as found so we can exit out of further checks
+    //   //  if it's distribution share
+    //   //    calc share
+    //   //    if funding SoFarAmt + share > cashOut.limit
+    //   //      mark as not found
+    //   //      add difference to detail
+    //   //      add difference to SoFarAmt
+    //   //      add note: "Funding tier limit reached on 'funding'"
+    //   //      // this will allow it to loop to next cashout if applicable
+    //   //    else
+    //   //      add share to detail
+    //   //      add share to SoFarAmt
+    //   // - now do same thing to all the other buckets + test cases where buckets overflow/hit limits
+    // });
+    // draftState.GrossRevenue_DistributionShares[i].amount += detail.amount;
+  });
 }
 
 function applyLoansIn(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast,
@@ -347,18 +489,18 @@ function applyLoansIn(draftState: WritableDraft<IProjectedCashFlowData>, forecas
 
     switch (loan.type.value) {
       case LoanType.OneTime:
-        if (loan.cashIn.list[0].date.value >= monthStart && loan.cashIn.list[0].date.value <= monthEnd) {
+        if (loan.cashIn.list[0].date.value >= monthStart && loan.cashIn.list[0].date.value < monthEnd) {
           detail.amount = loan.cashIn.list[0].amount.value;
         }
         break;
       case LoanType.Monthly:
-        if (loan.cashIn.list[0].date.value <= monthEnd && monthlyLoanEnd >= monthStart) {
+        if (loan.cashIn.list[0].date.value < monthEnd && monthlyLoanEnd >= monthStart) {
           detail.amount = loan.cashIn.list[0].amount.value;
         }
         break;
       case LoanType.Multiple:
         detail.amount = loan.cashIn.list.reduce((ttl, cashIn) => {
-          if (cashIn.date.value >= monthStart && cashIn.date.value <= monthEnd) {
+          if (cashIn.date.value >= monthStart && cashIn.date.value < monthEnd) {
             return ttl + cashIn.amount.value;
           }
           return ttl;
@@ -386,12 +528,12 @@ function applyLoansOut(draftState: WritableDraft<IProjectedCashFlowData>, foreca
       );
       switch (co.type.value) {
         case LoanRepaymentType.OneTime:
-          if (co.startDate.value >= monthStart && co.startDate.value <= monthEnd) {
+          if (co.startDate.value >= monthStart && co.startDate.value < monthEnd) {
             detail.amount += 0 - co.amount.value;
           }
           break;
         case LoanRepaymentType.Monthly:
-          if (co.startDate.value <= monthEnd && monthlyLoanEnd >= monthStart) {
+          if (co.startDate.value < monthEnd && monthlyLoanEnd >= monthStart) {
             detail.amount += 0 - co.amount.value;
           }
 
@@ -400,5 +542,35 @@ function applyLoansOut(draftState: WritableDraft<IProjectedCashFlowData>, foreca
     });
 
     draftState.OtherCash_LoanOut[i].amount += detail.amount;
+  });
+}
+
+function applyFundingIn(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast,
+  i: number, monthStart: Date, monthEnd: Date
+) {
+  draftState.OtherCash_FundingIn[i].amount = 0;
+  forecast.funding.list.forEach(funding => {
+    const detail = draftState.details.get(SubTotalType.OtherCash_FundingIn).get(funding.globalId)[i];
+    detail.amount = 0;
+
+    switch (funding.type.value) {
+      case LoanType.OneTime:
+        if (funding.cashIn.list[0].date.value >= monthStart && funding.cashIn.list[0].date.value < monthEnd) {
+          detail.amount = funding.cashIn.list[0].amount.value;
+        }
+        break;
+      case LoanType.Monthly:
+        throw new Error("Monthly is not a valid type for a Funding");
+      case LoanType.Multiple:
+        detail.amount = funding.cashIn.list.reduce((ttl, cashIn) => {
+          if (cashIn.date.value >= monthStart && cashIn.date.value < monthEnd) {
+            return ttl + cashIn.amount.value;
+          }
+          return ttl;
+        }, 0);
+        break;
+    }
+
+    draftState.OtherCash_FundingIn[i].amount += detail.amount;
   });
 }

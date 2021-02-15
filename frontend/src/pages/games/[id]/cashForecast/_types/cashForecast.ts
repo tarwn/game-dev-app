@@ -209,10 +209,11 @@ export interface IFundingRepaymentTerms extends IIdentifiedObject {
 
 
 export interface IFundingCashOut extends IIdentifiedObject {
-  type: IIdentifiedPrimitive<LoanRepaymentType>;
+  type: IIdentifiedPrimitive<FundingRepaymentType>;
   amount: IIdentifiedPrimitive<number>;
   startDate: IIdentifiedPrimitive<Date>;
   limitFixedAmount: IIdentifiedPrimitive<number | null>;
+  // deprecated?
   numberOfMonths: IIdentifiedPrimitive<number | null>;
 }
 
@@ -264,6 +265,30 @@ export interface ITax extends IIdentifiedObject {
   dueDate: IIdentifiedPrimitive<Date>;
 }
 
+export enum RevenueModelType {
+  ExplicitValues = 1
+}
+
+
+export enum SalesRevenueShareType {
+  GrossRevenueAfterSales = 1,
+  GrossRevenueAfterPlatform = 2,
+}
+
+export interface ISalesRevenueItem extends IIdentifiedObject {
+  amount: IIdentifiedPrimitive<number>;
+  date: IIdentifiedPrimitive<Date>;
+}
+
+export interface ISalesRevenueShareItem extends IIdentifiedObject {
+  name: IIdentifiedPrimitive<string>;
+  type: IIdentifiedPrimitive<SalesRevenueShareType>;
+  percent: IIdentifiedPrimitive<number>;
+}
+
 export interface IRevenue extends IIdentifiedObject {
   name: IIdentifiedPrimitive<string>;
+  type: IIdentifiedPrimitive<RevenueModelType>;
+  values: IIdentifiedList<ISalesRevenueItem>;
+  revenueShare: IIdentifiedList<ISalesRevenueShareItem>;
 }

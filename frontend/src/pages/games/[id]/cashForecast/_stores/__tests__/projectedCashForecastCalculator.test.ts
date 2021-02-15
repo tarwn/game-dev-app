@@ -1,7 +1,9 @@
 import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../testUtils/dataModel";
+import { roundCurrency } from "../../../../../../utilities/currency";
 import { getUtcDate } from "../../../../../../utilities/date";
 import type { IIdentifiedList } from "../../../../../_stores/eventStore/types";
-import { ICashForecast, ICashIn, ILoanCashOut, ILoanItem, ILoanRepaymentTerms, LoanRepaymentType, LoanType } from "../../_types/cashForecast";
+import { FundingRepaymentType, IFundingCashOut, IFundingItem, IFundingRepaymentTerms, IRevenue, ISalesRevenueItem, ISalesRevenueShareItem, RevenueModelType, SalesRevenueShareType } from "../../_types/cashForecast";
+import { ICashIn, ILoanCashOut, ILoanItem, LoanRepaymentType, LoanType } from "../../_types/cashForecast";
 import { calculate, getEmptyProjection, SubTotalType, ICashValue } from "../projectedCashForecastCalculator";
 
 const FIVE_YEARS_OF_ENTRIES = 12 * 5;
@@ -805,8 +807,694 @@ describe("calculate", () => {
       expect(secondProjection.EndingCash[fourYears - 1].amount).toBe(-1222.00);
     });
   });
+
+  describe("funding - inflow", () => {
+    it("adds one-time funding inflow on correct date to funding, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push({
+        ...createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56)
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_FundingIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(1234.56);
+      expect(detail[25].amount).toBe(0);
+      expect(OtherCash_FundingIn[24].amount).toBe(1234.56);
+      expect(OtherCash_FundingIn[25].amount).toBe(0);
+      expect(OtherCash[23].amount).toBe(0);
+      expect(OtherCash[24].amount).toBe(1234.56);
+      expect(OtherCash[25].amount).toBe(0);
+    });
+
+    it("adds monthly funding inflow on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push({
+        ...createFunding(forecast.funding, LoanType.Monthly, getUtcDate(2017, 5, 1), 1234.56)
+      });
+
+      expect(() => calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES))
+        .toThrowError("Monthly is not a valid type for a Funding");
+    });
+
+    it("adds multiple funding inflow on correct dates to loan, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const funding = createFunding(forecast.funding, LoanType.Multiple, getUtcDate(2017, 5, 1), 1234.56);
+      funding.cashIn.list.push(createLoanCashIn(funding.cashIn, getUtcDate(2017, 6, 1), 2234.56));
+      funding.cashIn.list.push(createLoanCashIn(funding.cashIn, getUtcDate(2017, 8, 1), 3234.56));
+      forecast.funding.list.push(funding);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_FundingIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      [0, 1234.56, 2234.56, 0, 3234.56, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_FundingIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("adds single funding inflow w/extraneous cashIns on correct date to loan, subtotal, and total", () => {
+      // this is same as last test, but expect to only read first cashIn
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      funding.cashIn.list.push(createLoanCashIn(funding.cashIn, getUtcDate(2017, 6, 1), 2234.56));
+      funding.cashIn.list.push(createLoanCashIn(funding.cashIn, getUtcDate(2017, 8, 1), 3234.56));
+      forecast.funding.list.push(funding);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const { OtherCash_FundingIn, OtherCash } = initialProjection;
+      const detail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      [0, 1234.56, 0, 0, 0, 0].forEach((amt, i) => {
+        expect(detail[23 + i].amount).toBe(amt);
+        expect(OtherCash_FundingIn[23 + i].amount).toBe(amt);
+        expect(OtherCash[23 + i].amount).toBe(amt);
+      });
+    });
+
+    it("removes funding inflow when deleted from forecast", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      const fundingGlobalId = funding.globalId;
+      forecast.funding.list.push(funding);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      forecast.funding.list.pop();
+      const finalProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initialProjection is untouched
+      {
+        const { OtherCash_FundingIn, OtherCash } = initialProjection;
+        const detail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+          .get(fundingGlobalId);
+        expect(detail[24].amount).toBe(1234.56);
+        expect(OtherCash_FundingIn[24].amount).toBe(1234.56);
+        expect(OtherCash[24].amount).toBe(1234.56);
+      }
+      // final projection is 0'd
+      {
+        const { OtherCash_FundingIn, OtherCash } = finalProjection;
+        expect(finalProjection.details.get(SubTotalType.OtherCash_FundingIn).size).toBe(0);
+        expect(OtherCash_FundingIn[24].amount).toBe(0);
+        expect(OtherCash[24].amount).toBe(0);
+      }
+    });
+
+    it("adds funding not present in first projection to later ones", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56);
+      forecast.funding.list.push(funding);
+      const finalProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      // initialProjection is untouched
+      {
+        const { OtherCash_FundingIn, OtherCash } = initialProjection;
+        expect(initialProjection.details.get(SubTotalType.OtherCash_FundingIn).size).toBe(0);
+        expect(OtherCash_FundingIn[24].amount).toBe(0);
+        expect(OtherCash[24].amount).toBe(0);
+      }
+      // final projection is 0'd
+      {
+        const { OtherCash_FundingIn, OtherCash } = finalProjection;
+        const detail = finalProjection.details.get(SubTotalType.OtherCash_FundingIn)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail[24].amount).toBe(1234.56);
+        expect(OtherCash_FundingIn[24].amount).toBe(1234.56);
+        expect(OtherCash[24].amount).toBe(1234.56);
+      }
+    });
+
+    it("adds multiple funding inflows together", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56));
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1000.04));
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail1 = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      const detail2 = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[1].globalId);
+      expect(detail1[24].amount).toBe(1234.56);
+      expect(detail2[24].amount).toBe(1000.04);
+      expect(initialProjection.OtherCash_FundingIn[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.OtherCash[24].amount).toBe(1234.56 + 1000.04);
+    });
+
+    it("adds funding inflows into all subtotals to ending cash", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56));
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1000.04));
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      expect(initialProjection.EndingCash[23].amount).toBe(0);
+      expect(initialProjection.BeginningCash[24].amount).toBe(0);
+      expect(initialProjection.OtherCash_FundingIn[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.OtherCash[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.EndingCash[24].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.BeginningCash[25].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56 + 1000.04);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56 + 1000.04);
+    });
+
+    it("increasing length of forecast extends projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56));
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
+
+      const sixYears = FIVE_YEARS_OF_ENTRIES + 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_FundingIn.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      expect(secondDetail.length).toBe(sixYears);
+      expect(secondProjection.OtherCash_FundingIn.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash.length).toBe(sixYears);
+      expect(secondProjection.BeginningCash[sixYears - 1].amount).toBe(1234.56);
+      expect(secondProjection.EndingCash.length).toBe(sixYears);
+      expect(secondProjection.EndingCash[sixYears - 1].amount).toBe(1234.56);
+    });
+
+    it("decreasing length of forecast truncates projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.funding.list.push(createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 1234.56));
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
+
+      const fourYears = FIVE_YEARS_OF_ENTRIES - 12;
+      const initialDetail = initialProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      expect(initialDetail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.OtherCash_FundingIn.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.BeginningCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      expect(initialProjection.EndingCash.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.EndingCash[FIVE_YEARS_OF_ENTRIES - 1].amount).toBe(1234.56);
+      const secondDetail = secondProjection.details.get(SubTotalType.OtherCash_FundingIn)
+        .get(forecast.funding.list[0].globalId);
+      expect(secondDetail.length).toBe(fourYears);
+      expect(secondProjection.OtherCash_FundingIn.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash.length).toBe(fourYears);
+      expect(secondProjection.BeginningCash[fourYears - 1].amount).toBe(1234.56);
+      expect(secondProjection.EndingCash.length).toBe(fourYears);
+      expect(secondProjection.EndingCash[fourYears - 1].amount).toBe(1234.56);
+    });
+  });
+
+  describe("sales revenue", () => {
+    it("applies basic sales revenue (no platform fee) to the projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.revenues.list.push({
+        ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
+      });
+      const numMonths = 4;
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
+        return {
+          parentId: forecast.revenues.list[0].globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      let rollingSum = 0;
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0, 0].forEach((amt, i) => {
+        rollingSum += amt;
+        expect(detail[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossProfit[11 + i].amount).toBe(amt);
+        expect(initialProjection.NetProfit[11 + i].amount).toBe(amt);
+        expect(initialProjection.EndingCash[11 + i].amount).toBe(rollingSum);
+        expect(initialProjection.BeginningCash[11 + i + 1].amount).toBe(rollingSum);
+      });
+    });
+
+    it("removes projected revenue when revenue deleted from forecast", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.revenues.list.push({
+        ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
+      });
+      const numMonths = 4;
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
+        return {
+          parentId: forecast.revenues.list[0].globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      const revGlobalid = forecast.revenues.list[0].globalId;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      forecast.revenues.list.pop();
+
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      {
+        const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+          .get(revGlobalid);
+        let rollingSum = 0;
+        [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+          rollingSum += amt;
+          expect(detail[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossProfit[11 + i].amount).toBe(amt);
+          expect(initialProjection.NetProfit[11 + i].amount).toBe(amt);
+          expect(initialProjection.EndingCash[11 + i].amount).toBe(rollingSum);
+          expect(initialProjection.BeginningCash[11 + i + 1].amount).toBe(rollingSum);
+        });
+      }
+      {
+        expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).size).toBe(0);
+        expect(secondProjection.GrossRevenue_SalesRevenue[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPlatform[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterDistribution[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPublisher[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue[13].amount).toBe(0);
+        expect(secondProjection.GrossProfit[13].amount).toBe(0);
+        expect(secondProjection.NetProfit[13].amount).toBe(0);
+        expect(secondProjection.EndingCash[13].amount).toBe(0);
+        expect(secondProjection.BeginningCash[13 + 1].amount).toBe(0);
+      }
+    });
+
+    it("removes projected revenue when revenue values deleted from revenue", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.revenues.list.push({
+        ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
+      });
+      const numMonths = 4;
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
+        return {
+          parentId: forecast.revenues.list[0].globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      const revGlobalid = forecast.revenues.list[0].globalId;
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      forecast.revenues.list[0].values.list = [];
+
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      {
+        const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+          .get(revGlobalid);
+        let rollingSum = 0;
+        [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+          rollingSum += amt;
+          expect(detail[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossRevenue[11 + i].amount).toBe(amt);
+          expect(initialProjection.GrossProfit[11 + i].amount).toBe(amt);
+          expect(initialProjection.NetProfit[11 + i].amount).toBe(amt);
+          expect(initialProjection.EndingCash[11 + i].amount).toBe(rollingSum);
+          expect(initialProjection.BeginningCash[11 + i + 1].amount).toBe(rollingSum);
+        });
+      }
+      {
+        expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).size).toBe(1);
+        expect(secondProjection.GrossRevenue_SalesRevenue[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPlatform[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterDistribution[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPublisher[13].amount).toBe(0);
+        expect(secondProjection.GrossRevenue[13].amount).toBe(0);
+        expect(secondProjection.GrossProfit[13].amount).toBe(0);
+        expect(secondProjection.NetProfit[13].amount).toBe(0);
+        expect(secondProjection.EndingCash[13].amount).toBe(0);
+        expect(secondProjection.BeginningCash[13 + 1].amount).toBe(0);
+      }
+    });
+
+    it("increasing length of forecast extends projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.revenues.list.push({
+        ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
+      });
+      const numMonths = 4;
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
+        return {
+          parentId: forecast.revenues.list[0].globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      const revGlobalid = forecast.revenues.list[0].globalId;
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
+
+      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_SalesRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_PlatformShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_DistributionShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_PublisherShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      const sixYears = FIVE_YEARS_OF_ENTRIES + 12;
+      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_SalesRevenue.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_PlatformShares.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_DistributionShares.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterDistribution.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_PublisherShares.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(sixYears);
+      expect(secondProjection.GrossRevenue.length).toBe(sixYears);
+    });
+
+    it("decreasing length of forecast truncates projection", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      forecast.revenues.list.push({
+        ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
+      });
+      const numMonths = 4;
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
+        return {
+          parentId: forecast.revenues.list[0].globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      const revGlobalid = forecast.revenues.list[0].globalId;
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
+
+      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_SalesRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_PlatformShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_DistributionShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_PublisherShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.GrossRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      const fourYears = FIVE_YEARS_OF_ENTRIES - 12;
+      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_SalesRevenue.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_PlatformShares.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_DistributionShares.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterDistribution.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_PublisherShares.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(fourYears);
+      expect(secondProjection.GrossRevenue.length).toBe(fourYears);
+
+    });
+  });
+
+  describe("sales revenue - platform share", () => {
+    it("applies basic sales revenue w/ platform fee to the projection", () => {
+      const numMonths = 4;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = revenue.globalId + "_" + (i + 1);
+        return {
+          parentId: revenue.globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterSales, .10));
+      forecast.revenues.list.push(revenue);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+      });
+    });
+
+    it("removes platform fee from basic sales revenue when fee removed from forecast", () => {
+      const numMonths = 4;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = revenue.globalId + "_" + (i + 1);
+        return {
+          parentId: revenue.globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterSales, .10));
+      forecast.revenues.list.push(revenue);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      revenue.revenueShare.list.pop();
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      const detail1 = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail1[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+      });
+      const detail2 = secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail2[11 + i].amount).toBe(amt);
+        expect(secondProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(secondProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+      });
+    });
+  });
+
+  describe("sales revenue - distribution share", () => {
+    it("applies basic sales revenue w/ distribution fee to the projection", () => {
+      const numMonths = 4;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = revenue.globalId + "_" + (i + 1);
+        return {
+          parentId: revenue.globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterPlatform, .10));
+      forecast.revenues.list.push(revenue);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
+        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+      });
+    });
+
+    it("removes platform fee from basic sales revenue when fee removed from forecast", () => {
+      const numMonths = 4;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
+        const globalId = revenue.globalId + "_" + (i + 1);
+        return {
+          parentId: revenue.globalId,
+          globalId,
+          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
+          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
+        };
+      });
+      revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterPlatform, .10));
+      forecast.revenues.list.push(revenue);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      revenue.revenueShare.list.pop();
+      const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+
+      const detail1 = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail1[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
+        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+      });
+      const detail2 = secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
+        .get(forecast.revenues.list[0].globalId);
+      [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
+        expect(detail2[11 + i].amount).toBe(amt);
+        expect(secondProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
+        expect(secondProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
+        expect(secondProjection.GrossRevenue_DistributionShares[11 + i].amount).toBe(0);
+        expect(secondProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt);
+      });
+    });
+  });
+
+  describe("funding - outflow - sales share", () => { });
+  describe("funding - outflow - platform share", () => { });
+  describe("funding - outflow - distribution share", () => {
+    it("adds one-time funding inflow on correct date to funding, subtotal, and total", () => {
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+      funding.repaymentTerms = createFundingRepaymentTerms(
+        funding, FundingRepaymentType.GrossRevenueAfterDistributor, getUtcDate(2017, 5, 1), 0.60);
+      forecast.funding.list.push(funding);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [{
+        parentId: revenue.globalId,
+        globalId: revenue.globalId + 'v',
+        amount: createIdentifiedPrimitive<number>(revenue.globalId + 'v', revenue.globalId + 'va', 10000.10),
+        date: createIdentifiedPrimitive<Date>(revenue.globalId + 'v', revenue.globalId + 'vd', getUtcDate(2017, 5, 1))
+      }];
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
+        .get(forecast.revenues.list[0].globalId);
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10));
+      expect(detail[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
+      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(10000.10 + roundCurrency(0.60 * 10000.10 * -1));
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
+    });
+
+  });
+  describe("funding - outflow - gross profit share", () => { });
+  describe("funding - outflow - net profit share", () => { });
 });
 
+function createRevenue(revenues: IIdentifiedList<IRevenue>, type: RevenueModelType): IRevenue {
+  const globalId = revenues.globalId + ":" + (revenues.list.length + 1);
+  const revenue = {
+    parentId: revenues.globalId,
+    globalId,
+    name: createIdentifiedPrimitive<string>(globalId, globalId + 'n', 'unit test revenue'),
+    type: createIdentifiedPrimitive<RevenueModelType>(globalId, globalId + 'n', type),
+    values: createObjectList<ISalesRevenueItem>(globalId, globalId + 'v'),
+    revenueShare: createObjectList<ISalesRevenueShareItem>(globalId, globalId + 'rs'),
+  };
+  return revenue;
+}
+
+function createRevenueShare(
+  revenueShare: IIdentifiedList<ISalesRevenueShareItem>,
+  type: SalesRevenueShareType,
+  percent: number
+): ISalesRevenueShareItem {
+  const globalId = revenueShare.globalId + "_" + (revenueShare.list.length + 1);
+  return {
+    parentId: revenueShare.globalId,
+    globalId,
+    name: createIdentifiedPrimitive<string>(globalId, globalId + 'n', "unit test"),
+    type: createIdentifiedPrimitive<SalesRevenueShareType>(globalId, globalId + 't', type),
+    percent: createIdentifiedPrimitive<number>(globalId, globalId + 'p', percent)
+  };
+}
 
 function createLoan(loans: IIdentifiedList<ILoanItem>, type: LoanType, date: Date, amount: number, numberOfMonths?: number): ILoanItem {
   const globalId = loans.globalId + ":" + (loans.list.length + 1);
@@ -833,7 +1521,6 @@ function createLoanCashIn(cashIns: IIdentifiedList<ICashIn>, date: Date, amount:
   };
 }
 
-
 function createLoanRepaymentTerms(loan: ILoanItem, type: LoanRepaymentType, date: Date, amount: number, numberOfMonths?: number) {
   const repaymentTerms = {
     parentId: loan.globalId,
@@ -846,6 +1533,7 @@ function createLoanRepaymentTerms(loan: ILoanItem, type: LoanRepaymentType, date
   return repaymentTerms;
 }
 
+// eslint-disable-next-line max-len
 function createLoanRepaymentCashOut(cashOuts: IIdentifiedList<ILoanCashOut>, type: LoanRepaymentType, date: Date, amount: number, numberOfMonths?: number) {
   const coGlobalId = cashOuts.globalId + (cashOuts.list.length + 1);
   return {
@@ -856,5 +1544,55 @@ function createLoanRepaymentCashOut(cashOuts: IIdentifiedList<ILoanCashOut>, typ
     amount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "a", amount),
     limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", 0),
     numberOfMonths: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "n", numberOfMonths ?? 1)
+  };
+}
+
+function createFunding(fundings: IIdentifiedList<IFundingItem>, type: LoanType, date: Date, amount: number): IFundingItem {
+  const globalId = fundings.globalId + ":" + (fundings.list.length + 1);
+  const funding = {
+    parentId: fundings.globalId,
+    globalId,
+    name: createIdentifiedPrimitive<string>(globalId, globalId + 'n', 'unit test funding'),
+    type: createIdentifiedPrimitive<LoanType>(globalId, globalId + 't', type),
+    cashIn: createObjectList<ICashIn>(globalId, globalId + 'ci'),
+    repaymentTerms: null
+  };
+  funding.cashIn.list.push(createFundingCashIn(funding.cashIn, date, amount));
+  return funding;
+}
+
+function createFundingCashIn(cashIns: IIdentifiedList<ICashIn>, date: Date, amount: number): ICashIn {
+  const ciGlobalId = cashIns.globalId + ':' + (cashIns.list.length + 1);
+  return {
+    parentId: cashIns.globalId,
+    globalId: ciGlobalId,
+    date: createIdentifiedPrimitive<Date>(ciGlobalId, ciGlobalId + "d", date),
+    amount: createIdentifiedPrimitive<number>(ciGlobalId, ciGlobalId + "a", amount)
+  };
+}
+
+function createFundingRepaymentTerms(funding: IFundingItem, type: FundingRepaymentType, date: Date, amount: number): IFundingRepaymentTerms {
+  const repaymentTerms = {
+    parentId: funding.globalId,
+    globalId: funding.globalId + "r",
+    cashOut: createObjectList<IFundingCashOut>(funding.globalId + "r", funding.globalId + "rl")
+  };
+  repaymentTerms.cashOut.list.push(
+    createFundingRepaymentCashOut(repaymentTerms.cashOut, type, date, amount)
+  );
+  return repaymentTerms;
+}
+
+// eslint-disable-next-line max-len
+function createFundingRepaymentCashOut(cashOuts: IIdentifiedList<IFundingCashOut>, type: FundingRepaymentType, date: Date, amount: number) {
+  const coGlobalId = cashOuts.globalId + (cashOuts.list.length + 1);
+  return {
+    parentId: cashOuts.globalId,
+    globalId: coGlobalId,
+    type: createIdentifiedPrimitive<FundingRepaymentType>(coGlobalId, coGlobalId + "t", type),
+    startDate: createIdentifiedPrimitive<Date>(coGlobalId, coGlobalId + "d", date),
+    amount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "a", amount),
+    limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", 0),
+    numberOfMonths: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "n", 0)
   };
 }
