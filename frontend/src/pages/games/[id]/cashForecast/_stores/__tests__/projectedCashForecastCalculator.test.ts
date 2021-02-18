@@ -1051,15 +1051,9 @@ describe("calculate", () => {
         ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
       });
       const numMonths = 4;
-      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
-        return {
-          parentId: forecast.revenues.list[0].globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
 
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
 
@@ -1089,15 +1083,9 @@ describe("calculate", () => {
         ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
       });
       const numMonths = 4;
-      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
-        return {
-          parentId: forecast.revenues.list[0].globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       const revGlobalid = forecast.revenues.list[0].globalId;
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       forecast.revenues.list.pop();
@@ -1144,15 +1132,9 @@ describe("calculate", () => {
         ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
       });
       const numMonths = 4;
-      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
-        return {
-          parentId: forecast.revenues.list[0].globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       const revGlobalid = forecast.revenues.list[0].globalId;
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       forecast.revenues.list[0].values.list = [];
@@ -1199,15 +1181,9 @@ describe("calculate", () => {
         ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
       });
       const numMonths = 4;
-      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
-        return {
-          parentId: forecast.revenues.list[0].globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       const revGlobalid = forecast.revenues.list[0].globalId;
 
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
@@ -1242,15 +1218,9 @@ describe("calculate", () => {
         ...createRevenue(forecast.revenues, RevenueModelType.ExplicitValues)
       });
       const numMonths = 4;
-      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = forecast.revenues.list[0].globalId + "_" + (i + 1);
-        return {
-          parentId: forecast.revenues.list[0].globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       const revGlobalid = forecast.revenues.list[0].globalId;
 
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
@@ -1286,15 +1256,9 @@ describe("calculate", () => {
       const forecast = createEmptyCashForecast();
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
       const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = revenue.globalId + "_" + (i + 1);
-        return {
-          parentId: revenue.globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(revenue.values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterSales, .10));
       forecast.revenues.list.push(revenue);
 
@@ -1316,15 +1280,9 @@ describe("calculate", () => {
       const forecast = createEmptyCashForecast();
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
       const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = revenue.globalId + "_" + (i + 1);
-        return {
-          parentId: revenue.globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
-      });
+      revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
+        createRevenueValue(revenue.values, 10000.10, getUtcDate(2016, 5 + i, 1))
+      );
       revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterSales, .10));
       forecast.revenues.list.push(revenue);
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
@@ -1359,13 +1317,7 @@ describe("calculate", () => {
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
       const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
       revenue.values.list = Array.from(new Array(numMonths).keys()).map((_, i) => {
-        const globalId = revenue.globalId + "_" + (i + 1);
-        return {
-          parentId: revenue.globalId,
-          globalId,
-          amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', 10000.10),
-          date: createIdentifiedPrimitive<Date>(globalId, globalId + 'a', getUtcDate(2016, 5 + i, 1))
-        };
+        return createRevenueValue(revenue.values, 10000.10, getUtcDate(2016, 5 + i, 1));
       });
       revenue.revenueShare.list.push(createRevenueShare(revenue.revenueShare, SalesRevenueShareType.GrossRevenueAfterPlatform, .10));
       forecast.revenues.list.push(revenue);
@@ -1432,28 +1384,24 @@ describe("calculate", () => {
   describe("funding - outflow - sales share", () => { });
   describe("funding - outflow - platform share", () => { });
   describe("funding - outflow - distribution share", () => {
-    it("adds one-time funding inflow on correct date to funding, subtotal, and total", () => {
+    it("adds funding-based distribution outflow ", () => {
       const initial = getEmptyProjection();
       const forecast = createEmptyCashForecast();
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+      forecast.revenues.list.push(revenue);
       const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
       funding.repaymentTerms = createFundingRepaymentTerms(
-        funding, FundingRepaymentType.GrossRevenueAfterDistributor, getUtcDate(2017, 5, 1), 0.60);
+        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 0.60);
       forecast.funding.list.push(funding);
-      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = [{
-        parentId: revenue.globalId,
-        globalId: revenue.globalId + 'v',
-        amount: createIdentifiedPrimitive<number>(revenue.globalId + 'v', revenue.globalId + 'va', 10000.10),
-        date: createIdentifiedPrimitive<Date>(revenue.globalId + 'v', revenue.globalId + 'vd', getUtcDate(2017, 5, 1))
-      }];
-
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
 
       const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
-        .get(forecast.revenues.list[0].globalId);
+        .get(forecast.funding.list[0].globalId);
+      expect(detail).not.toBeUndefined();
       expect(detail[23].amount).toBe(0);
-      expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10));
+      expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
       expect(detail[25].amount).toBe(0);
       expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
       expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
@@ -1463,6 +1411,106 @@ describe("calculate", () => {
       expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
     });
 
+    it("calculates distribution outflow and stops at tier limit", () => {
+      const limitAmount = 5000.01;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+      forecast.revenues.list.push(revenue);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+      funding.repaymentTerms = createFundingRepaymentTerms(
+        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, limitAmount);
+      forecast.funding.list.push(funding);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
+        .get(forecast.funding.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(roundCurrency(limitAmount * -1));
+      expect(detail[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * limitAmount);
+      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(10000.10 - limitAmount);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
+    });
+
+    it("calculates distribution outflow and pays across tiers when multiple tiers present", () => {
+      const limitAmount = 5000.01;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+      forecast.revenues.list.push(revenue);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+      // first cash out is limited and paid at 100%
+      funding.repaymentTerms = createFundingRepaymentTerms(
+        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, limitAmount);
+      // second is unlimited and paid at 100%
+      const cashOut2 = createFundingRepaymentCashOut(
+        funding.repaymentTerms.cashOut, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, 0);
+      funding.repaymentTerms.cashOut.list.push(cashOut2);
+      forecast.funding.list.push(funding);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
+        .get(forecast.funding.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(roundCurrency(10000.10 * -1));
+      expect(detail[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * 10000.10);
+      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
+    });
+
+    it("calculates distribution outflow and already skips satisfied tiers", () => {
+      const tier1Limit = 12345.10;
+      const tier2Limit = tier1Limit + 5000.00;
+      const initial = getEmptyProjection();
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [
+        createRevenueValue(revenue.values, tier1Limit, getUtcDate(2017, 5, 1)),
+        createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 6, 1))
+      ];
+      forecast.revenues.list.push(revenue);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+      // first cash out is limited to tier1Limit and paid at 100%
+      funding.repaymentTerms = createFundingRepaymentTerms(
+        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, tier1Limit);
+      // second is limited and paid at 100%
+      const cashOut2 = createFundingRepaymentCashOut(
+        funding.repaymentTerms.cashOut, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2015, 5, 1), 1.00, tier2Limit);
+      funding.repaymentTerms.cashOut.list.push(cashOut2);
+      forecast.funding.list.push(funding);
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
+        .get(forecast.funding.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
+      expect(detail[25].amount).toBe(roundCurrency(tier2Limit * -1 + tier1Limit));
+      expect(detail[26].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * tier1Limit);
+      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(roundCurrency(-1 * tier2Limit + tier1Limit));
+      expect(initialProjection.GrossRevenue_PlatformShares[26].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(0);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(roundCurrency(10000.10 - tier2Limit + tier1Limit));
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[26].amount).toBe(0);
+    });
   });
   describe("funding - outflow - gross profit share", () => { });
   describe("funding - outflow - net profit share", () => { });
@@ -1479,6 +1527,16 @@ function createRevenue(revenues: IIdentifiedList<IRevenue>, type: RevenueModelTy
     revenueShare: createObjectList<ISalesRevenueShareItem>(globalId, globalId + 'rs'),
   };
   return revenue;
+}
+
+function createRevenueValue(revenueValues: IIdentifiedList<ISalesRevenueItem>, amount: number, date: Date): ISalesRevenueItem {
+  const globalId = revenueValues.globalId + "_" + (revenueValues.list.length + 1);
+  return {
+    parentId: revenueValues.globalId,
+    globalId: globalId,
+    amount: createIdentifiedPrimitive<number>(globalId, globalId + 'a', amount),
+    date: createIdentifiedPrimitive<Date>(globalId, globalId + 'd', date)
+  };
 }
 
 function createRevenueShare(
@@ -1571,20 +1629,20 @@ function createFundingCashIn(cashIns: IIdentifiedList<ICashIn>, date: Date, amou
   };
 }
 
-function createFundingRepaymentTerms(funding: IFundingItem, type: FundingRepaymentType, date: Date, amount: number): IFundingRepaymentTerms {
+function createFundingRepaymentTerms(funding: IFundingItem, type: FundingRepaymentType, date: Date, amount: number, limit?: number): IFundingRepaymentTerms {
   const repaymentTerms = {
     parentId: funding.globalId,
     globalId: funding.globalId + "r",
     cashOut: createObjectList<IFundingCashOut>(funding.globalId + "r", funding.globalId + "rl")
   };
   repaymentTerms.cashOut.list.push(
-    createFundingRepaymentCashOut(repaymentTerms.cashOut, type, date, amount)
+    createFundingRepaymentCashOut(repaymentTerms.cashOut, type, date, amount, limit)
   );
   return repaymentTerms;
 }
 
 // eslint-disable-next-line max-len
-function createFundingRepaymentCashOut(cashOuts: IIdentifiedList<IFundingCashOut>, type: FundingRepaymentType, date: Date, amount: number) {
+function createFundingRepaymentCashOut(cashOuts: IIdentifiedList<IFundingCashOut>, type: FundingRepaymentType, date: Date, amount: number, limit?: number) {
   const coGlobalId = cashOuts.globalId + (cashOuts.list.length + 1);
   return {
     parentId: cashOuts.globalId,
@@ -1592,7 +1650,7 @@ function createFundingRepaymentCashOut(cashOuts: IIdentifiedList<IFundingCashOut
     type: createIdentifiedPrimitive<FundingRepaymentType>(coGlobalId, coGlobalId + "t", type),
     startDate: createIdentifiedPrimitive<Date>(coGlobalId, coGlobalId + "d", date),
     amount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "a", amount),
-    limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", 0),
+    limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", limit ?? 0),
     numberOfMonths: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "n", 0)
   };
 }

@@ -3,7 +3,7 @@ import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../utilities/currency";
 import { getUtcDate } from "../../../../../utilities/date";
-import { ICashForecast, LoanRepaymentType, LoanType, RevenueModelType, SalesRevenueShareType } from "../_types/cashForecast";
+import { FundingRepaymentType, ICashForecast, IFundingItem, LoanRepaymentType, LoanType, RevenueModelType, SalesRevenueShareType } from "../_types/cashForecast";
 
 enableMapSet();
 
@@ -125,6 +125,9 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
     //  and resizes all arrays if forecast length has changed
     resizeProjection(draftState, forecast, forecastMonthCount);
 
+    // cache payments against funding shares to hit tier limits
+    const fundingPayOuts = new Map<string, number>();
+
     // update all values
     for (let i = 0; i < forecastMonthCount; i++) {
       const monthStart = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i, 1);
@@ -149,7 +152,7 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
       // - gross rev
       // revenues - in
       applySalesRevenue(draftState, forecast, i, monthStart, monthEnd);
-      applyPlatformShares(draftState, forecast, i);
+      applyPlatformShares(draftState, forecast, i, fundingPayOuts);
       draftState.GrossRevenue_RevenueAfterPlatform[i] = {
         amount: draftState.GrossRevenue_SalesRevenue[i].amount +
           draftState.GrossRevenue_PlatformShares[i].amount
@@ -236,19 +239,45 @@ export function calculate(forecast: ICashForecast, previousProjection: IProjecte
   return nextState;
 }
 
+
+
 function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, forecastMonthCount: number) {
+  const subTotalDetailIds = new Map<SubTotalType, string[]>([
+    [SubTotalType.BeginningCash_Balances, new Array<string>()],
+    // [SubTotalType.BeginningCash, new Array<string>()],
+    [SubTotalType.OtherCash_LoanIn, new Array<string>()],
+    [SubTotalType.OtherCash_LoanOut, new Array<string>()],
+    [SubTotalType.OtherCash_FundingIn, new Array<string>()],
+    // [SubTotalType.OtherCash, new Array<string>()],
+    [SubTotalType.GrossRevenue_SalesRevenue, new Array<string>()],
+    [SubTotalType.GrossRevenue_PlatformShares, new Array<string>()],
+    // [SubTotalType.GrossRevenue_RevenueAfterPlatform, new Array<string>()],
+    [SubTotalType.GrossRevenue_DistributionShares, new Array<string>()],
+    // [SubTotalType.GrossRevenue_RevenueAfterDistribution, new Array<string>()],
+    [SubTotalType.GrossRevenue_PublisherShares, new Array<string>()],
+    // [SubTotalType.GrossRevenue_RevenueAfterPublisher, new Array<string>()],
+    // [SubTotalType.GrossRevenue, new Array<string>()],
+    // [SubTotalType.GrossProfit_DirectEmployees, new Array<string>()],
+    // [SubTotalType.GrossProfit_DirectContractors, new Array<string>()],
+    // [SubTotalType.GrossProfit_DirectExpenses, new Array<string>()],
+    // [SubTotalType.GrossProfit, new Array<string>()],
+    // [SubTotalType.NetProfit_IndirectEmployees, new Array<string>()],
+    // [SubTotalType.NetProfit_IndirectContractors, new Array<string>()],
+    // [SubTotalType.NetProfit_IndirectExpenses, new Array<string>()],
+    // [SubTotalType.NetProfit, new Array<string>()],
+    // [SubTotalType.TaxesAndProfitSharing_Taxes, new Array<string>()],
+    // [SubTotalType.TaxesAndProfitSharing_ProfitSharing, new Array<string>()],
+    // [SubTotalType.TaxesAndProfitSharing, new Array<string>()],
+    // [SubTotalType.EndingCash, new Array<string>()],
+  ]);
+  function appendForInit(type: SubTotalType, ids: string[]) {
+    subTotalDetailIds.set(type, subTotalDetailIds.get(type).concat(ids));
+  }
+
   // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);
   draftState.BeginningCash_Balances = sizeSubTotal(draftState.BeginningCash_Balances, forecastMonthCount);
-  if (!draftState.details.has(SubTotalType.BeginningCash_Balances)) {
-    draftState.details.set(SubTotalType.BeginningCash_Balances, new Map<string, Array<ICashValue>>([
-      [forecast.bankBalance.globalId, getEmptyValues(forecastMonthCount)]
-    ]));
-  }
-  else {
-    const draftDetails = draftState.details.get(SubTotalType.BeginningCash_Balances);
-    sizeDetails(draftDetails, forecast.bankBalance.globalId, forecastMonthCount);
-  }
+  appendForInit(SubTotalType.BeginningCash_Balances, [forecast.bankBalance.globalId]);
 
   // gross revenue sub-totals
   draftState.GrossRevenue_SalesRevenue = sizeSubTotal(draftState.GrossRevenue_SalesRevenue, forecastMonthCount);
@@ -260,101 +289,43 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   draftState.GrossRevenue_RevenueAfterPublisher = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPublisher, forecastMonthCount);
   draftState.GrossRevenue = sizeSubTotal(draftState.GrossRevenue, forecastMonthCount);
   // gross revenue details
-  [
-    SubTotalType.GrossRevenue_SalesRevenue,
-    SubTotalType.GrossRevenue_PlatformShares,
-    SubTotalType.GrossRevenue_DistributionShares
-  ].forEach(type => {
-    if (!draftState.details.has(type)) {
-      const values = [
-        ...forecast.revenues.list.map(rev => [rev.globalId, getEmptyValues(forecastMonthCount)]),
-        ...forecast.funding.list.map(funding => [funding.globalId, getEmptyValues(forecastMonthCount)])
-      ] as [];
-      draftState.details.set(type, new Map<string, Array<ICashValue>>(values));
-    }
-    else {
-      const correctIds = new Set<string>(forecast.revenues.list.map(rev => rev.globalId));
-      const draftDetails = draftState.details.get(type);
-      // if we have an item that's not present any more, remove from projection
-      Array.from(draftDetails.keys()).forEach(k => {
-        if (!correctIds.has(k))
-          draftDetails.delete(k);
-      });
-      // if we're missing one: add it, if it's there: verify size
-      forecast.revenues.list.forEach(rev => {
-        sizeDetails(draftDetails, rev.globalId, forecastMonthCount);
-      });
-    }
-  });
+  //  SalesRevenue
+  appendForInit(SubTotalType.GrossRevenue_SalesRevenue, forecast.revenues.list.map(rev => rev.globalId));
+  appendForInit(SubTotalType.GrossRevenue_PlatformShares,
+    forecast.funding.list
+      .filter(f => f.repaymentTerms?.cashOut.list.some(co => co.type.value === FundingRepaymentType.GrossRevenueAfterSales))
+      .map(funding => funding.globalId)
+  );
+  appendForInit(SubTotalType.GrossRevenue_PlatformShares, forecast.revenues.list.map(rev => rev.globalId));
+  appendForInit(SubTotalType.GrossRevenue_DistributionShares, forecast.revenues.list.map(rev => rev.globalId));
+  appendForInit(SubTotalType.GrossRevenue_DistributionShares,
+    forecast.funding.list
+      .filter(f => f.repaymentTerms?.cashOut.list.some(co => co.type.value === FundingRepaymentType.GrossRevenueAfterPlatform))
+      .map(funding => funding.globalId)
+  );
 
   // gross profit
 
 
   // loan in
   draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);
-  if (!draftState.details.has(SubTotalType.OtherCash_LoanIn)) {
-    draftState.details.set(SubTotalType.OtherCash_LoanIn, new Map<string, Array<ICashValue>>(
-      forecast.loans.list.map(loan => [loan.globalId, getEmptyValues(forecastMonthCount)])
-    ));
-  }
-  else {
-    const correctIds = new Set<string>(forecast.loans.list.map(loan => loan.globalId));
-    const draftDetails = draftState.details.get(SubTotalType.OtherCash_LoanIn);
-    // if we have a loan that's not present any more, remove from projection
-    Array.from(draftDetails.keys()).forEach(k => {
-      if (!correctIds.has(k))
-        draftDetails.delete(k);
-    });
-    // if we're missing one: add it, if it's there: verify size
-    forecast.loans.list.forEach(loan => {
-      sizeDetails(draftDetails, loan.globalId, forecastMonthCount);
-    });
-  }
+  appendForInit(SubTotalType.OtherCash_LoanIn, forecast.loans.list.map(loan => loan.globalId));
 
   // loan out
   draftState.OtherCash_LoanOut = sizeSubTotal(draftState.OtherCash_LoanOut, forecastMonthCount);
-  if (!draftState.details.has(SubTotalType.OtherCash_LoanOut)) {
-    draftState.details.set(SubTotalType.OtherCash_LoanOut, new Map<string, Array<ICashValue>>(
-      forecast.loans.list.map(loan => [loan.globalId, getEmptyValues(forecastMonthCount)])
-    ));
-  }
-  else {
-    const correctIds = new Set<string>(forecast.loans.list.map(loan => loan.globalId));
-    const draftDetails = draftState.details.get(SubTotalType.OtherCash_LoanOut);
-    // if we have a loan that's not present any more, remove from projection
-    Array.from(draftDetails.keys()).forEach(k => {
-      if (!correctIds.has(k))
-        draftDetails.delete(k);
-    });
-    // if we're missing one: add it, if it's there: verify size
-    forecast.loans.list.forEach(loan => {
-      sizeDetails(draftDetails, loan.globalId, forecastMonthCount);
-    });
-  }
+  appendForInit(SubTotalType.OtherCash_LoanOut, forecast.loans.list.map(loan => loan.globalId));
 
   // funding in
   draftState.OtherCash_FundingIn = sizeSubTotal(draftState.OtherCash_FundingIn, forecastMonthCount);
-  if (!draftState.details.has(SubTotalType.OtherCash_FundingIn)) {
-    draftState.details.set(SubTotalType.OtherCash_FundingIn, new Map<string, Array<ICashValue>>(
-      forecast.funding.list.map(loan => [loan.globalId, getEmptyValues(forecastMonthCount)])
-    ));
-  }
-  else {
-    const correctIds = new Set<string>(forecast.funding.list.map(funding => funding.globalId));
-    const draftDetails = draftState.details.get(SubTotalType.OtherCash_FundingIn);
-    // if we have a funding that's not present any more, remove from projection
-    Array.from(draftDetails.keys()).forEach(k => {
-      if (!correctIds.has(k))
-        draftDetails.delete(k);
-    });
-    // if we're missing one: add it, if it's there: verify size
-    forecast.funding.list.forEach(funding => {
-      sizeDetails(draftDetails, funding.globalId, forecastMonthCount);
-    });
-  }
+  appendForInit(SubTotalType.OtherCash_FundingIn, forecast.funding.list.map(funding => funding.globalId));
 
   // Ending Cash
   draftState.EndingCash = sizeSubTotal(draftState.EndingCash, forecastMonthCount);
+
+  // add in all the details
+  subTotalDetailIds.forEach((ids, type) => {
+    sizeSubTotalDetails(draftState, type, ids, forecastMonthCount);
+  });
 }
 
 function sizeSubTotal(subtotal: ICashValue[], forecastMonthCount: number): ICashValue[] {
@@ -364,7 +335,29 @@ function sizeSubTotal(subtotal: ICashValue[], forecastMonthCount: number): ICash
   return subtotal;
 }
 
-function sizeDetails(draftDetails: Map<string, Array<ICashValue>>, globalId: string, forecastMonthCount: number) {
+// eslint-disable-next-line max-len
+function sizeSubTotalDetails(draftState: WritableDraft<IProjectedCashFlowData>, type: SubTotalType, relevantIds: string[], forecastMonthCount) {
+  if (!draftState.details.has(type)) {
+    draftState.details.set(type, new Map<string, Array<ICashValue>>(
+      relevantIds.map(id => [id, getEmptyValues(forecastMonthCount)])
+    ));
+  }
+  else {
+    const correctIds = new Set<string>(relevantIds);
+    const draftDetails = draftState.details.get(type);
+    // if we have an item that's not present any more, remove from projection
+    Array.from(draftDetails.keys()).forEach(k => {
+      if (!correctIds.has(k))
+        draftDetails.delete(k);
+    });
+    // if we're missing one: add it, if it's there: verify size
+    relevantIds.forEach(id => {
+      sizeDetail(draftDetails, id, forecastMonthCount);
+    });
+  }
+}
+
+function sizeDetail(draftDetails: Map<string, Array<ICashValue>>, globalId: string, forecastMonthCount: number) {
   if (!draftDetails.has(globalId)) {
     draftDetails.set(globalId, getEmptyValues(forecastMonthCount));
   }
@@ -413,8 +406,9 @@ function applySalesRevenue(draftState: WritableDraft<IProjectedCashFlowData>, fo
   });
 }
 
-function applyPlatformShares(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, i: number) {
+function applyPlatformShares(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, i: number, fundingOutflowCache: Map<string, number>) {
   draftState.GrossRevenue_PlatformShares[i].amount = 0;
+  // platform shares apply to direct sales revenue only
   forecast.revenues.list.forEach(revenue => {
     const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
     const detail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(revenue.globalId)[i];
@@ -427,13 +421,55 @@ function applyPlatformShares(draftState: WritableDraft<IProjectedCashFlowData>, 
     });
     draftState.GrossRevenue_PlatformShares[i].amount += detail.amount;
   });
+  // funding shares apply to all sales revenue sources (subtotal)
+  forecast.funding.list.forEach(funding => {
+    // quick/dirty check to see if distribution shares can apply by checking if we created a collection for it
+    if (draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).has(funding.globalId)) {
+      const paidSoFar = fundingOutflowCache.get(funding.globalId) ?? 0;
+      const newOutflowAmount = calculateFundingShareOutflow(
+        FundingRepaymentType.GrossRevenueAfterSales,
+        funding, draftState.GrossRevenue_SalesRevenue[i].amount,
+        paidSoFar
+      );
+      const detail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(funding.globalId)[i];
+      detail.amount = newOutflowAmount;
+      fundingOutflowCache.set(funding.globalId, paidSoFar - newOutflowAmount);  // newOutflowAmount is negative, outflow cache is positive
+      draftState.GrossRevenue_PlatformShares[i].amount += detail.amount;
+    }
+  });
+}
+
+function calculateFundingShareOutflow(type: FundingRepaymentType, funding: IFundingItem, availableRevenue: number, paidSoFar: number) {
+  let fundingOutflowAmount = 0;
+  let revenueSubTotal = availableRevenue;
+  let currentFundingOutflowTotal = paidSoFar;
+  let priorTierCompleted = true;
+  funding.repaymentTerms?.cashOut.list.forEach(co => {
+    if (priorTierCompleted && revenueSubTotal > 0) {
+      const tierLimitNotReached = co.limitFixedAmount.value === 0 || co.limitFixedAmount.value > currentFundingOutflowTotal;
+      if (co.type.value == FundingRepaymentType.GrossRevenueAfterSales && tierLimitNotReached) {
+        const remainingAmountToLimit = roundCurrency(co.limitFixedAmount.value - currentFundingOutflowTotal);
+        let shareAmount = roundCurrency(co.amount.value * revenueSubTotal * -1);
+        if (co.limitFixedAmount.value !== 0 && remainingAmountToLimit > 0) {
+          shareAmount = Math.max(shareAmount, -1 * remainingAmountToLimit);
+        }
+        fundingOutflowAmount += shareAmount;
+        // reduce remaining sales gross for additional tier percents
+        revenueSubTotal += shareAmount;
+        // capture the outflow against the funding total for tier checks
+        currentFundingOutflowTotal += -1 * shareAmount;
+      }
+      priorTierCompleted = co.limitFixedAmount.value > 0 && currentFundingOutflowTotal == co.limitFixedAmount.value;
+    }
+  });
+  return fundingOutflowAmount;
 }
 
 function applyDistributionShares(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, i: number) {
   draftState.GrossRevenue_DistributionShares[i].amount = 0;
-  // revenue
+  // revenue - applies to direct revenue source only
   forecast.revenues.list.forEach(revenue => {
-    // TODO - does distribution get a slice of sales gross or post platform?
+    // LATER/DOMAIN TODO - does distribution get a slice of sales gross or post platform?
     const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
     const platformShareDetail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(revenue.globalId)[i];
     const postPlatformAmount = salesGrossDetail.amount - platformShareDetail.amount;
@@ -447,30 +483,36 @@ function applyDistributionShares(draftState: WritableDraft<IProjectedCashFlowDat
     });
     draftState.GrossRevenue_DistributionShares[i].amount += detail.amount;
   });
-  // funding out
+  // funding out - applies to all sales revenue?
   forecast.funding.list.forEach(funding => {
-    // const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(funding.globalId)[i];
-    // const platformShareDetail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(funding.globalId)[i];
-    // const postPlatformAmount = salesGrossDetail.amount - platformShareDetail.amount;
-    // const detail = draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).get(funding.globalId)[i];
-    // detail.amount = 0;
-    // funding.repaymentTerms?.cashOut.list.forEach(co => {
-    //   // checking funding SoFarAmt to find cashOut to apply
-    //   //  mark as found so we can exit out of further checks
-    //   //  if it's distribution share
-    //   //    calc share
-    //   //    if funding SoFarAmt + share > cashOut.limit
-    //   //      mark as not found
-    //   //      add difference to detail
-    //   //      add difference to SoFarAmt
-    //   //      add note: "Funding tier limit reached on 'funding'"
-    //   //      // this will allow it to loop to next cashout if applicable
-    //   //    else
-    //   //      add share to detail
-    //   //      add share to SoFarAmt
-    //   // - now do same thing to all the other buckets + test cases where buckets overflow/hit limits
-    // });
-    // draftState.GrossRevenue_DistributionShares[i].amount += detail.amount;
+    // quick/dirty check to see if distribution shares can apply by checking if we created a collection for it
+    if (draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).has(funding.globalId)) {
+      const salesGrossSubTotal = draftState.GrossRevenue_SalesRevenue[i];
+      const platformShareDetail = draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).get(funding.globalId)[i];
+      const postPlatformAmount = salesGrossSubTotal.amount - platformShareDetail.amount;
+      const detail = draftState.details.get(SubTotalType.GrossRevenue_DistributionShares).get(funding.globalId)[i];
+      detail.amount = 0;
+      funding.repaymentTerms?.cashOut.list.forEach(co => {
+        // checking funding SoFarAmt to find cashOut to apply
+        //  mark as found so we can exit out of further checks
+        //  if it's distribution share
+        //    calc share
+        //    if funding SoFarAmt + share > cashOut.limit
+        //      mark as not found
+        //      add difference to detail
+        //      add difference to SoFarAmt
+        //      add note: "Funding tier limit reached on 'funding'"
+        //      // this will allow it to loop to next cashout if applicable
+        //    else
+        //      add share to detail
+        //      add share to SoFarAmt
+        // - now do same thing to all the other buckets + test cases where buckets overflow/hit limits
+        if (co.type.value == FundingRepaymentType.GrossRevenueAfterSales) {
+          detail.amount += roundCurrency(co.amount.value * postPlatformAmount);
+        }
+      });
+      draftState.GrossRevenue_DistributionShares[i].amount += detail.amount;
+    }
   });
 }
 
