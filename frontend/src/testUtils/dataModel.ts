@@ -113,6 +113,7 @@ export function createEmptyCashForecast(): ICashForecast {
     parentId: "unit-test",
     versionNumber: 1,
     forecastStartDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-fsd", new Date(), "date"),
+    launchDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-ld", new Date(), "date"),
     bankBalance: {
       globalId: "unit-test-cf-bb",
       parentId: "unit-test-cf",

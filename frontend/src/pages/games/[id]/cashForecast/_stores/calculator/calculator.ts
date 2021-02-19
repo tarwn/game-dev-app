@@ -2,11 +2,12 @@ import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { getUtcDate } from "../../../../../../utilities/date";
-import { FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
+import { ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
 import { applyLoansIn } from "./inLoans";
 import { applySalesRevenue } from "./inRevenue";
+import { applyDirectEmployeesOut } from "./outEmployee";
 import { applyLoansOut } from "./outLoans";
 import { applyDistributionShares, applyPlatformShares, applyPublisherShares } from "./outRevenueShares";
 import type { ICashValue, IProjectedCashFlowData } from "./types";
@@ -85,7 +86,7 @@ export function calculate(
 
       // - gross profit
       // people.employees
-      draftState.GrossProfit_DirectEmployees[i] = { amount: 0 };
+      applyDirectEmployeesOut(draftState, forecast, i, monthStart, monthEnd);
       // people.contractors
       draftState.GrossProfit_DirectContractors[i] = { amount: 0 };
       // expenses
@@ -156,7 +157,7 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
     [SubTotalType.GrossRevenue_PublisherShares, new Array<string>()],
     // [SubTotalType.GrossRevenue_RevenueAfterPublisher, new Array<string>()],
     // [SubTotalType.GrossRevenue, new Array<string>()],
-    // [SubTotalType.GrossProfit_DirectEmployees, new Array<string>()],
+    [SubTotalType.GrossProfit_DirectEmployees, new Array<string>()],
     // [SubTotalType.GrossProfit_DirectContractors, new Array<string>()],
     // [SubTotalType.GrossProfit_DirectExpenses, new Array<string>()],
     // [SubTotalType.GrossProfit, new Array<string>()],
@@ -209,7 +210,13 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   );
 
   // gross profit
-
+  draftState.GrossProfit_DirectEmployees = sizeSubTotal(draftState.GrossProfit_DirectEmployees, forecastMonthCount);
+  draftState.GrossProfit_DirectContractors = sizeSubTotal(draftState.GrossProfit_DirectContractors, forecastMonthCount);
+  draftState.GrossProfit_DirectExpenses = sizeSubTotal(draftState.GrossProfit_DirectExpenses, forecastMonthCount);
+  // gross profit details
+  appendForInit(SubTotalType.GrossProfit_DirectEmployees,
+    forecast.employees.list.filter(e => e.category.value == ExpenseCategory.DirectExpenses).map(e => e.globalId)
+  );
 
   // loan in
   draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);

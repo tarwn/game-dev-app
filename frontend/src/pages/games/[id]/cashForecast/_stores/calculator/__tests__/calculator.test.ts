@@ -1,9 +1,13 @@
 import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../../testUtils/dataModel";
-import { roundCurrency } from "../../../../../../../utilities/currency";
 import { getUtcDate } from "../../../../../../../utilities/date";
 import type { IIdentifiedList } from "../../../../../../_stores/eventStore/types";
 import {
+  AdditionalEmployeeExpenseFrequency,
+  AdditionalEmployeeExpenseType,
+  ExpenseCategory,
   FundingRepaymentType,
+  IAdditionalEmployeeExpense,
+  IEmployeeExpense,
   IFundingCashOut,
   IFundingItem,
   IFundingRepaymentTerms,
@@ -1280,8 +1284,8 @@ describe("calculate", () => {
       [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
         expect(detail[11 + i].amount).toBe(amt);
         expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
-        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
-        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBeCloseTo(amt * -0.10);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(amt - (amt * 0.10));
       });
     });
 
@@ -1306,8 +1310,8 @@ describe("calculate", () => {
       [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
         expect(detail1[11 + i].amount).toBe(amt);
         expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
-        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
-        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+        expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBeCloseTo(amt * -0.10);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(amt - (amt * 0.10));
       });
       const detail2 = secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
         .get(forecast.revenues.list[0].globalId);
@@ -1342,8 +1346,8 @@ describe("calculate", () => {
         expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
         expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
         expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
-        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
-        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBeCloseTo(amt * -0.10);
+        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(amt - (amt * 0.10));
       });
     });
 
@@ -1376,8 +1380,8 @@ describe("calculate", () => {
         expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBe(amt);
         expect(initialProjection.GrossRevenue_PlatformShares[11 + i].amount).toBe(0);
         expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBe(amt);
-        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBe(roundCurrency(amt * -0.10));
-        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBe(amt - roundCurrency(amt * 0.10));
+        expect(initialProjection.GrossRevenue_DistributionShares[11 + i].amount).toBeCloseTo(amt * -0.10);
+        expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(amt - (amt * 0.10));
       });
       const detail2 = secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
         .get(forecast.revenues.list[0].globalId);
@@ -1421,15 +1425,15 @@ describe("calculate", () => {
         const detail = initialProjection.details.get(subTotalType)
           .get(forecast.funding.list[0].globalId);
         expect(detail).not.toBeUndefined();
-        expect(detail[23].amount).toBe(0);
-        expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
-        expect(detail[25].amount).toBe(0);
-        expect(initialProjection[shareCategory][23].amount).toBe(0);
-        expect(initialProjection[shareCategory][24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
-        expect(initialProjection[shareCategory][25].amount).toBe(0);
-        expect(initialProjection[postShareCategory][23].amount).toBe(0);
-        expect(initialProjection[postShareCategory][24].amount).toBe(10000.10 + roundCurrency(0.60 * 10000.10 * -1));
-        expect(initialProjection[postShareCategory][25].amount).toBe(0);
+        expect(detail[23].amount).toBeCloseTo(0);
+        expect(detail[24].amount).toBeCloseTo(0.60 * 10000.10 * -1);
+        expect(detail[25].amount).toBeCloseTo(0);
+        expect(initialProjection[shareCategory][23].amount).toBeCloseTo(0);
+        expect(initialProjection[shareCategory][24].amount).toBeCloseTo(0.60 * 10000.10 * -1);
+        expect(initialProjection[shareCategory][25].amount).toBeCloseTo(0);
+        expect(initialProjection[postShareCategory][23].amount).toBeCloseTo(0);
+        expect(initialProjection[postShareCategory][24].amount).toBeCloseTo(10000.10 + 0.60 * 10000.10 * -1);
+        expect(initialProjection[postShareCategory][25].amount).toBeCloseTo(0);
       });
 
       it("calculates distribution outflow and stops at tier limit", () => {
@@ -1449,9 +1453,9 @@ describe("calculate", () => {
         const detail = initialProjection.details.get(subTotalType)
           .get(forecast.funding.list[0].globalId);
         expect(detail).not.toBeUndefined();
-        expect(detail[23].amount).toBe(0);
-        expect(detail[24].amount).toBe(roundCurrency(limitAmount * -1));
-        expect(detail[25].amount).toBe(0);
+        expect(detail[23].amount).toBeCloseTo(0);
+        expect(detail[24].amount).toBeCloseTo(limitAmount * -1);
+        expect(detail[25].amount).toBeCloseTo(0);
         expect(initialProjection[shareCategory][23].amount).toBe(0);
         expect(initialProjection[shareCategory][24].amount).toBe(-1 * limitAmount);
         expect(initialProjection[shareCategory][25].amount).toBe(0);
@@ -1482,9 +1486,9 @@ describe("calculate", () => {
         const detail = initialProjection.details.get(subTotalType)
           .get(forecast.funding.list[0].globalId);
         expect(detail).not.toBeUndefined();
-        expect(detail[23].amount).toBe(0);
-        expect(detail[24].amount).toBe(roundCurrency(10000.10 * -1));
-        expect(detail[25].amount).toBe(0);
+        expect(detail[23].amount).toBeCloseTo(0);
+        expect(detail[24].amount).toBeCloseTo(10000.10 * -1);
+        expect(detail[25].amount).toBeCloseTo(0);
         expect(initialProjection[shareCategory][23].amount).toBe(0);
         expect(initialProjection[shareCategory][24].amount).toBe(-1 * 10000.10);
         expect(initialProjection[shareCategory][25].amount).toBe(0);
@@ -1519,17 +1523,17 @@ describe("calculate", () => {
         const detail = initialProjection.details.get(subTotalType)
           .get(forecast.funding.list[0].globalId);
         expect(detail).not.toBeUndefined();
-        expect(detail[23].amount).toBe(0);
-        expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
-        expect(detail[25].amount).toBe(roundCurrency(tier2Limit * -1 + tier1Limit));
-        expect(detail[26].amount).toBe(0);
-        expect(initialProjection[shareCategory][23].amount).toBe(0);
-        expect(initialProjection[shareCategory][24].amount).toBe(-1 * tier1Limit);
-        expect(initialProjection[shareCategory][25].amount).toBe(roundCurrency(-1 * tier2Limit + tier1Limit));
-        expect(initialProjection[shareCategory][26].amount).toBe(0);
+        expect(detail[23].amount).toBeCloseTo(0);
+        expect(detail[24].amount).toBeCloseTo(tier1Limit * -1);
+        expect(detail[25].amount).toBeCloseTo(tier2Limit * -1 + tier1Limit);
+        expect(detail[26].amount).toBeCloseTo(0);
+        expect(initialProjection[shareCategory][23].amount).toBeCloseTo(0);
+        expect(initialProjection[shareCategory][24].amount).toBeCloseTo(-1 * tier1Limit);
+        expect(initialProjection[shareCategory][25].amount).toBeCloseTo(-1 * tier2Limit + tier1Limit);
+        expect(initialProjection[shareCategory][26].amount).toBeCloseTo(0);
         expect(initialProjection[postShareCategory][23].amount).toBe(0);
         expect(initialProjection[postShareCategory][24].amount).toBe(0);
-        expect(initialProjection[postShareCategory][25].amount).toBe(roundCurrency(10000.10 - tier2Limit + tier1Limit));
+        expect(initialProjection[postShareCategory][25].amount).toBeCloseTo(10000.10 - tier2Limit + tier1Limit);
         expect(initialProjection[postShareCategory][26].amount).toBe(0);
       });
 
@@ -1559,10 +1563,10 @@ describe("calculate", () => {
         const detail = initialProjection.details.get(subTotalType)
           .get(forecast.funding.list[0].globalId);
         expect(detail).not.toBeUndefined();
-        expect(detail[23].amount).toBe(0);
-        expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
-        expect(detail[25].amount).toBe(0);
-        expect(detail[26].amount).toBe(0);
+        expect(detail[23].amount).toBeCloseTo(0);
+        expect(detail[24].amount).toBeCloseTo(tier1Limit * -1);
+        expect(detail[25].amount).toBeCloseTo(0);
+        expect(detail[26].amount).toBeCloseTo(0);
         expect(initialProjection[shareCategory][23].amount).toBe(0);
         expect(initialProjection[shareCategory][24].amount).toBe(-1 * tier1Limit);
         expect(initialProjection[shareCategory][25].amount).toBe(0);
@@ -1579,6 +1583,420 @@ describe("calculate", () => {
     });
     describe("net profit share", () => {
 
+    });
+  });
+
+  describe("employees - direct - outflow", () => {
+    const initial = getEmptyProjection();
+    const setupForecastWithRevenue = (salesAmount: number, salesDate: Date) => {
+      const forecast = createEmptyCashForecast();
+      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+      revenue.values.list = [createRevenueValue(revenue.values, salesAmount, salesDate)];
+      forecast.revenues.list.push(revenue);
+      return forecast;
+    };
+
+    it("applies direct employee pay to gross profit", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBe(-1234.56);
+      expect(direct[24].amount).toBe(-1234.56);
+      expect(direct[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBe(-1234.56 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
+    });
+
+    it("applies direct employee pay to gross profit, prorated for mid-month start", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2017, 5, 16), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBe(0);
+      expect(direct[24].amount).toBe(-1234.56 / 2);
+      expect(direct[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBe(-1234.56 / 2);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit[24].amount).toBe(-1234.56 / 2 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
+    });
+
+    it("applies direct employee pay to gross profit, prorated for mid-month end", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2017, 5, 15), 1234.56, 0)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBe(-1234.56);
+      expect(direct[24].amount).toBe(-1234.56 / 2);
+      expect(direct[25].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBe(-1234.56 / 2);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBe(0);
+      expect(initialProjection.GrossProfit[23].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBe(-1234.56 / 2 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBe(0);
+    });
+
+    it("calculates no employee pay for reversed dates", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2019, 5, 1), getUtcDate(2015, 5, 1), 1234.56, 0)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBe(0);
+      expect(direct[24].amount).toBe(0);
+      expect(direct[25].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBe(0);
+      expect(initialProjection.GrossProfit[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit[24].amount).toBe(10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBe(0);
+    });
+
+    it("applies direct employee benefits to gross profit", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0.30)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(direct[25].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 * 1.30 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56 * 1.30);
+    });
+
+    it("applies direct employee pay to gross profit, prorated for mid-month start", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2017, 5, 16), getUtcDate(2019, 5, 1), 1234.56, .30)
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(0);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 / 2 * 1.30);
+      expect(direct[25].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(0);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 / 2 * 1.30);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56 * 1.30);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(0);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 / 2 * 1.30 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56 * 1.30);
+    });
+
+    it("applies direct employee annual dollar bonus", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsAnnual,
+          AdditionalEmployeeExpenseFrequency.Date,
+          333.33,
+          // purpusefully picking an earlier year for recurring math
+          getUtcDate(2015, 5, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - 333.33);
+      expect(direct[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 - 333.33);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 - 333.33 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56);
+    });
+
+    it("applies no direct employee annual dollar bonus for wrong month", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsAnnual,
+          AdditionalEmployeeExpenseFrequency.Date,
+          333.33,
+          // purpusefully picking an earlier year for recurring math
+          getUtcDate(2015, 3, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[24].amount).toBeCloseTo(-1234.56  /* no bonus */);
+    });
+
+    it("applies direct employee one-time percent bonus", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusPercentAnnual,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          // purpusefully picking an earlier year for recurring math
+          getUtcDate(2015, 5, 1))
+      );
+      const bonus = 1234.56 * 12 * 0.10;
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - bonus);
+      expect(direct[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 - bonus);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 - bonus + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56);
+    });
+
+    it("applies no direct employee annual percent bonus for wrong month", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsAnnual,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          // purpusefully picking an earlier year for recurring math
+          getUtcDate(2015, 3, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[24].amount).toBeCloseTo(-1234.56 /* no bonus */);
+    });
+
+    it("applies direct employee one-time dollar bonus", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          333.33,
+          getUtcDate(2017, 5, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - 333.33);
+      expect(direct[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 - 333.33);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 - 333.33 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56);
+    });
+
+    it("applies no direct employee one-time dollar bonus for wrong date", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          333.33,
+          getUtcDate(2017, 4, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 /* no bonus */);
+    });
+
+    it("applies direct employee one-time percent bonus", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusPercentOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          getUtcDate(2017, 5, 1))
+      );
+      const bonus = (0.10 * 1234.56 * 12);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - bonus);
+      expect(direct[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit_DirectEmployees[24].amount).toBeCloseTo(-1234.56 - bonus);
+      expect(initialProjection.GrossProfit_DirectEmployees[25].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBeCloseTo(-1234.56);
+      expect(initialProjection.GrossProfit[24].amount).toBeCloseTo(-1234.56 - bonus + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBeCloseTo(-1234.56);
+    });
+
+    it("applies no direct employee one-time percent bonus for wrong date", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusPercentOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          getUtcDate(2017, 4, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[24].amount).toBeCloseTo(-1234.56 /* no bonus */);
+    });
+
+    it("applies direct employee double bonuses when more than one present", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusPercentOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          getUtcDate(2017, 5, 1))
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusPercentOnce,
+          AdditionalEmployeeExpenseFrequency.Date,
+          0.10,
+          getUtcDate(2017, 5, 1))
+      );
+      const bonus = (0.10 * 1234.56 * 12);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - bonus - bonus);
+    });
+
+    it("applies direct employee bonus based on forecasted launch date instead of on-object date when specified", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.launchDate.value = getUtcDate(2017, 5, 1);
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1234.56, 0)
+      );
+      forecast.employees.list[0].additionalPay.list.push(
+        createEmployeeAdditionalPay(
+          forecast.employees.list[0].additionalPay,
+          AdditionalEmployeeExpenseType.BonusDollarsOnce,
+          AdditionalEmployeeExpenseFrequency.Launch,
+          333.33,
+          // purpusefully picked earlier month - we verify below it is not this date and is launch date
+          getUtcDate(2017, 4, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const direct = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(direct).not.toBeUndefined();
+      expect(direct[23].amount).toBeCloseTo(-1234.56);
+      expect(direct[24].amount).toBeCloseTo(-1234.56 - 333.33);
+      expect(direct[25].amount).toBeCloseTo(-1234.56);
     });
   });
 });
@@ -1719,5 +2137,45 @@ function createFundingRepaymentCashOut(cashOuts: IIdentifiedList<IFundingCashOut
     amount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "a", amount),
     limitFixedAmount: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "l", limit ?? 0),
     numberOfMonths: createIdentifiedPrimitive<number>(coGlobalId, coGlobalId + "n", 0)
+  };
+}
+
+function createEmployee(
+  employees: IIdentifiedList<IEmployeeExpense>,
+  expenseCategory: ExpenseCategory,
+  startDate: Date,
+  endDate: Date,
+  salaryAmount: number,
+  benefitsPercent: number
+): IEmployeeExpense {
+  const globalId = employees.globalId + "_" + (employees.list.length + 1);
+  return {
+    parentId: employees.globalId,
+    globalId,
+    category: createIdentifiedPrimitive<ExpenseCategory>(globalId, globalId + "c", expenseCategory),
+    name: createIdentifiedPrimitive<string>(globalId, globalId + "n", "unit test"),
+    startDate: createIdentifiedPrimitive<Date>(globalId, globalId + "sd", startDate),
+    endDate: createIdentifiedPrimitive<Date>(globalId, globalId + "ed", endDate),
+    salaryAmount: createIdentifiedPrimitive<number>(globalId, globalId + "s", salaryAmount),
+    benefitsPercent: createIdentifiedPrimitive<number>(globalId, globalId + "s", benefitsPercent),
+    additionalPay: createObjectList<IAdditionalEmployeeExpense>(globalId, globalId + "a")
+  };
+}
+
+function createEmployeeAdditionalPay(
+  additionalPay: IIdentifiedList<IAdditionalEmployeeExpense>,
+  type: AdditionalEmployeeExpenseType,
+  frequency: AdditionalEmployeeExpenseFrequency,
+  amount: number,
+  date: Date
+): IAdditionalEmployeeExpense {
+  const globalId = additionalPay.globalId + "_" + (additionalPay.list.length + 1);
+  return {
+    parentId: additionalPay.globalId,
+    globalId,
+    type: createIdentifiedPrimitive<AdditionalEmployeeExpenseType>(globalId, globalId + "t", type),
+    frequency: createIdentifiedPrimitive<AdditionalEmployeeExpenseFrequency>(globalId, globalId + "f", frequency),
+    amount: createIdentifiedPrimitive<number>(globalId, globalId + "a", amount),
+    date: createIdentifiedPrimitive<Date>(globalId, globalId + "d", date)
   };
 }

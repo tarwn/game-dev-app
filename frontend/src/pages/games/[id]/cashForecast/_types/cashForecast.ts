@@ -154,6 +154,7 @@ export const TaxSchedules: { id: TaxSchedule, name: string }[] = Object.keys(Tax
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
+  launchDate: IIdentifiedPrimitive<Date>;
   bankBalance: IBankBalance;
   loans: IIdentifiedList<ILoanItem>;
   funding: IIdentifiedList<IFundingItem>;
