@@ -1,10 +1,21 @@
-import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../testUtils/dataModel";
-import { roundCurrency } from "../../../../../../utilities/currency";
-import { getUtcDate } from "../../../../../../utilities/date";
-import type { IIdentifiedList } from "../../../../../_stores/eventStore/types";
-import { FundingRepaymentType, IFundingCashOut, IFundingItem, IFundingRepaymentTerms, IRevenue, ISalesRevenueItem, ISalesRevenueShareItem, RevenueModelType, SalesRevenueShareType } from "../../_types/cashForecast";
-import { ICashIn, ILoanCashOut, ILoanItem, LoanRepaymentType, LoanType } from "../../_types/cashForecast";
-import { calculate, getEmptyProjection, SubTotalType, ICashValue } from "../projectedCashForecastCalculator";
+import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../../testUtils/dataModel";
+import { roundCurrency } from "../../../../../../../utilities/currency";
+import { getUtcDate } from "../../../../../../../utilities/date";
+import type { IIdentifiedList } from "../../../../../../_stores/eventStore/types";
+import {
+  FundingRepaymentType,
+  IFundingCashOut,
+  IFundingItem,
+  IFundingRepaymentTerms,
+  IRevenue,
+  ISalesRevenueItem,
+  ISalesRevenueShareItem,
+  RevenueModelType,
+  SalesRevenueShareType
+} from "../../../_types/cashForecast";
+import { ICashIn, ILoanCashOut, ILoanItem, LoanRepaymentType, LoanType } from "../../../_types/cashForecast";
+import { calculate } from "../calculator";
+import { getEmptyProjection, ICashValue, SubTotalType } from "../types";
 
 const FIVE_YEARS_OF_ENTRIES = 12 * 5;
 
@@ -1381,139 +1392,195 @@ describe("calculate", () => {
     });
   });
 
-  describe("funding - outflow - sales share", () => { });
-  describe("funding - outflow - platform share", () => { });
-  describe("funding - outflow - distribution share", () => {
-    it("adds funding-based distribution outflow ", () => {
-      const initial = getEmptyProjection();
-      const forecast = createEmptyCashForecast();
-      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
-      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
-      forecast.revenues.list.push(revenue);
-      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
-      funding.repaymentTerms = createFundingRepaymentTerms(
-        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 0.60);
-      forecast.funding.list.push(funding);
-      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+  describe("funding - outflow", () => {
+    describe.each(
+      [
+        ["GrossRevenue_PlatformShares", "GrossRevenue_RevenueAfterPlatform", FundingRepaymentType.GrossRevenueAfterSales],
+        ["GrossRevenue_DistributionShares", "GrossRevenue_RevenueAfterDistribution", FundingRepaymentType.GrossRevenueAfterPlatform],
+        ["GrossRevenue_PublisherShares", "GrossRevenue_RevenueAfterPublisher", FundingRepaymentType.GrossRevenueAfterDistributor]
+      ]
+    )("%s", (shareCategory, postShareCategory, fundingRepayType: FundingRepaymentType) => {
+      const subTotalType = parseInt(Object.entries(SubTotalType).find(stt => stt[1] == shareCategory)[0]);
+      // this is late enough in the process it wil require a different set of tests
+      const altFundingRepayType = FundingRepaymentType.NetProfitShare;
 
-      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
-        .get(forecast.funding.list[0].globalId);
-      expect(detail).not.toBeUndefined();
-      expect(detail[23].amount).toBe(0);
-      expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
-      expect(detail[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
-      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(10000.10 + roundCurrency(0.60 * 10000.10 * -1));
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
+      it("adds funding-based distribution outflow ", () => {
+        const initial = getEmptyProjection();
+        const forecast = createEmptyCashForecast();
+        forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+        const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+        revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+        forecast.revenues.list.push(revenue);
+        const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+        // $fundingRepayType repayment
+        funding.repaymentTerms = createFundingRepaymentTerms(funding, fundingRepayType, getUtcDate(2017, 5, 1), 0.60);
+        forecast.funding.list.push(funding);
+        const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+        // details are in correct subtype
+        const detail = initialProjection.details.get(subTotalType)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail).not.toBeUndefined();
+        expect(detail[23].amount).toBe(0);
+        expect(detail[24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
+        expect(detail[25].amount).toBe(0);
+        expect(initialProjection[shareCategory][23].amount).toBe(0);
+        expect(initialProjection[shareCategory][24].amount).toBe(roundCurrency(0.60 * 10000.10 * -1));
+        expect(initialProjection[shareCategory][25].amount).toBe(0);
+        expect(initialProjection[postShareCategory][23].amount).toBe(0);
+        expect(initialProjection[postShareCategory][24].amount).toBe(10000.10 + roundCurrency(0.60 * 10000.10 * -1));
+        expect(initialProjection[postShareCategory][25].amount).toBe(0);
+      });
+
+      it("calculates distribution outflow and stops at tier limit", () => {
+        const limitAmount = 5000.01;
+        const initial = getEmptyProjection();
+        const forecast = createEmptyCashForecast();
+        forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+        const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+        revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+        forecast.revenues.list.push(revenue);
+        const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+        // $fundingRepayType repayment
+        funding.repaymentTerms = createFundingRepaymentTerms(funding, fundingRepayType, getUtcDate(2017, 5, 1), 1.00, limitAmount);
+        forecast.funding.list.push(funding);
+        const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+        const detail = initialProjection.details.get(subTotalType)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail).not.toBeUndefined();
+        expect(detail[23].amount).toBe(0);
+        expect(detail[24].amount).toBe(roundCurrency(limitAmount * -1));
+        expect(detail[25].amount).toBe(0);
+        expect(initialProjection[shareCategory][23].amount).toBe(0);
+        expect(initialProjection[shareCategory][24].amount).toBe(-1 * limitAmount);
+        expect(initialProjection[shareCategory][25].amount).toBe(0);
+        expect(initialProjection[postShareCategory][23].amount).toBe(0);
+        expect(initialProjection[postShareCategory][24].amount).toBe(10000.10 - limitAmount);
+        expect(initialProjection[postShareCategory][25].amount).toBe(0);
+      });
+
+      it("calculates distribution outflow and pays across tiers when multiple tiers present", () => {
+        const limitAmount = 5000.01;
+        const initial = getEmptyProjection();
+        const forecast = createEmptyCashForecast();
+        forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+        const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+        revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
+        forecast.revenues.list.push(revenue);
+        const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+        // first cash out is limited and paid at 100%
+        funding.repaymentTerms = createFundingRepaymentTerms(
+          funding, fundingRepayType, getUtcDate(2017, 5, 1), 1.00, limitAmount);
+        // second is unlimited and paid at 100%
+        const cashOut2 = createFundingRepaymentCashOut(
+          funding.repaymentTerms.cashOut, fundingRepayType, getUtcDate(2017, 5, 1), 1.00, 0);
+        funding.repaymentTerms.cashOut.list.push(cashOut2);
+        forecast.funding.list.push(funding);
+        const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+        const detail = initialProjection.details.get(subTotalType)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail).not.toBeUndefined();
+        expect(detail[23].amount).toBe(0);
+        expect(detail[24].amount).toBe(roundCurrency(10000.10 * -1));
+        expect(detail[25].amount).toBe(0);
+        expect(initialProjection[shareCategory][23].amount).toBe(0);
+        expect(initialProjection[shareCategory][24].amount).toBe(-1 * 10000.10);
+        expect(initialProjection[shareCategory][25].amount).toBe(0);
+        expect(initialProjection[postShareCategory][23].amount).toBe(0);
+        expect(initialProjection[postShareCategory][24].amount).toBe(0);
+        expect(initialProjection[postShareCategory][25].amount).toBe(0);
+      });
+
+      it("calculates distribution outflow and skips already satisfied tiers", () => {
+        const tier1Limit = 12345.10;
+        const tier2Limit = tier1Limit + 5000.00;
+        const initial = getEmptyProjection();
+        const forecast = createEmptyCashForecast();
+        forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+        const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+        revenue.values.list = [
+          createRevenueValue(revenue.values, tier1Limit, getUtcDate(2017, 5, 1)),
+          createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 6, 1))
+        ];
+        forecast.revenues.list.push(revenue);
+        const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+        // first cash out is limited to tier1Limit and paid at 100%
+        funding.repaymentTerms = createFundingRepaymentTerms(
+          funding, fundingRepayType, getUtcDate(2017, 5, 1), 1.00, tier1Limit);
+        // second is limited and paid at 100%
+        const cashOut2 = createFundingRepaymentCashOut(
+          funding.repaymentTerms.cashOut, fundingRepayType, getUtcDate(2015, 5, 1), 1.00, tier2Limit);
+        funding.repaymentTerms.cashOut.list.push(cashOut2);
+        forecast.funding.list.push(funding);
+        const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+        const detail = initialProjection.details.get(subTotalType)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail).not.toBeUndefined();
+        expect(detail[23].amount).toBe(0);
+        expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
+        expect(detail[25].amount).toBe(roundCurrency(tier2Limit * -1 + tier1Limit));
+        expect(detail[26].amount).toBe(0);
+        expect(initialProjection[shareCategory][23].amount).toBe(0);
+        expect(initialProjection[shareCategory][24].amount).toBe(-1 * tier1Limit);
+        expect(initialProjection[shareCategory][25].amount).toBe(roundCurrency(-1 * tier2Limit + tier1Limit));
+        expect(initialProjection[shareCategory][26].amount).toBe(0);
+        expect(initialProjection[postShareCategory][23].amount).toBe(0);
+        expect(initialProjection[postShareCategory][24].amount).toBe(0);
+        expect(initialProjection[postShareCategory][25].amount).toBe(roundCurrency(10000.10 - tier2Limit + tier1Limit));
+        expect(initialProjection[postShareCategory][26].amount).toBe(0);
+      });
+
+      it("calculates distribution outflow and skips unsatisfied tiers for a different share type", () => {
+        const tier1Limit = 12345.10;
+        const tier2Limit = tier1Limit + 5000.00;
+        const initial = getEmptyProjection();
+        const forecast = createEmptyCashForecast();
+        forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
+        const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
+        revenue.values.list = [
+          createRevenueValue(revenue.values, tier1Limit, getUtcDate(2017, 5, 1)),
+          createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 6, 1))
+        ];
+        forecast.revenues.list.push(revenue);
+        const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
+        // first cash out is limited to tier1Limit and paid at 100%
+        funding.repaymentTerms = createFundingRepaymentTerms(
+          funding, fundingRepayType, getUtcDate(2017, 5, 1), 1.00, tier1Limit);
+        // second is limited and paid at 100% - but to distribution shares
+        const cashOut2 = createFundingRepaymentCashOut(
+          funding.repaymentTerms.cashOut, altFundingRepayType, getUtcDate(2015, 5, 1), 1.00, tier2Limit);
+        funding.repaymentTerms.cashOut.list.push(cashOut2);
+        forecast.funding.list.push(funding);
+        const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+        const detail = initialProjection.details.get(subTotalType)
+          .get(forecast.funding.list[0].globalId);
+        expect(detail).not.toBeUndefined();
+        expect(detail[23].amount).toBe(0);
+        expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
+        expect(detail[25].amount).toBe(0);
+        expect(detail[26].amount).toBe(0);
+        expect(initialProjection[shareCategory][23].amount).toBe(0);
+        expect(initialProjection[shareCategory][24].amount).toBe(-1 * tier1Limit);
+        expect(initialProjection[shareCategory][25].amount).toBe(0);
+        expect(initialProjection[shareCategory][26].amount).toBe(0);
+        expect(initialProjection[postShareCategory][23].amount).toBe(0);
+        expect(initialProjection[postShareCategory][24].amount).toBe(0);
+        expect(initialProjection[postShareCategory][25].amount).toBe(10000.10);
+        expect(initialProjection[postShareCategory][26].amount).toBe(0);
+      });
     });
 
-    it("calculates distribution outflow and stops at tier limit", () => {
-      const limitAmount = 5000.01;
-      const initial = getEmptyProjection();
-      const forecast = createEmptyCashForecast();
-      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
-      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
-      forecast.revenues.list.push(revenue);
-      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
-      funding.repaymentTerms = createFundingRepaymentTerms(
-        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, limitAmount);
-      forecast.funding.list.push(funding);
-      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+    describe("gross profit share", () => {
 
-      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
-        .get(forecast.funding.list[0].globalId);
-      expect(detail).not.toBeUndefined();
-      expect(detail[23].amount).toBe(0);
-      expect(detail[24].amount).toBe(roundCurrency(limitAmount * -1));
-      expect(detail[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * limitAmount);
-      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(10000.10 - limitAmount);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
     });
+    describe("net profit share", () => {
 
-    it("calculates distribution outflow and pays across tiers when multiple tiers present", () => {
-      const limitAmount = 5000.01;
-      const initial = getEmptyProjection();
-      const forecast = createEmptyCashForecast();
-      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
-      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = [createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 5, 1))];
-      forecast.revenues.list.push(revenue);
-      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
-      // first cash out is limited and paid at 100%
-      funding.repaymentTerms = createFundingRepaymentTerms(
-        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, limitAmount);
-      // second is unlimited and paid at 100%
-      const cashOut2 = createFundingRepaymentCashOut(
-        funding.repaymentTerms.cashOut, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, 0);
-      funding.repaymentTerms.cashOut.list.push(cashOut2);
-      forecast.funding.list.push(funding);
-      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
-
-      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
-        .get(forecast.funding.list[0].globalId);
-      expect(detail).not.toBeUndefined();
-      expect(detail[23].amount).toBe(0);
-      expect(detail[24].amount).toBe(roundCurrency(10000.10 * -1));
-      expect(detail[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * 10000.10);
-      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(0);
-    });
-
-    it("calculates distribution outflow and already skips satisfied tiers", () => {
-      const tier1Limit = 12345.10;
-      const tier2Limit = tier1Limit + 5000.00;
-      const initial = getEmptyProjection();
-      const forecast = createEmptyCashForecast();
-      forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
-      const revenue = createRevenue(forecast.revenues, RevenueModelType.ExplicitValues);
-      revenue.values.list = [
-        createRevenueValue(revenue.values, tier1Limit, getUtcDate(2017, 5, 1)),
-        createRevenueValue(revenue.values, 10000.10, getUtcDate(2017, 6, 1))
-      ];
-      forecast.revenues.list.push(revenue);
-      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2015, 5, 1), 1234.56);
-      // first cash out is limited to tier1Limit and paid at 100%
-      funding.repaymentTerms = createFundingRepaymentTerms(
-        funding, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2017, 5, 1), 1.00, tier1Limit);
-      // second is limited and paid at 100%
-      const cashOut2 = createFundingRepaymentCashOut(
-        funding.repaymentTerms.cashOut, FundingRepaymentType.GrossRevenueAfterSales, getUtcDate(2015, 5, 1), 1.00, tier2Limit);
-      funding.repaymentTerms.cashOut.list.push(cashOut2);
-      forecast.funding.list.push(funding);
-      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
-
-      const detail = initialProjection.details.get(SubTotalType.GrossRevenue_PlatformShares)
-        .get(forecast.funding.list[0].globalId);
-      expect(detail).not.toBeUndefined();
-      expect(detail[23].amount).toBe(0);
-      expect(detail[24].amount).toBe(roundCurrency(tier1Limit * -1));
-      expect(detail[25].amount).toBe(roundCurrency(tier2Limit * -1 + tier1Limit));
-      expect(detail[26].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_PlatformShares[24].amount).toBe(-1 * tier1Limit);
-      expect(initialProjection.GrossRevenue_PlatformShares[25].amount).toBe(roundCurrency(-1 * tier2Limit + tier1Limit));
-      expect(initialProjection.GrossRevenue_PlatformShares[26].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[23].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24].amount).toBe(0);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[25].amount).toBe(roundCurrency(10000.10 - tier2Limit + tier1Limit));
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[26].amount).toBe(0);
     });
   });
-  describe("funding - outflow - gross profit share", () => { });
-  describe("funding - outflow - net profit share", () => { });
 });
 
 function createRevenue(revenues: IIdentifiedList<IRevenue>, type: RevenueModelType): IRevenue {
