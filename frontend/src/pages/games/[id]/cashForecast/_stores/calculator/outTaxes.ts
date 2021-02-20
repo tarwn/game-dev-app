@@ -54,5 +54,8 @@ function getAmountToTax(
   for (let i = Math.max(0, curMonth - numMonths + 1); i <= curMonth; i++) {
     total += group[i].amount;
   }
+
+  if (total <= 0)
+    return 0;
   return total;
 }

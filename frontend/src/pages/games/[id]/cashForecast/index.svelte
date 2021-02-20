@@ -21,6 +21,8 @@
   import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
   import PeopleInstructions from "./_components/editing/peopleTab/PeopleInstructions.svelte";
   import TaxInstructions from "./_components/editing/taxesTab/TaxInstructions.svelte";
+  import { projectedCashFlowStore } from "./_stores/projectedCashForecasetStore";
+  import type { IProjectedCashFlowData } from "./_stores/calculator/types";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -32,7 +34,7 @@
   let editViewAvailable = false;
   let isLoading = true;
   let cashForecast = null as null | ICashForecast;
-  // let projectedCashForecast = null as null | IProjectedCashForecast;
+  let projectedCashForecast = null as null | IProjectedCashFlowData;
 
   // initialize section view if query present
   if ($params.view === "edit") {
@@ -72,7 +74,7 @@
   }
   const unsubscribe = cashForecastLocalStore.subscribe((update) => {
     cashForecast = update;
-    // updateProjectedCashForecast();
+    projectedCashFlowStore.updateForecast(update);
     if (cashForecast && isLoading) {
       isLoading = false;
     }
@@ -85,11 +87,15 @@
     }
     hasUnsaved = update.pendingEvents.length > 0;
   });
+  const unsubscribe3 = projectedCashFlowStore.subscribe((update) => {
+    projectedCashForecast = update;
+  });
 
   onDestroy(() => {
     // -- end signalR close
     unsubscribe();
     unsubscribe2();
+    unsubscribe3();
   });
 </script>
 
@@ -252,7 +258,11 @@
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">
         {#if cashForecast != null}
-          <TabbedEditor {isLoading} {cashForecast} on:selection={({ detail }) => (selectedTab = detail)} />
+          <TabbedEditor
+            {isLoading}
+            {cashForecast}
+            projection={projectedCashForecast}
+            on:selection={({ detail }) => (selectedTab = detail)} />
         {/if}
       </div>
     {/if}

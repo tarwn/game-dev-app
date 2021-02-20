@@ -35,7 +35,8 @@
     <LabeledInput label="Amount" vertical={true}>
       <CurrencyInput
         value={cashForecast.bankBalance.amount.value}
-        on:change={({ detail }) => events.SetBankBalanceAmount(cashForecast.bankBalance.amount, detail.value)} />
+        on:change={({ detail }) =>
+          publish(events.SetBankBalanceAmount(cashForecast.bankBalance.amount, detail.value))} />
     </LabeledInput>
   </td>
   <td />

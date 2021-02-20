@@ -15,6 +15,7 @@ const jsonOrThrow = (r: Response) => {
 
 function readPayload(data: ICashForecast) {
   data.forecastStartDate.value = new Date(data.forecastStartDate.value);
+  data.launchDate.value = new Date(data.launchDate.value);
   data.bankBalance.date.value = new Date(data.bankBalance.date.value);
   data.loans.list.forEach(loan => {
     loan.cashIn.list.forEach(ci => {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import type { IProjectedCashFlowData } from "../../_stores/calculator/types";
   import type { ICashForecast } from "../../_types/cashForecast";
   import { ExpenseCategory } from "../../_types/cashForecast";
 
@@ -7,10 +8,12 @@
   import EmptyTab from "./EmptyTab.svelte";
   import ExpenseTab from "./ExpenseTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
+  import TableTab from "./tableTab.svelte";
   import { tabs, TabType } from "./tabList";
   import TaxesTab from "./TaxesTab.svelte";
 
   export let cashForecast: ICashForecast;
+  export let projection: IProjectedCashFlowData;
   export let isLoading: boolean;
 
   const dispatch = createEventDispatcher();
@@ -180,6 +183,8 @@
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
     {:else if selectedTab == TabType.Taxes}
       <TaxesTab {cashForecast} />
+    {:else if selectedTab == TabType.TableView}
+      <TableTab {cashForecast} {projection} />
     {:else}
       <EmptyTab />
     {/if}

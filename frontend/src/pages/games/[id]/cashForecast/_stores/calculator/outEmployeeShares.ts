@@ -10,13 +10,15 @@ export function applyEmployeeSharesOut(
   forecast: ICashForecast,
   i: number
 ): void {
-  if (draftState.NetProfit[i].amount === 0) return;
 
   // don't reset this, it's reset from outside:  draftState.TaxesAndProfitSharing_ProfitSharing[i].amount = 0;
   forecast.employees.list.forEach(employee => {
     if (draftState.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing).has(employee.globalId)) {
       const detail = draftState.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing).get(employee.globalId)[i];
       detail.amount = 0;
+
+      if (draftState.NetProfit[i].amount <= 0) return;
+
       employee.additionalPay.list.forEach(ap => {
         if (ap.type.value === AdditionalEmployeeExpenseType.NetProfitShare) {
           detail.amount = roundCurrency(-1 * ap.amount.value * draftState.NetProfit[i].amount);

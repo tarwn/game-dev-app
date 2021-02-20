@@ -1,29 +1,33 @@
 import { writable } from 'svelte/store';
+import { log } from '../../../../../utilities/logger';
 import type { ICashForecast } from '../_types/cashForecast';
+import { calculate } from './calculator/calculator';
+import { getEmptyProjection, IProjectedCashFlowData } from './calculator/types';
 
 
 
 function createProjectedCashFlowStore() {
-  const { subscribe, set } = writable(null);
+  const { subscribe, set } = writable<IProjectedCashFlowData>(null);
+  let latestProjection = getEmptyProjection();
 
-  const update = (cashForecast: ICashForecast) => {
-    // do the heavy lifting
-    // call set
-    // return fetch(`/api/fe/games`)
-    //   .then(jsonOrThrow)
-    //   .then((data: any[]) => {
-    //     const games = data.map(d => ({
-    //       ...d,
-    //       lastModified: new Date(d.lastModified)
-    //     })) as Game[];
-    //     set(games);
-    //   });
+  const updateForecast = (forecast: ICashForecast) => {
+    if (forecast) {
+      latestProjection = calculate(forecast, latestProjection, forecast.forecastMonthCount.value);
+      log("forecastCalculated", {
+        elapsed: latestProjection.calculationTime,
+        date: latestProjection.lastCalculated
+      });
+    }
+    else {
+      latestProjection = getEmptyProjection();
+    }
+    set(latestProjection);
   };
 
   return {
     subscribe,
-    update
+    updateForecast
   };
 }
 
-export const gamesStore = createProjectedCashFlowStore();
+export const projectedCashFlowStore = createProjectedCashFlowStore();

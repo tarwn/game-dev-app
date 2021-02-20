@@ -1696,6 +1696,28 @@ describe("calculate", () => {
       expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[2].amount).toBeCloseTo(0);
     });
 
+    it("does not apply net profit share for funding when profit is negative", () => {
+      // const expectedMonthlyNetProfitShare = (0 - 2_000 - 3_000) * 0.25;
+      const initial = getEmptyProjection();
+      const forecast = setupForecastWithRevenue(0, 2_000, 3_000);
+      const funding = createFunding(forecast.funding, LoanType.OneTime, getUtcDate(2017, 5, 1), 0);
+      funding.repaymentTerms = createFundingRepaymentTerms(funding, FundingRepaymentType.NetProfitShare,
+        getUtcDate(2017, 5, 1), 0.25, 0);
+      forecast.funding.list.push(funding);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing)
+        .get(forecast.funding.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[0].amount).toBeCloseTo(0);
+      expect(detail[1].amount).toBeCloseTo(0 / 2);
+      expect(detail[2].amount).toBeCloseTo(0);
+      expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[0].amount).toBeCloseTo(0);
+      expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[1].amount).toBeCloseTo(0);
+      expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[2].amount).toBeCloseTo(0);
+    });
+
   });
 
   describe("employees - direct - outflow", () => {
@@ -3195,6 +3217,28 @@ describe("calculate", () => {
         initialProjection.TaxesAndProfitSharing[12].amount
       );
     });
+
+    it("does not apply taxes to negative profit", () => {
+      const forecast = setupForecastWithRevenue(0, 2_500.00, 3_500.00);
+      forecast.taxes.list.push(
+        createTax(forecast.taxes, NetIncomeCategory.NetProfitShare, 0.10, TaxSchedule.Annual, getUtcDate(2017, 5, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      // const expectedTaxAmount = -1 * ((0 - 2_500 - 3_500) * 12) * 0.10;
+      const detail = initialProjection.details.get(SubTotalType.TaxesAndProfitSharing_Taxes)
+        .get(forecast.taxes.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[11].amount).toBe(0);
+      expect(detail[12].amount).toBe(0);
+      expect(initialProjection.TaxesAndProfitSharing[12].amount).toBe(0);
+      expect(initialProjection.EndingCash[12].amount).toBe(
+        initialProjection.BeginningCash[12].amount +
+        initialProjection.NetProfit[12].amount +
+        initialProjection.TaxesAndProfitSharing[12].amount
+      );
+    });
   });
 
   describe("profit share - people", () => {
@@ -3283,6 +3327,36 @@ describe("calculate", () => {
         initialProjection.OtherCash[1].amount +
         initialProjection.TaxesAndProfitSharing[1].amount
       );
+    });
+
+    it("does not apply profit share from negative profits", () => {
+      const forecast = setupForecastWithRevenue(0.00, 2_500.00, 3_500.00);
+      const person = createEmployee(forecast.employees, ExpenseCategory.MarketingAndSales, getUtcDate(2015, 5, 1), getUtcDate(2020, 5, 1), 0, 0);
+      const shareAmount = 0.0125;
+      person.additionalPay.list.push(
+        createEmployeeAdditionalPay(person.additionalPay,
+          AdditionalEmployeeExpenseType.NetProfitShare,
+          // frequency doesn't apply to shares
+          AdditionalEmployeeExpenseFrequency.Launch,
+          shareAmount,
+          // date doesn't apply to shares
+          getUtcDate(2020, 5, 1)
+        )
+      );
+      forecast.employees.list.push(person);
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      //const expectedShareAmount = -1 * (0 - 2_500 - 3_500) * shareAmount;
+      const detail = initialProjection.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing)
+        .get(forecast.employees.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[0].amount).toBeCloseTo(0);
+      expect(detail[1].amount).toBeCloseTo(0);
+      expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[0].amount).toBe(0);
+      expect(initialProjection.TaxesAndProfitSharing_ProfitSharing[1].amount).toBe(0);
+      expect(initialProjection.TaxesAndProfitSharing[0].amount).toBe(0);
+      expect(initialProjection.TaxesAndProfitSharing[1].amount).toBe(0);
     });
   });
 });
