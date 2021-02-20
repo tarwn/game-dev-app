@@ -11,8 +11,7 @@ export function applyDirectEmployeesOut(
   forecast: ICashForecast,
   i: number,
   monthStart: Date,
-  monthEnd: Date,
-  launchDate: Date
+  monthEnd: Date
 ): void {
   draftState.GrossProfit_DirectEmployees[i].amount = 0;
   forecast.employees.list.forEach(employee => {

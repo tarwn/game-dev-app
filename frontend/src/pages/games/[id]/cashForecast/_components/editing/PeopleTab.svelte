@@ -9,10 +9,7 @@
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
   const forecastDate = cashForecast.forecastStartDate.value;
-  // TODO - add launch date into cashforecast and default on creation from game data
-  //  later can add an option to project to a different date and warn if diff from overall game launch date
-  const launchDate = new Date(forecastDate.getTime());
-  launchDate.setMonth(forecastDate.getMonth() + 12);
+  const launchDate = cashForecast.launchDate.value;
 </script>
 
 <style type="text/scss">

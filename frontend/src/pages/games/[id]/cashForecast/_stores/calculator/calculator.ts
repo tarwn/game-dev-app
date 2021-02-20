@@ -179,6 +179,18 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   draftState.BeginningCash_Balances = sizeSubTotal(draftState.BeginningCash_Balances, forecastMonthCount);
   appendForInit(SubTotalType.BeginningCash_Balances, [forecast.bankBalance.globalId]);
 
+  // loan in
+  draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);
+  appendForInit(SubTotalType.OtherCash_LoanIn, forecast.loans.list.map(loan => loan.globalId));
+
+  // loan out
+  draftState.OtherCash_LoanOut = sizeSubTotal(draftState.OtherCash_LoanOut, forecastMonthCount);
+  appendForInit(SubTotalType.OtherCash_LoanOut, forecast.loans.list.map(loan => loan.globalId));
+
+  // funding in
+  draftState.OtherCash_FundingIn = sizeSubTotal(draftState.OtherCash_FundingIn, forecastMonthCount);
+  appendForInit(SubTotalType.OtherCash_FundingIn, forecast.funding.list.map(funding => funding.globalId));
+
   // gross revenue sub-totals
   draftState.GrossRevenue_SalesRevenue = sizeSubTotal(draftState.GrossRevenue_SalesRevenue, forecastMonthCount);
   draftState.GrossRevenue_PlatformShares = sizeSubTotal(draftState.GrossRevenue_PlatformShares, forecastMonthCount);
@@ -218,17 +230,9 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
     forecast.employees.list.filter(e => e.category.value == ExpenseCategory.DirectExpenses).map(e => e.globalId)
   );
 
-  // loan in
-  draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_LoanIn, forecast.loans.list.map(loan => loan.globalId));
+  // net profit
 
-  // loan out
-  draftState.OtherCash_LoanOut = sizeSubTotal(draftState.OtherCash_LoanOut, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_LoanOut, forecast.loans.list.map(loan => loan.globalId));
-
-  // funding in
-  draftState.OtherCash_FundingIn = sizeSubTotal(draftState.OtherCash_FundingIn, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_FundingIn, forecast.funding.list.map(funding => funding.globalId));
+  // taxes + profit sharing
 
   // Ending Cash
   draftState.EndingCash = sizeSubTotal(draftState.EndingCash, forecastMonthCount);

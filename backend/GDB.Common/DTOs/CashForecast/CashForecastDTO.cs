@@ -7,6 +7,8 @@ namespace GDB.Common.DTOs.CashForecast
 {
     public class CashForecastDTO : IIdentifiedTopObject
     {
+        const int DEFAULT_FORECAST_TO_LAUNCH_INIT = 24; // months - add 1 + subtract 1 day so launch is at end of period
+
         [Obsolete("Serialization only", false)]
         public CashForecastDTO()
         {
@@ -23,11 +25,17 @@ namespace GDB.Common.DTOs.CashForecast
         /// </summary>
         public CashForecastDTO(string parentId, string globalId)
         {
+            var today = DateTime.Now;
+            var defaultForecastStartDate = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var defaultLaunchDate = defaultForecastStartDate.AddMonths(DEFAULT_FORECAST_TO_LAUNCH_INIT + 1).AddDays(-1);
+
             ParentId = parentId;
             GlobalId = globalId;
             VersionNumber = 1;
-            var today = DateTime.Now;
-            ForecastStartDate = new IdentifiedPrimitive<DateTime>("globalId", $"{ globalId }:fsd", new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc), "forecastStartDate");
+            ForecastStartDate = new IdentifiedPrimitive<DateTime>(globalId, $"{ globalId }:fsd", defaultForecastStartDate, "forecastStartDate");
+            LaunchDate = new IdentifiedPrimitive<DateTime>(globalId, $"{ globalId }:ld", defaultLaunchDate, "launchDate");
+            Stage = new IdentifiedPrimitive<ForecastStage>(globalId, $"{globalId}:fs", ForecastStage.RunwayToLaunch, "stage");
+            ForecastMonthCount = new IdentifiedPrimitive<int>(globalId, $"{globalId}:fmc", DEFAULT_FORECAST_TO_LAUNCH_INIT);
             BankBalance = new BankBalance(globalId, $"{globalId}:b", ForecastStartDate.Value);
             Loans = new IdentifiedList<LoanItem>(globalId, $"{globalId}:l", "loans");
             Funding = new IdentifiedList<Funding>(globalId, $"{globalId}:f", "funding");
@@ -43,6 +51,9 @@ namespace GDB.Common.DTOs.CashForecast
         public string? Field { get; set; }
         public int VersionNumber { get; set; }
         public IdentifiedPrimitive<DateTime> ForecastStartDate { get; set; }
+        public IdentifiedPrimitive<DateTime> LaunchDate { get; set; }
+        public IdentifiedPrimitive<ForecastStage> Stage { get; set; }
+        public IdentifiedPrimitive<int> ForecastMonthCount { get; set; }
         public BankBalance BankBalance { get; set; }
         public IdentifiedList<LoanItem> Loans { get; set; }
         public IdentifiedList<Funding> Funding { get; set; }

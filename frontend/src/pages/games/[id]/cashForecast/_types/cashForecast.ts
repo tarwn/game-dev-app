@@ -151,10 +151,24 @@ export const TaxSchedules: { id: TaxSchedule, name: string }[] = Object.keys(Tax
   .filter(lt => isNaN(Number(lt)))
   .map(lt => ({ id: TaxSchedule[lt], name: lt }));
 
+export enum ForecastStage {
+  RunwayToLaunch = 1,
+  LaunchPlus3Year = 2,
+  LongTerm = 3
+}
+
+export const ForecastStages: { id: ForecastStage, name: string }[] = [
+  { id: ForecastStage.RunwayToLaunch, name: "Runway to Launch" },
+  { id: ForecastStage.LaunchPlus3Year, name: "Launch plus 3 Years" },
+  { id: ForecastStage.LongTerm, name: "Long term sales" }
+];
+
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
   launchDate: IIdentifiedPrimitive<Date>;
+  stage: IIdentifiedPrimitive<ForecastStage>;
+  forecastMonthCount: IIdentifiedPrimitive<number>;
   bankBalance: IBankBalance;
   loans: IIdentifiedList<ILoanItem>;
   funding: IIdentifiedList<IFundingItem>;
