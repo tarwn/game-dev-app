@@ -137,3 +137,26 @@ export function applyPublisherShares(
     }
   });
 }
+
+export function applyFundingFinalProfitShares(
+  draftState: WritableDraft<IProjectedCashFlowData>,
+  forecast: ICashForecast,
+  i: number,
+  fundingOutflowCache: Map<string, number>
+): void {
+  // do not reset, this is reset externally - draftState.TaxesAndProfitSharing_Taxes[i].amount = 0;
+  // funding shares apply to all sales revenue sources (subtotal)
+  forecast.funding.list.forEach(funding => {
+    // quick/dirty check to see if shares can apply by checking if we created a collection for it
+    if (draftState.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing).has(funding.globalId)) {
+      const paidSoFar = fundingOutflowCache.get(funding.globalId) ?? 0;
+      const newOutflowAmount =
+        calculateFundingShareOutflow(FundingRepaymentType.GrossProfitShare, funding, draftState.GrossProfit[i].amount, paidSoFar) +
+        calculateFundingShareOutflow(FundingRepaymentType.NetProfitShare, funding, draftState.NetProfit[i].amount, paidSoFar);
+      const detail = draftState.details.get(SubTotalType.TaxesAndProfitSharing_ProfitSharing).get(funding.globalId)[i];
+      detail.amount = newOutflowAmount;
+      fundingOutflowCache.set(funding.globalId, paidSoFar - newOutflowAmount);  // newOutflowAmount is negative, outflow cache is positive
+      draftState.TaxesAndProfitSharing_ProfitSharing[i].amount += detail.amount;
+    }
+  });
+}

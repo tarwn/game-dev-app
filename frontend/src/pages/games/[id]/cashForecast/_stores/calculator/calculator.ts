@@ -2,14 +2,18 @@ import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { getUtcDate } from "../../../../../../utilities/date";
-import { ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
+import { AdditionalEmployeeExpenseType, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
 import { applyLoansIn } from "./inLoans";
 import { applySalesRevenue } from "./inRevenue";
-import { applyDirectEmployeesOut } from "./outEmployee";
+import { applyDirectContractorsOut, applyIndirectContractorsOut } from "./outContractors";
+import { applyDirectEmployeesOut, applyIndirectEmployeesOut } from "./outEmployee";
+import { applyEmployeeSharesOut } from "./outEmployeeShares";
+import { applyDirectExpensesOut, applyIndirectExpensesOut } from "./outExpenses";
 import { applyLoansOut } from "./outLoans";
-import { applyDistributionShares, applyPlatformShares, applyPublisherShares } from "./outRevenueShares";
+import { applyDistributionShares, applyFundingFinalProfitShares, applyPlatformShares, applyPublisherShares } from "./outRevenueShares";
+import { applyTaxesOut } from "./outTaxes";
 import type { ICashValue, IProjectedCashFlowData } from "./types";
 import { SubTotalType } from "./types";
 
@@ -88,9 +92,9 @@ export function calculate(
       // people.employees
       applyDirectEmployeesOut(draftState, forecast, i, monthStart, monthEnd);
       // people.contractors
-      draftState.GrossProfit_DirectContractors[i] = { amount: 0 };
+      applyDirectContractorsOut(draftState, forecast, i, monthStart, monthEnd);
       // expenses
-      draftState.GrossProfit_DirectExpenses[i] = { amount: 0 };
+      applyDirectExpensesOut(draftState, forecast, i, monthStart, monthEnd);
       // subtotal
       draftState.GrossProfit[i] = {
         amount: draftState.GrossRevenue[i].amount +
@@ -101,11 +105,11 @@ export function calculate(
 
       // - net profit
       // people.employees
-      draftState.NetProfit_IndirectEmployees[i] = { amount: 0 };
+      applyIndirectEmployeesOut(draftState, forecast, i, monthStart, monthEnd);
       // people.contractors
-      draftState.NetProfit_IndirectContractors[i] = { amount: 0 };
+      applyIndirectContractorsOut(draftState, forecast, i, monthStart, monthEnd);
       // expenses
-      draftState.NetProfit_IndirectExpenses[i] = { amount: 0 };
+      applyIndirectExpensesOut(draftState, forecast, i, monthStart, monthEnd);
       // subtotal
       draftState.NetProfit[i] = {
         amount: draftState.GrossProfit[i].amount +
@@ -116,9 +120,11 @@ export function calculate(
 
       // - taxes + profit sharing
       // taxes
-      draftState.TaxesAndProfitSharing_Taxes[i] = { amount: 0 };
-      // people.employees
-      draftState.TaxesAndProfitSharing_ProfitSharing[i] = { amount: 0 };
+      applyTaxesOut(draftState, forecast, i, monthStart);
+      // profit sharing: people.employees + funding net/gross profit shares
+      draftState.TaxesAndProfitSharing_ProfitSharing[i].amount = 0;
+      applyFundingFinalProfitShares(draftState, forecast, i, fundingPayOuts);
+      applyEmployeeSharesOut(draftState, forecast, i);
       // subtotal
       draftState.TaxesAndProfitSharing[i] = {
         amount: draftState.TaxesAndProfitSharing_Taxes[i].amount +
@@ -129,7 +135,8 @@ export function calculate(
       draftState.EndingCash[i] = {
         amount: draftState.BeginningCash[i].amount +
           draftState.OtherCash[i].amount +
-          draftState.NetProfit[i].amount
+          draftState.NetProfit[i].amount +
+          draftState.TaxesAndProfitSharing[i].amount
       };
     }
 
@@ -158,81 +165,114 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
     // [SubTotalType.GrossRevenue_RevenueAfterPublisher, new Array<string>()],
     // [SubTotalType.GrossRevenue, new Array<string>()],
     [SubTotalType.GrossProfit_DirectEmployees, new Array<string>()],
-    // [SubTotalType.GrossProfit_DirectContractors, new Array<string>()],
-    // [SubTotalType.GrossProfit_DirectExpenses, new Array<string>()],
+    [SubTotalType.GrossProfit_DirectContractors, new Array<string>()],
+    [SubTotalType.GrossProfit_DirectExpenses, new Array<string>()],
     // [SubTotalType.GrossProfit, new Array<string>()],
-    // [SubTotalType.NetProfit_IndirectEmployees, new Array<string>()],
-    // [SubTotalType.NetProfit_IndirectContractors, new Array<string>()],
-    // [SubTotalType.NetProfit_IndirectExpenses, new Array<string>()],
+    [SubTotalType.NetProfit_IndirectEmployees, new Array<string>()],
+    [SubTotalType.NetProfit_IndirectContractors, new Array<string>()],
+    [SubTotalType.NetProfit_IndirectExpenses, new Array<string>()],
     // [SubTotalType.NetProfit, new Array<string>()],
-    // [SubTotalType.TaxesAndProfitSharing_Taxes, new Array<string>()],
-    // [SubTotalType.TaxesAndProfitSharing_ProfitSharing, new Array<string>()],
+    [SubTotalType.TaxesAndProfitSharing_Taxes, new Array<string>()],
+    [SubTotalType.TaxesAndProfitSharing_ProfitSharing, new Array<string>()],
     // [SubTotalType.TaxesAndProfitSharing, new Array<string>()],
     // [SubTotalType.EndingCash, new Array<string>()],
   ]);
-  function appendForInit(type: SubTotalType, ids: string[]) {
+  function initDetails(type: SubTotalType, ids: string[]) {
     subTotalDetailIds.set(type, subTotalDetailIds.get(type).concat(ids));
   }
 
   // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);
   draftState.BeginningCash_Balances = sizeSubTotal(draftState.BeginningCash_Balances, forecastMonthCount);
-  appendForInit(SubTotalType.BeginningCash_Balances, [forecast.bankBalance.globalId]);
+  initDetails(SubTotalType.BeginningCash_Balances, [forecast.bankBalance.globalId]);
 
   // loan in
   draftState.OtherCash_LoanIn = sizeSubTotal(draftState.OtherCash_LoanIn, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_LoanIn, forecast.loans.list.map(loan => loan.globalId));
+  initDetails(SubTotalType.OtherCash_LoanIn, forecast.loans.list.map(loan => loan.globalId));
 
   // loan out
   draftState.OtherCash_LoanOut = sizeSubTotal(draftState.OtherCash_LoanOut, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_LoanOut, forecast.loans.list.map(loan => loan.globalId));
+  initDetails(SubTotalType.OtherCash_LoanOut, forecast.loans.list.map(loan => loan.globalId));
 
   // funding in
   draftState.OtherCash_FundingIn = sizeSubTotal(draftState.OtherCash_FundingIn, forecastMonthCount);
-  appendForInit(SubTotalType.OtherCash_FundingIn, forecast.funding.list.map(funding => funding.globalId));
+  initDetails(SubTotalType.OtherCash_FundingIn, forecast.funding.list.map(funding => funding.globalId));
 
-  // gross revenue sub-totals
+  // gross revenue
   draftState.GrossRevenue_SalesRevenue = sizeSubTotal(draftState.GrossRevenue_SalesRevenue, forecastMonthCount);
+  initDetails(SubTotalType.GrossRevenue_SalesRevenue, forecast.revenues.list.map(rev => rev.globalId));
   draftState.GrossRevenue_PlatformShares = sizeSubTotal(draftState.GrossRevenue_PlatformShares, forecastMonthCount);
-  draftState.GrossRevenue_RevenueAfterPlatform = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPlatform, forecastMonthCount);
-  draftState.GrossRevenue_DistributionShares = sizeSubTotal(draftState.GrossRevenue_DistributionShares, forecastMonthCount);
-  draftState.GrossRevenue_RevenueAfterDistribution = sizeSubTotal(draftState.GrossRevenue_RevenueAfterDistribution, forecastMonthCount);
-  draftState.GrossRevenue_PublisherShares = sizeSubTotal(draftState.GrossRevenue_PublisherShares, forecastMonthCount);
-  draftState.GrossRevenue_RevenueAfterPublisher = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPublisher, forecastMonthCount);
-  draftState.GrossRevenue = sizeSubTotal(draftState.GrossRevenue, forecastMonthCount);
-  // gross revenue details
-  //  SalesRevenue
-  appendForInit(SubTotalType.GrossRevenue_SalesRevenue, forecast.revenues.list.map(rev => rev.globalId));
-  appendForInit(SubTotalType.GrossRevenue_PlatformShares, forecast.revenues.list.map(rev => rev.globalId));
-  appendForInit(SubTotalType.GrossRevenue_PlatformShares,
+  initDetails(SubTotalType.GrossRevenue_PlatformShares, forecast.revenues.list.map(rev => rev.globalId));
+  initDetails(SubTotalType.GrossRevenue_PlatformShares,
     forecast.funding.list
       .filter(f => f.repaymentTerms?.cashOut.list.some(co => co.type.value === FundingRepaymentType.GrossRevenueAfterSales))
       .map(funding => funding.globalId)
   );
-  appendForInit(SubTotalType.GrossRevenue_DistributionShares, forecast.revenues.list.map(rev => rev.globalId));
-  appendForInit(SubTotalType.GrossRevenue_DistributionShares,
+  draftState.GrossRevenue_RevenueAfterPlatform = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPlatform, forecastMonthCount);
+  draftState.GrossRevenue_DistributionShares = sizeSubTotal(draftState.GrossRevenue_DistributionShares, forecastMonthCount);
+  initDetails(SubTotalType.GrossRevenue_DistributionShares, forecast.revenues.list.map(rev => rev.globalId));
+  initDetails(SubTotalType.GrossRevenue_DistributionShares,
     forecast.funding.list
       .filter(f => f.repaymentTerms?.cashOut.list.some(co => co.type.value === FundingRepaymentType.GrossRevenueAfterPlatform))
       .map(funding => funding.globalId)
   );
-  appendForInit(SubTotalType.GrossRevenue_PublisherShares,
+  draftState.GrossRevenue_RevenueAfterDistribution = sizeSubTotal(draftState.GrossRevenue_RevenueAfterDistribution, forecastMonthCount);
+  draftState.GrossRevenue_PublisherShares = sizeSubTotal(draftState.GrossRevenue_PublisherShares, forecastMonthCount);
+  initDetails(SubTotalType.GrossRevenue_PublisherShares,
     forecast.funding.list
       .filter(f => f.repaymentTerms?.cashOut.list.some(co => co.type.value === FundingRepaymentType.GrossRevenueAfterDistributor))
       .map(funding => funding.globalId)
   );
+  draftState.GrossRevenue_RevenueAfterPublisher = sizeSubTotal(draftState.GrossRevenue_RevenueAfterPublisher, forecastMonthCount);
+  draftState.GrossRevenue = sizeSubTotal(draftState.GrossRevenue, forecastMonthCount);
 
   // gross profit
   draftState.GrossProfit_DirectEmployees = sizeSubTotal(draftState.GrossProfit_DirectEmployees, forecastMonthCount);
-  draftState.GrossProfit_DirectContractors = sizeSubTotal(draftState.GrossProfit_DirectContractors, forecastMonthCount);
-  draftState.GrossProfit_DirectExpenses = sizeSubTotal(draftState.GrossProfit_DirectExpenses, forecastMonthCount);
-  // gross profit details
-  appendForInit(SubTotalType.GrossProfit_DirectEmployees,
+  initDetails(SubTotalType.GrossProfit_DirectEmployees,
     forecast.employees.list.filter(e => e.category.value == ExpenseCategory.DirectExpenses).map(e => e.globalId)
+  );
+  draftState.GrossProfit_DirectContractors = sizeSubTotal(draftState.GrossProfit_DirectContractors, forecastMonthCount);
+  initDetails(SubTotalType.GrossProfit_DirectContractors,
+    forecast.contractors.list.filter(c => c.category.value == ExpenseCategory.DirectExpenses).map(c => c.globalId)
+  );
+  draftState.GrossProfit_DirectExpenses = sizeSubTotal(draftState.GrossProfit_DirectExpenses, forecastMonthCount);
+  initDetails(SubTotalType.GrossProfit_DirectExpenses,
+    forecast.expenses.list.filter(e => e.category.value == ExpenseCategory.DirectExpenses).map(e => e.globalId)
   );
 
   // net profit
+  draftState.NetProfit_IndirectEmployees = sizeSubTotal(draftState.NetProfit_IndirectEmployees, forecastMonthCount);
+  initDetails(SubTotalType.NetProfit_IndirectEmployees,
+    forecast.employees.list.filter(e => e.category.value !== ExpenseCategory.DirectExpenses).map(e => e.globalId)
+  );
+  draftState.NetProfit_IndirectContractors = sizeSubTotal(draftState.NetProfit_IndirectContractors, forecastMonthCount);
+  initDetails(SubTotalType.NetProfit_IndirectContractors,
+    forecast.contractors.list.filter(c => c.category.value !== ExpenseCategory.DirectExpenses).map(c => c.globalId)
+  );
+  draftState.NetProfit_IndirectExpenses = sizeSubTotal(draftState.NetProfit_IndirectExpenses, forecastMonthCount);
+  initDetails(SubTotalType.NetProfit_IndirectExpenses,
+    forecast.expenses.list.filter(e => e.category.value !== ExpenseCategory.DirectExpenses).map(e => e.globalId)
+  );
 
   // taxes + profit sharing
+  draftState.TaxesAndProfitSharing = sizeSubTotal(draftState.TaxesAndProfitSharing, forecastMonthCount);
+  draftState.TaxesAndProfitSharing_Taxes = sizeSubTotal(draftState.TaxesAndProfitSharing, forecastMonthCount);
+  initDetails(SubTotalType.TaxesAndProfitSharing_Taxes,
+    forecast.taxes.list.map(t => t.globalId)
+  );
+  draftState.TaxesAndProfitSharing_ProfitSharing = sizeSubTotal(draftState.TaxesAndProfitSharing_ProfitSharing, forecastMonthCount);
+  initDetails(SubTotalType.TaxesAndProfitSharing_ProfitSharing,
+    forecast.funding.list
+      .filter(f => f.repaymentTerms?.cashOut.list.some(co =>
+        co.type.value === FundingRepaymentType.GrossProfitShare ||
+        co.type.value === FundingRepaymentType.NetProfitShare)
+      ).map(funding => funding.globalId)
+  );
+  initDetails(SubTotalType.TaxesAndProfitSharing_ProfitSharing,
+    forecast.employees.list
+      .filter(e => e.additionalPay.list.some(ap => ap.type.value === AdditionalEmployeeExpenseType.NetProfitShare))
+      .map(e => e.globalId)
+  );
 
   // Ending Cash
   draftState.EndingCash = sizeSubTotal(draftState.EndingCash, forecastMonthCount);

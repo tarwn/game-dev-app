@@ -2,7 +2,7 @@ import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
 import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ICashForecast } from "../../_types/cashForecast";
 import { ExpenseCategory } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { ICashValue, IProjectedCashFlowData, SubTotalType } from "./types";
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -13,10 +13,41 @@ export function applyDirectEmployeesOut(
   monthStart: Date,
   monthEnd: Date
 ): void {
-  draftState.GrossProfit_DirectEmployees[i].amount = 0;
+  applyEmployeesOut(forecast, i, monthStart, monthEnd,
+    draftState.GrossProfit_DirectEmployees,
+    draftState.details.get(SubTotalType.GrossProfit_DirectEmployees),
+    (category) => category === ExpenseCategory.DirectExpenses
+  );
+}
+
+export function applyIndirectEmployeesOut(
+  draftState: WritableDraft<IProjectedCashFlowData>,
+  forecast: ICashForecast,
+  i: number,
+  monthStart: Date,
+  monthEnd: Date
+): void {
+  applyEmployeesOut(forecast, i, monthStart, monthEnd,
+    draftState.NetProfit_IndirectEmployees,
+    draftState.details.get(SubTotalType.NetProfit_IndirectEmployees),
+    (category) => category !== ExpenseCategory.DirectExpenses
+  );
+}
+
+
+function applyEmployeesOut(
+  forecast: ICashForecast,
+  i: number,
+  monthStart: Date,
+  monthEnd: Date,
+  subTotalGroup: WritableDraft<ICashValue>[],
+  subTotalDetails: Map<string, WritableDraft<ICashValue>[]>,
+  isRelevant: (category: ExpenseCategory) => boolean
+): void {
+  subTotalGroup[i].amount = 0;
   forecast.employees.list.forEach(employee => {
-    if (employee.category.value === ExpenseCategory.DirectExpenses) {
-      const detail = draftState.details.get(SubTotalType.GrossProfit_DirectEmployees).get(employee.globalId)[i];
+    if (isRelevant(employee.category.value)) {
+      const detail = subTotalDetails.get(employee.globalId)[i];
 
       if (employee.startDate.value < monthEnd && employee.endDate.value >= monthStart) {
         const proRate = getProRate(monthStart, monthEnd, employee.startDate.value, employee.endDate.value);
@@ -53,7 +84,7 @@ export function applyDirectEmployeesOut(
         });
       }
 
-      draftState.GrossProfit_DirectEmployees[i].amount += detail.amount;
+      subTotalGroup[i].amount += detail.amount;
     }
   });
 }
