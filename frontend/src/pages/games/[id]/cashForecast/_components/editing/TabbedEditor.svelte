@@ -138,6 +138,9 @@
     box-shadow: $shadow-main;
     padding: $space-m $space-l;
     z-index: 2; // above shadow tabs, below actual tabs
+
+    // super hacky constraint for the CF table width
+    max-width: calc(100vw - 28.1rem);
   }
 
   .gdb-input-date {

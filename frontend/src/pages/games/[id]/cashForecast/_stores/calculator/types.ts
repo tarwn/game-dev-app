@@ -3,6 +3,7 @@ export interface IProjectedCashFlowData {
   calculationTime: number;
   // strongly typed version
   BeginningCash_Balances: Array<ICashValue>;
+  BeginningCash_YesterdayEnding: Array<ICashValue>;
   BeginningCash: Array<ICashValue>;
   OtherCash_LoanIn: Array<ICashValue>;
   OtherCash_LoanOut: Array<ICashValue>;
@@ -34,6 +35,7 @@ export interface IProjectedCashFlowData {
 
 export enum SubTotalType {
   BeginningCash_Balances,
+  BeginningCash_YesterdayEnding,
   BeginningCash,
   OtherCash_LoanIn,
   OtherCash_LoanOut,
@@ -71,6 +73,7 @@ export function getEmptyProjection(): IProjectedCashFlowData {
     lastCalculated: new Date(),
     calculationTime: -1,
     BeginningCash_Balances: new Array<ICashValue>(),
+    BeginningCash_YesterdayEnding: new Array<ICashValue>(),
     BeginningCash: new Array<ICashValue>(),
     OtherCash_LoanIn: new Array<ICashValue>(),
     OtherCash_LoanOut: new Array<ICashValue>(),

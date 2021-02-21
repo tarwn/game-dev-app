@@ -89,6 +89,7 @@
   });
   const unsubscribe3 = projectedCashFlowStore.subscribe((update) => {
     projectedCashForecast = update;
+    log("projectionUpdate", { projectedCashForecast });
   });
 
   onDestroy(() => {

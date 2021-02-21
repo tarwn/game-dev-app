@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 import { produce } from "immer";
-import { createIdentifiedPrimitive, createObjectList } from "../../../../testUtils/dataModel";
 import { getUtcDate } from "../../../../utilities/date";
 import { createImmutableAutomaticEventApplier, search } from "../eventApplier";
 import { createAutomaticEventFactory, opsFactory } from "../eventFactory";
 import { createEventStore } from "../eventStore";
+import { createIdentifiedPrimitive, createObjectList } from "../helpers";
 import {
   IEventApplier,
   IEventStateApi,

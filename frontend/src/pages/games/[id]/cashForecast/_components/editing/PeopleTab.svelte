@@ -10,10 +10,6 @@
   const publish = cashForecastEventStore.addEvent;
   const forecastDate = cashForecast.forecastStartDate.value;
   const launchDate = cashForecast.launchDate.value;
-
-  console.log({
-    cashForecast,
-  });
 </script>
 
 <style type="text/scss">

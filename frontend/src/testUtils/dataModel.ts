@@ -22,6 +22,10 @@ import type {
   IRevenue,
   ITax
 } from "../pages/games/[id]/cashForecast/_types/cashForecast";
+import {
+  ForecastStage,
+} from "../pages/games/[id]/cashForecast/_types/cashForecast";
+import { createIdentifiedPrimitive, createObjectList } from "../pages/_stores/eventStore/helpers";
 
 export function createEmptyBusinessModel(): IBusinessModel {
   return {
@@ -41,14 +45,6 @@ export function createEmptyBusinessModel(): IBusinessModel {
   };
 }
 
-export function createObjectList<T extends Identified>(parentId: string, globalId: string, field?: string): IIdentifiedList<T> {
-  return {
-    globalId,
-    parentId,
-    field,
-    list: []
-  };
-}
 
 export function createBusinessModelCustomer(businessModel: IBusinessModel): IBusinessModelCustomer {
   const globalId = businessModel.customers.globalId + "[" + businessModel.customers.list.length + "]";
@@ -98,15 +94,6 @@ export function createWithEntriesOnly<T extends IdentifiedHasEntries>(parentId: 
   } as T;
 }
 
-export function createIdentifiedPrimitive<T>(parentId: string, globalId: string, value: T, field?: string): IIdentifiedPrimitive<T> {
-  return {
-    parentId,
-    globalId,
-    value,
-    field
-  };
-}
-
 export function createEmptyCashForecast(): ICashForecast {
   return {
     globalId: "unit-test-cf",
@@ -114,6 +101,8 @@ export function createEmptyCashForecast(): ICashForecast {
     versionNumber: 1,
     forecastStartDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-fsd", new Date(), "date"),
     launchDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-ld", new Date(), "date"),
+    stage: createIdentifiedPrimitive<ForecastStage>("unit-test-cf", "unit-test-cf-s", ForecastStage.RunwayToLaunch, "stage"),
+    forecastMonthCount: createIdentifiedPrimitive<number>("unit-test-cf", "unit-test-cf-fmc", 12),
     bankBalance: {
       globalId: "unit-test-cf-bb",
       parentId: "unit-test-cf",

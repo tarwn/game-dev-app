@@ -1,6 +1,6 @@
-import { init } from "svelte/internal";
-import { createEmptyCashForecast, createIdentifiedPrimitive, createObjectList } from "../../../../../../../testUtils/dataModel";
+import { createEmptyCashForecast } from "../../../../../../../testUtils/dataModel";
 import { getUtcDate } from "../../../../../../../utilities/date";
+import { createIdentifiedPrimitive, createObjectList } from "../../../../../../_stores/eventStore/helpers";
 import type { IIdentifiedList } from "../../../../../../_stores/eventStore/types";
 import {
   AdditionalEmployeeExpenseFrequency,
@@ -56,20 +56,31 @@ describe("calculate", () => {
   });
 
   describe("bank balance", () => {
-    it("incorporates starting bank balance on correct date", () => {
-      const initial = getEmptyProjection();
+    const initial = getEmptyProjection();
+    const getForecast = (balanceDate: Date, amount: number) => {
       const forecast = createEmptyCashForecast();
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
-      forecast.bankBalance.date.value = getUtcDate(2017, 5, 1);
-      forecast.bankBalance.amount.value = 1234.56;
+      forecast.bankBalance.date.value = balanceDate;
+      forecast.bankBalance.amount.value = amount;
+      return forecast;
+    };
+
+    it("incorporates starting bank balance on correct date", () => {
+      const forecast = getForecast(getUtcDate(2017, 5, 1), 1234.56);
 
       const newProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
 
-      // bank balance injection subtotal
+      // details
+      const detail = newProjection.details.get(SubTotalType.BeginningCash_Balances)
+        .get(forecast.bankBalance.globalId);
+      expect(detail.length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(1234.56);
+      expect(detail[25].amount).toBe(0);
+      // beginning balances subtotal
       const bankBalance = newProjection.BeginningCash_Balances;
       expect(bankBalance).not.toBeUndefined();
       expect(bankBalance.length).toBe(FIVE_YEARS_OF_ENTRIES);
-      expect(bankBalance[0].amount).toBe(0);
       expect(bankBalance[23].amount).toBe(0);
       expect(bankBalance[24].amount).toBe(1234.56);
       expect(bankBalance[25].amount).toBe(0);
@@ -77,7 +88,6 @@ describe("calculate", () => {
       const subtotal = newProjection.BeginningCash;
       expect(subtotal).not.toBeUndefined();
       expect(subtotal.length).toBe(FIVE_YEARS_OF_ENTRIES);
-      expect(subtotal[0].amount).toBe(0);
       expect(subtotal[23].amount).toBe(0);
       expect(subtotal[24].amount).toBe(1234.56);
       // end balance has to be working from here
@@ -91,7 +101,6 @@ describe("calculate", () => {
     });
 
     it("updating bank balance 2nd time propagates without altering initial immutable projection", () => {
-      const initial = getEmptyProjection();
       const forecast = createEmptyCashForecast();
       // first pass
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
@@ -131,7 +140,6 @@ describe("calculate", () => {
     });
 
     it("increasing length of forecast expands length of projection", () => {
-      const initial = getEmptyProjection();
       const forecast = createEmptyCashForecast();
       // first pass
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);

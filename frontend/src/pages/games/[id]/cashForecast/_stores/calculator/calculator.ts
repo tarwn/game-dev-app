@@ -48,6 +48,14 @@ export function calculate(
       // - Beginning Cash
       // bank balance
       applyBankBalance(draftState, forecast, i, monthStart, monthEnd);
+      draftState.BeginningCash_YesterdayEnding[i].amount = (
+        i === 0
+          ? 0
+          : draftState.EndingCash[i - 1].amount
+      );
+      draftState.BeginningCash[i].amount =
+        draftState.BeginningCash_Balances[i].amount +
+        draftState.BeginningCash_YesterdayEnding[i].amount;
 
       // - cash
       // loans - in + out
@@ -150,6 +158,7 @@ export function calculate(
 
 function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, forecastMonthCount: number) {
   const subTotalDetailIds = new Map<SubTotalType, string[]>([
+    // [SubTotalType.BeginningCash_YesterdayEnding, new Array<string>()],
     [SubTotalType.BeginningCash_Balances, new Array<string>()],
     // [SubTotalType.BeginningCash, new Array<string>()],
     [SubTotalType.OtherCash_LoanIn, new Array<string>()],
@@ -184,6 +193,7 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);
   draftState.BeginningCash_Balances = sizeSubTotal(draftState.BeginningCash_Balances, forecastMonthCount);
+  draftState.BeginningCash_YesterdayEnding = sizeSubTotal(draftState.BeginningCash_YesterdayEnding, forecastMonthCount);
   initDetails(SubTotalType.BeginningCash_Balances, [forecast.bankBalance.globalId]);
 
   // loan in
