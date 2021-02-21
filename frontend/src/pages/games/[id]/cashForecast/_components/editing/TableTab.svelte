@@ -5,9 +5,9 @@
   import { SubTotalType } from "../../_stores/calculator/types";
   import type { IProjectedCashFlowData } from "../../_stores/calculator/types";
   import type { ICashForecast } from "../../_types/cashForecast";
-  import ProjectionGroupRow from "./tableTab/ProjectionGroupRow.svelte";
-  import ProjectionChildSubTotalRow from "./tableTab/ProjectionChildSubTotalRow.svelte";
-  import ProjectionChildDetailRows from "./tableTab/ProjectionChildDetailRows.svelte";
+  import GroupRow from "./tableTab/GroupRow.svelte";
+  import ChildSubTotalRow from "./tableTab/ChildSubTotalRow.svelte";
+  import ChildDetailRows from "./tableTab/ChildDetailRows.svelte";
 
   export let cashForecast: ICashForecast;
   export let projection: IProjectedCashFlowData;
@@ -91,7 +91,7 @@
   }
   // add in right border for the sticky column to offset missing left column when scrolling
   .gdb-cf-summaryTable :global(th.isSticky) {
-    // fix-ish missing borders on cells (causes issues w/ top border fixed specifically in ProjectionGroupRow)
+    // fix-ish missing borders on cells (causes issues w/ top border fixed specifically in GroupRow)
     background-clip: padding-box;
     // replace disappearing borders
     &:before {
@@ -123,41 +123,120 @@
         {/each}
       </tr>
     </thead>
-    <ProjectionGroupRow
-      {projection}
-      {dates}
-      label="Beginning Cash"
-      subTotalGroup="BeginningCash"
-      isBeginning={true}
-      canExpand={true}
-      startExpanded={false}>
-      <ProjectionChildSubTotalRow
+    <tbody>
+      <GroupRow
         {projection}
         {dates}
-        label="Prev. End Balance"
-        subTotalGroup="BeginningCash_YesterdayEnding"
-        isBeginning={true} />
-      <ProjectionChildDetailRows
-        {projection}
-        {dates}
-        subTotalGroup={SubTotalType.BeginningCash_Balances}
-        isBeginning={true} />
-    </ProjectionGroupRow>
-    <ProjectionGroupRow {projection} {dates} label="Other Cash" subTotalGroup="OtherCash">
-      <ProjectionChildDetailRows {projection} {dates} suffix="(in)" subTotalGroup={SubTotalType.OtherCash_LoanIn} />
-      <ProjectionChildDetailRows {projection} {dates} suffix="(out)" subTotalGroup={SubTotalType.OtherCash_LoanOut} />
-      <ProjectionChildDetailRows {projection} {dates} suffix="(in)" subTotalGroup={SubTotalType.OtherCash_FundingIn} />
-    </ProjectionGroupRow>
-    <ProjectionGroupRow {projection} {dates} label="Gross Revenue" subTotalGroup="GrossRevenue" />
-    <ProjectionGroupRow {projection} {dates} label="Gross Profit" subTotalGroup="GrossProfit" />
-    <ProjectionGroupRow {projection} {dates} label="Net Profit" subTotalGroup="NetProfit" />
-    <ProjectionGroupRow {projection} {dates} label="Tax & Profit Share" subTotalGroup="TaxesAndProfitSharing" />
-    <ProjectionGroupRow
-      {projection}
-      {dates}
-      label="Ending Cash"
-      subTotalGroup="EndingCash"
-      isTotal={true}
-      canExpand={false} />
+        label="Beginning Cash"
+        group="BeginningCash"
+        isBeginning={true}
+        canExpand={true}
+        startExpanded={false}>
+        <ChildSubTotalRow
+          {projection}
+          {dates}
+          label="Prev. End Balance"
+          group="BeginningCash_YesterdayEnding"
+          isBeginning={true} />
+        <ChildDetailRows {projection} {dates} group={SubTotalType.BeginningCash_Balances} isBeginning={true} />
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Other Cash" group="OtherCash">
+        <GroupRow {projection} {dates} label="Loans" group="OtherCash_LoanIn">
+          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_LoanIn} />
+          <ChildDetailRows
+            {projection}
+            {dates}
+            suffix="(out)"
+            group={SubTotalType.OtherCash_LoanOut}
+            isPositive={false} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Funding" group="OtherCash_FundingIn">
+          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_FundingIn} />
+        </GroupRow>
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Gross Revenue" group="GrossRevenue">
+        <GroupRow {projection} {dates} label="Sales Revenue" group="GrossRevenue_SalesRevenue">
+          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossRevenue_SalesRevenue} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Platform Rev. Share" group="GrossRevenue_PlatformShares">
+          <ChildDetailRows
+            {projection}
+            {dates}
+            suffix="(platform %)"
+            group={SubTotalType.GrossRevenue_PlatformShares} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Dist. Rev. Shares" group="GrossRevenue_DistributionShares">
+          <ChildDetailRows
+            {projection}
+            {dates}
+            suffix="(dist. %)"
+            group={SubTotalType.GrossRevenue_DistributionShares} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Publisher Rev. Shares" group="GrossRevenue_PublisherShares">
+          <ChildDetailRows {projection} {dates} suffix="(pub. %)" group={SubTotalType.GrossRevenue_PublisherShares} />
+        </GroupRow>
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Gross Profit" group="GrossProfit">
+        <GroupRow {projection} {dates} label="Direct Employees" group="GrossProfit_DirectEmployees" isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectEmployees} isPositive={false} />
+        </GroupRow>
+        <GroupRow
+          {projection}
+          {dates}
+          label="Direct Contractors"
+          group="GrossProfit_DirectContractors"
+          isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectContractors} isPositive={false} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Direct Expenses" group="GrossProfit_DirectExpenses" isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectExpenses} isPositive={false} />
+        </GroupRow>
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Net Profit" group="NetProfit">
+        <GroupRow
+          {projection}
+          {dates}
+          label="Indirect Employees"
+          group="NetProfit_IndirectEmployees"
+          isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectEmployees} isPositive={false} />
+        </GroupRow>
+        <GroupRow
+          {projection}
+          {dates}
+          label="Indirect Contractors"
+          group="NetProfit_IndirectContractors"
+          isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectContractors} isPositive={false} />
+        </GroupRow>
+        <GroupRow {projection} {dates} label="Indirect Expenses" group="NetProfit_IndirectExpenses" isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectExpenses} isPositive={false} />
+        </GroupRow>
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Tax & Profit Share" group="TaxesAndProfitSharing">
+        <GroupRow {projection} {dates} label="Taxes" group="TaxesAndProfitSharing_Taxes" isPositive={false}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.TaxesAndProfitSharing_Taxes} isPositive={false} />
+        </GroupRow>
+        <GroupRow
+          {projection}
+          {dates}
+          label="Profit Sharing"
+          group="TaxesAndProfitSharing_ProfitSharing"
+          isPositive={false}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.TaxesAndProfitSharing_ProfitSharing}
+            isPositive={false} />
+        </GroupRow>
+      </GroupRow>
+
+      <GroupRow {projection} {dates} label="Ending Cash" group="EndingCash" isTotal={true} canExpand={false} />
+    </tbody>
   </table>
 </div>

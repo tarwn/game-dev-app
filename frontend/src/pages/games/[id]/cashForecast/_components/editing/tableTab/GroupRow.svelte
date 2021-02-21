@@ -2,10 +2,10 @@
   import type { IProjectedCashFlowData, SubTotalType } from "../../../_stores/calculator/types";
 
   export let projection: IProjectedCashFlowData;
-  export let subTotalGroup: string;
+  export let group: string;
   export let label: string;
   export let dates: Array<{ i: number } & any>;
-  export let isExpectedToBePositive: boolean = true;
+  export let isPositive: boolean = true;
   export let isBeginning: boolean = false;
   export let isTotal: boolean = false;
   export let canExpand: boolean = true;
@@ -134,56 +134,54 @@
   }
 </style>
 
-<tbody>
-  <tr class:isBeginning class:isTotal class:isAlsoFirst={isBeginning}>
-    {#if canExpand}
-      <th class="isSticky">
-        <button class="gdb-button-text" class:isToggledOpen on:click={() => (isToggledOpen = !isToggledOpen)}
-          >{label}</button>
-      </th>
-    {:else}
-      <th class="isIndented isStillBold isSticky">
-        {label}
-      </th>
-    {/if}
-    {#if canExpand && isToggledOpen}
-      {#each dates as date}
-        <td class:isNegativeShaded={isNegativeShaded(date.i)} />
-      {/each}
-    {:else}
-      {#each dates as date (date.i)}
-        <td
-          class="gdb-cf-currency isSubTotalValue"
-          class:isNegativeValue={!isTotal && isExpectedToBePositive && projection[subTotalGroup][date.i].amount < 0}
-          class:isNegativeShaded={isNegativeShaded(date.i)}
-          class:isPositiveShaded={isTotal && !isNegativeShaded(date.i)}>
-          {formatUSD(projection[subTotalGroup][date.i].amount)}
-        </td>
-      {/each}
-    {/if}
-  </tr>
+<tr class:isBeginning class:isTotal class:isAlsoFirst={isBeginning}>
+  {#if canExpand}
+    <th class="isSticky">
+      <button class="gdb-button-text" class:isToggledOpen on:click={() => (isToggledOpen = !isToggledOpen)}
+        >{label}</button>
+    </th>
+  {:else}
+    <th class="isIndented isStillBold isSticky">
+      {label}
+    </th>
+  {/if}
   {#if canExpand && isToggledOpen}
-    <slot />
-    <tr class:isBeginning>
-      <th class="isIndented isSticky">
-        Total {label}
-      </th>
-      {#each dates as date (date.i)}
-        <td
-          class="gdb-cf-currency isSubTotalValue"
-          class:isNegativeShaded={isNegativeShaded(date.i)}
-          class:isNegativeValue={!isTotal && isExpectedToBePositive && projection[subTotalGroup][date.i].amount < 0}>
-          {formatUSD(projection[subTotalGroup][date.i].amount)}
-        </td>
-      {/each}
-    </tr>
+    {#each dates as date}
+      <td class:isNegativeShaded={isNegativeShaded(date.i)} />
+    {/each}
+  {:else}
+    {#each dates as date (date.i)}
+      <td
+        class="gdb-cf-currency isSubTotalValue"
+        class:isNegativeValue={!isTotal && isPositive && projection[group][date.i].amount < 0}
+        class:isNegativeShaded={isNegativeShaded(date.i)}
+        class:isPositiveShaded={isTotal && !isNegativeShaded(date.i)}>
+        {formatUSD(projection[group][date.i].amount)}
+      </td>
+    {/each}
   {/if}
-  {#if !isTotal}
-    <tr class="isEmpty">
-      <th class="isSticky" />
-      {#each dates as date}
-        <td class:isNegativeShaded={isNegativeShaded(date.i)} />
-      {/each}
-    </tr>
-  {/if}
-</tbody>
+</tr>
+{#if canExpand && isToggledOpen}
+  <slot />
+  <tr class:isBeginning>
+    <th class="isIndented isSticky">
+      Total {label}
+    </th>
+    {#each dates as date (date.i)}
+      <td
+        class="gdb-cf-currency isSubTotalValue"
+        class:isNegativeShaded={isNegativeShaded(date.i)}
+        class:isNegativeValue={!isTotal && isPositive && projection[group][date.i].amount < 0}>
+        {formatUSD(projection[group][date.i].amount)}
+      </td>
+    {/each}
+  </tr>
+{/if}
+{#if !isTotal}
+  <tr class="isEmpty">
+    <th class="isSticky" />
+    {#each dates as date}
+      <td class:isNegativeShaded={isNegativeShaded(date.i)} />
+    {/each}
+  </tr>
+{/if}

@@ -3,11 +3,11 @@
   import type { IProjectedCashFlowData } from "../../../_stores/calculator/types";
 
   export let projection: IProjectedCashFlowData;
-  export let subTotalGroup: string;
-  export let label: string;
+  export let group: SubTotalType;
   export let dates: Array<{ i: number } & any>;
-  export let isExpectedToBePositive: boolean = true;
+  export let isPositive: boolean = true;
   export let isBeginning: boolean = false;
+  export let suffix: string = "";
 
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -25,8 +25,12 @@
     return projection.EndingCash[i].amount < 0 || projection.BeginningCash[i].amount < 0;
   };
 
-  const isNonValue = (i: number) => {
-    return projection[subTotalGroup][i].amount == 0;
+  const isNonValue = (globalId: string, i: number) => {
+    return projection.details.get(group).get(globalId)[i].amount == 0;
+  };
+
+  const getLabel = (globalId: string) => {
+    return projection.elements.get(globalId).name + " " + suffix;
   };
 </script>
 
@@ -64,13 +68,16 @@
   }
 </style>
 
-<tr class:isBeginning>
-  <th class="isIndented isSticky">{label}</th>
-  {#each dates as date (date.i)}
-    <td
-      class="gdb-cf-currency"
-      class:isNegativeShaded={isNegativeShaded(date.i)}
-      class:isNegativeValue={isExpectedToBePositive && projection[subTotalGroup][date.i].amount < 0}
-      class:isNonValue={isNonValue(date.i)}>{formatUSD(projection[subTotalGroup][date.i].amount)}</td>
-  {/each}
-</tr>
+{#each Array.from(projection.details.get(group).keys()) as entry (entry)}
+  <tr class:isBeginning>
+    <th class="isIndented isSticky">{getLabel(entry)}</th>
+    {#each dates as date (date.i)}
+      <td
+        class="gdb-cf-currency"
+        class:isNegativeShaded={isNegativeShaded(date.i)}
+        class:isNegativeValue={isPositive && projection.details.get(group).get(entry)[date.i].amount < 0}
+        class:isNonValue={isNonValue(entry, date.i)}
+        >{formatUSD(projection.details.get(group).get(entry)[date.i].amount)}</td>
+    {/each}
+  </tr>
+{/each}

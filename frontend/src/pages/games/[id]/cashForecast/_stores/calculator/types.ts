@@ -31,6 +31,23 @@ export interface IProjectedCashFlowData {
   EndingCash: Array<ICashValue>;
   // line items by SubType + GlobalId
   details: Map<SubTotalType, Map<string, Array<ICashValue>>>;
+  elements: Map<string, IDetailDescriptor>;
+}
+
+export interface IDetailDescriptor {
+  name: string;
+  type: DetailType;
+}
+
+export enum DetailType {
+  BankBalance,
+  Loan,
+  Funding,
+  Employee,
+  Contractor,
+  Expense,
+  Tax,
+  Revenue,
 }
 
 export enum SubTotalType {
@@ -100,6 +117,7 @@ export function getEmptyProjection(): IProjectedCashFlowData {
     TaxesAndProfitSharing: new Array<ICashValue>(),
     EndingCash: new Array<ICashValue>(),
     // line items by SubType + GlobalId
-    details: new Map<SubTotalType, Map<string, Array<ICashValue>>>()
+    details: new Map<SubTotalType, Map<string, Array<ICashValue>>>(),
+    elements: new Map<string, IDetailDescriptor>()
   };
 }
