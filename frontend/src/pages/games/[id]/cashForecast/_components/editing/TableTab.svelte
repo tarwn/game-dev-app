@@ -8,6 +8,7 @@
   import GroupRow from "./tableTab/GroupRow.svelte";
   import ChildSubTotalRow from "./tableTab/ChildSubTotalRow.svelte";
   import ChildDetailRows from "./tableTab/ChildDetailRows.svelte";
+  import SubGroupRow from "./tableTab/SubGroupRow.svelte";
 
   export let cashForecast: ICashForecast;
   export let projection: IProjectedCashFlowData;
@@ -20,6 +21,10 @@
 
   const isNegativeShaded = (i: number) => {
     return projection.EndingCash[i].amount < 0 || projection.BeginningCash[i].amount < 0;
+  };
+
+  const hasValues = (groups: SubTotalType[]) => {
+    return groups.some((g) => projection.hasSubTotals.has(g));
   };
 </script>
 
@@ -80,8 +85,34 @@
     background-color: white;
     padding: $space-xs $space-s;
 
+    $defPadding: $space-s;
+    $toggle: $space-m + $space-s;
+    $indent: $space-s;
+
+    // top level group: $defPadding + $toggle
+
+    // indented member of top group
     &.isIndented {
-      padding-left: $space-m + $space-s + $space-s;
+      padding-left: $defPadding + $toggle + $indent;
+    }
+
+    // subtotal of top group
+    &.isSubTotalValue {
+      // lines up with first row
+      padding-left: $defPadding + $toggle;
+    }
+
+    // indented group of top group
+    &.isIndented.isGroup {
+      padding-left: $defPadding + $toggle + $indent + $toggle;
+    }
+    &.isIndented.isGroup.hasToggle {
+      padding-left: $defPadding + $toggle + $indent;
+    }
+
+    // indented child (double indented)
+    &.isDoubleIndented {
+      padding-left: $defPadding + $toggle + $indent + $toggle + $indent;
     }
   }
 
@@ -142,98 +173,195 @@
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Other Cash" group="OtherCash">
-        <GroupRow {projection} {dates} label="Loans" group="OtherCash_LoanIn">
-          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_LoanIn} />
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Loans"
+          group="OtherCash_LoanIn"
+          canExpand={hasValues([SubTotalType.OtherCash_LoanIn, SubTotalType.OtherCash_LoanOut])}>
+          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_LoanIn} level={2} />
           <ChildDetailRows
             {projection}
             {dates}
             suffix="(out)"
             group={SubTotalType.OtherCash_LoanOut}
-            isPositive={false} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Funding" group="OtherCash_FundingIn">
-          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_FundingIn} />
-        </GroupRow>
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow {projection} {dates} label="Funding" group="OtherCash_FundingIn">
+          <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_FundingIn} level={2} />
+        </SubGroupRow>
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Gross Revenue" group="GrossRevenue">
-        <GroupRow {projection} {dates} label="Sales Revenue" group="GrossRevenue_SalesRevenue">
-          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossRevenue_SalesRevenue} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Platform Rev. Share" group="GrossRevenue_PlatformShares">
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Sales Revenue"
+          group="GrossRevenue_SalesRevenue"
+          canExpand={hasValues([SubTotalType.GrossRevenue_SalesRevenue])}>
+          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossRevenue_SalesRevenue} level={2} />
+        </SubGroupRow>
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Platform Rev. Share"
+          group="GrossRevenue_PlatformShares"
+          canExpand={hasValues([SubTotalType.GrossRevenue_PlatformShares])}>
           <ChildDetailRows
             {projection}
             {dates}
             suffix="(platform %)"
-            group={SubTotalType.GrossRevenue_PlatformShares} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Dist. Rev. Shares" group="GrossRevenue_DistributionShares">
+            group={SubTotalType.GrossRevenue_PlatformShares}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Dist. Rev. Shares"
+          group="GrossRevenue_DistributionShares"
+          canExpand={hasValues([SubTotalType.GrossRevenue_DistributionShares])}>
           <ChildDetailRows
             {projection}
             {dates}
             suffix="(dist. %)"
-            group={SubTotalType.GrossRevenue_DistributionShares} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Publisher Rev. Shares" group="GrossRevenue_PublisherShares">
-          <ChildDetailRows {projection} {dates} suffix="(pub. %)" group={SubTotalType.GrossRevenue_PublisherShares} />
-        </GroupRow>
+            group={SubTotalType.GrossRevenue_DistributionShares}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Publisher Rev. Shares"
+          group="GrossRevenue_PublisherShares"
+          canExpand={hasValues([SubTotalType.GrossRevenue_PublisherShares])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            suffix="(pub. %)"
+            group={SubTotalType.GrossRevenue_PublisherShares}
+            level={2} />
+        </SubGroupRow>
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Gross Profit" group="GrossProfit">
-        <GroupRow {projection} {dates} label="Direct Employees" group="GrossProfit_DirectEmployees" isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectEmployees} isPositive={false} />
-        </GroupRow>
-        <GroupRow
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Direct Employees"
+          group="GrossProfit_DirectEmployees"
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.GrossProfit_DirectEmployees])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.GrossProfit_DirectEmployees}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
           {projection}
           {dates}
           label="Direct Contractors"
           group="GrossProfit_DirectContractors"
-          isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectContractors} isPositive={false} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Direct Expenses" group="GrossProfit_DirectExpenses" isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.GrossProfit_DirectExpenses} isPositive={false} />
-        </GroupRow>
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.GrossProfit_DirectContractors])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.GrossProfit_DirectContractors}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Direct Expenses"
+          group="GrossProfit_DirectExpenses"
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.GrossProfit_DirectExpenses])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.GrossProfit_DirectExpenses}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Net Profit" group="NetProfit">
-        <GroupRow
+        <SubGroupRow
           {projection}
           {dates}
           label="Indirect Employees"
           group="NetProfit_IndirectEmployees"
-          isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectEmployees} isPositive={false} />
-        </GroupRow>
-        <GroupRow
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.NetProfit_IndirectEmployees])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.NetProfit_IndirectEmployees}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
           {projection}
           {dates}
           label="Indirect Contractors"
           group="NetProfit_IndirectContractors"
-          isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectContractors} isPositive={false} />
-        </GroupRow>
-        <GroupRow {projection} {dates} label="Indirect Expenses" group="NetProfit_IndirectExpenses" isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.NetProfit_IndirectExpenses} isPositive={false} />
-        </GroupRow>
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.NetProfit_IndirectContractors])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.NetProfit_IndirectContractors}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Indirect Expenses"
+          group="NetProfit_IndirectExpenses"
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.NetProfit_IndirectExpenses])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.NetProfit_IndirectExpenses}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Tax & Profit Share" group="TaxesAndProfitSharing">
-        <GroupRow {projection} {dates} label="Taxes" group="TaxesAndProfitSharing_Taxes" isPositive={false}>
-          <ChildDetailRows {projection} {dates} group={SubTotalType.TaxesAndProfitSharing_Taxes} isPositive={false} />
-        </GroupRow>
-        <GroupRow
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Taxes"
+          group="TaxesAndProfitSharing_Taxes"
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.TaxesAndProfitSharing_Taxes])}>
+          <ChildDetailRows
+            {projection}
+            {dates}
+            group={SubTotalType.TaxesAndProfitSharing_Taxes}
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
+        <SubGroupRow
           {projection}
           {dates}
           label="Profit Sharing"
           group="TaxesAndProfitSharing_ProfitSharing"
-          isPositive={false}>
+          isPositive={false}
+          canExpand={hasValues([SubTotalType.TaxesAndProfitSharing_ProfitSharing])}>
           <ChildDetailRows
             {projection}
             {dates}
             group={SubTotalType.TaxesAndProfitSharing_ProfitSharing}
-            isPositive={false} />
-        </GroupRow>
+            isPositive={false}
+            level={2} />
+        </SubGroupRow>
       </GroupRow>
 
       <GroupRow {projection} {dates} label="Ending Cash" group="EndingCash" isTotal={true} canExpand={false} />

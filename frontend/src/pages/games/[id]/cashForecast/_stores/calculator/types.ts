@@ -32,6 +32,7 @@ export interface IProjectedCashFlowData {
   // line items by SubType + GlobalId
   details: Map<SubTotalType, Map<string, Array<ICashValue>>>;
   elements: Map<string, IDetailDescriptor>;
+  hasSubTotals: Set<SubTotalType>;
 }
 
 export interface IDetailDescriptor {
@@ -118,6 +119,7 @@ export function getEmptyProjection(): IProjectedCashFlowData {
     EndingCash: new Array<ICashValue>(),
     // line items by SubType + GlobalId
     details: new Map<SubTotalType, Map<string, Array<ICashValue>>>(),
-    elements: new Map<string, IDetailDescriptor>()
+    elements: new Map<string, IDetailDescriptor>(),
+    hasSubTotals: new Set<SubTotalType>()
   };
 }

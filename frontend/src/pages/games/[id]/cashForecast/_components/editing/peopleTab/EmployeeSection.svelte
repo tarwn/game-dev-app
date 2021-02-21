@@ -104,7 +104,7 @@
     animate:flip={{ duration: 500 }}
     in:receive|local={{ key: employee.globalId }}
     out:send|local={{ key: employee.globalId }}>
-    <TableRowIndented isRecord={true} isTop={true} isBottom={employee.additionalPay.list.length == 0}>
+    <TableRowIndented isRecord={true} isTop={true}>
       <td>
         <TextInput
           maxLength={30}
@@ -148,24 +148,14 @@
           title="Percent for benefits and taxes"
           on:change={({ detail }) => publish(events.SetEmployeeBenefits(employee.benefitsPercent, detail.value))} />
       </td>
-      <td colspan="2">
-        <SpacedButtons>
-          {#if employee.additionalPay.list.length === 0}
-            <IconTextButton
-              icon={PredefinedIcons.Plus}
-              buttonStyle="primary-outline"
-              disabled={false}
-              value="Addtl Pay"
-              on:click={() =>
-                publish(events.AddEmployeeAdditionalPay(employee.additionalPay.globalId, { date: launchDate }))} />
-          {/if}
-          <IconTextButton
-            icon={PredefinedIcons.Delete}
-            buttonStyle="secondary-negative"
-            disabled={false}
-            value="Delete"
-            on:click={() => publish(events.DeleteEmployee(employee))} />
-        </SpacedButtons>
+      <td />
+      <td>
+        <IconTextButton
+          icon={PredefinedIcons.Delete}
+          buttonStyle="secondary-negative"
+          disabled={false}
+          value="Delete"
+          on:click={() => publish(events.DeleteEmployee(employee))} />
       </td>
     </TableRowIndented>
     {#each employee.additionalPay.list as additionalPay, i (additionalPay.globalId)}
@@ -238,20 +228,20 @@
         <td colspan="2" />
       </TableRowIndented>
     {/each}
-    {#if employee.additionalPay.list.length > 0}
-      <TableRowIndented isRecord={true} isBottom={true}>
-        <td />
-        <td colSpan={colSpan - 2}>
-          <IconTextButton
-            icon={PredefinedIcons.Plus}
-            buttonStyle="primary-outline"
-            disabled={false}
-            value="Add more additional pay"
-            on:click={() =>
-              publish(events.AddEmployeeAdditionalPay(employee.additionalPay.globalId, { date: launchDate }))} />
-        </td>
-      </TableRowIndented>
-    {/if}
+
+    <TableRowIndented isRecord={true} isBottom={true}>
+      <td />
+      <td colSpan={colSpan - 3}>
+        <IconTextButton
+          icon={PredefinedIcons.Plus}
+          buttonStyle="primary-outline"
+          disabled={false}
+          value="Add bonus or profit sharing"
+          on:click={() =>
+            publish(events.AddEmployeeAdditionalPay(employee.additionalPay.globalId, { date: launchDate }))} />
+      </td>
+    </TableRowIndented>
+
     <TableRowEmpty colspan={colSpan} />
   </tbody>
 {/each}

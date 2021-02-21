@@ -51,7 +51,7 @@
     <col span="1" style="width: 10.5rem;" />
     <col span="1" style="width: 6rem;" />
     <col span="1" style="width: 4rem;" />
-    <col span="1" style="width: 16rem;" />
+    <col span="1" style="width: 10rem;" />
     <col span="1" style="" /><!-- soak up excess width -->
   </colgroup>
   <EmployeeSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />

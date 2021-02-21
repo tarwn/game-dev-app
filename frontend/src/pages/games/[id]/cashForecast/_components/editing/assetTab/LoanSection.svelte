@@ -6,7 +6,6 @@
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import NumberInput from "../../../../../../../components/inputs/NumberInput.svelte";
-  import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
   import TextInput from "../../../../../../../components/inputs/TextInput.svelte";
   import { getUtcToday } from "../../../../../../../utilities/date";
   import type { IEvent } from "../../../../../../_stores/eventStore/types";

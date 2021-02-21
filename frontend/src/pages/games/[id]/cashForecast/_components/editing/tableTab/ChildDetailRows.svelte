@@ -8,6 +8,7 @@
   export let isPositive: boolean = true;
   export let isBeginning: boolean = false;
   export let suffix: string = "";
+  export let level: number = 1;
 
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -70,7 +71,7 @@
 
 {#each Array.from(projection.details.get(group).keys()) as entry (entry)}
   <tr class:isBeginning>
-    <th class="isIndented isSticky">{getLabel(entry)}</th>
+    <th class="isSticky" class:isIndented={level === 1} class:isDoubleIndented={level === 2}>{getLabel(entry)}</th>
     {#each dates as date (date.i)}
       <td
         class="gdb-cf-currency"

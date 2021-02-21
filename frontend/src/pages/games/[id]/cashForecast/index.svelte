@@ -23,6 +23,7 @@
   import TaxInstructions from "./_components/editing/taxesTab/TaxInstructions.svelte";
   import { projectedCashFlowStore } from "./_stores/projectedCashForecasetStore";
   import type { IProjectedCashFlowData } from "./_stores/calculator/types";
+  import TableInstructions from "./_components/editing/tableTab/tableInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -255,6 +256,8 @@
           <GeneralExpensesInstructions />
         {:else if selectedTab === TabType.Taxes}
           <TaxInstructions />
+        {:else if selectedTab === TabType.TableView}
+          <TableInstructions />
         {/if}
       </div>
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-tabbedArea">

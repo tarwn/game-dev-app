@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IProjectedCashFlowData, SubTotalType } from "../../../_stores/calculator/types";
+  import type { IProjectedCashFlowData } from "../../../_stores/calculator/types";
 
   export let projection: IProjectedCashFlowData;
   export let group: string;
@@ -39,10 +39,13 @@
     border: 0;
     background-color: transparent;
     cursor: pointer;
+    padding-left: $space-s;
 
     &::before {
       content: "+";
       padding-right: $space-s;
+      width: $space-s;
+      display: inline-block;
     }
 
     &:hover {
@@ -136,12 +139,12 @@
 
 <tr class:isBeginning class:isTotal class:isAlsoFirst={isBeginning}>
   {#if canExpand}
-    <th class="isSticky">
+    <th class="isSticky hasToggle">
       <button class="gdb-button-text" class:isToggledOpen on:click={() => (isToggledOpen = !isToggledOpen)}
         >{label}</button>
     </th>
   {:else}
-    <th class="isIndented isStillBold isSticky">
+    <th class="isStillBold isSticky">
       {label}
     </th>
   {/if}
@@ -164,7 +167,7 @@
 {#if canExpand && isToggledOpen}
   <slot />
   <tr class:isBeginning>
-    <th class="isIndented isSticky">
+    <th class="isSticky isSubTotalValue">
       Total {label}
     </th>
     {#each dates as date (date.i)}
@@ -177,7 +180,7 @@
     {/each}
   </tr>
 {/if}
-{#if !isTotal}
+{#if !isTotal && canExpand && isToggledOpen}
   <tr class="isEmpty">
     <th class="isSticky" />
     {#each dates as date}

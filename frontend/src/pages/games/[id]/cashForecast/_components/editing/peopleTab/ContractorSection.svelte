@@ -206,7 +206,7 @@
         <td />
         <td />
         <td />
-        <td colSpan={colSpan - 4}>
+        <td colSpan={colSpan - 5}>
           <IconTextButton
             icon={PredefinedIcons.Plus}
             buttonStyle="primary-outline"

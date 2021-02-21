@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { SubTotalType } from "../../../_stores/calculator/types";
   import type { IProjectedCashFlowData } from "../../../_stores/calculator/types";
 
   export let projection: IProjectedCashFlowData;
@@ -8,6 +7,7 @@
   export let dates: Array<{ i: number } & any>;
   export let isExpectedToBePositive: boolean = true;
   export let isBeginning: boolean = false;
+  export let level: number = 1;
 
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -65,7 +65,7 @@
 </style>
 
 <tr class:isBeginning>
-  <th class="isIndented isSticky">{label}</th>
+  <th class="isSticky" class:isIndented={level === 1} class:isDoubleIndented={level === 2}>{label}</th>
   {#each dates as date (date.i)}
     <td
       class="gdb-cf-currency"

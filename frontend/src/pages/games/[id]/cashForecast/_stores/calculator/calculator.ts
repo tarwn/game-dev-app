@@ -1,6 +1,7 @@
 import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
+import type { Writable } from "svelte/store";
 import { getUtcDate } from "../../../../../../utilities/date";
 import { AdditionalEmployeeExpenseType, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
@@ -146,6 +147,32 @@ export function calculate(
           draftState.NetProfit[i].amount +
           draftState.TaxesAndProfitSharing[i].amount
       };
+
+      // check subtotals + mark if relevant/value
+      markSubTotal(draftState, "OtherCash_LoanIn", SubTotalType.OtherCash_LoanIn, i);
+      markSubTotal(draftState, "OtherCash_LoanOut", SubTotalType.OtherCash_LoanOut, i);
+      markSubTotal(draftState, "OtherCash_FundingIn", SubTotalType.OtherCash_FundingIn, i);
+      markSubTotal(draftState, "OtherCash", SubTotalType.OtherCash, i);
+      markSubTotal(draftState, "GrossRevenue_SalesRevenue", SubTotalType.GrossRevenue_SalesRevenue, i);
+      markSubTotal(draftState, "GrossRevenue_PlatformShares", SubTotalType.GrossRevenue_PlatformShares, i);
+      markSubTotal(draftState, "GrossRevenue_RevenueAfterPlatform", SubTotalType.GrossRevenue_RevenueAfterPlatform, i);
+      markSubTotal(draftState, "GrossRevenue_DistributionShares", SubTotalType.GrossRevenue_DistributionShares, i);
+      markSubTotal(draftState, "GrossRevenue_RevenueAfterDistribution", SubTotalType.GrossRevenue_RevenueAfterDistribution, i);
+      markSubTotal(draftState, "GrossRevenue_PublisherShares", SubTotalType.GrossRevenue_PublisherShares, i);
+      markSubTotal(draftState, "GrossRevenue_RevenueAfterPublisher", SubTotalType.GrossRevenue_RevenueAfterPublisher, i);
+      markSubTotal(draftState, "GrossRevenue", SubTotalType.GrossRevenue, i);
+      markSubTotal(draftState, "GrossProfit_DirectEmployees", SubTotalType.GrossProfit_DirectEmployees, i);
+      markSubTotal(draftState, "GrossProfit_DirectContractors", SubTotalType.GrossProfit_DirectContractors, i);
+      markSubTotal(draftState, "GrossProfit_DirectExpenses", SubTotalType.GrossProfit_DirectExpenses, i);
+      markSubTotal(draftState, "GrossProfit", SubTotalType.GrossProfit, i);
+      markSubTotal(draftState, "NetProfit_IndirectEmployees", SubTotalType.NetProfit_IndirectEmployees, i);
+      markSubTotal(draftState, "NetProfit_IndirectContractors", SubTotalType.NetProfit_IndirectContractors, i);
+      markSubTotal(draftState, "NetProfit_IndirectExpenses", SubTotalType.NetProfit_IndirectExpenses, i);
+      markSubTotal(draftState, "NetProfit", SubTotalType.NetProfit, i);
+      markSubTotal(draftState, "TaxesAndProfitSharing_Taxes", SubTotalType.TaxesAndProfitSharing_Taxes, i);
+      markSubTotal(draftState, "TaxesAndProfitSharing_ProfitSharing", SubTotalType.TaxesAndProfitSharing_ProfitSharing, i);
+      markSubTotal(draftState, "TaxesAndProfitSharing", SubTotalType.TaxesAndProfitSharing, i);
+      markSubTotal(draftState, "EndingCash", SubTotalType.EndingCash, i);
     }
 
     draftState.lastCalculated = new Date();
@@ -154,7 +181,10 @@ export function calculate(
   return nextState;
 }
 
-
+function markSubTotal(draftState: WritableDraft<IProjectedCashFlowData>, groupName: string, group: SubTotalType, i: number) {
+  if (!draftState.hasSubTotals.has(group) && (draftState[groupName][i].amount !== 0 || draftState.details.get(group)?.size > 0))
+    draftState.hasSubTotals.add(group);
+}
 
 function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, forecast: ICashForecast, forecastMonthCount: number) {
   const subTotalDetailIds = new Map<SubTotalType, string[]>([
@@ -293,6 +323,9 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   subTotalDetailIds.forEach((ids, type) => {
     sizeSubTotalDetails(draftState, type, ids, forecastMonthCount);
   });
+
+  // clear has sub totals
+  draftState.hasSubTotals.clear();
 }
 
 function sizeSubTotal(subtotal: ICashValue[], forecastMonthCount: number): ICashValue[] {
