@@ -8,7 +8,7 @@
   import EmptyTab from "./EmptyTab.svelte";
   import ExpenseTab from "./ExpenseTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
-  import TableTab from "./tableTab.svelte";
+  import TableTab from "./TableTab.svelte";
   import { tabs, TabType } from "./tabList";
   import TaxesTab from "./TaxesTab.svelte";
 
