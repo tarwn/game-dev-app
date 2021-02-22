@@ -188,7 +188,12 @@
             isPositive={false}
             level={2} />
         </SubGroupRow>
-        <SubGroupRow {projection} {dates} label="Funding" group="OtherCash_FundingIn">
+        <SubGroupRow
+          {projection}
+          {dates}
+          label="Funding"
+          group="OtherCash_FundingIn"
+          canExpand={hasValues([SubTotalType.OtherCash_FundingIn])}>
           <ChildDetailRows {projection} {dates} suffix="(in)" group={SubTotalType.OtherCash_FundingIn} level={2} />
         </SubGroupRow>
       </GroupRow>
