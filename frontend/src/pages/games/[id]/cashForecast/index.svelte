@@ -6,8 +6,6 @@
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
   import { getConfig } from "../../../../config";
   import { log } from "../../../../utilities/logger";
-  import ForecastChartLarge from "./_components/ForecastChartLarge.svelte";
-  import ForecastChartSmall from "./_components/ForecastChartSmall.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ForecastTable from "./_components/ForecastTable.svelte";
   import { cashForecastEventStore, cashForecastLocalStore } from "./_stores/cashForecastStore";
@@ -24,6 +22,7 @@
   import { projectedCashFlowStore } from "./_stores/projectedCashForecasetStore";
   import type { IProjectedCashFlowData } from "./_stores/calculator/types";
   import TableInstructions from "./_components/editing/tableTab/tableInstructions.svelte";
+  import ForecastChart from "./_components/ForecastChart.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -90,7 +89,6 @@
   });
   const unsubscribe3 = projectedCashFlowStore.subscribe((update) => {
     projectedCashForecast = update;
-    log("projectionUpdate", { projectedCashForecast });
   });
 
   onDestroy(() => {
@@ -217,7 +215,7 @@
   {#if view == "summary"}
     <section in:receive|local={{ key: 123 }} out:send|local={{ key: 123 }} class="gdb-page-cf-fullView">
       <div class="gdb-chart-placeholder">
-        <ForecastChartLarge />
+        <ForecastChart width={1280} height={300} {cashForecast} {projectedCashForecast} />
       </div>
 
       <div class="gdb-table-area">
@@ -238,7 +236,7 @@
         class="gdb-page-cf-miniChart">
         <h3>Cashflow Summary</h3>
         <div class="gdb-page-cf-miniChart-wrapper">
-          <ForecastChartSmall />
+          <ForecastChart width={400} height={180} {cashForecast} {projectedCashForecast} />
         </div>
       </div>
     </div>
@@ -278,7 +276,7 @@
   updateType="cashForecastUpdate"
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);
-    // businessModelEventStore.receiveEvent(detail.gameId, detail.event);
+    cashForecastEventStore.receiveEvent(detail.gameId, detail.event);
   }}
   on:connect={({ detail }) =>
     log("WebSocketChannel.on:channelConnected", {

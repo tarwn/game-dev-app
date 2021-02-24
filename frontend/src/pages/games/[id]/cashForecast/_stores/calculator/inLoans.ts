@@ -15,7 +15,7 @@ export function applyLoansIn(
     const detail = draftState.details.get(SubTotalType.OtherCash_LoanIn).get(loan.globalId)[i];
     const monthlyLoanEnd = getUtcDate(
       loan.cashIn.list[0].date.value.getUTCFullYear(),
-      loan.cashIn.list[0].date.value.getUTCMonth() + loan.numberOfMonths.value - 1,
+      loan.cashIn.list[0].date.value.getUTCMonth() + loan.numberOfMonths?.value - 1,
       loan.cashIn.list[0].date.value.getUTCDate()
     );
     detail.amount = 0;
