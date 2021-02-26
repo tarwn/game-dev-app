@@ -133,6 +133,9 @@
   onMount(() => {
     const svg = d3.select(el);
 
+    // TODO - trying to add a background fill to red area for visual contrast other than color
+    //   may add dashed stroke for red line also
+
     areaCharts = [
       svg
         .append("path")
@@ -143,7 +146,8 @@
       svg
         .append("path")
         .data([data])
-        .attr("fill", "#e5adac")
+        .attr("fill", "url(#dashes) #e5adac")
+        .attr("class", "area-negative")
         .attr("d", area as any)
         .attr("clip-path", "url(#negative-clip)"),
     ];
@@ -194,12 +198,47 @@
   .gdb-chart-grid-axis {
     stroke: $cs-grey-1;
   }
+
+  #dashes rect {
+    fill: $cs-red-1;
+  }
+  #dashes line {
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke: $cs-red-3;
+    stroke-dasharray: 2.5, 2.5;
+  }
 </style>
 
 <svg bind:this={el} viewBox={`0 0 ${width} ${height}`}>
   <defs>
     <clipPath id="positive-clip"><rect x={margin.left} y={0} height={originPositionY} {width} /></clipPath>
     <clipPath id="negative-clip"><rect x={margin.left} y={originPositionY} {height} {width} /></clipPath>
+    <pattern id="dashes" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+      <rect x1="0" y1="0" width="50" height="50" />
+
+      <line x1="-50" y1="0" x2="0" y2="50" />
+      <line x1="-40" y1="0" x2="10" y2="50" />
+      <line x1="-30" y1="0" x2="20" y2="50" />
+      <line x1="-20" y1="0" x2="30" y2="50" />
+      <line x1="-10" y1="0" x2="40" y2="50" />
+      <line x1="0" y1="0" x2="50" y2="50" />
+      <line x1="10" y1="0" x2="60" y2="50" />
+      <line x1="20" y1="0" x2="70" y2="50" />
+      <line x1="30" y1="0" x2="80" y2="50" />
+      <line x1="40" y1="0" x2="90" y2="50" />
+
+      <line x2="-50" y1="0" x1="0" y2="50" />
+      <line x2="-40" y1="0" x1="10" y2="50" />
+      <line x2="-30" y1="0" x1="20" y2="50" />
+      <line x2="-20" y1="0" x1="30" y2="50" />
+      <line x2="-10" y1="0" x1="40" y2="50" />
+      <line x2="0" y1="0" x1="50" y2="50" />
+      <line x2="10" y1="0" x1="60" y2="50" />
+      <line x2="20" y1="0" x1="70" y2="50" />
+      <line x2="30" y1="0" x1="80" y2="50" />
+      <line x2="40" y1="0" x1="90" y2="50" />
+    </pattern>
   </defs>
   <g class="y axis">
     {#each yTicks as tick}

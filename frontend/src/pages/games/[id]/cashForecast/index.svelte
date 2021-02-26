@@ -1,16 +1,17 @@
 <script lang="ts">
   import { metatags, params } from "@sveltech/routify";
   import { scale, crossfade, fade } from "svelte/transition";
+  import { onDestroy } from "svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
   import { getConfig } from "../../../../config";
   import { log } from "../../../../utilities/logger";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
-  import ForecastTable from "./_components/ForecastTable.svelte";
   import { cashForecastEventStore, cashForecastLocalStore } from "./_stores/cashForecastStore";
+  import { projectedCashFlowStore } from "./_stores/projectedCashForecasetStore";
+  import type { IProjectedCashFlowData } from "./_stores/calculator/types";
   import type { ICashForecast } from "./_types/cashForecast";
-  import { onDestroy } from "svelte";
   import TabbedEditor from "./_components/editing/TabbedEditor.svelte";
   import { TabType } from "./_components/editing/tabList";
   import AssetInstructions from "./_components/editing/assetTab/AssetInstructions.svelte";
@@ -19,10 +20,10 @@
   import GeneralExpensesInstructions from "./_components/editing/expenseTab/GeneralExpensesInstructions.svelte";
   import PeopleInstructions from "./_components/editing/peopleTab/PeopleInstructions.svelte";
   import TaxInstructions from "./_components/editing/taxesTab/TaxInstructions.svelte";
-  import { projectedCashFlowStore } from "./_stores/projectedCashForecasetStore";
-  import type { IProjectedCashFlowData } from "./_stores/calculator/types";
   import TableInstructions from "./_components/editing/tableTab/tableInstructions.svelte";
   import ForecastChart from "./_components/ForecastChart.svelte";
+  import ForecastTable from "./_components/shared/ForecastTable.svelte";
+  import { getUtcDate } from "../../../../utilities/date";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -97,6 +98,32 @@
     unsubscribe2();
     unsubscribe3();
   });
+
+  // misc
+  function displayStartDate() {
+    if (!cashForecast || !projectedCashForecast) return "";
+    const forecastDate = cashForecast.forecastStartDate.value;
+    return forecastDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    });
+  }
+  function displayProjectionEndDate() {
+    if (!cashForecast || !projectedCashForecast) return "";
+
+    const forecastDate = cashForecast.forecastStartDate.value;
+    const endDate = getUtcDate(
+      forecastDate.getUTCFullYear(),
+      forecastDate.getUTCMonth() + cashForecast.forecastMonthCount.value,
+      1
+    );
+    return endDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    });
+  }
 </script>
 
 <style type="text/scss">
@@ -135,10 +162,16 @@
     margin: $space-l;
     padding: $space-m;
     border: 1px solid $cs-grey-0;
+    max-width: 1280px;
   }
 
   .gdb-table-area {
     margin: $space-l;
+    max-width: 1280px;
+  }
+
+  .gbd-table-wrapper {
+    box-shadow: inset -7px 0 9px -7px $cs-grey-0;
   }
 
   .gdb-title-sub-description {
@@ -221,10 +254,14 @@
       <div class="gdb-table-area">
         <h2>Cashflow Details</h2>
         <div class="gdb-title-sub-description">
-          <span> Detailed in- and out-flows of cash each month.</span>
-          <IconTextButton icon={PredefinedIcons.Expand} value="Expand Details" buttonStyle="primary-outline" />
+          {#if cashForecast}
+            <span>Projected cashflow, from {displayStartDate()} through {displayProjectionEndDate()}.</span>
+          {/if}
+          <!-- <IconTextButton icon={PredefinedIcons.Expand} value="Expand Details" buttonStyle="primary-outline" /> -->
         </div>
-        <ForecastTable />
+        <div class="gbd-table-wrapper">
+          <ForecastTable {cashForecast} projection={projectedCashForecast} />
+        </div>
       </div>
     </section>
   {:else}
