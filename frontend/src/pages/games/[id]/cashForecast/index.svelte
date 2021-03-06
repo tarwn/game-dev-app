@@ -227,6 +227,18 @@
 </style>
 
 <ScreenTitle title="Cash Forecast">
+  <IconTextButton
+    icon={PredefinedIcons.ConstructionAlert}
+    value="'What If' Comparison"
+    buttonStyle="primary-outline"
+    on:click={switchToEditView}
+    disabled={true} />
+  <IconTextButton
+    icon={PredefinedIcons.Download}
+    value="Export"
+    buttonStyle="primary-outline"
+    on:click={switchToEditView}
+    disabled={true} />
   {#if view == "summary"}
     <IconTextButton
       icon={PredefinedIcons.Next}

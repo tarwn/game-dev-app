@@ -159,24 +159,20 @@
     status={"Done"}
     href={$url("../businessModel")}
     imgHref={"/images/BusinessModelCanvas.svg"}
-    lastUpdated="Updated on Dec 3" />
-  <Tile
-    title="Comparables"
-    status={"In Progress"}
-    href={$url("../businessModel")}
-    imgHref={"/images/Comparables.svg"}
-    lastUpdated="Updated on Dec 7" />
+    lastUpdated="Updated on Jan 25" />
   <Tile
     title="Cash Forecast"
     status={"In Progress"}
     href={$url("../cashForecast")}
     imgHref={"/images/FinanceForecast.svg"}
-    lastUpdated="Updated on Dec 11" />
+    lastUpdated="Updated on Feb 28" />
   <Tile
-    title="Marketing Plan"
-    status={null}
+    title="Comparables"
+    status={"In Progress"}
     href={$url("../businessModel")}
-    imgHref={"/images/MarketingPlan.svg"} />
+    imgHref={"/images/Comparables.svg"}
+    lastUpdated="Updated on Mar 7" />
+  <Tile title="Marketing Plan" status={null} href={$url("../businessModel")} imgHref={"/images/MarketingPlan.svg"} />
 </div>
 
 <h2>Next Stages</h2>
