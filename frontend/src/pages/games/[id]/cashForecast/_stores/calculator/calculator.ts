@@ -1,7 +1,6 @@
 import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
-import type { Writable } from "svelte/store";
 import { getUtcDate } from "../../../../../../utilities/date";
 import { AdditionalEmployeeExpenseType, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
