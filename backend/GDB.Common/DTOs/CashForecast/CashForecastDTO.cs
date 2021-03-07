@@ -23,10 +23,8 @@ namespace GDB.Common.DTOs.CashForecast
         /// <summary>
         /// Creates a new "version 1" instance
         /// </summary>
-        public CashForecastDTO(string parentId, string globalId)
+        public CashForecastDTO(string parentId, string globalId, DateTime defaultForecastStartDate)
         {
-            var today = DateTime.Now;
-            var defaultForecastStartDate = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
             var defaultLaunchDate = defaultForecastStartDate.AddMonths(DEFAULT_FORECAST_TO_LAUNCH_INIT + 1).AddDays(-1);
 
             ParentId = parentId;
@@ -36,6 +34,7 @@ namespace GDB.Common.DTOs.CashForecast
             LaunchDate = new IdentifiedPrimitive<DateTime>(globalId, $"{ globalId }:ld", defaultLaunchDate, "launchDate");
             Stage = new IdentifiedPrimitive<ForecastStage>(globalId, $"{globalId}:fs", ForecastStage.RunwayToLaunch, "stage");
             ForecastMonthCount = new IdentifiedPrimitive<int>(globalId, $"{globalId}:fmc", DEFAULT_FORECAST_TO_LAUNCH_INIT);
+            Goals = new Goals(globalId, $"{globalId}:g", 0, 2);
             BankBalance = new BankBalance(globalId, $"{globalId}:b", ForecastStartDate.Value);
             Loans = new IdentifiedList<LoanItem>(globalId, $"{globalId}:l", "loans");
             Funding = new IdentifiedList<Funding>(globalId, $"{globalId}:f", "funding");
@@ -54,6 +53,7 @@ namespace GDB.Common.DTOs.CashForecast
         public IdentifiedPrimitive<DateTime> LaunchDate { get; set; }
         public IdentifiedPrimitive<ForecastStage> Stage { get; set; }
         public IdentifiedPrimitive<int> ForecastMonthCount { get; set; }
+        public Goals Goals { get; set; }
         public BankBalance BankBalance { get; set; }
         public IdentifiedList<LoanItem> Loans { get; set; }
         public IdentifiedList<Funding> Funding { get; set; }

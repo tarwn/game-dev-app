@@ -91,6 +91,10 @@ namespace GDB.Business.BusinessLogic._Generic
                     return asJson.GetDateTime().ToUniversalTime();
                 }
             }
+            else if (input is DateTime) 
+            {
+                return ((DateTime)input).ToUniversalTime();
+            }
             throw new ArgumentException("Cannot recognize type for Date value");
         }
     }

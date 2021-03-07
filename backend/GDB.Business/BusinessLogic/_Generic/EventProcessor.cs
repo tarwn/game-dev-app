@@ -39,7 +39,7 @@ namespace GDB.Business.BusinessLogic._Generic
 
         public ChangeEvent GetCreateEvent(string gameId)
         {
-            return _applier.GetCreateEvent(gameId);
+            return _applier.GetCreateEvent(gameId, DateTime.UtcNow);
         }
 
         public async Task<Applied<ChangeEvent>> AddAndApplyEventAsync(int studioId, int actualGameId, string gameId, ChangeEvent changeEvent)

@@ -9,6 +9,7 @@ import {
   ExpenseCategory,
   ExpenseFrequency,
   ExpenseUntil,
+  ForecastStage,
   FundingRepaymentType,
   ICashForecast,
   LoanRepaymentType,
@@ -26,9 +27,44 @@ export const cashForecastLocalStore = createLocalStore(cashForecastEventStore, e
 const ef = createAutomaticEventFactory(cashForecastEventStore);
 const of = opsFactory;
 export const events = {
+  // === general
+  // eslint-disable-next-line max-len
+  "SetForecastStartDate": (forecastDate: Identified, newDate: Date, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "SetForecastStartDate",
+      operations: [
+        of.updateProp(forecastDate.parentId, forecastDate.globalId, ValueType.date, newDate),
+        of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount)
+      ]
+    }));
+  },
+  // eslint-disable-next-line max-len
+  "SetLaunchDate": (launchDate: Identified, newDate: Date, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "SetLaunchDate",
+      operations: [
+        of.updateProp(launchDate.parentId, launchDate.globalId, ValueType.date, newDate),
+        of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount)
+      ]
+    }));
+  },
+  // eslint-disable-next-line max-len
+  "SetForecastStage": (stage: Identified, newStage: ForecastStage, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "SetForecastStage",
+      operations: [
+        of.updateProp(stage.parentId, stage.globalId, ValueType.integer, newStage),
+        of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount)
+      ]
+    }));
+  },
+  // === goals
+  "SetYourGoal": ef.createPropUpdate<number>("SetYourGoal", ValueType.decimal),
+  "SetPartnerGoal": ef.createPropUpdate<number>("SetPartnerGoal", ValueType.decimal),
   // === bank balance
   "SetBankBalanceName": ef.createPropUpdate<string>("SetBankBalanceName", ValueType.string),
   "SetBankBalanceAmount": ef.createPropUpdate<number>("SetBankBalanceAmount", ValueType.decimal),
+  "SetBankBalanceDate": ef.createPropUpdate<Date>("SetBankBalanceDate", ValueType.date),
   // === loan
   "AddLoan": ef.createObjectInsert<{ date: Date }>("AddLoan", undefined, [
     (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.string, "", "name"),

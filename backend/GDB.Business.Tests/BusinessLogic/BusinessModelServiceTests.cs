@@ -72,7 +72,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(GetSampleGame(FakeStudioId, FakeGameId));
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 0))
                 .ReturnsAsync(new List<ChangeEvent> {
-                    _applier.GetCreateEvent(FakeGameString)
+                    _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
 
             var state = await _businessModelService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId));
@@ -107,7 +107,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(GetSampleGame(FakeStudioId, FakeGameId));
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 0))
                 .ReturnsAsync(new List<ChangeEvent> {
-                    _applier.GetCreateEvent(FakeGameString)
+                    _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 1))
                 .ReturnsAsync(new List<ChangeEvent>());
@@ -124,7 +124,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(GetSampleGame(FakeStudioId, FakeGameId));
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 0))
                 .ReturnsAsync(new List<ChangeEvent> {
-                    _applier.GetCreateEvent(FakeGameString)
+                    _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 1))
                 .ReturnsAsync(new List<ChangeEvent>(){
@@ -146,7 +146,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(GetSampleGame(FakeStudioId, FakeGameId));
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 0))
                 .ReturnsAsync(new List<ChangeEvent> {
-                    _applier.GetCreateEvent(FakeGameString)
+                    _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
             var change = GetSampleEvent("abc123");
 
@@ -166,7 +166,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(GetSampleGame(FakeStudioId, FakeGameId));
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 0))
                 .ReturnsAsync(new List<ChangeEvent> {
-                    _applier.GetCreateEvent(FakeGameString)
+                    _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
             var change = GetSampleEvent("abc123");
 

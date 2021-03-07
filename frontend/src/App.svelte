@@ -1,5 +1,6 @@
 <script>
   import { Router } from "@sveltech/routify";
+  import Modal from "svelte-simple-modal";
   import { routes } from "@sveltech/routify/tmp/routes";
   import ErrorReporter from "./ErrorReporter.svelte";
   import { studioStore } from "./pages/_stores/studioStore";
@@ -24,18 +25,11 @@
   @import "./styles/app.scss";
 </style>
 
-<Router {routes} />
+<Modal>
+  <Router {routes} />
+</Modal>
 <ErrorReporter on:dismiss={reloadApp} />
 <WebSocketManager />
-<WebSocketChannel
-  channelId="studio"
-  updateType="studioUpdated"
-  on:receive={() => studioStore.load()} />
-<WebSocketChannel
-  channelId="games"
-  updateType="gamesUpdated"
-  on:receive={() => gamesStore.load()} />
-<WebSocketChannel
-  channelId="profile"
-  updateType="profileUpdated"
-  on:receive={() => profileStore.load()} />
+<WebSocketChannel channelId="studio" updateType="studioUpdated" on:receive={() => studioStore.load()} />
+<WebSocketChannel channelId="games" updateType="gamesUpdated" on:receive={() => gamesStore.load()} />
+<WebSocketChannel channelId="profile" updateType="profileUpdated" on:receive={() => profileStore.load()} />

@@ -24,6 +24,7 @@
   import ForecastChart from "./_components/ForecastChart.svelte";
   import ForecastTable from "./_components/shared/ForecastTable.svelte";
   import { getUtcDate } from "../../../../utilities/date";
+  import GeneralInstructions from "./_components/editing/general/GeneralInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -291,7 +292,9 @@
     </div>
     {#if editViewAvailable}
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
-        {#if selectedTab === TabType.AssetsAndFunding}
+        {#if selectedTab === TabType.General}
+          <GeneralInstructions />
+        {:else if selectedTab === TabType.AssetsAndFunding}
           <AssetInstructions />
         {:else if selectedTab === TabType.People}
           <PeopleInstructions />

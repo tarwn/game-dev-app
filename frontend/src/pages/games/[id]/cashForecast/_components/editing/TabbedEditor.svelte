@@ -7,6 +7,7 @@
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
   import ExpenseTab from "./ExpenseTab.svelte";
+  import GeneralTab from "./GeneralTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
   import TableTab from "./TableTab.svelte";
   import { tabs, TabType } from "./tabList";
@@ -18,11 +19,11 @@
 
   const dispatch = createEventDispatcher();
 
-  let selectedTab = TabType.AssetsAndFunding;
+  let selectedTab = TabType.General;
   $: currentTab = tabs.find((t) => t.id === selectedTab);
 
   onMount(() => {
-    selectTab(TabType.AssetsAndFunding);
+    selectTab(TabType.General);
   });
 
   function selectTab(id: TabType) {
@@ -176,6 +177,8 @@
       Loading...
     {:else if selectedTab == TabType.AssetsAndFunding}
       <AssetTab {cashForecast} />
+    {:else if selectedTab == TabType.General}
+      <GeneralTab {cashForecast} />
     {:else if selectedTab == TabType.People}
       <PeopleTab {cashForecast} />
     {:else if selectedTab == TabType.DirectExpenses}

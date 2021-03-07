@@ -2,7 +2,6 @@
   import { url, params, metatags } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
-  import ProgressBar from "./_components/ProgressBar.svelte";
   import Tile from "./_components/Tile.svelte";
   import GameStatus from "../../../components/outputs/GameStatus.svelte";
   import ShortDate from "../../../components/outputs/ShortDate.svelte";
@@ -11,8 +10,6 @@
   import type { ICashForecast } from "./cashForecast/_types/cashForecast";
   import { getEmptyProjection } from "./cashForecast/_stores/calculator/types";
   import ForecastChart from "./cashForecast/_components/ForecastChart.svelte";
-  import Icon from "../../../components/buttons/Icon.svelte";
-  import { PredefinedIcons } from "../../../components/buttons/PredefinedIcons";
   import TaskItem from "./_components/TaskItem.svelte";
 
   metatags.title = "[LR] Dashboard";

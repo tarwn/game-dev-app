@@ -20,8 +20,9 @@ namespace GDB.Business.BusinessLogic.CashForecastService
             return $"{gameId}:cf";
         }
 
-        public ChangeEvent GetCreateEvent(string gameId)
+        public ChangeEvent GetCreateEvent(string gameId, DateTime createDate)
         {
+            var forecastStartDate = new DateTime(createDate.Year, createDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
             return new ChangeEvent("System", 1, CreateEventType, 1, 0)
             {
                 Operations = new List<EventOperation>()
@@ -33,7 +34,15 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         ObjectId = GetRootId(gameId),
                         Field = "cashForecast",
                         Insert = true
-                    }
+                    },
+                    new EventOperation()
+                    { 
+                        Action = OperationType.Set,
+                        ParentId = GetRootId(gameId),
+                        ObjectId = $"{ GetRootId(gameId) }:fsd",
+                        Field = "forecastStartDate",
+                        Value = forecastStartDate
+        }
                 }
             };
         }
@@ -46,8 +55,60 @@ namespace GDB.Business.BusinessLogic.CashForecastService
             switch (change.Type)
             {
                 case CreateEventType:
+                    if (change.Operations.Count == 1)
+                    {
+                        // initial version, no forecast date so make it a fixed value
+                        this.EnsureOperationCount(change, 1);
+                        modelStore.Init(new CashForecastDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId, new DateTime(2021, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+                    }
+                    else 
+                    {
+                        this.EnsureOperationCount(change, 2);
+                        var forecastDate = this.ToDateTime(change.Operations[1].Value);
+                        modelStore.Init(new CashForecastDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId, forecastDate));
+                    }
+                    break;
+
+                // ==== GENERAL
+                case "SetForecastStartDate":
+                    this.EnsureOperationCount(change, 2);
+                    if (model.ForecastStartDate.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
+                    {
+                        model.ForecastStartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
+                    }
+                    break;
+                case "SetLaunchDate":
+                    this.EnsureOperationCount(change, 2);
+                    if (model.LaunchDate.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
+                    {
+                        model.LaunchDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
+                    }
+                    break;
+                case "SetForecastStage":
+                    this.EnsureOperationCount(change, 2);
+                    if (model.Stage.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
+                    {
+                        model.Stage.Value = this.ToEnum<ForecastStage>(change.Operations[0].Value);
+                        model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
+                    }
+                    break;
+
+                // ==== GOALS
+                case "SetYourGoal":
                     this.EnsureOperationCount(change, 1);
-                    modelStore.Init(new CashForecastDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId));
+                    if (model.Goals.GlobalId == change.Operations[0].ParentId && model.Goals.YourGoal.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.Goals.YourGoal.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetPartnerGoal":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.Goals.GlobalId == change.Operations[0].ParentId && model.Goals.PartnerGoal.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.Goals.PartnerGoal.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
                     break;
 
                 // ==== BANK BALANCE
@@ -64,6 +125,13 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     if (model.BankBalance.GlobalId == change.Operations[0].ParentId && model.BankBalance.Amount.GlobalId == change.Operations[0].ObjectId)
                     {
                         model.BankBalance.Amount.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetBankBalanceDate":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.BankBalance.GlobalId == change.Operations[0].ParentId && model.BankBalance.Date.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.BankBalance.Date.Value = this.ToDateTime(change.Operations[0].Value);
                     }
                     break;
 

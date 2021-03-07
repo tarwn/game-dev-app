@@ -19,7 +19,7 @@ namespace GDB.Business.BusinessLogic.BusinessModelService
             return $"{gameId}:bm";
         }
 
-        public ChangeEvent GetCreateEvent(string gameId)
+        public ChangeEvent GetCreateEvent(string gameId, DateTime createDate)
         {
             return new ChangeEvent("System", 1, CreateEventType, 1, 0)
             {

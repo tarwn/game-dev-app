@@ -153,14 +153,16 @@ export const TaxSchedules: { id: TaxSchedule, name: string }[] = Object.keys(Tax
 
 export enum ForecastStage {
   RunwayToLaunch = 1,
-  LaunchPlus3Year = 2,
-  LongTerm = 3
+  LaunchPlus18Month = 2,
+  LaunchPlus3Year = 3,
+  LaunchPlus5Year = 4
 }
 
 export const ForecastStages: { id: ForecastStage, name: string }[] = [
   { id: ForecastStage.RunwayToLaunch, name: "Runway to Launch" },
+  { id: ForecastStage.LaunchPlus18Month, name: "Launch plus 18 Months" },
   { id: ForecastStage.LaunchPlus3Year, name: "Launch plus 3 Years" },
-  { id: ForecastStage.LongTerm, name: "Long term sales" }
+  { id: ForecastStage.LaunchPlus5Year, name: "Launch plus 5 Years" }
 ];
 
 export interface ICashForecast extends IIdentifiedObject {
@@ -170,6 +172,7 @@ export interface ICashForecast extends IIdentifiedObject {
   stage: IIdentifiedPrimitive<ForecastStage>;
   forecastMonthCount: IIdentifiedPrimitive<number>;
   bankBalance: IBankBalance;
+  goals: IGoals;
   loans: IIdentifiedList<ILoanItem>;
   funding: IIdentifiedList<IFundingItem>;
   employees: IIdentifiedList<IEmployeeExpense>;
@@ -177,6 +180,11 @@ export interface ICashForecast extends IIdentifiedObject {
   expenses: IIdentifiedList<IGenericExpense>;
   taxes: IIdentifiedList<ITax>;
   revenues: IIdentifiedList<IRevenue>;
+}
+
+export interface IGoals extends IIdentifiedObject {
+  yourGoal: IIdentifiedPrimitive<number>;
+  partnerGoal: IIdentifiedPrimitive<number>;
 }
 
 export interface IBankBalance extends IIdentifiedObject {
