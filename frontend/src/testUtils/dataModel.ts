@@ -103,6 +103,12 @@ export function createEmptyCashForecast(): ICashForecast {
     launchDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-ld", new Date(), "date"),
     stage: createIdentifiedPrimitive<ForecastStage>("unit-test-cf", "unit-test-cf-s", ForecastStage.RunwayToLaunch, "stage"),
     forecastMonthCount: createIdentifiedPrimitive<number>("unit-test-cf", "unit-test-cf-fmc", 12),
+    goals: {
+      globalId: "unit-test-cf-g",
+      parentId: "unit-test-cf",
+      yourGoal: createIdentifiedPrimitive<number>("unit-test-cf-g", "unit-test-cf-g-yg", 0, "yourGoal"),
+      partnerGoal: createIdentifiedPrimitive<number>("unit-test-cf-g", "unit-test-cf-g-pg", 0, "partnerGoal"),
+    },
     bankBalance: {
       globalId: "unit-test-cf-bb",
       parentId: "unit-test-cf",
