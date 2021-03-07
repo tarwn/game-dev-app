@@ -2331,6 +2331,31 @@ describe("calculate", () => {
       expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
     });
 
+    it("applies monthly direct expense to gross profit (end on launchdate even if manual date is different)", () => {
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
+      forecast.launchDate.value = getUtcDate(2017, 6, 30);
+      forecast.expenses.list.push(
+        // explicitly set a manual date also, it shodl be ignored and launch date from forecast used
+        createExpense(forecast.expenses, ExpenseCategory.DirectExpenses, ExpenseFrequency.Monthly,
+          1234.56, getUtcDate(2017, 5, 1), ExpenseUntil.Launch, getUtcDate(2017, 5, 1))
+      );
+
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+
+      const detail = initialProjection.details.get(SubTotalType.GrossProfit_DirectExpenses)
+        .get(forecast.expenses.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[23].amount).toBe(0);
+      expect(detail[24].amount).toBe(-1234.56);
+      expect(detail[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectExpenses[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit_DirectExpenses[24].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit_DirectExpenses[25].amount).toBe(-1234.56);
+      expect(initialProjection.GrossProfit[23].amount).toBe(0);
+      expect(initialProjection.GrossProfit[24].amount).toBe(-1234.56 + 10000.10);
+      expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
+    });
+
     it("does not apply monthly direct expense to gross profit when startDate is after launchdate (launchdate)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2015, 6, 30);

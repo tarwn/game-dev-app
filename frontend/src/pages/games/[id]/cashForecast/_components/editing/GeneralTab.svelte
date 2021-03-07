@@ -3,7 +3,6 @@
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
-  import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import TableRowEmpty from "./table/TableRowEmpty.svelte";
   import TableRowIndented from "./table/TableRowIndented.svelte";
   import { ForecastStages, LoanType } from "../../_types/cashForecast";
@@ -14,6 +13,7 @@
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
   import LabelCell from "./table/LabelCell.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
+  import LaunchDateDialog from "./general/LaunchDateDialog.svelte";
 
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
@@ -49,6 +49,7 @@
 
   // Modal dialogs + update methods
   const { open } = getContext("simple-modal");
+  // forecast date
   function openUpdateForecastDate() {
     open(
       ForecastDateDialog,
@@ -73,6 +74,26 @@
         newMonthCount
       )
     );
+  }
+
+  // launch date
+  function openUpdateLaunchDate() {
+    open(
+      LaunchDateDialog,
+      { currentDate: cashForecast.launchDate.value, onOkay: updateLaunchDate },
+      {
+        closeButton: false,
+        closeOnEsc: true,
+        closeOnOuterClick: false,
+      }
+    );
+  }
+  function updateLaunchDate(newDate: Date) {
+    if (newDate == cashForecast.launchDate.value) return;
+
+    const forecastTypeMonths = 0; /* launch date */
+    const newMonthCount = forecastTypeMonths + calculateMonthCount(cashForecast.forecastStartDate.value, newDate, true);
+    publish(events.SetLaunchDate(cashForecast.launchDate, newDate, cashForecast.forecastMonthCount, newMonthCount));
   }
 </script>
 
@@ -143,7 +164,11 @@
     <div class="gdb-gen-label">Target Launch:</div>
     <div class="gdb-gen-input"><DateOutput date={cashForecast.launchDate.value} /></div>
     <div class="gdb-gen-button">
-      <IconTextButton icon={PredefinedIcons.Next} value="Update" disabled={true} buttonStyle="primary-outline" />
+      <IconTextButton
+        icon={PredefinedIcons.Next}
+        value="Update"
+        on:click={openUpdateLaunchDate}
+        buttonStyle="primary-outline" />
     </div>
   </div>
 </div>
