@@ -152,24 +152,54 @@ export const TaxSchedules: { id: TaxSchedule, name: string }[] = Object.keys(Tax
   .map(lt => ({ id: TaxSchedule[lt], name: lt }));
 
 export enum ForecastStage {
-  RunwayToLaunch = 1,
-  LaunchPlus18Month = 2,
-  LaunchPlus3Year = 3,
-  LaunchPlus5Year = 4
+  ViabilityCost = 1,
+  ViabilitySales = 2,
+  Execution = 3,
+  PostLaunch = 4
 }
 
 export const ForecastStages: { id: ForecastStage, name: string }[] = [
-  { id: ForecastStage.RunwayToLaunch, name: "Runway to Launch" },
-  { id: ForecastStage.LaunchPlus18Month, name: "Launch plus 18 Months" },
-  { id: ForecastStage.LaunchPlus3Year, name: "Launch plus 3 Years" },
-  { id: ForecastStage.LaunchPlus5Year, name: "Launch plus 5 Years" }
+  { id: ForecastStage.ViabilityCost, name: "Viability (Cost)" },
+  { id: ForecastStage.ViabilitySales, name: "Viability (Sales)" },
+  { id: ForecastStage.Execution, name: "Executing" },
+  { id: ForecastStage.PostLaunch, name: "Post-Launch" }
 ];
+
+export enum ForecastLength {
+  ToLaunch = 1,
+  EighteenMonths = 2,
+  ThreeYears = 3,
+  FiveYears = 3
+}
+
+export const ForecastLengths: { id: ForecastLength, name: string }[] = [
+  { id: ForecastLength.ToLaunch, name: "To Launch" },
+  { id: ForecastLength.EighteenMonths, name: "Launch + 18mos" },
+  { id: ForecastLength.ThreeYears, name: "Launch + 3yrs" },
+  { id: ForecastLength.FiveYears, name: "Launch + 5yrs" }
+];
+
+export const getForecastMonths = (length: ForecastLength): number => {
+  switch (length) {
+    case ForecastLength.ToLaunch:
+      return 0;
+    case ForecastLength.EighteenMonths:
+      return 18;
+    case ForecastLength.ThreeYears:
+      return 36;
+    case ForecastLength.FiveYears:
+      return 60;
+    default:
+      throw new Error(`Cannot return number of mnths for unidentified forecast length: ${length}`);
+  }
+};
 
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
   launchDate: IIdentifiedPrimitive<Date>;
   stage: IIdentifiedPrimitive<ForecastStage>;
+  length: IIdentifiedPrimitive<ForecastLength>;
   forecastMonthCount: IIdentifiedPrimitive<number>;
   bankBalance: IBankBalance;
   goals: IGoals;

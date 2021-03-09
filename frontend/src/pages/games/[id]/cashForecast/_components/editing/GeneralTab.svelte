@@ -5,7 +5,14 @@
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
   import TableRowEmpty from "./table/TableRowEmpty.svelte";
   import TableRowIndented from "./table/TableRowIndented.svelte";
-  import { ForecastStages, LoanType } from "../../_types/cashForecast";
+  import {
+    ForecastLength,
+    ForecastLengths,
+    ForecastStage,
+    ForecastStages,
+    getForecastMonths,
+    LoanType,
+  } from "../../_types/cashForecast";
   import type { ICashForecast, IFundingItem } from "../../_types/cashForecast";
   import ForecastDateDialog from "./general/ForecastDateDialog.svelte";
   import { cashForecastEventStore, events } from "../../_stores/cashForecastStore";
@@ -14,6 +21,8 @@
   import LabelCell from "./table/LabelCell.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
   import LaunchDateDialog from "./general/LaunchDateDialog.svelte";
+  import Dropdown from "../../../../../../components/inputs/Dropdown.svelte";
+  import ForecastStageDialog from "./general/ForecastStageDialog.svelte";
 
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
@@ -49,11 +58,12 @@
 
   // Modal dialogs + update methods
   const { open } = getContext("simple-modal");
-  // forecast date
-  function openUpdateForecastDate() {
+
+  // forecast stage
+  function openUpdateForecastStage() {
     open(
-      ForecastDateDialog,
-      { currentDate: cashForecast.forecastStartDate.value, onOkay: updateForecastDate },
+      ForecastStageDialog,
+      { currentStage: cashForecast.stage.value, onOkay: updateForecastStage },
       {
         closeButton: false,
         closeOnEsc: true,
@@ -61,17 +71,44 @@
       }
     );
   }
-  function updateForecastDate(newDate: Date) {
-    if (newDate == cashForecast.forecastStartDate.value) return;
+  function updateForecastStage(newStage: ForecastStage) {
+    if (newStage == cashForecast.stage.value) return;
+    publish(events.SetForecastStage(cashForecast.stage, newStage));
+  }
 
-    const forecastTypeMonths = 0; /* launch date */
+  // forecast date
+  function openUpdateForecastDate() {
+    open(
+      ForecastDateDialog,
+      {
+        currentDate: cashForecast.forecastStartDate.value,
+        bankBalanceDate: cashForecast.bankBalance.date.value,
+        bankBalanceAmount: cashForecast.bankBalance.amount.value,
+        onOkay: updateForecastDate,
+      },
+      {
+        closeButton: false,
+        closeOnEsc: true,
+        closeOnOuterClick: false,
+      }
+    );
+  }
+  function updateForecastDate(newDate: Date, newBankBalance: number) {
+    if (newDate == cashForecast.forecastStartDate.value && newBankBalance == cashForecast.bankBalance.amount.value)
+      return;
+
+    const forecastTypeMonths = getForecastMonths(cashForecast.length.value);
     const newMonthCount = forecastTypeMonths + calculateMonthCount(newDate, cashForecast.launchDate.value, true);
     publish(
-      events.SetForecastStartDate(
+      events.AdvanceForecastStartDate(
         cashForecast.forecastStartDate,
         newDate,
         cashForecast.forecastMonthCount,
-        newMonthCount
+        newMonthCount,
+        cashForecast.bankBalance.date,
+        newDate,
+        cashForecast.bankBalance.amount,
+        newBankBalance
       )
     );
   }
@@ -91,9 +128,20 @@
   function updateLaunchDate(newDate: Date) {
     if (newDate == cashForecast.launchDate.value) return;
 
-    const forecastTypeMonths = 0; /* launch date */
+    const forecastTypeMonths = getForecastMonths(cashForecast.length.value);
     const newMonthCount = forecastTypeMonths + calculateMonthCount(cashForecast.forecastStartDate.value, newDate, true);
     publish(events.SetLaunchDate(cashForecast.launchDate, newDate, cashForecast.forecastMonthCount, newMonthCount));
+  }
+
+  // forecast length
+  function updateForecastLength(newLength: ForecastLength) {
+    if (newLength == cashForecast.length.value) return;
+
+    const forecastTypeMonths = getForecastMonths(newLength);
+    const newMonthCount =
+      forecastTypeMonths +
+      calculateMonthCount(cashForecast.forecastStartDate.value, cashForecast.launchDate.value, true);
+    publish(events.SetForecastLength(cashForecast.length, newLength, cashForecast.forecastMonthCount, newMonthCount));
   }
 </script>
 
@@ -145,8 +193,8 @@
       <IconTextButton
         icon={PredefinedIcons.Next}
         value="Go to next Stage"
-        buttonStyle="primary-outline"
-        disabled={true} />
+        on:click={openUpdateForecastStage}
+        buttonStyle="primary-outline" />
     </div>
   </div>
   <div class="gdb-general-row">
@@ -169,6 +217,15 @@
         value="Update"
         on:click={openUpdateLaunchDate}
         buttonStyle="primary-outline" />
+    </div>
+  </div>
+  <div class="gdb-general-row">
+    <div class="gdb-gen-label">Forecast to:</div>
+    <div class="gdb-gen-input">
+      <Dropdown
+        options={ForecastLengths}
+        value={cashForecast.length.value}
+        on:change={({ detail }) => updateForecastLength(detail.value)} />
     </div>
   </div>
 </div>

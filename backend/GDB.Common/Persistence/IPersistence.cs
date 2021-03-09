@@ -18,5 +18,6 @@ namespace GDB.Common.Persistence
         IActorRepository Actors { get; }
         IGameRepository Games { get; }
         IEventStoreRepository EventStore { get; }
+        ICashForecastSnapshotRepository CashForecastSnapshots { get; }
     }
 }

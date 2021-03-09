@@ -293,7 +293,7 @@
     {#if editViewAvailable}
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
         {#if selectedTab === TabType.General}
-          <GeneralInstructions />
+          <GeneralInstructions stage={cashForecast.stage.value} />
         {:else if selectedTab === TabType.AssetsAndFunding}
           <AssetInstructions />
         {:else if selectedTab === TabType.People}

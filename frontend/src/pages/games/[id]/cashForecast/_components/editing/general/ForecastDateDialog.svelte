@@ -4,8 +4,11 @@
   import IconTextButton from "../../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";
   import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
+  import CurrencyInput from "../../../../../../../components/inputs/CurrencyInput.svelte";
+  import CurrencySpan from "../../../../../../../components/inputs/CurrencySpan.svelte";
 
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
+  import DateSpan from "../../../../../../../components/inputs/DateSpan.svelte";
 
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import { getUtcDate } from "../../../../../../../utilities/date";
@@ -13,22 +16,27 @@
   const { close } = getContext("simple-modal");
 
   export let currentDate: Date;
-  export let onOkay: (newValue: Date) => void;
+  export let bankBalanceDate: Date;
+  export let bankBalanceAmount: number;
+  export let onOkay: (newValue: Date, newBalance: number) => void;
 
   $: internalDate = currentDate;
-  $: {
-    console.log({
-      currentDate,
-      internalDate,
-    });
-  }
+  $: internalBankBalanceAmount = bankBalanceAmount;
 
   function updateDateSelection(selected: Date) {
     internalDate = getUtcDate(selected.getUTCFullYear(), selected.getUTCMonth(), 1);
   }
 
+  function updateBankBalance(newAmount: number) {
+    internalBankBalanceAmount = newAmount;
+    console.log({
+      bankBalanceAmount,
+      internalBankBalanceAmount,
+    });
+  }
+
   function onClickOkay() {
-    onOkay(internalDate);
+    onOkay(internalDate, internalBankBalanceAmount);
     close();
   }
 
@@ -48,13 +56,6 @@
   .gdb-dialog-form {
     margin: $space-m 0;
   }
-  .gdb-dialog-input {
-    max-width: 10rem;
-  }
-  .gdb-dialog-instructions {
-    font-size: $font-size-smallest;
-    color: $cs-grey-4;
-  }
 </style>
 
 <div>
@@ -64,18 +65,35 @@
     expense and revenue items.
   </p>
   <div class="gdb-dialog-form">
-    <div class="gdb-dialog-input">
-      <LabeledInput label="Forecast Start" vertical={true}>
-        <DateInput value={internalDate} on:change={({ detail }) => updateDateSelection(detail.value)} />
-      </LabeledInput>
-    </div>
-    <i class="gdb-dialog-instructions">Forecast date must be the first day of the month.</i>
+    <table class="gdb-cf-table">
+      <colgroup>
+        <col span="1" style="width: 14rem;" />
+        <col span="1" style="width: 12rem;" />
+        <col span="1" style="" /><!-- soak up excess width -->
+      </colgroup>
+      <tr>
+        <td>
+          <LabeledInput label="Forecast Start" vertical={true}>
+            <DateInput value={internalDate} on:change={({ detail }) => updateDateSelection(detail.value)} />
+          </LabeledInput>
+        </td>
+        <td>
+          <LabeledInput label="Bank Balance" vertical={true}>
+            <CurrencyInput
+              value={internalBankBalanceAmount}
+              min={0}
+              on:change={({ detail }) => updateBankBalance(detail.value)} />
+          </LabeledInput>
+        </td>
+      </tr>
+    </table>
+    <p>
+      The current forecast's bank balance is <CurrencySpan value={bankBalanceAmount} /> on <DateSpan
+        date={bankBalanceDate} />
+    </p>
+    <p>Updating the forecast date will re-calculate cash forecasts from this new start date and bank balance.</p>
   </div>
-  <p>
-    <i
-      >In the future, advancing this to a future date will snapshot the current forecast (in case you want to look back
-      it later) and ask for updated bank balances, revenue shared so far for partners, and sales.</i>
-  </p>
+
   <SpacedButtons align="right">
     <Button value="Close without Changing" buttonStyle="primary-outline" on:click={onCloseClick} />
     <IconTextButton icon={PredefinedIcons.Next} value="Apply New Date" buttonStyle="primary" on:click={onClickOkay} />

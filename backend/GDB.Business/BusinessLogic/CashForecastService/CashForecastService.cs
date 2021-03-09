@@ -56,6 +56,10 @@ namespace GDB.Business.BusinessLogic.CashForecastService
             {
                 var actualGameId = CheckAndExtractGameId(gameId, authContext);
                 var versionedChange = new ChangeEvent(default, change);
+                if (change.Type.Equals("AdvanceForecastStartDate")) {
+                    var currentState = await _processor.GetByIdAsync(authContext.StudioId, actualGameId, gameId);
+                    await _persistence.CashForecastSnapshots.CreateAsync(authContext.StudioId, actualGameId, currentState.VersionNumber, currentState.ForecastStartDate.Value, DateTime.UtcNow);
+                }
                 var applied = await _processor.AddAndApplyEventAsync(authContext.StudioId, actualGameId, gameId, versionedChange);
                 await _persistence.Actors.UpdateActorAsync(change.Actor, change.SeqNo + change.Operations.Count, authContext.UserId, DateTime.UtcNow);
                 return applied;

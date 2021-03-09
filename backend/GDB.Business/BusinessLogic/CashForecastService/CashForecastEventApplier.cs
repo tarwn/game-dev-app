@@ -36,7 +36,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         Insert = true
                     },
                     new EventOperation()
-                    { 
+                    {
                         Action = OperationType.Set,
                         ParentId = GetRootId(gameId),
                         ObjectId = $"{ GetRootId(gameId) }:fsd",
@@ -61,7 +61,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         this.EnsureOperationCount(change, 1);
                         modelStore.Init(new CashForecastDTO(change.Operations[0].ParentId, change.Operations[0].ObjectId, new DateTime(2021, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
                     }
-                    else 
+                    else
                     {
                         this.EnsureOperationCount(change, 2);
                         var forecastDate = this.ToDateTime(change.Operations[1].Value);
@@ -78,6 +78,17 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
                     }
                     break;
+                case "AdvanceForecastStartDate":
+                    this.EnsureOperationCount(change, 4);
+                    if (model.ForecastStartDate.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId &&
+                        model.BankBalance.Date.GlobalId == change.Operations[2].ObjectId && model.BankBalance.Amount.GlobalId == change.Operations[3].ObjectId)
+                    {
+                        model.ForecastStartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
+                        model.BankBalance.Date.Value = this.ToDateTime(change.Operations[2].Value);
+                        model.BankBalance.Amount.Value = this.ToDecimal(change.Operations[3].Value);
+                    }
+                    break;
                 case "SetLaunchDate":
                     this.EnsureOperationCount(change, 2);
                     if (model.LaunchDate.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
@@ -87,10 +98,17 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
                 case "SetForecastStage":
-                    this.EnsureOperationCount(change, 2);
-                    if (model.Stage.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
+                    this.EnsureOperationCount(change, 1);
+                    if (model.Stage.GlobalId == change.Operations[0].ObjectId)
                     {
                         model.Stage.Value = this.ToEnum<ForecastStage>(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetForecastLength":
+                    this.EnsureOperationCount(change, 2);
+                    if (model.Length.GlobalId == change.Operations[0].ObjectId && model.ForecastMonthCount.GlobalId == change.Operations[1].ObjectId)
+                    {
+                        model.Length.Value = this.ToEnum<ForecastLength>(change.Operations[0].Value);
                         model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
                     }
                     break;
@@ -1007,7 +1025,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     {
                         // skip 0, come back at end
                         var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
-                        var basedOn = new IdentifiedPrimitive<NetIncomeCategory>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<NetIncomeCategory>( change.Operations[2].Value));
+                        var basedOn = new IdentifiedPrimitive<NetIncomeCategory>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToEnum<NetIncomeCategory>(change.Operations[2].Value));
                         var amount = new IdentifiedPrimitive<decimal>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToDecimal(change.Operations[3].Value));
                         var schedule = new IdentifiedPrimitive<TaxSchedule>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToEnum<TaxSchedule>(change.Operations[4].Value));
                         var dueDate = new IdentifiedPrimitive<DateTime>(change.Operations[5].ParentId, change.Operations[5].ObjectId, this.ToDateTime(change.Operations[5].Value));

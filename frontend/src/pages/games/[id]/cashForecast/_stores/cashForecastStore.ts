@@ -9,6 +9,7 @@ import {
   ExpenseCategory,
   ExpenseFrequency,
   ExpenseUntil,
+  ForecastLength,
   ForecastStage,
   FundingRepaymentType,
   ICashForecast,
@@ -38,6 +39,22 @@ export const events = {
       ]
     }));
   },
+  "AdvanceForecastStartDate": (
+    forecastDate: Identified, newDate: Date,
+    forecastMonthCount: Identified, newMonthCount: number,
+    bankBalanceDate: Identified, newBbDate: Date,
+    bankBalanceAmount: Identified, newAmount: number
+  ): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "AdvanceForecastStartDate",
+      operations: [
+        of.updateProp(forecastDate.parentId, forecastDate.globalId, ValueType.date, newDate),
+        of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount),
+        of.updateProp(bankBalanceDate.parentId, bankBalanceDate.globalId, ValueType.date, newBbDate),
+        of.updateProp(bankBalanceAmount.parentId, bankBalanceAmount.globalId, ValueType.decimal, newAmount)
+      ]
+    }));
+  },
   // eslint-disable-next-line max-len
   "SetLaunchDate": (launchDate: Identified, newDate: Date, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
     return cashForecastEventStore.createEvent(() => ({
@@ -48,12 +65,13 @@ export const events = {
       ]
     }));
   },
+  "SetForecastStage": ef.createPropUpdate<ForecastStage>("SetForecastStage", ValueType.integer),
   // eslint-disable-next-line max-len
-  "SetForecastStage": (stage: Identified, newStage: ForecastStage, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
+  "SetForecastLength": (length: Identified, newLength: ForecastLength, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
     return cashForecastEventStore.createEvent(() => ({
-      type: "SetForecastStage",
+      type: "SetForecastLength",
       operations: [
-        of.updateProp(stage.parentId, stage.globalId, ValueType.integer, newStage),
+        of.updateProp(length.parentId, length.globalId, ValueType.integer, newLength),
         of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount)
       ]
     }));

@@ -13,6 +13,7 @@ namespace GDB.Business.Tests.Utilities
         public MockPersistence()
         {
             ActorsMock = new Mock<IActorRepository>();
+            CashForecastSnapshotsMock = new Mock<ICashForecastSnapshotRepository>();
             CustomersMock = new Mock<ICustomerRepository>();
             StudiosMock = new Mock<IStudioRepository>();
             UsersMock = new Mock<IUserRepository>();
@@ -25,7 +26,8 @@ namespace GDB.Business.Tests.Utilities
 
         public Mock<IActorRepository> ActorsMock { get; }
         public IActorRepository Actors { get { return ActorsMock.Object; } }
-
+        public Mock<ICashForecastSnapshotRepository> CashForecastSnapshotsMock { get; }
+        public ICashForecastSnapshotRepository CashForecastSnapshots { get { return CashForecastSnapshotsMock.Object; } }
         public Mock<ICustomerRepository> CustomersMock { get; }
         public ICustomerRepository Customers { get { return CustomersMock.Object; } }
         public Mock<IStudioRepository> StudiosMock { get; }

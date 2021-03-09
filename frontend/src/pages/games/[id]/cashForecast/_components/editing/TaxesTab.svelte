@@ -8,7 +8,6 @@
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
   const forecastDate = cashForecast.forecastStartDate.value;
-  const launchDate = cashForecast.launchDate.value;
 </script>
 
 <style type="text/scss">

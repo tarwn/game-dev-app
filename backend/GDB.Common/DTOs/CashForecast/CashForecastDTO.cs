@@ -32,7 +32,8 @@ namespace GDB.Common.DTOs.CashForecast
             VersionNumber = 1;
             ForecastStartDate = new IdentifiedPrimitive<DateTime>(globalId, $"{ globalId }:fsd", defaultForecastStartDate, "forecastStartDate");
             LaunchDate = new IdentifiedPrimitive<DateTime>(globalId, $"{ globalId }:ld", defaultLaunchDate, "launchDate");
-            Stage = new IdentifiedPrimitive<ForecastStage>(globalId, $"{globalId}:fs", ForecastStage.RunwayToLaunch, "stage");
+            Stage = new IdentifiedPrimitive<ForecastStage>(globalId, $"{globalId}:fs", ForecastStage.ViabilityCost, "stage");
+            Length = new IdentifiedPrimitive<ForecastLength>(globalId, $"{globalId}:fl", ForecastLength.ToLaunch, "length");
             ForecastMonthCount = new IdentifiedPrimitive<int>(globalId, $"{globalId}:fmc", DEFAULT_FORECAST_TO_LAUNCH_INIT);
             Goals = new Goals(globalId, $"{globalId}:g", 0, 2);
             BankBalance = new BankBalance(globalId, $"{globalId}:b", ForecastStartDate.Value);
@@ -52,6 +53,7 @@ namespace GDB.Common.DTOs.CashForecast
         public IdentifiedPrimitive<DateTime> ForecastStartDate { get; set; }
         public IdentifiedPrimitive<DateTime> LaunchDate { get; set; }
         public IdentifiedPrimitive<ForecastStage> Stage { get; set; }
+        public IdentifiedPrimitive<ForecastLength> Length { get; set; }
         public IdentifiedPrimitive<int> ForecastMonthCount { get; set; }
         public Goals Goals { get; set; }
         public BankBalance BankBalance { get; set; }

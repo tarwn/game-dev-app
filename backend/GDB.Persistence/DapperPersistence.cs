@@ -21,6 +21,7 @@ namespace GDB.Persistence
             PatchDapper();
 
             Actors = new ActorRepository(_settings.Database);
+            CashForecastSnapshots = new CashForecastSnapshotRepository(_settings.Database);
             Customers = new CustomerRepository(_settings.Database);
             EventStore = new EventStoreRepository(_settings.Database);
             Games = new GameRepository(_settings.Database);
@@ -32,6 +33,7 @@ namespace GDB.Persistence
         }
 
         public IActorRepository Actors { get; }
+        public ICashForecastSnapshotRepository CashForecastSnapshots { get; }
         public ICustomerRepository Customers { get; }
         public IEventStoreRepository EventStore { get; }
         public IGameRepository Games { get; }

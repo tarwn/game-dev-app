@@ -2,9 +2,9 @@
 {
     public enum ForecastStage
     {
-        RunwayToLaunch = 1,
-        LaunchPlus18Month = 2,
-        LaunchPlus3Year = 3,
-        LaunchPlus5Year = 4
+        ViabilityCost = 1,
+        ViabilitySales = 2,
+        Execution = 3,
+        PostLaunch = 4
     }
 }

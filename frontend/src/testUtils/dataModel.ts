@@ -23,6 +23,7 @@ import type {
   ITax
 } from "../pages/games/[id]/cashForecast/_types/cashForecast";
 import {
+  ForecastLength,
   ForecastStage,
 } from "../pages/games/[id]/cashForecast/_types/cashForecast";
 import { createIdentifiedPrimitive, createObjectList } from "../pages/_stores/eventStore/helpers";
@@ -101,7 +102,8 @@ export function createEmptyCashForecast(): ICashForecast {
     versionNumber: 1,
     forecastStartDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-fsd", new Date(), "date"),
     launchDate: createIdentifiedPrimitive<Date>("unit-test-cf", "unit-test-cf-ld", new Date(), "date"),
-    stage: createIdentifiedPrimitive<ForecastStage>("unit-test-cf", "unit-test-cf-s", ForecastStage.RunwayToLaunch, "stage"),
+    stage: createIdentifiedPrimitive<ForecastStage>("unit-test-cf", "unit-test-cf-s", ForecastStage.ViabilityCost, "stage"),
+    length: createIdentifiedPrimitive<ForecastLength>("unit-test-cf", "unit-test-cf-s", ForecastLength.ToLaunch, "length"),
     forecastMonthCount: createIdentifiedPrimitive<number>("unit-test-cf", "unit-test-cf-fmc", 12),
     goals: {
       globalId: "unit-test-cf-g",

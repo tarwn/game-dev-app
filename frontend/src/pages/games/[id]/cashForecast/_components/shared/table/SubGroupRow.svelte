@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IProjectedCashFlowData, SubTotalType } from "../../../_stores/calculator/types";
+  import type { IProjectedCashFlowData } from "../../../_stores/calculator/types";
 
   export let projection: IProjectedCashFlowData;
   export let group: string;
