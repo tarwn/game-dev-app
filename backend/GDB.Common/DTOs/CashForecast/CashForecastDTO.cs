@@ -44,6 +44,7 @@ namespace GDB.Common.DTOs.CashForecast
             Expenses = new IdentifiedList<GenericExpense>(globalId, $"{globalId}:ex", "expenses");
             Taxes = new IdentifiedList<Tax>(globalId, $"{globalId}:tax", "taxes");
             Revenues = new IdentifiedList<Revenue>(globalId, $"{globalId}:r", "revenues");
+            EstimatedRevenue = new EstimatedRevenue(globalId, $"{globalId}:er");
         }
 
         public string GlobalId { get; set; }
@@ -64,6 +65,6 @@ namespace GDB.Common.DTOs.CashForecast
         public IdentifiedList<GenericExpense> Expenses { get; set; }
         public IdentifiedList<Tax> Taxes { get; set; }
         public IdentifiedList<Revenue> Revenues { get; set; }
-
+        public EstimatedRevenue EstimatedRevenue { get;  set; }
     }
 }

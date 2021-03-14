@@ -13,7 +13,7 @@
   import type { IProjectedCashFlowData } from "./_stores/calculator/types";
   import type { ICashForecast } from "./_types/cashForecast";
   import TabbedEditor from "./_components/editing/TabbedEditor.svelte";
-  import { TabType } from "./_components/editing/tabList";
+  import { tabs, TabType } from "./_components/editing/tabList";
   import AssetInstructions from "./_components/editing/assetTab/AssetInstructions.svelte";
   import DirectExpensesInstructions from "./_components/editing/expenseTab/DirectExpensesInstructions.svelte";
   import MktgAndSalesExpensesInstructions from "./_components/editing/expenseTab/MktgAndSalesExpensesInstructions.svelte";
@@ -25,6 +25,7 @@
   import ForecastTable from "./_components/shared/ForecastTable.svelte";
   import { getUtcDate } from "../../../../utilities/date";
   import GeneralInstructions from "./_components/editing/general/GeneralInstructions.svelte";
+  import SaveMessage from "../../../../components/SaveMessage.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -33,6 +34,7 @@
   const { actorId } = getConfig();
   $: id = $params.id;
   let view: "edit" | "summary" = "summary";
+  let selectedTab: TabType | undefined = undefined;
   let editViewAvailable = false;
   let isLoading = true;
   let cashForecast = null as null | ICashForecast;
@@ -42,6 +44,9 @@
   if ($params.view === "edit") {
     view = "edit";
     editViewAvailable = true;
+  }
+  if ($params.tab != null) {
+    selectedTab = tabs.find((t) => t.url == $params.tab)?.id;
   }
 
   // section change
@@ -59,9 +64,13 @@
     view = "summary";
     editViewAvailable = false;
   }
-
-  // selected tab in edit
-  let selectedTab: TabType | null = null;
+  function updateSelectedTab(tab: TabType) {
+    console.log(tab);
+    if (tab != null) {
+      const urlName = tabs.find((t) => t.id == tab)?.url;
+      history.replaceState({}, "", `/games/${id}/cashForecast?view=edit&tab=${urlName}`);
+    }
+  }
 
   // data management
   let initializedId = null;
@@ -82,10 +91,10 @@
     }
   });
   let hasUnsaved = false;
-  // let lastSaved = new Date();
+  let lastSaved = new Date();
   const unsubscribe2 = cashForecastEventStore.subscribe((update) => {
     if (hasUnsaved && update.pendingEvents.length == 0) {
-      // lastSaved = new Date();
+      lastSaved = new Date();
     }
     hasUnsaved = update.pendingEvents.length > 0;
   });
@@ -228,12 +237,13 @@
 </style>
 
 <ScreenTitle title="Cash Forecast">
-  <IconTextButton
+  <SaveMessage {hasUnsaved} {lastSaved} />
+  <!-- <IconTextButton
     icon={PredefinedIcons.ConstructionAlert}
     value="'What If' Comparison"
     buttonStyle="primary-outline"
     on:click={switchToEditView}
-    disabled={true} />
+    disabled={true} /> -->
   <IconTextButton
     icon={PredefinedIcons.Download}
     value="Export"
@@ -316,7 +326,8 @@
             {isLoading}
             {cashForecast}
             projection={projectedCashForecast}
-            on:selection={({ detail }) => (selectedTab = detail)} />
+            {selectedTab}
+            on:selection={({ detail }) => updateSelectedTab(detail)} />
         {/if}
       </div>
     {/if}

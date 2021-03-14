@@ -10,6 +10,7 @@
   import ExpenseTab from "./ExpenseTab.svelte";
   import GeneralTab from "./GeneralTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
+  import RevenueTab from "./RevenueTab.svelte";
   import TableTab from "./TableTab.svelte";
   import { tabs, TabType } from "./tabList";
   import TaxesTab from "./TaxesTab.svelte";
@@ -17,14 +18,19 @@
   export let cashForecast: ICashForecast;
   export let projection: IProjectedCashFlowData;
   export let isLoading: boolean;
+  export let selectedTab: TabType = TabType.General;
 
   const dispatch = createEventDispatcher();
 
-  let selectedTab = TabType.General;
   $: currentTab = tabs.find((t) => t.id === selectedTab);
 
   onMount(() => {
-    selectTab(TabType.General);
+    console.log("mounting, tab is " + selectedTab);
+    if (selectedTab != null) {
+      selectTab(selectedTab);
+    } else {
+      selectTab(TabType.GeneralExpenses);
+    }
   });
 
   function selectTab(id: TabType) {
@@ -190,6 +196,8 @@
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
     {:else if selectedTab == TabType.Taxes}
       <TaxesTab {cashForecast} />
+    {:else if selectedTab == TabType.Revenue}
+      <RevenueTab {cashForecast} />
     {:else if selectedTab == TabType.Alternates}
       <AlternativesTab {cashForecast} />
     {:else if selectedTab == TabType.TableView}

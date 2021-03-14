@@ -20,6 +20,18 @@
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
+
+  .gdb-cf-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 1200px;
+    // table-layout: fixed;
+
+    td {
+      padding: $space-xs $space-m;
+    }
+  }
 </style>
 
 <ForecastSummary {cashForecast} />
@@ -29,7 +41,7 @@
     <TableRowIndented>
       <td colspan={6}> Add names for up to 3 scenarios </td>
     </TableRowIndented>
-    <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+    <TableRowIndented isRecord={true} isTop={true}>
       <FauxLabelCell>Names</FauxLabelCell>
       <td>
         <LabeledInput label={scenarios[0].name} vertical={true}>
@@ -50,7 +62,7 @@
         <IconTextButton icon={PredefinedIcons.Plus} value="Add Scenario" />
       </td>
     </TableRowIndented>
-    <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+    <TableRowIndented isRecord={true} isBottom={true}>
       <FauxLabelCell>Launch</FauxLabelCell>
       <td>
         <LabeledInput label={scenarios[0].name} vertical={true}>
@@ -98,7 +110,7 @@
     <TableRowIndented>
       <td colspan={6}> Multiple sales for each scenario and specify a different target unit price</td>
     </TableRowIndented>
-    <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+    <TableRowIndented isRecord={true} isTop={true}>
       <FauxLabelCell>Sales %</FauxLabelCell>
       <td>
         <LabeledInput label={scenarios[0].name} vertical={true}>
@@ -117,7 +129,7 @@
       </td>
       <td />
     </TableRowIndented>
-    <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+    <TableRowIndented isRecord={true} isBottom={true}>
       <FauxLabelCell>Avg Unit Price</FauxLabelCell>
       <td>
         <LabeledInput label={scenarios[0].name} vertical={true}>

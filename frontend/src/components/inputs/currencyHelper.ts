@@ -16,12 +16,13 @@ interface CurrencyHelper {
   allowedCharacters: Set<string>;
 }
 
-export const getCurrencyHelper = (locale: string, currency: string, decimalScale: number): CurrencyHelper => {
+export const getCurrencyHelper = (locale: string, currency: string, decimalScale: number, minDecimalScale?: number): CurrencyHelper => {
 
   const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: minDecimalScale ?? decimalScale,
+    maximumFractionDigits: decimalScale,
   });
 
   // https://stackoverflow.com/questions/12004808/does-javascript-take-local-decimal-separators-into-account/42213804#42213804

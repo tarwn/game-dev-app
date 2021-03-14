@@ -194,6 +194,17 @@ export const getForecastMonths = (length: ForecastLength): number => {
   }
 };
 
+
+export enum BasicDateOption {
+  Date = 1,
+  Launch = 2
+}
+
+export const BasicDateOptions: { id: BasicDateOption, name: string }[] = [
+  { id: BasicDateOption.Date, name: "Enter Date" },
+  { id: BasicDateOption.Launch, name: "Launch" }
+];
+
 export interface ICashForecast extends IIdentifiedObject {
   versionNumber: number;
   forecastStartDate: IIdentifiedPrimitive<Date>;
@@ -210,6 +221,7 @@ export interface ICashForecast extends IIdentifiedObject {
   expenses: IIdentifiedList<IGenericExpense>;
   taxes: IIdentifiedList<ITax>;
   revenues: IIdentifiedList<IRevenue>;
+  estimatedRevenue: IEstimatedRevenue;
 }
 
 export interface IGoals extends IIdentifiedObject {
@@ -344,4 +356,28 @@ export interface IRevenue extends IIdentifiedObject {
   type: IIdentifiedPrimitive<RevenueModelType>;
   values: IIdentifiedList<ISalesRevenueItem>;
   revenueShare: IIdentifiedList<ISalesRevenueShareItem>;
+}
+
+
+export interface IEstimatedRevenue extends IIdentifiedObject {
+  minimumPrice: IIdentifiedPrimitive<number>;
+  targetPrice: IIdentifiedPrimitive<number>;
+  maximumPrice: IIdentifiedPrimitive<number>;
+  lowUnitsSold: IIdentifiedPrimitive<number>;
+  targetUnitsSold: IIdentifiedPrimitive<number>;
+  highUnitsSold: IIdentifiedPrimitive<number>;
+  platforms: IIdentifiedList<IEstimatedRevenuePlatform>;
+}
+
+export interface IEstimatedRevenuePlatform extends IIdentifiedObject {
+  name: IIdentifiedPrimitive<string>;
+  dateType: IIdentifiedPrimitive<BasicDateOption>;
+  startDate: IIdentifiedPrimitive<Date>;
+  percentOfSales: IIdentifiedPrimitive<number>;
+  revenueShares: IIdentifiedList<IEstimatedRevenuePlatformShare>;
+}
+
+export interface IEstimatedRevenuePlatformShare extends IIdentifiedObject {
+  revenueShare: IIdentifiedPrimitive<number>;
+  untilAmount: IIdentifiedPrimitive<number>;
 }

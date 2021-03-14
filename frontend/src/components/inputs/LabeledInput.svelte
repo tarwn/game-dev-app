@@ -19,6 +19,8 @@
         color: $cs-grey-4;
         font-size: $font-size-smallest;
         padding-bottom: 0px;
+        display: flex;
+        justify-content: space-between;
       }
     }
   }
@@ -32,6 +34,6 @@
 </style>
 
 <label class="gdb-label" class:vertical for={forId}>
-  <span class="gdb-label-text">{label}</span>
+  <span class="gdb-label-text">{label} <slot name="label" /> </span>
   <slot />
 </label>

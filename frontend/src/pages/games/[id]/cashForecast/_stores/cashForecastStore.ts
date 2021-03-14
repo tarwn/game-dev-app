@@ -5,6 +5,7 @@ import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/ty
 import {
   AdditionalEmployeeExpenseFrequency,
   AdditionalEmployeeExpenseType,
+  BasicDateOption,
   ContractorExpenseFrequency,
   ExpenseCategory,
   ExpenseFrequency,
@@ -277,5 +278,74 @@ export const events = {
   "SetTaxAmount": ef.createPropUpdate<number>("SetTaxAmount", ValueType.decimal),
   "SetTaxSchedule": ef.createPropUpdate<TaxSchedule>("SetTaxSchedule", ValueType.integer),
   "SetTaxDueDate": ef.createPropUpdate<Date>("SetTaxDueDate", ValueType.date),
+
+  // --- estimated revenue
+  "SetEstRevenueMinPrice": ef.createPropUpdate<number>("SetEstRevenueMinPrice", ValueType.decimal),
+  "SetEstRevenueTargetPrice": ef.createPropUpdate<number>("SetEstRevenueTargetPrice", ValueType.decimal),
+  "SetEstRevenueMaxPrice": ef.createPropUpdate<number>("SetEstRevenueMaxPrice", ValueType.decimal),
+  "SetEstRevenueLowUnitsSold": ef.createPropUpdate<number>("SetEstRevenueLowUnitsSold", ValueType.decimal),
+  "SetEstRevenueTargetUnitsSold": ef.createPropUpdate<number>("SetEstRevenueTargetUnitsSold", ValueType.decimal),
+  "SetEstRevenueHighUnitsSold": ef.createPropUpdate<number>("SetEstRevenueHighUnitsSold", ValueType.decimal),
+  // eslint-disable-next-line max-len
+  "AddEstRevenuePlatform": ef.createObjectInsert<{ name: string, date: Date, salesPercent: number, sharePercent: number, until: number }>("AddEstRevenuePlatform", undefined, [
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.string, args.name, "name"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, BasicDateOption.Launch, "dateType"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.decimal, args.salesPercent, "percentOfSales"),
+    (ids, nextId) => of.insertList(ids[0], nextId, "revenueShares"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.sharePercent, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.until, "untilAmount"),
+  ]),
+  "AddEstRevenuePlatformDouble": ef.createObjectInsert<{
+    name: string, date: Date, salesPercent: number,
+    sharePercent0: number, until0: number,
+    sharePercent1: number, until1: number
+  }>("AddEstRevenuePlatformDouble", undefined, [
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.string, args.name, "name"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, BasicDateOption.Launch, "dateType"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.decimal, args.salesPercent, "percentOfSales"),
+    (ids, nextId) => of.insertList(ids[0], nextId, "revenueShares"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.sharePercent0, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.until0, "untilAmount"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[9], nextId, ValueType.decimal, args.sharePercent1, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[9], nextId, ValueType.decimal, args.until1, "untilAmount"),
+  ]),
+  "AddEstRevenuePlatformTriple": ef.createObjectInsert<{
+    name: string, date: Date, salesPercent: number,
+    sharePercent0: number, until0: number,
+    sharePercent1: number, until1: number,
+    sharePercent2: number, until2: number
+  }>("AddEstRevenuePlatformTriple", undefined, [
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.string, args.name, "name"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.date, args.date, "startDate"),
+    (ids, nextId) => of.insertProp(ids[0], nextId, ValueType.integer, BasicDateOption.Launch, "dateType"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.decimal, args.salesPercent, "percentOfSales"),
+    (ids, nextId) => of.insertList(ids[0], nextId, "revenueShares"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.sharePercent0, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[6], nextId, ValueType.decimal, args.until0, "untilAmount"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[9], nextId, ValueType.decimal, args.sharePercent1, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[9], nextId, ValueType.decimal, args.until1, "untilAmount"),
+    (ids, nextId) => of.insertObject(ids[5], nextId, undefined),
+    (ids, nextId, args) => of.insertProp(ids[12], nextId, ValueType.decimal, args.sharePercent2, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[12], nextId, ValueType.decimal, args.until2, "untilAmount"),
+  ]),
+  "DeleteEstRevenuePlatform": ef.createDelete("DeleteEstRevenuePlatform", ValueType.object, undefined),
+  "SetEstRevenuePlatformName": ef.createPropUpdate<string>("SetEstRevenuePlatformName", ValueType.string),
+  "SetEstRevenuePlatformStartDate": ef.createPropUpdate<Date>("SetEstRevenuePlatformStartDate", ValueType.date),
+  "SetEstRevenuePlatformDateType": ef.createPropUpdate<BasicDateOption>("SetEstRevenuePlatformDateType", ValueType.integer),
+  "SetEstRevenuePlatformPercentOfSales": ef.createPropUpdate<number>("SetEstRevenuePlatformPercentOfSales", ValueType.decimal),
+  "AddEstRevenuePlatformRevShare": ef.createObjectInsert<{ percent: number, until: number }>("AddEstRevenuePlatformRevShare", undefined, [
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.decimal, args.percent, "revenueShare"),
+    (ids, nextId, args) => of.insertProp(ids[0], nextId, ValueType.decimal, args.until, "untilAmount"),
+  ]),
+  "DeleteEstRevenuePlatformRevShare": ef.createDelete("DeleteEstRevenuePlatformRevShare", ValueType.object, undefined),
+  "SetEstRevenuePlatformRevRevenueShare": ef.createPropUpdate<number>("SetEstRevenuePlatformRevRevenueShare", ValueType.decimal),
+  "SetEstRevenuePlatformRevUntilAmount": ef.createPropUpdate<number>("SetEstRevenuePlatformRevUntilAmount", ValueType.decimal),
 };
 

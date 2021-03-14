@@ -16,7 +16,9 @@
   .gdb-cf-table {
     border-collapse: separate;
     border-spacing: 0;
-    min-width: 1000px;
+    width: 100%;
+    min-width: 1200px;
+    table-layout: fixed;
 
     td {
       padding: $space-xs $space-m;

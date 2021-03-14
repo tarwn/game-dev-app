@@ -1094,6 +1094,223 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                     }
                     break;
 
+                // ==== Est Revenues
+
+                case "SetEstRevenueMinPrice":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.MinimumPrice.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.MinimumPrice.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.MinimumPrice.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetEstRevenueTargetPrice":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.TargetPrice.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.TargetPrice.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.TargetPrice.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetEstRevenueMaxPrice":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.MaximumPrice.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.MaximumPrice.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.MaximumPrice.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetEstRevenueLowUnitsSold":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.LowUnitsSold.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.LowUnitsSold.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.LowUnitsSold.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetEstRevenueTargetUnitsSold":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.TargetUnitsSold.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.TargetUnitsSold.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.TargetUnitsSold.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "SetEstRevenueHighUnitsSold":
+                    this.EnsureOperationCount(change, 1);
+                    if (model.EstimatedRevenue.HighUnitsSold.ParentId == change.Operations[0].ParentId && model.EstimatedRevenue.HighUnitsSold.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.EstimatedRevenue.HighUnitsSold.Value = this.ToDecimal(change.Operations[0].Value);
+                    }
+                    break;
+                case "AddEstRevenuePlatform":
+                    this.EnsureOperationCount(change, 9);
+                    if (model.EstimatedRevenue.Platforms.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDateTime(change.Operations[2].Value));
+                        var dateType = new IdentifiedPrimitive<BasicDateOption>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<BasicDateOption>(change.Operations[3].Value));
+                        var percentOfSales = new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value));
+                        var revenueShares = new IdentifiedList<EstimatedRevenuePlatformShare>(change.Operations[5].ParentId, change.Operations[5].ObjectId, "revenueShares");
+                        // skip 6 and come back
+                        var revenueShare = new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value));
+                        var untilAmount = new IdentifiedPrimitive<decimal>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToDecimal(change.Operations[8].Value));
+                        // now 6 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[6].ParentId, change.Operations[6].ObjectId, revenueShare, untilAmount));
+                        // now add 0
+                        model.EstimatedRevenue.Platforms.List.Add(new EstimatedRevenuePlatform(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, dateType, startDate, percentOfSales, revenueShares));
+                    }
+                    break;
+                case "AddEstRevenuePlatformDouble":
+                    this.EnsureOperationCount(change, 12);
+                    if (model.EstimatedRevenue.Platforms.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDateTime(change.Operations[2].Value));
+                        var dateType = new IdentifiedPrimitive<BasicDateOption>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<BasicDateOption>(change.Operations[3].Value));
+                        var percentOfSales = new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value));
+                        var revenueShares = new IdentifiedList<EstimatedRevenuePlatformShare>(change.Operations[5].ParentId, change.Operations[5].ObjectId, "revenueShares");
+                        // skip 6 and come back
+                        var revenueShare = new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value));
+                        var untilAmount = new IdentifiedPrimitive<decimal>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToDecimal(change.Operations[8].Value));
+                        // now 6 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[6].ParentId, change.Operations[6].ObjectId, revenueShare, untilAmount));
+                        // skip 9 and come back
+                        var revenueShare1 = new IdentifiedPrimitive<decimal>(change.Operations[10].ParentId, change.Operations[10].ObjectId, this.ToDecimal(change.Operations[10].Value));
+                        var untilAmount1 = new IdentifiedPrimitive<decimal>(change.Operations[11].ParentId, change.Operations[11].ObjectId, this.ToDecimal(change.Operations[11].Value));
+                        // now 9 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[9].ParentId, change.Operations[9].ObjectId, revenueShare1, untilAmount1));
+                        // now add 0
+                        model.EstimatedRevenue.Platforms.List.Add(new EstimatedRevenuePlatform(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, dateType, startDate, percentOfSales, revenueShares));
+                    }
+                    break;
+                case "AddEstRevenuePlatformTriple":
+                    this.EnsureOperationCount(change, 15);
+                    if (model.EstimatedRevenue.Platforms.GlobalId == change.Operations[0].ParentId)
+                    {
+                        // skip 0, come back at end
+                        var name = new IdentifiedPrimitive<string>(change.Operations[1].ParentId, change.Operations[1].ObjectId, change.Operations[1].Value.ToString());
+                        var startDate = new IdentifiedPrimitive<DateTime>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDateTime(change.Operations[2].Value));
+                        var dateType = new IdentifiedPrimitive<BasicDateOption>(change.Operations[3].ParentId, change.Operations[3].ObjectId, this.ToEnum<BasicDateOption>(change.Operations[3].Value));
+                        var percentOfSales = new IdentifiedPrimitive<decimal>(change.Operations[4].ParentId, change.Operations[4].ObjectId, this.ToDecimal(change.Operations[4].Value));
+                        var revenueShares = new IdentifiedList<EstimatedRevenuePlatformShare>(change.Operations[5].ParentId, change.Operations[5].ObjectId, "revenueShares");
+                        // skip 6 and come back
+                        var revenueShare = new IdentifiedPrimitive<decimal>(change.Operations[7].ParentId, change.Operations[7].ObjectId, this.ToDecimal(change.Operations[7].Value));
+                        var untilAmount = new IdentifiedPrimitive<decimal>(change.Operations[8].ParentId, change.Operations[8].ObjectId, this.ToDecimal(change.Operations[8].Value));
+                        // now 6 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[6].ParentId, change.Operations[6].ObjectId, revenueShare, untilAmount));
+                        // skip 9 and come back
+                        var revenueShare1 = new IdentifiedPrimitive<decimal>(change.Operations[10].ParentId, change.Operations[10].ObjectId, this.ToDecimal(change.Operations[10].Value));
+                        var untilAmount1 = new IdentifiedPrimitive<decimal>(change.Operations[11].ParentId, change.Operations[11].ObjectId, this.ToDecimal(change.Operations[11].Value));
+                        // now 9 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[9].ParentId, change.Operations[9].ObjectId, revenueShare1, untilAmount1));
+                        // skip 12 and come back
+                        var revenueShare2 = new IdentifiedPrimitive<decimal>(change.Operations[13].ParentId, change.Operations[13].ObjectId, this.ToDecimal(change.Operations[13].Value));
+                        var untilAmount2 = new IdentifiedPrimitive<decimal>(change.Operations[14].ParentId, change.Operations[14].ObjectId, this.ToDecimal(change.Operations[14].Value));
+                        // now 12 + add to list
+                        revenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[12].ParentId, change.Operations[12].ObjectId, revenueShare2, untilAmount2));
+                        // now add 0
+                        model.EstimatedRevenue.Platforms.List.Add(new EstimatedRevenuePlatform(change.Operations[0].ParentId, change.Operations[0].ObjectId, name, dateType, startDate, percentOfSales, revenueShares));
+                    }
+                    break;
+                case "DeleteEstRevenuePlatform":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ObjectId);
+                        if (platform != null)
+                        {
+                            model.EstimatedRevenue.Platforms.List.Remove(platform);
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformName":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null && platform.Name.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            platform.Name.Value = change.Operations[0].Value.ToString();
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformStartDate":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null && platform.StartDate.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            platform.StartDate.Value = this.ToDateTime(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformDateType":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null && platform.DateType.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            platform.DateType.Value = this.ToEnum<BasicDateOption>(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformPercentOfSales":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null && platform.PercentOfSales.GlobalId == change.Operations[0].ObjectId)
+                        {
+                            platform.PercentOfSales.Value = this.ToDecimal(change.Operations[0].Value);
+                        }
+                    }
+                    break;
+                case "AddEstRevenuePlatformRevShare":
+                    this.EnsureOperationCount(change, 3);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.RevenueShares.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null)
+                        {
+                            // skip 0
+                            var revenueShare = new IdentifiedPrimitive<decimal>(change.Operations[1].ParentId, change.Operations[1].ObjectId, this.ToDecimal(change.Operations[1].Value));
+                            var untilAmount = new IdentifiedPrimitive<decimal>(change.Operations[2].ParentId, change.Operations[2].ObjectId, this.ToDecimal(change.Operations[2].Value));
+                            // now 0 + add to list
+                            platform.RevenueShares.List.Add(new EstimatedRevenuePlatformShare(change.Operations[0].ParentId, change.Operations[0].ObjectId, revenueShare, untilAmount));
+                        }
+                    }
+                    break;
+                case "DeleteEstRevenuePlatformRevShare":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.RevenueShares.GlobalId == change.Operations[0].ParentId);
+                        if (platform != null)
+                        {
+                            platform.RevenueShares.List.RemoveAll(rs => rs.GlobalId == change.Operations[0].ObjectId);
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformRevRevenueShare":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.RevenueShares.List.Any(rs => rs.GlobalId == change.Operations[0].ParentId));
+                        if (platform != null)
+                        {
+                            var revShare = platform.RevenueShares.List.Single(rs => rs.GlobalId == change.Operations[0].ParentId);
+                            if (revShare.RevenueShare.GlobalId == change.Operations[0].ObjectId) {
+                                revShare.RevenueShare.Value = this.ToDecimal(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
+                case "SetEstRevenuePlatformRevUntilAmount":
+                    this.EnsureOperationCount(change, 1);
+                    {
+                        var platform = model.EstimatedRevenue.Platforms.List.FirstOrDefault(e => e.RevenueShares.List.Any(rs => rs.GlobalId == change.Operations[0].ParentId));
+                        if (platform != null)
+                        {
+                            var revShare = platform.RevenueShares.List.Single(rs => rs.GlobalId == change.Operations[0].ParentId);
+                            if (revShare.UntilAmount.GlobalId == change.Operations[0].ObjectId)
+                            {
+                                revShare.UntilAmount.Value = this.ToDecimal(change.Operations[0].Value);
+                            }
+                        }
+                    }
+                    break;
 
                 default:
                     throw new ArgumentException($"Unexpected event type: {change.Type}", nameof(change));
