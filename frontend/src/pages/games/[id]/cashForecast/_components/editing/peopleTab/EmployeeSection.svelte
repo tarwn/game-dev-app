@@ -24,7 +24,6 @@
   import LabelCell from "../table/LabelCell.svelte";
   import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
   import FauxLabelCell from "../table/FauxLabelCell.svelte";
-  import SpacedButtons from "../../../../../../../components/buttons/SpacedButtons.svelte";
   import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
   import TableRowEmpty from "../table/TableRowEmpty.svelte";
 

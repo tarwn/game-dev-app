@@ -3,6 +3,7 @@
   import type { IProjectedCashFlowData } from "../../_stores/calculator/types";
   import type { ICashForecast } from "../../_types/cashForecast";
   import { ExpenseCategory } from "../../_types/cashForecast";
+  import AlternativesTab from "./AlternativesTab.svelte";
 
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
@@ -189,10 +190,12 @@
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
     {:else if selectedTab == TabType.Taxes}
       <TaxesTab {cashForecast} />
+    {:else if selectedTab == TabType.Alternates}
+      <AlternativesTab {cashForecast} />
     {:else if selectedTab == TabType.TableView}
       <TableTab {cashForecast} {projection} />
     {:else}
-      <EmptyTab />
+      <EmptyTab {cashForecast} />
     {/if}
   </div>
 </section>

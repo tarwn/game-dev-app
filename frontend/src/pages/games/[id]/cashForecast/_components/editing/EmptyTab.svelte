@@ -1,10 +1,13 @@
 <script lang="ts">
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
-  import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
+  import type { ICashForecast } from "../../_types/cashForecast";
+  import ForecastSummary from "./ForecastSummary.svelte";
   import TableRowEmpty from "./table/TableRowEmpty.svelte";
   import TableRowIndented from "./table/TableRowIndented.svelte";
   import TableSubHeaderRow from "./table/TableSubHeaderRow.svelte";
+
+  export let cashForecast: ICashForecast;
 </script>
 
 <style type="text/scss">
@@ -19,17 +22,9 @@
       padding: $space-xs $space-m;
     }
   }
-
-  .gdb-cf-forecast-row {
-    padding-left: 0.1rem; // needs some indent
-  }
 </style>
 
-<div class="gdb-cf-forecast-row">
-  <LabeledInput label="Forecast Start Date">
-    <span class="gdb-input gdb-input-date">{new Date().toLocaleDateString("en-US")}</span>
-  </LabeledInput>
-</div>
+<ForecastSummary {cashForecast} />
 <table class="gdb-cf-table">
   <TableSubHeaderRow colspan={7} value="Empty Section" />
   <TableRowIndented isRecord={true} isTop={true} isBottom={true}>

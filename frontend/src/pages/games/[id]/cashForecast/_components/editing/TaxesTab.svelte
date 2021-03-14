@@ -1,8 +1,7 @@
 <script lang="ts">
-  import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
-  import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import { cashForecastEventStore } from "../../_stores/cashForecastStore";
   import type { ICashForecast } from "../../_types/cashForecast";
+  import ForecastSummary from "./ForecastSummary.svelte";
   import TaxesSection from "./taxesTab/TaxesSection.svelte";
 
   export let cashForecast: ICashForecast;
@@ -24,17 +23,9 @@
       padding: $space-xs $space-m;
     }
   }
-
-  .gdb-cf-forecast-row {
-    padding-left: 0.1rem; // needs some indent
-  }
 </style>
 
-<div class="gdb-cf-forecast-row">
-  <LabeledInput label="Forecast Start Date">
-    <DateOutput date={forecastDate} />
-  </LabeledInput>
-</div>
+<ForecastSummary {cashForecast} />
 <table class="gdb-cf-table">
   <colgroup>
     <col span="1" style="width: 2rem;" />

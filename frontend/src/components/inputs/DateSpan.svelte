@@ -1,5 +1,6 @@
 <script lang="ts">
   export let date: Date;
+  const className: string | undefined = $$props["class"];
   $: formattedDate = date.toLocaleDateString("en-US", {
     timeZone: "UTC",
     year: "numeric",
@@ -12,4 +13,4 @@
   @import "../../styles/_variables.scss";
 </style>
 
-<span>{formattedDate}</span>
+<span class={className}>{formattedDate}</span>
