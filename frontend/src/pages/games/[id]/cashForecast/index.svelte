@@ -26,6 +26,7 @@
   import { getUtcDate } from "../../../../utilities/date";
   import GeneralInstructions from "./_components/editing/general/GeneralInstructions.svelte";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
+  import RevenueInstructions from "./_components/editing/revenueTab/RevenueInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -65,10 +66,10 @@
     editViewAvailable = false;
   }
   function updateSelectedTab(tab: TabType) {
-    console.log(tab);
     if (tab != null) {
       const urlName = tabs.find((t) => t.id == tab)?.url;
       history.replaceState({}, "", `/games/${id}/cashForecast?view=edit&tab=${urlName}`);
+      selectedTab = tab;
     }
   }
 
@@ -84,10 +85,16 @@
     }
   }
   const unsubscribe = cashForecastLocalStore.subscribe((update) => {
+    if (cashForecast == null && update != null) {
+      log("Cash Forecast Screen: Cash forecast loaded", {});
+    }
     cashForecast = update;
     projectedCashFlowStore.updateForecast(update);
     if (cashForecast && isLoading) {
       isLoading = false;
+      if (cashForecast == null && update != null) {
+        log("Cash Forecast Screen: screen loaded", {});
+      }
     }
   });
   let hasUnsaved = false;
@@ -300,7 +307,7 @@
         </div>
       </div>
     </div>
-    {#if editViewAvailable}
+    {#if editViewAvailable && cashForecast != null}
       <div in:fade={{ duration: 250 }} class="gdb-page-cf-instructions">
         {#if selectedTab === TabType.General}
           <GeneralInstructions stage={cashForecast.stage.value} />
@@ -316,6 +323,8 @@
           <GeneralExpensesInstructions />
         {:else if selectedTab === TabType.Taxes}
           <TaxInstructions />
+        {:else if selectedTab === TabType.Revenue}
+          <RevenueInstructions stage={cashForecast.stage.value} />
         {:else if selectedTab === TabType.TableView}
           <TableInstructions />
         {/if}
@@ -334,7 +343,7 @@
   {/if}
 </div>
 
-<WebSocketChannel
+<!-- <WebSocketChannel
   channelId={id}
   updateType="cashForecastUpdate"
   on:receive={({ detail }) => {
@@ -348,4 +357,4 @@
   on:disconnect={({ detail }) =>
     log("WebSocketChannel.on:channelDisconnected", {
       channel: detail,
-    })} />
+    })} /> -->

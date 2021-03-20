@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import { log } from "../../../../../../utilities/logger";
   import type { IProjectedCashFlowData } from "../../_stores/calculator/types";
   import type { ICashForecast } from "../../_types/cashForecast";
   import { ExpenseCategory } from "../../_types/cashForecast";
@@ -25,7 +26,7 @@
   $: currentTab = tabs.find((t) => t.id === selectedTab);
 
   onMount(() => {
-    console.log("mounting, tab is " + selectedTab);
+    log("Tabbed Editor: mounting", { selectedTab });
     if (selectedTab != null) {
       selectTab(selectedTab);
     } else {

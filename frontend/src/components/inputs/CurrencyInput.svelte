@@ -14,6 +14,11 @@
   let internalValue = value;
   const dispatch = createEventDispatcher();
 
+  // -- debug
+  // const log = (o: any) => console.log(o);
+  const log = (o: any) => undefined;
+  // --
+
   // -- prep for currency operations
   const locale = "en-US";
   const currency = "USD";
@@ -38,7 +43,7 @@
 
   $: {
     if (internalValue !== value) {
-      console.log("external value change detected");
+      log("external value change detected");
       internalValue = value;
       visibleValue = formatValue(value);
     }

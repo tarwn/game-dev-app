@@ -20,6 +20,11 @@
   const helper = getPercentHelper(locale, decimalScale);
   // --
 
+  // -- debug
+  // const log = (o: any) => console.log(o);
+  const log = (o: any) => undefined;
+  // --
+
   function validateValue(parsedValue: number) {
     return !isNaN(parsedValue) && parsedValue >= min && parsedValue <= max;
   }
@@ -37,16 +42,16 @@
 
   $: {
     if (internalValue !== value) {
-      console.log("external value change detected");
-      console.log({ a: "ext-a", internalValue, visibleValue, value });
+      log("external value change detected");
+      log({ a: "ext-a", internalValue, visibleValue, value });
 
       internalValue = value;
       visibleValue = formatValue(value);
-      console.log({ a: "ext-b", internalValue, visibleValue, value });
+      log({ a: "ext-b", internalValue, visibleValue, value });
     }
   }
   $: {
-    console.log("visible value changed: " + visibleValue);
+    log("visible value changed: " + visibleValue);
   }
 
   function filterKeyDown(e: KeyboardEvent) {

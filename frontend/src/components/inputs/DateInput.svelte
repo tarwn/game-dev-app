@@ -12,6 +12,11 @@
   // TODO - add delayed update - if they pause for a second or two, treat is as an update
   //  consumers can opt into that behavior, but also will have to consider ignoring the regular change event
 
+  // -- debug
+  // const log = (o: any) => console.log(o);
+  const log = (o: any) => undefined;
+  // --
+
   let internalValue = value;
   const dispatch = createEventDispatcher();
 
@@ -22,7 +27,7 @@
       throw new Error(`Cannot parse entered date in input: '${rawValue}'`);
     }
     const utc = getUtcDate(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    // console.log({ rawValue, utc });
+    // log({ rawValue, utc });
     return utc;
   }
 
@@ -45,17 +50,17 @@
 
   $: {
     if (internalValue !== value) {
-      // console.log("external value change detected");
-      // console.log({ a: "ext-a", internalValue, visibleValue, value });
+      // log("external value change detected");
+      // log({ a: "ext-a", internalValue, visibleValue, value });
 
       internalValue = value;
       visibleValue = formatValue(value);
-      // console.log({ a: "ext-b", internalValue, visibleValue, value });
+      // log({ a: "ext-b", internalValue, visibleValue, value });
     }
   }
   // $: {
-  //   console.log("visible value changed: " + visibleValue);
-  //   console.log({ value, internalValue, visibleValue });
+  //   log("visible value changed: " + visibleValue);
+  //   log({ value, internalValue, visibleValue });
   // }
 
   function filterKeyDown(e: KeyboardEvent) {

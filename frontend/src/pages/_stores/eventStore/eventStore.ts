@@ -163,8 +163,10 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
 
   function loadFullState(): Promise<any> {
     const thisId = initState.id;
+    log("eventStore.loadFullState", { id: thisId });
     return api.get(initState.id, initState.apiArgs)
       .then(response => {
+        log("eventStore.loadFullState: received", { id: thisId });
         if (thisId != initState.id) return;
 
         // todo: model processing?
@@ -178,6 +180,7 @@ export function createEventStore<T extends Versioned & Identified>(api: IEventSt
   }
 
   function loadSinceEvents(versionNumber: number) {
+    log("eventStore.loadFullState", { id: initState.id, versionNumber });
     const thisId = initState.id;
     api.getSince(initState.id, versionNumber, initState.apiArgs)
       .then(response => {

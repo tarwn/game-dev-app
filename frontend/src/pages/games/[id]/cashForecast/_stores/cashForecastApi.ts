@@ -1,3 +1,4 @@
+import { log } from "../../../../../utilities/logger";
 import type { GetActorSeqNoResponse, IEvent, IEventStateApi } from "../../../../_stores/eventStore/types";
 import type { ICashForecast } from "../_types/cashForecast";
 
@@ -61,9 +62,11 @@ function readPayload(data: ICashForecast) {
 
 export const api: IEventStateApi<ICashForecast> = {
   get: (id: any) => {
+    log("CashforecastAPI.get(): started", {});
     return fetch(`/api/fe/cashForecasts/${id}`)
       .then(jsonOrThrow)
       .then((data) => {
+        log("CashforecastAPI.get():JSON data received", {});
         return { payload: readPayload(data) };
       });
   },
