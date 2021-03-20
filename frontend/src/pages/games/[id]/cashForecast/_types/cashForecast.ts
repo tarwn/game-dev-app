@@ -334,6 +334,9 @@ export enum RevenueModelType {
   ExplicitValues = 1
 }
 
+export enum EstimatedSalesCurve {
+  FirstWeekToFirstYearRatioOf3x = 1
+}
 
 export enum SalesRevenueShareType {
   GrossRevenueAfterSales = 1,

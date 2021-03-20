@@ -1,30 +1,112 @@
 import type { WritableDraft } from "immer/dist/internal";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import { FundingRepaymentType, ICashForecast, IFundingItem, SalesRevenueShareType } from "../../_types/cashForecast";
+import {
+  FundingRepaymentType,
+  ICashForecast,
+  IEstimatedRevenuePlatform,
+  IFundingItem,
+  SalesRevenueShareType
+} from "../../_types/cashForecast";
 import { IProjectedCashFlowData, SubTotalType } from "./types";
 
 // shared logic for calculating funding shares + managing tiers
-function calculateFundingShareOutflow(type: FundingRepaymentType, funding: IFundingItem, availableRevenue: number, paidSoFar: number) {
+// eslint-disable-next-line max-len
+export function calculateFundingShareOutflow(type: FundingRepaymentType, funding: IFundingItem, availableRevenue: number, paidSoFar: number): number {
+  if (availableRevenue === 0) return 0;
+
   let fundingOutflowAmount = 0;
-  let revenueSubTotal = availableRevenue;
+  let remainingRevenue = availableRevenue;
   let currentFundingOutflowTotal = paidSoFar;
-  let priorTierCompleted = true;
+  let canContinueToNextTier = true;
   funding.repaymentTerms?.cashOut.list.forEach(co => {
-    if (priorTierCompleted && revenueSubTotal > 0) {
-      const tierLimitNotReached = co.limitFixedAmount.value === 0 || co.limitFixedAmount.value > currentFundingOutflowTotal;
-      if (co.type.value == type && tierLimitNotReached) {
+    if (canContinueToNextTier && remainingRevenue > 0) {
+      // unlimited
+      if (co.type.value == type && co.limitFixedAmount.value === 0) {
+        const fullAmount = roundCurrency(co.amount.value * remainingRevenue);
+        remainingRevenue = 0;
+        fundingOutflowAmount += -1 * fullAmount;
+        currentFundingOutflowTotal += fullAmount;
+      }
+      // limited but we're still in the limit
+      else if (co.type.value == type && co.limitFixedAmount.value > currentFundingOutflowTotal) {
         const remainingAmountToLimit = roundCurrency(co.limitFixedAmount.value - currentFundingOutflowTotal);
-        let shareAmount = roundCurrency(co.amount.value * revenueSubTotal * -1);
-        if (co.limitFixedAmount.value !== 0 && remainingAmountToLimit > 0) {
-          shareAmount = Math.max(shareAmount, -1 * remainingAmountToLimit);
+        const idealShare = roundCurrency(co.amount.value * remainingRevenue);
+        let partialAmount = 0;
+        if (idealShare > remainingAmountToLimit) {
+          partialAmount = remainingAmountToLimit;
+          // subtract amount of revenue we would have evaluated to get this share
+          remainingRevenue -= remainingAmountToLimit / co.amount.value;
         }
+        else {
+          partialAmount = idealShare;
+          remainingRevenue = 0;
+        }
+        fundingOutflowAmount += -1 * partialAmount;
+        currentFundingOutflowTotal += partialAmount;
+      }
+      // type change and we haven't fully satisfied it yet - exit
+      else if (co.type.value != type && co.limitFixedAmount.value > currentFundingOutflowTotal) {
+        canContinueToNextTier = false;
+      }
+    }
+  });
+  return fundingOutflowAmount;
+}
+
+export function calculatePublisherOutflow(platform: IEstimatedRevenuePlatform, grossPlatformSales: number, paidSoFar: number): number {
+  if (grossPlatformSales === 0) return 0;
+
+  let fundingOutflowAmount = 0;
+  let remainingSalesToCalc = grossPlatformSales;
+  let currentFundingOutflowTotal = paidSoFar;
+  platform.revenueShares.list.forEach(tier => {
+    console.log({
+      currentFundingOutflowTotal,
+      remainingSalesToCalc,
+      revenueShare: tier.revenueShare.value,
+      untilAmount: tier.untilAmount.value,
+    });
+    if (remainingSalesToCalc > 0) {
+      // unlimited
+      if (tier.untilAmount.value === 0) {
+        const fullShare = tier.revenueShare.value * remainingSalesToCalc;
+        remainingSalesToCalc = 0;
+        fundingOutflowAmount += -1 * fullShare;
+        currentFundingOutflowTotal += fullShare;
+      }
+      // limited and we haven't gone over this tier yet
+      else if (tier.untilAmount.value > currentFundingOutflowTotal) {
+        const remainingAmountToLimit = roundCurrency(tier.untilAmount.value - currentFundingOutflowTotal);
+        // ideally we could do this much at this tier
+        const idealShare = roundCurrency(tier.revenueShare.value * remainingSalesToCalc);
+        let shareAmount = 0;
+        // but if that's more then the remaining amount to limit, take the lesser
+        if (idealShare > remainingAmountToLimit) {
+          console.log({
+            currentFundingOutflowTotal: currentFundingOutflowTotal + remainingAmountToLimit,
+            remainingSalesToCalc,
+            remainingAmountToLimit,
+            idealShare,
+            consumeForRemaining: roundCurrency(remainingAmountToLimit / tier.revenueShare.value)
+          });
+          shareAmount = -1 * remainingAmountToLimit;
+          remainingSalesToCalc -= roundCurrency(remainingAmountToLimit / tier.revenueShare.value);
+        }
+        else {
+          console.log({
+            currentFundingOutflowTotal: currentFundingOutflowTotal + idealShare,
+            remainingSalesToCalc,
+            remainingAmountToLimit,
+            idealShare
+          });
+          shareAmount = -1 * idealShare;
+          remainingSalesToCalc = 0;
+        }
+        // and apply it
         fundingOutflowAmount += shareAmount;
-        // reduce remaining sales gross for additional tier percents
-        revenueSubTotal += shareAmount;
-        // capture the outflow against the funding total for tier checks
+        // capture against total so far, which is positive
         currentFundingOutflowTotal += -1 * shareAmount;
       }
-      priorTierCompleted = co.limitFixedAmount.value > 0 && currentFundingOutflowTotal == co.limitFixedAmount.value;
     }
   });
   return fundingOutflowAmount;
@@ -38,7 +120,8 @@ export function applyPlatformShares(
   fundingOutflowCache: Map<string, number>
 ): void {
   draftState.GrossRevenue_PlatformShares[i].amount = 0;
-  // platform shares apply to direct sales revenue only
+
+  // revenue: platform shares apply to direct sales revenue only
   forecast.revenues.list.forEach(revenue => {
     const salesGrossDetail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revenue.globalId)[i];
     const detail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(revenue.globalId)[i];
@@ -51,6 +134,18 @@ export function applyPlatformShares(
     });
     draftState.GrossRevenue_PlatformShares[i].amount += detail.amount;
   });
+
+  // estimated revenue: platform shares apply to estimated sales revenue only
+  forecast.estimatedRevenue.platforms.list.forEach(platform => {
+    const sales = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(platform.globalId)[i];
+    const detail = draftState.details.get(SubTotalType.GrossRevenue_PlatformShares).get(platform.globalId)[i];
+    const paidSoFar = fundingOutflowCache.get(platform.globalId) ?? 0;
+    const newOutflowAmount = calculatePublisherOutflow(platform, sales.amount, paidSoFar);
+    detail.amount = newOutflowAmount; //-1 * sales.amount * platform.revenueShares.list[0].revenueShare.value;
+    fundingOutflowCache.set(platform.globalId, paidSoFar - newOutflowAmount);  // newOutflowAmount is negative, outflow cache is positive
+    draftState.GrossRevenue_PlatformShares[i].amount += detail.amount;
+  });
+
   // funding shares apply to all sales revenue sources (subtotal)
   forecast.funding.list.forEach(funding => {
     // quick/dirty check to see if distribution shares can apply by checking if we created a collection for it

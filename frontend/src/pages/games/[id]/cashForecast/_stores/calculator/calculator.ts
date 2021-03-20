@@ -1,7 +1,7 @@
 import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
-import { getUtcDate } from "../../../../../../utilities/date";
+import { getUtcDate, monthDiff } from "../../../../../../utilities/date";
 import { AdditionalEmployeeExpenseType, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
@@ -45,6 +45,8 @@ export function calculate(
     for (let i = 0; i < forecastMonthCount; i++) {
       const monthStart = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i, 1);
       const monthEnd = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i + 1, 1);
+      const monthNumAfterLaunch = monthDiff(forecast.launchDate.value, monthStart);
+
       // - Beginning Cash
       // bank balance
       applyBankBalance(draftState, forecast, i, monthStart, monthEnd);
@@ -72,7 +74,7 @@ export function calculate(
 
       // - gross rev
       // revenues - in
-      applySalesRevenue(draftState, forecast, i, monthStart, monthEnd);
+      applySalesRevenue(draftState, forecast, i, monthStart, monthEnd, monthNumAfterLaunch);
       applyPlatformShares(draftState, forecast, i, fundingPayOuts);
       draftState.GrossRevenue_RevenueAfterPlatform[i] = {
         amount: draftState.GrossRevenue_SalesRevenue[i].amount +
@@ -226,6 +228,15 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
       }
     });
   }
+  function initSingleDetail(type: SubTotalType, detailType: DetailType, globalId: string, name: string) {
+    subTotalDetailIds.set(type, subTotalDetailIds.get(type).concat([globalId]));
+    if (!draftState.elements.has(globalId)) {
+      draftState.elements.set(globalId, {
+        name: name,
+        type: detailType
+      });
+    }
+  }
 
   // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);
@@ -248,7 +259,10 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
   // gross revenue
   draftState.GrossRevenue_SalesRevenue = sizeSubTotal(draftState.GrossRevenue_SalesRevenue, forecastMonthCount);
   initDetails(SubTotalType.GrossRevenue_SalesRevenue, DetailType.Revenue, forecast.revenues.list);
+  initDetails(SubTotalType.GrossRevenue_SalesRevenue, DetailType.Revenue, forecast.estimatedRevenue.platforms.list);
+  // initSingleDetail(SubTotalType.GrossRevenue_SalesRevenue, DetailType.Revenue, forecast.estimatedRevenue.globalId, "Estimated Sales");
   draftState.GrossRevenue_PlatformShares = sizeSubTotal(draftState.GrossRevenue_PlatformShares, forecastMonthCount);
+  initDetails(SubTotalType.GrossRevenue_PlatformShares, DetailType.Revenue, forecast.estimatedRevenue.platforms.list);
   initDetails(SubTotalType.GrossRevenue_PlatformShares, DetailType.Revenue, forecast.revenues.list);
   initDetails(SubTotalType.GrossRevenue_PlatformShares, DetailType.Funding,
     forecast.funding.list
@@ -300,7 +314,7 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
 
   // taxes + profit sharing
   draftState.TaxesAndProfitSharing = sizeSubTotal(draftState.TaxesAndProfitSharing, forecastMonthCount);
-  draftState.TaxesAndProfitSharing_Taxes = sizeSubTotal(draftState.TaxesAndProfitSharing, forecastMonthCount);
+  draftState.TaxesAndProfitSharing_Taxes = sizeSubTotal(draftState.TaxesAndProfitSharing_Taxes, forecastMonthCount);
   initDetails(SubTotalType.TaxesAndProfitSharing_Taxes, DetailType.Tax, forecast.taxes.list);
   draftState.TaxesAndProfitSharing_ProfitSharing = sizeSubTotal(draftState.TaxesAndProfitSharing_ProfitSharing, forecastMonthCount);
   initDetails(SubTotalType.TaxesAndProfitSharing_ProfitSharing, DetailType.Funding,

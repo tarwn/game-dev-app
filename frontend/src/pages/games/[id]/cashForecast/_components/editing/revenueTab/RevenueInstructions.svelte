@@ -26,13 +26,13 @@
     the platform you will sell through.
   </p>
   <p>
-    <b>Target price &amp; Units:</b> Use an early level of comparable research to find a range of games like yours to
-    identify useful starting values. <ComingSoonLink>Detailed instructions post coming soon</ComingSoonLink>
+    <b>Target price &amp; Units:</b> Use an early level of comparable research to find a range of games like yours to identify
+    useful starting values.
   </p>
   <p>
-    <b /> Use an early level of comparable research to find a range of games like yours to identify useful starting
-    values. <ComingSoonLink>Detailed instructions post coming soon</ComingSoonLink>
+    <b>Min/Max, Low/High: </b> These are used for pricing analytics only, the <b>Target</b> values are used in the cash forecast.
   </p>
+  <p><ComingSoonLink><i>Detailed instructions post in progress</i></ComingSoonLink></p>
 {:else if stage == ForecastStage.Execution}
   <p>
     During the <b>Execution</b> phase, you're building the product and doing further comparable research. As you continue

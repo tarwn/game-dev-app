@@ -343,7 +343,7 @@
   {/if}
 </div>
 
-<!-- <WebSocketChannel
+<WebSocketChannel
   channelId={id}
   updateType="cashForecastUpdate"
   on:receive={({ detail }) => {
@@ -357,4 +357,4 @@
   on:disconnect={({ detail }) =>
     log("WebSocketChannel.on:channelDisconnected", {
       channel: detail,
-    })} /> -->
+    })} />

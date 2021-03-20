@@ -16,6 +16,7 @@ import type {
   ICashForecast,
   IContractorExpense,
   IEmployeeExpense,
+  IEstimatedRevenuePlatform,
   IFundingItem,
   IGenericExpense,
   ILoanItem,
@@ -126,6 +127,17 @@ export function createEmptyCashForecast(): ICashForecast {
     expenses: createObjectList<IGenericExpense>("unit-test-cf", "unit-test-cf-e"),
     taxes: createObjectList<ITax>("unit-test-cf", "unit-test-cf-tax"),
     revenues: createObjectList<IRevenue>("unit-test-cf", "unit-test-cf-r"),
+    estimatedRevenue: {
+      globalId: "unit-test-cf-er",
+      parentId: "unit-test-cf",
+      minimumPrice: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-mip", 0, "minimumPrice"),
+      targetPrice: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-tp", 0, "targetPrice"),
+      maximumPrice: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-map", 0, "maximumPrice"),
+      lowUnitsSold: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-lus", 0, "lowUnitsSold"),
+      targetUnitsSold: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-tus", 0, "targetUnitsSold"),
+      highUnitsSold: createIdentifiedPrimitive<number>("unit-test-cf-er", "unit-test-cf-er-hus", 0, "highUnitsSold"),
+      platforms: createObjectList<IEstimatedRevenuePlatform>("unit-test-cf-er", "unit-test-cf-er-p"),
+    }
   };
 }
 
