@@ -14,7 +14,7 @@
 
   // -- debug
   // const log = (o: any) => console.log(o);
-  const log = (o: any) => undefined;
+  // const log = () => undefined;
   // --
 
   let internalValue = value;
@@ -71,7 +71,7 @@
     }
   }
 
-  function handleInput(e: Event) {
+  function handleInput() {
     // const target = e.target as HTMLInputElement;
   }
 

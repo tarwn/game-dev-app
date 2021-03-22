@@ -25,7 +25,6 @@
 
   $: isLaunchDate = platform.dateType.value === BasicDateOption.Launch;
   $: dateButtonLabel = isLaunchDate ? "Set a date" : "Set to launch";
-  $: lastRevShareIndex = platform.revenueShares.list.length - 1;
 
   function swapDateType() {
     if (isLaunchDate) {

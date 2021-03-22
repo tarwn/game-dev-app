@@ -14,7 +14,7 @@
 
   // -- debug
   // const log = (o: any) => console.log(o);
-  const log = (o: any) => undefined;
+  const log = (_: any) => undefined;
   // --
 
   let internalValue = value;

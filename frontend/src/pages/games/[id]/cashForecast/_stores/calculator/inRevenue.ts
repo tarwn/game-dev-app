@@ -1,6 +1,6 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import { BasicDateOption, BasicDateOptions, EstimatedSalesCurve, ICashForecast, RevenueModelType } from "../../_types/cashForecast";
+import { BasicDateOption, EstimatedSalesCurve, ICashForecast, RevenueModelType } from "../../_types/cashForecast";
 import { IProjectedCashFlowData, SubTotalType } from "./types";
 
 export function applySalesRevenue(

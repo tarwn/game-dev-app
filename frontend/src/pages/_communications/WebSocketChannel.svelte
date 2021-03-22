@@ -1,6 +1,6 @@
 <script lang="ts">
   import type * as signalR from "@microsoft/signalr";
-  import { onDestroy, createEventDispatcher, onMount } from "svelte";
+  import { onDestroy, createEventDispatcher } from "svelte";
   import { log } from "../../utilities/logger";
   // import { log } from "./logger";
 

@@ -29,10 +29,6 @@
 
   function updateBankBalance(newAmount: number) {
     internalBankBalanceAmount = newAmount;
-    console.log({
-      bankBalanceAmount,
-      internalBankBalanceAmount,
-    });
   }
 
   function onClickOkay() {

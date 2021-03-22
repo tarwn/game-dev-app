@@ -169,7 +169,7 @@
   <thead>
     <tr class="gdb-cf-headRow-title">
       <th>Mid-Month Balances</th>
-      {#each sampleData as month}
+      {#each sampleData as _}
         <th />
       {/each}
     </tr>

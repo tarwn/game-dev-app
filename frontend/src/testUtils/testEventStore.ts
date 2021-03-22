@@ -39,7 +39,6 @@ export const createFakeStore = (): FakeStore => {
       throw new Error("getSince is not implemented in test store");
     },
     update: () => {
-      console.log("here");
       fakeServerVersionNumber++;
       return Promise.resolve({ versionNumber: fakeServerVersionNumber, previousVersionNumber: fakeServerVersionNumber - 1 });
     }

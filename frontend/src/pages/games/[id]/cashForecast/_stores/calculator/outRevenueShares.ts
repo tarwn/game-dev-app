@@ -60,12 +60,6 @@ export function calculatePublisherOutflow(platform: IEstimatedRevenuePlatform, g
   let remainingSalesToCalc = grossPlatformSales;
   let currentFundingOutflowTotal = paidSoFar;
   platform.revenueShares.list.forEach(tier => {
-    console.log({
-      currentFundingOutflowTotal,
-      remainingSalesToCalc,
-      revenueShare: tier.revenueShare.value,
-      untilAmount: tier.untilAmount.value,
-    });
     if (remainingSalesToCalc > 0) {
       // unlimited
       if (tier.untilAmount.value === 0) {
@@ -82,23 +76,10 @@ export function calculatePublisherOutflow(platform: IEstimatedRevenuePlatform, g
         let shareAmount = 0;
         // but if that's more then the remaining amount to limit, take the lesser
         if (idealShare > remainingAmountToLimit) {
-          console.log({
-            currentFundingOutflowTotal: currentFundingOutflowTotal + remainingAmountToLimit,
-            remainingSalesToCalc,
-            remainingAmountToLimit,
-            idealShare,
-            consumeForRemaining: roundCurrency(remainingAmountToLimit / tier.revenueShare.value)
-          });
           shareAmount = -1 * remainingAmountToLimit;
           remainingSalesToCalc -= roundCurrency(remainingAmountToLimit / tier.revenueShare.value);
         }
         else {
-          console.log({
-            currentFundingOutflowTotal: currentFundingOutflowTotal + idealShare,
-            remainingSalesToCalc,
-            remainingAmountToLimit,
-            idealShare
-          });
           shareAmount = -1 * idealShare;
           remainingSalesToCalc = 0;
         }

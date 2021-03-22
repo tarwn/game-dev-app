@@ -228,15 +228,15 @@ function resizeProjection(draftState: WritableDraft<IProjectedCashFlowData>, for
       }
     });
   }
-  function initSingleDetail(type: SubTotalType, detailType: DetailType, globalId: string, name: string) {
-    subTotalDetailIds.set(type, subTotalDetailIds.get(type).concat([globalId]));
-    if (!draftState.elements.has(globalId)) {
-      draftState.elements.set(globalId, {
-        name: name,
-        type: detailType
-      });
-    }
-  }
+  // function initSingleDetail(type: SubTotalType, detailType: DetailType, globalId: string, name: string) {
+  //   subTotalDetailIds.set(type, subTotalDetailIds.get(type).concat([globalId]));
+  //   if (!draftState.elements.has(globalId)) {
+  //     draftState.elements.set(globalId, {
+  //       name: name,
+  //       type: detailType
+  //     });
+  //   }
+  // }
 
   // beginning cash
   draftState.BeginningCash = sizeSubTotal(draftState.BeginningCash, forecastMonthCount);

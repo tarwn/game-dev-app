@@ -8,7 +8,7 @@
     "dev:server:start": "sirv dist --single",
     "validate": "svelte-check --fail-on-warnings",
     "lint": "eslint ./src/**/*.ts",
-    "test": "jest src",
+    "test": "jest src --detectOpenHandles",
     "test:watch": "yarn run test -- --watch",
     "ci:validate": "svelte-check --fail-on-warnings --output machine",
     "ci:lint": "eslint ./src/**/*.ts --format junit",

@@ -1,8 +1,5 @@
 <script lang="ts">
-  import { select } from "d3-selection";
-
   import { getContext } from "svelte";
-
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";

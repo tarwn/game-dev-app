@@ -1,7 +1,4 @@
 <script lang="ts">
-  import ContactMe from "./ContactMe.svelte";
-
-  export let subject: string;
 </script>
 
 <style type="text/scss">
