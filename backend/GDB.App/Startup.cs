@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Azure.Identity;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
 using GDB.App.Controllers.Frontend;
@@ -17,6 +18,7 @@ using GDB.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -54,6 +56,14 @@ namespace GDB.App
 
             // Business/Domain Logic
             BusinessServiceConfiguration.Configure(services);
+
+            // data protection
+            if (!_environment.IsDevelopment())
+            {
+                services.AddDataProtection()
+                    .PersistKeysToAzureBlobStorage(_configuration["Storage:ConnectionString"], _configuration["DataProtection:StorageKeyContainer"], _configuration["DataProtection:StorageKeyBlob"])
+                    .ProtectKeysWithAzureKeyVault(new Uri(_configuration["DataProtection:KVKeyIdentifier"]), new DefaultAzureCredential());
+            }
 
             // interactive security
             services.AddAntiforgery();
