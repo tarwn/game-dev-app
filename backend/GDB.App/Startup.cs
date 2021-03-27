@@ -50,6 +50,8 @@ namespace GDB.App
             {
                 return new DatabaseConnectionSettings() { Database = _configuration.GetConnectionString("Database") };
             });
+            services.Configure<StorageSettings>(_configuration.GetSection("Storage"));
+            services.Configure<DataProtectionSettings>(_configuration.GetSection("DataProtection"));
 
             // Data
             services.AddScoped<IPersistence, DapperPersistence>();
@@ -82,8 +84,8 @@ namespace GDB.App
                 services.Configure<CookiePolicyOptions>(options =>
                 {
                     // downgrade samesite for local development to prevent warnings cluttering up console when debugging on HTTP, etc
-                    options.MinimumSameSitePolicy = _environment.IsDevelopment() 
-                        ? Microsoft.AspNetCore.Http.SameSiteMode.Lax 
+                    options.MinimumSameSitePolicy = _environment.IsDevelopment()
+                        ? Microsoft.AspNetCore.Http.SameSiteMode.Lax
                         : Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                     options.HttpOnly = HttpOnlyPolicy.None;
                     options.Secure = CookieSecurePolicy.Always;
@@ -119,13 +121,18 @@ namespace GDB.App
                 services.AddDefaultCorrelationId();
 
                 // Health
-                services.AddHealthChecks()
-                    .AddCheck<DatabaseHealthCheck>("database");
+                var healthChecks = services.AddHealthChecks()
+                        .AddCheck<DatabaseHealthCheck>("database")
+                        .AddCheck<StorageHealthCheck>("storage");
+                if (!_environment.IsDevelopment())
+                {
+                    healthChecks.AddCheck<DataProtectionKeysHealthCheck>("dataprotection");
+                }
 
                 // MVC 
                 var builder = services.AddControllersWithViews(options =>
                 {
-                    options.Filters.Add(new UnhandledApiExceptionFilter(new string[] { 
+                    options.Filters.Add(new UnhandledApiExceptionFilter(new string[] {
                         "/api/fe"
                     }));
                 });
