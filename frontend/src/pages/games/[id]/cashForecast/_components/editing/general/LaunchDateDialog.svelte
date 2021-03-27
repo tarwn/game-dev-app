@@ -18,8 +18,9 @@
   $: internalDate = currentDate;
 
   function updateDateSelection(selected: Date) {
-    // next month, rewind one day
-    internalDate = getUtcDate(selected.getUTCFullYear(), selected.getUTCMonth() + 1, 0);
+    // first of the month for easier math
+    // [ch1123] - changes rev delay logic if we change this
+    internalDate = getUtcDate(selected.getUTCFullYear(), selected.getUTCMonth(), 1);
   }
 
   function onClickOkay() {
@@ -55,7 +56,7 @@
 <div>
   <h2>Set your Target Launch Date</h2>
   <p>
-    This is the target launch date used in forecasting. It will assume the end of the month to make the monthly
+    This is the target launch date used in forecasting. It will assume the start of the month to make the monthly
     calculations easier.
   </p>
   <div class="gdb-dialog-form">
@@ -64,7 +65,7 @@
         <DateInput value={internalDate} on:change={({ detail }) => updateDateSelection(detail.value)} />
       </LabeledInput>
     </div>
-    <i class="gdb-dialog-instructions">Launch date must be the last day of the month.</i>
+    <i class="gdb-dialog-instructions">Launch date must be the first day of the month.</i>
   </div>
   <SpacedButtons align="right">
     <Button value="Close without Changing" buttonStyle="primary-outline" on:click={onCloseClick} />

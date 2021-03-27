@@ -338,6 +338,11 @@ export enum EstimatedSalesCurve {
   FirstWeekToFirstYearRatioOf3x = 1
 }
 
+export enum EstimatedRevenueDelay {
+  None = 0,
+  NextMonth = 1
+}
+
 export enum SalesRevenueShareType {
   GrossRevenueAfterSales = 1,
   GrossRevenueAfterPlatform = 2,

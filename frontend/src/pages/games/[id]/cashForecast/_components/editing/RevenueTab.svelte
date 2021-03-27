@@ -2,6 +2,7 @@
   import { getContext } from "svelte";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
+  import ContactMe from "../../../../../../components/ContactMe.svelte";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
   import LabeledInput from "../../../../../../components/inputs/LabeledInput.svelte";
   import NumberInput from "../../../../../../components/inputs/NumberInput.svelte";
@@ -186,6 +187,21 @@
     </td>
   </TableRowIndented>
   <TableRowEmpty colspan={9} />
+  <TableRowIndented>
+    <td colspan={4}>
+      <p>
+        Revenue estimates assume a 1:3 ratio between launch month and first year, a conservative ratio (read more in
+        <a href="https://www.launchready.co/blog/create-a-cash-forecast/">Creating a Cash Forecast to test viability</a
+        >). Every month after the first month is estimated at an even rate. Unit sales are applied proportionally to the
+        platforms below, based on their start dates and the sales %.
+      </p>
+      <p>Estimated sales are projected w/ a 1 month delay to reflect delayed payout from platforms.</p>
+      <p>
+        This is a pretty simplistic model, should be conservative, and will be expanded as I can find more solid
+        research. If you need a specific model, please <ContactMe />.
+      </p>
+    </td>
+  </TableRowIndented>
 
   <!-- List of platforms -->
   <TableSubHeaderRow colspan={9} value="Sales Platforms" />

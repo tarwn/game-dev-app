@@ -6,6 +6,7 @@ import { calculate } from "../calculator";
 import { getEmptyProjection, SubTotalType } from "../types";
 
 const FIVE_YEARS_OF_ENTRIES = 12 * 5;
+const revDelay = 1;
 
 describe("estimated sales revenue", () => {
   // easy numbers:
@@ -51,16 +52,16 @@ describe("estimated sales revenue", () => {
 
     [0, 44 * 5.00, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       rollingSum += amt;
-      expect(detail[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossProfit[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.NetProfit[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.EndingCash[11 + i].amount).toBeCloseTo(rollingSum);
-      expect(initialProjection.BeginningCash[11 + i + 1].amount).toBeCloseTo(rollingSum);
+      expect(detail[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_SalesRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossProfit[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.NetProfit[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.EndingCash[11 + revDelay + i].amount).toBeCloseTo(rollingSum);
+      expect(initialProjection.BeginningCash[11 + revDelay + i + 1].amount).toBeCloseTo(rollingSum);
     });
   });
 
@@ -85,16 +86,16 @@ describe("estimated sales revenue", () => {
 
     [0, 0, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       rollingSum += amt;
-      expect(detail[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossProfit[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.NetProfit[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.EndingCash[11 + i].amount).toBeCloseTo(rollingSum);
-      expect(initialProjection.BeginningCash[11 + i + 1].amount).toBeCloseTo(rollingSum);
+      expect(detail[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_SalesRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossProfit[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.NetProfit[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.EndingCash[11 + revDelay + i].amount).toBeCloseTo(rollingSum);
+      expect(initialProjection.BeginningCash[11 + revDelay + i + 1].amount).toBeCloseTo(rollingSum);
     });
   });
 
@@ -118,12 +119,12 @@ describe("estimated sales revenue", () => {
     const expectedAmount = 44 * 5.00; // 1st month
     const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
       .get(platform.globalId);
-    expect(detail[12].amount).toBeCloseTo(44 * 5.00);
-    expect(initialProjection.GrossRevenue_SalesRevenue[12].amount).toBeCloseTo(expectedAmount);
+    expect(detail[12 + revDelay].amount).toBeCloseTo(44 * 5.00);
+    expect(initialProjection.GrossRevenue_SalesRevenue[12 + revDelay].amount).toBeCloseTo(expectedAmount);
     const nextDetail = nextProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
       .get(platform.globalId);
-    expect(nextDetail[12].amount).toBeCloseTo(0);
-    expect(nextProjection.GrossRevenue_SalesRevenue[12].amount).toBeCloseTo(0);
+    expect(nextDetail[12 + revDelay].amount).toBeCloseTo(0);
+    expect(nextProjection.GrossRevenue_SalesRevenue[12 + revDelay].amount).toBeCloseTo(0);
   });
 
   it("removes estimated sales revenue from the projection when platform removed", () => {
@@ -146,12 +147,12 @@ describe("estimated sales revenue", () => {
     const expectedAmount = 44 * 5.00; // 1st month
     const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
       .get(platform.globalId);
-    expect(detail[12].amount).toBeCloseTo(44 * 5.00);
-    expect(initialProjection.GrossRevenue_SalesRevenue[12].amount).toBeCloseTo(expectedAmount);
+    expect(detail[12 + revDelay].amount).toBeCloseTo(44 * 5.00);
+    expect(initialProjection.GrossRevenue_SalesRevenue[12 + revDelay].amount).toBeCloseTo(expectedAmount);
     const nextDetail = nextProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
       .get(platform.globalId);
     expect(nextDetail).toBeUndefined();
-    expect(nextProjection.GrossRevenue_SalesRevenue[12].amount).toBeCloseTo(0);
+    expect(nextProjection.GrossRevenue_SalesRevenue[12 + revDelay].amount).toBeCloseTo(0);
   });
 
   it("applies a single platform rev share correctly", () => {
@@ -176,16 +177,16 @@ describe("estimated sales revenue", () => {
     [0, 44 * 5.00, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       const expectedAmtAfterPlatform = amt * (1 - 0.30);
       rollingSum += expectedAmtAfterPlatform;
-      expect(detail[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.NetProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.EndingCash[11 + i].amount).toBeCloseTo(rollingSum);
-      expect(initialProjection.BeginningCash[11 + i + 1].amount).toBeCloseTo(rollingSum);
+      expect(detail[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_SalesRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.NetProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.EndingCash[11 + revDelay + i].amount).toBeCloseTo(rollingSum);
+      expect(initialProjection.BeginningCash[11 + revDelay + i + 1].amount).toBeCloseTo(rollingSum);
     });
   });
 
@@ -211,16 +212,16 @@ describe("estimated sales revenue", () => {
     [0, 44 * 5.00, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       const expectedAmtAfterPlatform = amt * (1 - 0.30 / 2 - 0.25 / 2);
       rollingSum += expectedAmtAfterPlatform;
-      expect(detail[11 + i].amount).toBeCloseTo(amt / 2);
-      expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.NetProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.EndingCash[11 + i].amount).toBeCloseTo(rollingSum);
-      expect(initialProjection.BeginningCash[11 + i + 1].amount).toBeCloseTo(rollingSum);
+      expect(detail[11 + revDelay + i].amount).toBeCloseTo(amt / 2);
+      expect(initialProjection.GrossRevenue_SalesRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.NetProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.EndingCash[11 + revDelay + i].amount).toBeCloseTo(rollingSum);
+      expect(initialProjection.BeginningCash[11 + revDelay + i + 1].amount).toBeCloseTo(rollingSum);
     });
 
   });
@@ -248,25 +249,25 @@ describe("estimated sales revenue", () => {
     [0, 44 * 5.00, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       const expectedAmtAfterPlatform = amt * (1 - 0.30);
       rollingSum += expectedAmtAfterPlatform;
-      expect(detail[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_SalesRevenue[11 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.NetProfit[11 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.EndingCash[11 + i].amount).toBeCloseTo(rollingSum);
-      expect(initialProjection.BeginningCash[11 + i + 1].amount).toBeCloseTo(rollingSum);
+      expect(detail[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_SalesRevenue[11 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.NetProfit[11 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.EndingCash[11 + revDelay + i].amount).toBeCloseTo(rollingSum);
+      expect(initialProjection.BeginningCash[11 + revDelay + i + 1].amount).toBeCloseTo(rollingSum);
     });
     // 2nd year - 2 platforms
     [8 * 5.00, 8 * 5.00, 8 * 5.00].forEach((amt, i) => {
       const expectedAmtAfterPlatform = amt * (1 - 0.30 / 2 - 0.25 / 2);
-      expect(detail[24 + i].amount).toBeCloseTo(amt / 2);
-      expect(initialProjection.GrossRevenue_SalesRevenue[24 + i].amount).toBeCloseTo(amt);
-      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[24 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
-      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[24 + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(detail[24 + revDelay + i].amount).toBeCloseTo(amt / 2);
+      expect(initialProjection.GrossRevenue_SalesRevenue[24 + revDelay + i].amount).toBeCloseTo(amt);
+      expect(initialProjection.GrossRevenue_RevenueAfterPlatform[24 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterDistribution[24 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
+      expect(initialProjection.GrossRevenue_RevenueAfterPublisher[24 + revDelay + i].amount).toBeCloseTo(expectedAmtAfterPlatform);
     });
   });
 
@@ -293,17 +294,17 @@ describe("estimated sales revenue", () => {
     // each Month: 8 * 5.00;
     for (let i = 0; i < 12; i++) {
       const amount = (i == 0 ? 44 : 8) * 5.00;
-      expect(detail[12 + i].amount).toBeCloseTo(amount);
-      expect(initialProjection.GrossRevenue_SalesRevenue[12 + i].amount).toBeCloseTo(amount);
+      expect(detail[12 + revDelay + i].amount).toBeCloseTo(amount);
+      expect(initialProjection.GrossRevenue_SalesRevenue[12 + revDelay + i].amount).toBeCloseTo(amount);
       if (i == 0) {
         // 220 in month 0 - some to each bucket
         const expPlatform = 100 * 0.30 + 100 * 0.25 + 20 * 0.20;
-        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[12 + i].amount).toBeCloseTo(amount - expPlatform);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[12 + revDelay + i].amount).toBeCloseTo(amount - expPlatform);
       }
       else {
         // all last bucket for later months
         const expPlatform = amount * 0.20;
-        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[12 + i].amount).toBeCloseTo(amount - expPlatform);
+        expect(initialProjection.GrossRevenue_RevenueAfterPlatform[12 + revDelay + i].amount).toBeCloseTo(amount - expPlatform);
       }
     }
 

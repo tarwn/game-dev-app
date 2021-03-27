@@ -1,4 +1,4 @@
-import { EstimatedSalesCurve } from "../../../_types/cashForecast";
+import { EstimatedRevenueDelay, EstimatedSalesCurve } from "../../../_types/cashForecast";
 import { calculateEstimatedSalesRevenue } from "../inRevenue";
 
 describe("estimated sales revenue", () => {
@@ -7,7 +7,13 @@ describe("estimated sales revenue", () => {
     const units18mo = 100.0;
     const monthAfterLaunch = 0;
 
-    const result = calculateEstimatedSalesRevenue(price, units18mo, monthAfterLaunch, EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x);
+    const result = calculateEstimatedSalesRevenue(
+      price,
+      units18mo,
+      monthAfterLaunch,
+      EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+      EstimatedRevenueDelay.None
+    );
 
     expect(result % price).toBeCloseTo(0);
   });
@@ -17,7 +23,13 @@ describe("estimated sales revenue", () => {
     const units18mo = 100.0;
     const monthAfterLaunch = 0;
 
-    const result = calculateEstimatedSalesRevenue(price, units18mo, monthAfterLaunch, EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x);
+    const result = calculateEstimatedSalesRevenue(
+      price,
+      units18mo,
+      monthAfterLaunch,
+      EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+      EstimatedRevenueDelay.None
+    );
 
     expect(result % price).toBeCloseTo(0);
   });
@@ -35,7 +47,13 @@ describe("estimated sales revenue", () => {
       [180, 15, 8],
       [180, 30, 8],
     ])("calculates % of 18mo %d for month %d as %d", (target: number, month: number, expected: number) => {
-      const result = calculateEstimatedSalesRevenue(1.00, target, month, EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x);
+      const result = calculateEstimatedSalesRevenue(
+        1.00,
+        target,
+        month,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.None
+      );
 
       expect(result).toBe(expected);
     });
@@ -52,9 +70,97 @@ describe("estimated sales revenue", () => {
       [155, 1, testval(1)],
       [155, 11, testval(11)]
     ])("calculates % of 18mo %d for month %d as %d", (target: number, month: number, expected: number) => {
-      const result = calculateEstimatedSalesRevenue(1.00, target, month, EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x);
+      const result = calculateEstimatedSalesRevenue(
+        1.00,
+        target,
+        month,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.None
+      );
 
       expect(result).toBe(expected);
+    });
+  });
+
+  describe("Revenue inflow delay", () => {
+
+    // magic numbers for 180 18mo est
+    // 1st year numbers:
+    // 1st: 44 * 5.00;
+    // each Month: 8 * 5.00;
+    const units18mo = 180.0;
+    const price = 5.00;
+    const launchMonthAmount = 44 * price;
+    const followMonthAmount = 8 * price;
+
+    it("calculates launch month revenue in as launch month estimated revenue", () => {
+      const monthAfterLaunch = 0;
+
+      const result = calculateEstimatedSalesRevenue(
+        price,
+        units18mo,
+        monthAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.None
+      );
+
+      expect(result).toBeCloseTo(launchMonthAmount);
+    });
+
+    it("calculates launch month + 1 revenue in as launch month + 1 estimated revenue", () => {
+      const monthAfterLaunch = 1;
+
+      const result = calculateEstimatedSalesRevenue(
+        price,
+        units18mo,
+        monthAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.None
+      );
+
+      expect(result).toBeCloseTo(followMonthAmount);
+    });
+
+    it("calculates launch month revenue in as no estimated sales revenue", () => {
+      const monthAfterLaunch = 0;
+
+      const result = calculateEstimatedSalesRevenue(
+        price,
+        units18mo,
+        monthAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.NextMonth
+      );
+
+      expect(result).toBeCloseTo(0);
+    });
+
+    it("calculates launch month + 1 revenue in as launch month estimated revenue", () => {
+      const monthAfterLaunch = 1;
+
+      const result = calculateEstimatedSalesRevenue(
+        price,
+        units18mo,
+        monthAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.NextMonth
+      );
+
+      expect(result).toBeCloseTo(launchMonthAmount);
+    });
+
+    it("calculates launch month + 2 revenue in as launch month + 1 estimated revenue", () => {
+      const monthAfterLaunch = 2;
+
+      const result = calculateEstimatedSalesRevenue(
+        price,
+        units18mo,
+        monthAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        EstimatedRevenueDelay.NextMonth
+      );
+
+      expect(result).toBeCloseTo(followMonthAmount);
     });
   });
 });

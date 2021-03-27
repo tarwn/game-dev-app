@@ -2,7 +2,7 @@ import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { getUtcDate, monthDiff } from "../../../../../../utilities/date";
-import { AdditionalEmployeeExpenseType, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
+import { AdditionalEmployeeExpenseType, EstimatedRevenueDelay, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
 import { applyLoansIn } from "./inLoans";
@@ -45,6 +45,7 @@ export function calculate(
     for (let i = 0; i < forecastMonthCount; i++) {
       const monthStart = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i, 1);
       const monthEnd = getUtcDate(startDate.getUTCFullYear(), startDate.getUTCMonth() + i + 1, 1);
+      // Currently we require launch date to be the last day of month, which makes launch month the following month
       const monthNumAfterLaunch = monthDiff(forecast.launchDate.value, monthStart);
 
       // - Beginning Cash
@@ -74,7 +75,8 @@ export function calculate(
 
       // - gross rev
       // revenues - in
-      applySalesRevenue(draftState, forecast, i, monthStart, monthEnd, monthNumAfterLaunch);
+      const platformDelay = EstimatedRevenueDelay.NextMonth;  // [ch1123]
+      applySalesRevenue(draftState, forecast, i, monthStart, monthEnd, monthNumAfterLaunch, platformDelay);
       applyPlatformShares(draftState, forecast, i, fundingPayOuts);
       draftState.GrossRevenue_RevenueAfterPlatform[i] = {
         amount: draftState.GrossRevenue_SalesRevenue[i].amount +

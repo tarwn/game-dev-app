@@ -1,6 +1,7 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import { BasicDateOption, EstimatedSalesCurve, ICashForecast, RevenueModelType } from "../../_types/cashForecast";
+import { getUtcDate } from "../../../../../../utilities/date";
+import { BasicDateOption, EstimatedRevenueDelay, EstimatedSalesCurve, ICashForecast, RevenueModelType } from "../../_types/cashForecast";
 import { IProjectedCashFlowData, SubTotalType } from "./types";
 
 export function applySalesRevenue(
@@ -10,6 +11,7 @@ export function applySalesRevenue(
   monthStart: Date,
   monthEnd: Date,
   monthNumAfterLaunch: number,
+  platformDelay: EstimatedRevenueDelay
 ): void {
   draftState.GrossRevenue_SalesRevenue[i].amount = 0;
 
@@ -31,9 +33,12 @@ export function applySalesRevenue(
   });
 
   // estimated revenue items - only included if >= forecast date, currently missing curve
+  const monthStartWithDelay = (platformDelay == EstimatedRevenueDelay.None)
+    ? monthStart
+    : getUtcDate(monthStart.getUTCFullYear(), monthStart.getUTCMonth() - 1, 1);
   const totalPlatformSalesPercent = forecast.estimatedRevenue.platforms.list.reduce((ttl, p) => {
     if ((p.dateType.value == BasicDateOption.Launch && monthNumAfterLaunch >= 0) ||
-      (p.dateType.value == BasicDateOption.Date && p.startDate.value <= monthStart)) {
+      (p.dateType.value == BasicDateOption.Date && p.startDate.value <= monthStartWithDelay)) {
       return ttl + 1;
     }
     return ttl;
@@ -42,24 +47,35 @@ export function applySalesRevenue(
     const detail = draftState.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(platform.globalId)[i];
     detail.amount = 0;
     if ((platform.dateType.value == BasicDateOption.Launch && monthNumAfterLaunch >= 0) ||
-      (platform.dateType.value == BasicDateOption.Date && platform.startDate.value <= monthStart)) {
+      (platform.dateType.value == BasicDateOption.Date && platform.startDate.value <= monthStartWithDelay)) {
       // taking a percentage of unit sales forecast and passing it in so we don't have units split
       //  across multiple platforms - may exagerate rounding effects at edges based on number of platforms (shifting units later)
       const unitsShare = platform.percentOfSales.value / totalPlatformSalesPercent;
       detail.amount = calculateEstimatedSalesRevenue(
         forecast.estimatedRevenue.targetPrice.value,
         forecast.estimatedRevenue.targetUnitsSold.value * unitsShare,
-        monthNumAfterLaunch, EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x);
+        monthNumAfterLaunch,
+        EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x,
+        platformDelay);
     }
     draftState.GrossRevenue_SalesRevenue[i].amount += detail.amount;
   });
 }
 
 // eslint-disable-next-line max-len
-export function calculateEstimatedSalesRevenue(targetPrice: number, targetUnits: number, monthAfterLaunch: number, curveType: EstimatedSalesCurve): number {
+export function calculateEstimatedSalesRevenue(
+  targetPrice: number,
+  targetUnits: number,
+  monthAfterLaunch: number,
+  curveType: EstimatedSalesCurve,
+  delay: EstimatedRevenueDelay
+): number {
+  const revenueInflowFromMonth = monthAfterLaunch + (delay == EstimatedRevenueDelay.NextMonth ? -1 : 0);
+  if (revenueInflowFromMonth < 0) return 0;
+
   switch (curveType) {
     case EstimatedSalesCurve.FirstWeekToFirstYearRatioOf3x:
-      return roundCurrency(targetPrice * getUnitsForFirstWeekToFirstYearModel(targetUnits, monthAfterLaunch, 3));
+      return roundCurrency(targetPrice * getUnitsForFirstWeekToFirstYearModel(targetUnits, revenueInflowFromMonth, 3));
     default:
       throw new Error("Unsupported sales estimation curve type");
   }
