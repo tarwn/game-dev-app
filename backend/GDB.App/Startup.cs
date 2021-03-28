@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Azure.Identity;
 using CorrelationId;
@@ -14,6 +17,8 @@ using GDB.App.Security;
 using GDB.App.StartupConfiguration;
 using GDB.App.StartupConfiguration.Settings;
 using GDB.Common.Persistence;
+using GDB.Common.Settings;
+using GDB.EmailSending;
 using GDB.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -45,13 +50,14 @@ namespace GDB.App
         public void ConfigureServices(IServiceCollection services)
         {
             // Configurations
+            services.Configure<AddressSettings>(_configuration.GetSection("Addresses"));
+            services.Configure<DataProtectionSettings>(_configuration.GetSection("DataProtection"));
             services.Configure<SentryOptions>(_configuration.GetSection("Sentry"));
+            services.Configure<StorageSettings>(_configuration.GetSection("Storage"));
             services.AddScoped<DatabaseConnectionSettings>((services) =>
             {
                 return new DatabaseConnectionSettings() { Database = _configuration.GetConnectionString("Database") };
             });
-            services.Configure<StorageSettings>(_configuration.GetSection("Storage"));
-            services.Configure<DataProtectionSettings>(_configuration.GetSection("DataProtection"));
 
             // Data
             services.AddScoped<IPersistence, DapperPersistence>();
@@ -165,6 +171,28 @@ namespace GDB.App
                 options.Providers.Add<GzipCompressionProvider>();
                 options.Providers.Add<BrotliCompressionProvider>();
             });
+
+            //email notification service
+            services.AddScoped<IEmailSender, EmailSender>();
+            if (_configuration["Email:Method"].Equals("File"))
+            {
+                services.AddFluentEmail(_configuration["Email:FromAddress"], _configuration["Email:FromName"])
+                        .AddRazorRenderer(typeof(EmailSender))
+                        .AddSmtpSender(new SmtpClient
+                        {
+                            DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
+                            PickupDirectoryLocation = Path.Combine(_environment.ContentRootPath, _configuration["Email:FilePath"])
+                        });
+            }
+            else
+            {
+                services.AddFluentEmail(_configuration["Email:FromAddress"], _configuration["Email:FromName"])
+                        .AddRazorRenderer(typeof(EmailSender))
+                        .AddSmtpSender(new SmtpClient(_configuration["Email:Host"], int.Parse(_configuration["Email:Port"])) { 
+                            EnableSsl = true,
+                            Credentials = new NetworkCredential(_configuration["Email:Username"], _configuration["Email:Password"])
+                        });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,0 +1,1 @@
+This folder is where email is delivered locally when testing.

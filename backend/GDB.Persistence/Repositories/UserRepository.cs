@@ -23,6 +23,7 @@ namespace GDB.Persistence.Repositories
             var sql = @"
                 SELECT Id,
                         UserName,
+                        DisplayName,
                         MustResetpassword,
                         PasswordHash
                 FROM dbo.[User]
@@ -40,6 +41,7 @@ namespace GDB.Persistence.Repositories
             var sql = @"
                 SELECT Id,
                         UserName,
+                        DisplayName,
                         MustResetpassword
                 FROM dbo.[User]
                 WHERE UserName = @UserName;
@@ -56,6 +58,7 @@ namespace GDB.Persistence.Repositories
             var sql = @"
                 SELECT Id,
                         UserName,
+                        DisplayName,
                         MustResetpassword
                 FROM dbo.[User]
                 WHERE Id = @UserId;

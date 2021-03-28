@@ -7,6 +7,7 @@ namespace GDB.Common.Authentication
     public class User
     {
         public int Id { get; set; }
+        public string DisplayName { get; set; }
         public string UserName { get; set; }
         public bool MustResetPassword { get; set; }
     }

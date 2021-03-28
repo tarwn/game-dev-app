@@ -1,0 +1,57 @@
+﻿@using GDB.EmailSending.Templates;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0;">
+    <meta name="format-detection" content="telephone=no" />
+    <meta charset="utf-8" />
+    <title>@RenderSectionAsync("Title", true)</title>
+    <base href="/" />
+    <style>
+        /* Reset styles */
+        body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important;}
+        body, table, td, div, p, a { -webkit-font-smoothing: antialiased; text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; line-height: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; border-spacing: 0; }
+        img { border: 0; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+        #outlook a { padding: 0; }
+        .ReadMsgBody { width: 100%; } .ExternalClass { width: 100%; }
+        .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
+        /*.paragraph { padding: 8px 16px; }*/
+        /* Rounded corners for advanced mail clients only */
+        @@media all and (min-width: 560px) {
+            .container { border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; -khtml-border-radius: 8px;}
+        }
+        body{
+            color: @Colors.TextColor;
+        }
+        a {
+            color: @Colors.AnchorColor;
+            text-decoration: underline;
+        }
+        a:hover {
+            color: @Colors.AnchorColorDark;
+            text-decoration: underline;
+        }
+        .footer a, .footer a:hover {
+	        color: @Colors.TextColorLight;
+        }
+        /* General Styles */
+        h1 {
+            font-size: 120%;
+        }
+        .paragraph {
+            color: @Colors.TextColor;
+        }
+    </style>
+</head>
+<body topmargin="0" rightmargin="0" bottommargin="0" leftmargin="0" marginwidth="0" marginheight="0" width="100%"
+      style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; width: 100%; height: 100%; -webkit-font-smoothing: antialiased; text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; line-height: 100%; background-color: @Colors.BackgroundColor; color: @Colors.TextColor;"
+      bgcolor="@Colors.BackgroundColor"
+      text="@Colors.TextColor">
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">@RenderSectionAsync("PreHeader", true)</div>
+
+    @RenderBody()
+
+</body>
+</html>

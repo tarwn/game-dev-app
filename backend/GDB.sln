@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Persistence", "GDB.Pers
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.App.Tests", "GDB.App.Tests\GDB.App.Tests.csproj", "{D9E13B1D-EA66-417D-A6BC-5536C257A237}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.Business.Tests", "GDB.Business.Tests\GDB.Business.Tests.csproj", "{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDB.Business.Tests", "GDB.Business.Tests\GDB.Business.Tests.csproj", "{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDB.EmailSending", "GDB.EmailSending\GDB.EmailSending.csproj", "{FFDBC4E6-44C7-40A9-A08A-53B58BBDE607}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE168BE1-2C97-47FE-8DD5-BEA9171060A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFDBC4E6-44C7-40A9-A08A-53B58BBDE607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFDBC4E6-44C7-40A9-A08A-53B58BBDE607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFDBC4E6-44C7-40A9-A08A-53B58BBDE607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFDBC4E6-44C7-40A9-A08A-53B58BBDE607}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

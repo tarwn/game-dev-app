@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\ResetPassword.cshtml" />
+    <None Remove="Templates\Welcome.cshtml" />
+    <None Remove="Templates\_Layout.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\ResetPassword.cshtml" />
+    <EmbeddedResource Include="Templates\Welcome.cshtml" />
+    <EmbeddedResource Include="Templates\_Layout.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentEmail.Razor" Version="3.0.0" />
+    <PackageReference Include="FluentEmail.Smtp" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GDB.Common\GDB.Common.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GDB.Common.Persistence
+namespace GDB.Common.Settings
 {
     public class DataProtectionSettings
     {

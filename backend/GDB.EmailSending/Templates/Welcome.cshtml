@@ -1,0 +1,34 @@
+﻿@using GDB.EmailSending.Templates;
+@model WelcomeData
+@{
+    Layout = "Templates._Layout.cshtml";
+}
+@section Title { Thanks for signing up for LaunchReady }
+@section PreHeader { Hello @Model.Name, thanks for signing up... }
+
+@Raw(Containers.Start())
+
+@Raw(Containers.StartParagraph())
+<div style="text-align: left; color: @Colors.TextColor">
+    <p>Hi @Model.Name,</p>
+    <p>
+        Thanks for signing up for LaunchReady!
+    </p>
+    <p>
+        Your username is @Model.Username and your account has been created, click the button below to verify your account.
+    </p>
+    <p style="text-align: center">
+        <a href="@Model.PasswordResetLink" title="Verify your account" style="@Raw(Containers.ButtonStyle())">Verify Your Account</a>
+    </p>
+    <p style="color: @Colors.TextColorLight; font-size: 90%">or copy/paste this link: <br /> @Model.PasswordResetLink</p>
+    <p>
+        The link is good for @Model.LinkHours hours. If you have any questions, please reach out to me at eli@launchready.co.
+    </p>
+    <p>
+        Eli
+    </p>
+</div>
+@Raw(Containers.EndParagraph())
+
+@Raw(Containers.End())
+

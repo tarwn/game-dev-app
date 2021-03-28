@@ -3,14 +3,19 @@ using GDB.App.Controllers.General.Utility;
 using GDB.App.Security;
 using GDB.App.StartupConfiguration;
 using GDB.Common.Authentication;
+using GDB.Common.Settings;
+using GDB.EmailSending;
+using GDB.EmailSending.Templates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -25,15 +30,20 @@ namespace GDB.App.Controllers.General
         private ISignInManager _signInManager;
         private ITimeLimitedDataProtector _protector;
         private IAccountCookies _cookieHandler;
+        private IEmailSender _emailSender;
+        private IOptions<AddressSettings> _addressSettings;
         private const string ChooserCookieName = "gdbchs";
         private const int TenantChooserCookieLifetimeMinutes = 5;
 
-        public AccountController(ISignInManager signInManager, IDataProtectionProvider dataProtectionProvider, IAccountCookies cookieHandler)
+        public AccountController(ISignInManager signInManager, IDataProtectionProvider dataProtectionProvider,
+            IAccountCookies cookieHandler, IEmailSender emailSender, IOptions<AddressSettings> addressSettings)
         {
             _signInManager = signInManager;
             _protector = dataProtectionProvider.CreateProtector("StudioChooserCookie")
                                                .ToTimeLimitedDataProtector();
             _cookieHandler = cookieHandler;
+            _emailSender = emailSender;
+            _addressSettings = addressSettings;
         }
 
         [HttpGet("login")]
@@ -221,7 +231,16 @@ namespace GDB.App.Controllers.General
             if (user != null)
             {
                 var token = await _signInManager.GeneratePasswordTokenAsync(user.Id);
-                //TODO: send the email with the token
+                var emailData = new ResetPasswordData(
+                    user.DisplayName,
+                    user.UserName,
+                    $"{_addressSettings.Value.App}/account/resetPassword?userName={WebUtility.UrlEncode(user.UserName)}&resetToken={WebUtility.UrlEncode(token)}",
+                    24);
+                var result = await _emailSender.SendPasswordResetEmail(user.UserName, emailData);
+                if (!result)
+                {
+                    return View("ForgotPasswordEmailError");
+                }
             }
             return View("ForgotPasswordEmailSent");
         }

@@ -5,10 +5,14 @@ using GDB.App.Controllers.General.Models;
 using GDB.Business.Authentication;
 using GDB.Business.BusinessLogic;
 using GDB.Common.Authentication;
+using GDB.Common.Settings;
+using GDB.EmailSending;
+using GDB.EmailSending.Templates;
 using GDB.Persistence;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -28,6 +32,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         private FakeCrypto _fakeCrypto;
         private FakeCookies _fakeCookies;
         private EphemeralDataProtectionProvider _dataProtection;
+        private Mock<IEmailSender> _emailSenderMock;
 
         [OneTimeSetUp]
         [OneTimeTearDown]
@@ -45,12 +50,14 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
             _fakeCookies = new FakeCookies();
             var signIn = new SignInManager(busOps, _fakeCrypto);
             _dataProtection = new EphemeralDataProtectionProvider();
+            _emailSenderMock = new Mock<IEmailSender>();
+            var addressSettings = Options.Create(new AddressSettings());
 
             var mockUrlHelper = new Mock<IUrlHelper>();
             mockUrlHelper.Setup(m => m.IsLocalUrl(It.IsAny<String>()))
                 .Returns(true);
 
-            _controller = new AccountController(signIn, _dataProtection, _fakeCookies)
+            _controller = new AccountController(signIn, _dataProtection, _fakeCookies, _emailSenderMock.Object, addressSettings)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -350,13 +357,16 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         }
 
         [Test]
-        public async Task ForgotPassword_ValidUsernameSubmitted_ReportsSuccess()
+        public async Task ForgotPassword_ValidUsernameSubmitted_SendsEmailAndReportsSuccess()
         {
             var user = Database.Users.Add("unit test", "unittest-xii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             _fakeCrypto.PresetResetToken = "token";
+            _emailSenderMock.Setup(e => e.SendPasswordResetEmail(It.IsAny<string>(), It.IsAny<ResetPasswordData>()))
+                            .ReturnsAsync(true);
 
             var result = await _controller.ForgotPasswordAsync(user.UserName);
 
+            _emailSenderMock.Verify(e => e.SendPasswordResetEmail(user.UserName, It.Is<ResetPasswordData>(d => d.Name == user.DisplayName)), Times.Once());
             result.Should().BeOfType<ViewResult>()
                   .Which.ViewName.Should().Be("ForgotPasswordEmailSent");
             using (var conn = Database.GetConnection())
@@ -366,6 +376,21 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 resets.Should().HaveCount(1)
                       .And.Contain(_fakeCrypto.PresetResetToken);
             }
+        }
+
+        [Test]
+        public async Task ForgotPassword_EmailError_SendsEmailAndReportsEmailError()
+        {
+            var user = Database.Users.Add("unit test", "unittest-xii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
+            _fakeCrypto.PresetResetToken = "token";
+            _emailSenderMock.Setup(e => e.SendPasswordResetEmail(It.IsAny<string>(), It.IsAny<ResetPasswordData>()))
+                            .ReturnsAsync(false);
+
+            var result = await _controller.ForgotPasswordAsync(user.UserName);
+
+            _emailSenderMock.Verify(e => e.SendPasswordResetEmail(user.UserName, It.Is<ResetPasswordData>(d => d.Name == user.DisplayName)), Times.Once());
+            result.Should().BeOfType<ViewResult>()
+                  .Which.ViewName.Should().Be("ForgotPasswordEmailError");
         }
 
         [Test]

@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using GDB.Common.Persistence;
+using GDB.Common.Settings;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using System;
