@@ -2,30 +2,26 @@
   import { url, params, metatags } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
+  import type { GameSummary } from "../../_stores/gamesStore";
   import Tile from "./_components/Tile.svelte";
   import GameStatus from "../../../components/outputs/GameStatus.svelte";
-  import ShortDate from "../../../components/outputs/ShortDate.svelte";
   import { api as cashForecastApi } from "./cashForecast/_stores/cashForecastApi";
   import { calculate } from "./cashForecast/_stores/calculator/calculator";
   import type { ICashForecast } from "./cashForecast/_types/cashForecast";
   import { getEmptyProjection } from "./cashForecast/_stores/calculator/types";
   import ForecastChart from "./cashForecast/_components/ForecastChart.svelte";
   import TaskItem from "./_components/TaskItem.svelte";
+  import DateSpan from "../../../components/inputs/DateSpan.svelte";
+  import { gamesApi } from "../../_stores/gamesApi";
+  import type { Game } from "../../_stores/gamesApi";
 
   metatags.title = "[LR] Dashboard";
 
   $: id = $params.id;
 
-  let games = [];
+  let games = [] as Array<GameSummary>;
+  let game = null as Game;
   const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
-
-  $: game = games.find((g) => g.globalId == id);
-  //  {
-  //   id: id,
-  //   name: "Demo Game",
-  //   status: "Active",
-  //   lastModified: "2 days ago by you",
-  // };
 
   // Cash forecast data
   //  this is a bit brute force, I don't expect to keep it live so we really only need latest DTO?
@@ -35,7 +31,14 @@
   $: {
     if (id != null && id != initializedId) {
       initializedId = id;
+
+      gamesApi.getGameById(id).then((data) => {
+        if (initializedId != id) return;
+        game = data;
+      });
+
       cashForecastApi.get(id).then((data) => {
+        if (initializedId != id) return;
         cashForecast = data.payload;
         if (cashForecast?.forecastMonthCount.value != null) {
           projectedCashForecast = calculate(cashForecast, projectedCashForecast, cashForecast.forecastMonthCount.value);
@@ -67,41 +70,20 @@
     margin-left: $space-xl;
   }
 
-  .sample-1 {
+  .gdb-tile-container {
     display: inline-block;
     // min-width: 460px;
     display: flex;
     flex-direction: row;
 
-    // .sample-pic {
-    //   position: relative;
-    //   flex: 0;
-    //   min-width: 200px;
-    //   width: 200px;
-    //   height: 200px;
-    //   // border-right: 1px solid $cs-grey-1;
-
-    //   background-color: $cs-grey-0;
-    //   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%235bc0eb' fill-opacity='0.3'%3E%3Cpath fill-rule='evenodd' d='M11 0l5 20H6l5-20zm42 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM0 72h40v4H0v-4zm0-8h31v4H0v-4zm20-16h20v4H20v-4zM0 56h40v4H0v-4zm63-25a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM53 41a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-30 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-28-8a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zM56 5a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zm-3 46a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 0l5 20H16l5-20zm43 64v-4h-4v4h-4v4h4v4h4v-4h4v-4h-4zM36 13h4v4h-4v-4zm4 4h4v4h-4v-4zm-4 4h4v4h-4v-4zm8-8h4v4h-4v-4z'/%3E%3C/g%3E%3C/svg%3E");
-
-    //   &::after {
-    //     content: "";
-    //     position: absolute;
-    //     top: 20%;
-    //     bottom: 20%;
-    //     left: 20%;
-    //     right: 20%;
-    //   }
-    // }
-
-    .sample-details {
+    .gdb-game-tile {
       position: relative;
       padding: $space-m;
       line-height: 2rem;
       flex: 1;
       min-width: 240px;
 
-      .sample-footer {
+      .gdb-game-tile-footer {
         position: absolute;
         bottom: 0;
         left: 0;
@@ -116,36 +98,14 @@
   .gdb-forecast-tile {
     width: 420px;
     padding: $space-m $space-m $space-m $space-m;
-
-    & > h3 {
-      text-align: center;
-      font-size: 90%;
-      display: block;
-      margin: $space-s 0 $space-m 0;
-    }
   }
 
-  // .sample-2 {
-  //   display: flex;
-  //   flex-direction: row;
-  //   min-width: 600px;
-  //   width: 600px;
-  //   height: 200px;
-  //   background-color: white;
-  //   border-right: 1px solid $cs-grey-1;
-  // }
-
-  // .sample-2-progress {
-  //   flex: 0 0 0;
-  //   width: 200px;
-  //   height: 200px;
-  // }
-
-  // .sample-2-forecast {
-  //   flex: 1 0 0;
-  //   width: 400px;
-  //   height: 200px;
-  // }
+  .gdb-forecast-tile > h3 {
+    text-align: center;
+    font-size: 90%;
+    display: block;
+    margin: $space-s 0 $space-m 0;
+  }
 
   h1,
   h2 {
@@ -165,32 +125,49 @@
       margin: $space-s 0;
     }
   }
+
+  .gdb-dame-title {
+    font-weight: bold;
+  }
+
+  .gdb-label {
+    color: $cs-grey-4;
+    font-size: $font-size-small;
+    display: inline-block;
+    width: 4rem;
+  }
 </style>
 
 <h1>Dashboard</h1>
 
 {#if game}
   <div class="row">
-    <section class="sample-1">
-      <div class="sample-details">
-        <div>Game: {game.name}</div>
+    <section class="gdb-tile-container">
+      <div class="gdb-game-tile">
+        <div class="gdb-dame-title">{game.name}</div>
         <div>
-          Status:
+          <span class="gdb-label">Status:</span>
           <GameStatus status={game.status} />
         </div>
-        <div class="sample-footer">
-          Last modified
-          <ShortDate date={game.lastModified} />
+        <div>
+          {#if cashForecast}
+            <span class="gdb-label">Launch:</span>
+            <DateSpan date={cashForecast.launchDate.value} />
+          {/if}
+        </div>
+        <div class="gdb-game-tile-footer">
+          Last updated on
+          <DateSpan date={game.lastUpdated} style={"long date"} />
         </div>
       </div>
     </section>
-    <section class="sample-1">
+    <section class="gdb-tile-container">
       <div class="gdb-forecast-tile">
         <h3>Latest Forecast</h3>
         <ForecastChart width={400} height={120} {cashForecast} {projectedCashForecast} />
       </div>
     </section>
-    <section class="sample-1">
+    <section class="gdb-tile-container">
       <div class="gdb-forecast-tile">
         <h3>Core Biz Loop: Next Tasks</h3>
         <ol class="gdb-task-list">
@@ -209,23 +186,18 @@
 <div class="row gdb-row-tiles">
   <Tile
     title="Business Model"
-    status={"Done"}
+    status={game?.businessModelLastUpdatedOn != null ? "Done" : null}
     href={$url("../businessModel")}
     imgHref={"/images/BusinessModelCanvas.svg"}
-    lastUpdated="Updated on Jan 25" />
+    lastUpdated={game?.businessModelLastUpdatedOn} />
   <Tile
     title="Cash Forecast"
-    status={"In Progress"}
+    status={game?.cashForecastLastUpdatedOn != null ? "Done" : null}
     href={$url("../cashForecast")}
     imgHref={"/images/FinanceForecast.svg"}
-    lastUpdated="Updated on Feb 28" />
-  <Tile
-    title="Comparables"
-    status={"In Progress"}
-    href={$url("../businessModel")}
-    imgHref={"/images/Comparables.svg"}
-    lastUpdated="Updated on Mar 7" />
-  <Tile title="Marketing Plan" status={null} href={$url("../businessModel")} imgHref={"/images/MarketingPlan.svg"} />
+    lastUpdated={game?.cashForecastLastUpdatedOn} />
+  <Tile title="Comparables" status={null} href={$url(id)} imgHref={"/images/Comparables.svg"} />
+  <Tile title="Marketing Plan" status={null} href={$url(id)} imgHref={"/images/MarketingPlan.svg"} />
 </div>
 
 <h2>Next Stages</h2>

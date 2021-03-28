@@ -359,7 +359,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         [Test]
         public async Task ForgotPassword_ValidUsernameSubmitted_SendsEmailAndReportsSuccess()
         {
-            var user = Database.Users.Add("unit test", "unittest-xii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
+            var user = Database.Users.Add("unit test", "unittest-xiia@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             _fakeCrypto.PresetResetToken = "token";
             _emailSenderMock.Setup(e => e.SendPasswordResetEmail(It.IsAny<string>(), It.IsAny<ResetPasswordData>()))
                             .ReturnsAsync(true);
@@ -381,7 +381,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         [Test]
         public async Task ForgotPassword_EmailError_SendsEmailAndReportsEmailError()
         {
-            var user = Database.Users.Add("unit test", "unittest-xii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
+            var user = Database.Users.Add("unit test", "unittest-xiib@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             _fakeCrypto.PresetResetToken = "token";
             _emailSenderMock.Setup(e => e.SendPasswordResetEmail(It.IsAny<string>(), It.IsAny<ResetPasswordData>()))
                             .ReturnsAsync(false);

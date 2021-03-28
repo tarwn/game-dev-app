@@ -56,7 +56,7 @@ namespace GDB.Business.BusinessLogic._Generic
                     changeEvent.VersionNumber = model.Model.VersionNumber + 1;
                 }
 
-                await _persistence.EventStore.CreateEventAsync(studioId, actualGameId, _applier.ObjectType, changeEvent);
+                await _persistence.EventStore.CreateEventAsync(studioId, actualGameId, _applier.ObjectType, changeEvent, DateTime.UtcNow);
                 ApplyEvents(gameId, new List<ChangeEvent> { changeEvent }, model);
 
                 //_globalSeqNos[change.Actor] = change.SeqNo + change.Operations.Count;

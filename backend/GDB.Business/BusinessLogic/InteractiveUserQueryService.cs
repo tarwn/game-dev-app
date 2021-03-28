@@ -40,6 +40,14 @@ namespace GDB.Business.BusinessLogic
             });
         }
 
+        public async Task<GameDTO> GetGameAsync(int id, IAuthContext userAuth)
+        {
+            return await _busOp.Query(async (persistence) =>
+            {
+                return await persistence.Games.GetByIdAsync(userAuth.StudioId, id);
+            });
+        }
+
         public async Task<StudioDTO> GetStudioAsync(int studioId, IAuthContext userAuth)
         {
             return await _busOp.Query(async (persistence) =>

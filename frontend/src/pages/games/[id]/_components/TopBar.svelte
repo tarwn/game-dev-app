@@ -4,13 +4,27 @@
   export let id: string;
   export let name: string;
 
-  $: breadcrumbs = [{ name: "Dashboard", path: `/games/${id}` }];
+  let breadcrumbs = [];
   $: {
+    const dashboard = { name: "Dashboard", path: `/games/${id}` };
     if ($isActive(`/games/${id}/businessModel`)) {
-      breadcrumbs.push({
-        name: "Business Plan",
-        path: `/games/${id}/businessModel`,
-      });
+      breadcrumbs = [
+        dashboard,
+        {
+          name: "Business Plan",
+          path: `/games/${id}/businessModel`,
+        },
+      ];
+    } else if ($isActive(`/games/${id}/cashForecast`)) {
+      breadcrumbs = [
+        dashboard,
+        {
+          name: "Cash Forecast",
+          path: `/games/${id}/cashForecast`,
+        },
+      ];
+    } else {
+      breadcrumbs = [dashboard];
     }
   }
 </script>
@@ -36,6 +50,11 @@
     display: inline-block;
     line-height: 32px;
   }
+
+  .gdb-page-header-breadcrumb > a {
+    margin: 0 $space-s;
+  }
+
   .gdb-page-header-buttons {
     float: right;
     padding: 0;
@@ -50,10 +69,7 @@
   </div>
   <div class="gdb-page-header-breadcrumb">
     {#each breadcrumbs as breadcrumb, i}
-      /
-      <a
-        href={breadcrumb.path}
-        class:disabled={false && i == breadcrumbs.length - 1}>{breadcrumb.name}</a>
+      /<a href={breadcrumb.path} class:disabled={false && i == breadcrumbs.length - 1}>{breadcrumb.name}</a>
     {/each}
   </div>
   <div class="gdb-page-header-buttons">

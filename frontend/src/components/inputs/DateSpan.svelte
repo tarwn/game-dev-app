@@ -1,12 +1,28 @@
 <script lang="ts">
+  type dateStyle = null | "date" | "long date";
+
   export let date: Date;
+  export let style: dateStyle;
   const className: string | undefined = $$props["class"];
-  $: formattedDate = date.toLocaleDateString("en-US", {
-    timeZone: "UTC",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-  });
+  $: formattedDate = formatDate(date, style);
+
+  function formatDate(date: Date, style: dateStyle) {
+    if (style == "long date") {
+      return date.toLocaleDateString("en-US", {
+        timeZone: "UTC",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    return date.toLocaleDateString("en-US", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+  }
 </script>
 
 <style type="text/scss">

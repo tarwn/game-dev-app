@@ -1,11 +1,12 @@
 <script lang="ts">
   import Icon from "../../../../components/buttons/Icon.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
+  import DateSpan from "../../../../components/inputs/DateSpan.svelte";
   export let title: string;
   export let href: string;
   export let imgHref: string;
   export let status: "Done" | "In Progress" | "None" | null;
-  export let lastUpdated: string;
+  export let lastUpdated: Date | null;
 </script>
 
 <style type="text/scss">
@@ -116,16 +117,13 @@
 </style>
 
 <div class="gdb-tile-container">
-  <a
-    class="gdb-tile"
-    class:notStarted={status == null || status == 'None'}
-    {href}>
+  <a class="gdb-tile" class:notStarted={status == null || status == "None"} {href}>
     <img class="gdb-tile-image" src={imgHref} alt={title} />
-    {#if status == 'Done'}
+    {#if status == "Done"}
       <div class="gdb-tile-status gdb-tile-status-done">
         <Icon icon={PredefinedIcons.Check} />
       </div>
-    {:else if status == 'In Progress'}
+    {:else if status == "In Progress"}
       <div class="gdb-tile-status gdb-tile-status-inProgress">
         <Icon icon={PredefinedIcons.InProgress} />
       </div>
@@ -136,5 +134,11 @@
     {/if}
     <div class="gdb-tile-title">{title}</div>
   </a>
-  <div class="gdb-last-updated">{lastUpdated || '(not started)'}</div>
+  <div class="gdb-last-updated">
+    {#if lastUpdated != null}
+      Updated on <DateSpan date={lastUpdated} style="long date" />
+    {:else}
+      -- not started --
+    {/if}
+  </div>
 </div>

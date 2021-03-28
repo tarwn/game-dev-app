@@ -16,18 +16,19 @@ namespace GDB.Persistence.Repositories
         public EventStoreRepository(string connectionString) : base(connectionString)
         { }
 
-        public async Task CreateEventAsync(int studioId, int gameId, string objectType, ChangeEvent changeEvent)
+        public async Task CreateEventAsync(int studioId, int gameId, string objectType, ChangeEvent changeEvent, DateTime registeredDate)
         {
             var param = new { 
                 studioId, 
                 gameId, 
                 objectType, 
                 changeEvent.VersionNumber,
-                rawEvent = JsonSerializer.Serialize(changeEvent, GetJsonOptions())
+                rawEvent = JsonSerializer.Serialize(changeEvent, GetJsonOptions()),
+                registeredDate
             };
             var sql = @"
-                INSERT INTO dbo.EventStore(StudioId, GameId, ObjectType, VersionNumber, RawEvent)
-                VALUES(@StudioId, @GameId, @ObjectType, @VersionNumber, @RawEvent);
+                INSERT INTO dbo.EventStore(StudioId, GameId, ObjectType, VersionNumber, RawEvent, RegisteredDate)
+                VALUES(@StudioId, @GameId, @ObjectType, @VersionNumber, @RawEvent, @RegisteredDate);
             ";
 
             using (var conn = GetConnection())

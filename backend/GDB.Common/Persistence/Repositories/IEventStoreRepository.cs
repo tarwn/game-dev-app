@@ -10,6 +10,6 @@ namespace GDB.Common.Persistence.Repositories
     public interface IEventStoreRepository
     {
         Task<List<ChangeEvent>> GetEventsAsync(int studioId, int gameId, string objectType, int sinceVersionNumber);
-        Task CreateEventAsync(int studioId, int gameId, string objectType, ChangeEvent changeEvent);
+        Task CreateEventAsync(int studioId, int gameId, string objectType, ChangeEvent changeEvent, DateTime registeredDate);
     }
 }

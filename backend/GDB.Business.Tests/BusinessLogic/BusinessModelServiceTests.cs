@@ -62,7 +62,9 @@ namespace GDB.Business.Tests.BusinessLogic
             Assert.AreEqual(FakeGameString, state.ParentId);
             _persistenceMock.EventStoreMock.Verify(es =>
                 es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType,
-                                    It.Is<ChangeEvent>(e => e.VersionNumber == 1 && e.PreviousVersionNumber == 0)));
+                                    It.Is<ChangeEvent>(e => e.VersionNumber == 1 && e.PreviousVersionNumber == 0),
+                                    It.IsAny<DateTime>()));
+            _persistenceMock.GamesMock.Verify(g => g.RegisterBusinessModuleUpdateAsync(FakeStudioId, FakeGameId, FakeUserId, It.IsAny<DateTime>()));
         }
 
         [Test]
@@ -80,7 +82,11 @@ namespace GDB.Business.Tests.BusinessLogic
             Assert.IsNotNull(state);
             Assert.AreEqual(1, state.VersionNumber);
             Assert.AreEqual(FakeGameString, state.ParentId);
-            _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType, It.IsAny<ChangeEvent>()),
+            _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 
+                                    It.IsAny<ChangeEvent>(),
+                                    It.IsAny<DateTime>()),
+                Times.Never());
+            _persistenceMock.GamesMock.Verify(g => g.RegisterBusinessModuleUpdateAsync(FakeStudioId, FakeGameId, FakeUserId, It.IsAny<DateTime>()),
                 Times.Never());
         }
 
@@ -96,7 +102,9 @@ namespace GDB.Business.Tests.BusinessLogic
                 await _businessModelService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId))
             );
 
-            _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType, It.IsAny<ChangeEvent>()),
+            _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 
+                                    It.IsAny<ChangeEvent>(),
+                                    It.IsAny<DateTime>()),
                 Times.Never());
         }
 
@@ -154,8 +162,10 @@ namespace GDB.Business.Tests.BusinessLogic
 
             evt.VersionNumber.Should().Be(change.PreviousVersionNumber + 1);
             _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType,
-                It.Is<ChangeEvent>(e => e.Actor == change.Actor && e.PreviousVersionNumber == change.PreviousVersionNumber && e.Type == change.Type)),
+                It.Is<ChangeEvent>(e => e.Actor == change.Actor && e.PreviousVersionNumber == change.PreviousVersionNumber && e.Type == change.Type),
+                It.IsAny<DateTime>()),
                 Times.Once());
+            _persistenceMock.GamesMock.Verify(g => g.RegisterBusinessModuleUpdateAsync(FakeStudioId, FakeGameId, FakeUserId, It.IsAny<DateTime>()));
         }
 
 
@@ -173,6 +183,7 @@ namespace GDB.Business.Tests.BusinessLogic
             var evt = await _businessModelService.ApplyEventAsync(FakeGameString, change, new TestAuthContext(FakeUserId, FakeStudioId));
 
             _persistenceMock.ActorsMock.Verify(a => a.UpdateActorAsync(change.Actor, change.SeqNo + change.Operations.Count, FakeUserId, It.IsAny<DateTime>()));
+            _persistenceMock.GamesMock.Verify(g => g.RegisterBusinessModuleUpdateAsync(FakeStudioId, FakeGameId, FakeUserId, It.IsAny<DateTime>()));
         }
 
 

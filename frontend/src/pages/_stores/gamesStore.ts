@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { jsonOrThrow } from '../_communications/responseHandler';
 import type { GameStatus } from './types';
 
-export type Game = {
+export type GameSummary = {
   globalId: string;
   name: string;
   status: GameStatus;
@@ -19,7 +19,7 @@ function createGamesStore() {
         const games = data.map(d => ({
           ...d,
           lastModified: new Date(d.lastModified)
-        })) as Game[];
+        })) as GameSummary[];
         set(games);
       });
   };

@@ -28,7 +28,15 @@ namespace GDB.Persistence.Repositories
                         CreatedOn,
                         CreatedBy,
                         UpdatedOn,
-                        UpdatedBy
+                        UpdatedBy,
+                        BusinessModelLastUpdatedOn,
+                        BusinessModelLastUpdatedBy,
+                        CashForecastLastUpdatedOn,
+                        CashForecastLastUpdatedBy,
+                        ComparablesLastUpdatedOn,
+                        ComparablesLastUpdatedBy,
+                        MarketingPlanLastUpdatedOn,
+                        MarketingPlanLastUpdatedBy
                 FROM dbo.Game
                 WHERE StudioId = @StudioId;
             ";
@@ -52,7 +60,15 @@ namespace GDB.Persistence.Repositories
                         CreatedOn,
                         CreatedBy,
                         UpdatedOn,
-                        UpdatedBy
+                        UpdatedBy,
+                        BusinessModelLastUpdatedOn,
+                        BusinessModelLastUpdatedBy,
+                        CashForecastLastUpdatedOn,
+                        CashForecastLastUpdatedBy,
+                        ComparablesLastUpdatedOn,
+                        ComparablesLastUpdatedBy,
+                        MarketingPlanLastUpdatedOn,
+                        MarketingPlanLastUpdatedBy
                 FROM dbo.Game
                 WHERE StudioId = @StudioId
                     AND Id = @GameId;
@@ -60,6 +76,38 @@ namespace GDB.Persistence.Repositories
             using (var conn = GetConnection())
             {
                 return await conn.QuerySingleOrDefaultAsync<GameDTO>(sql, param);
+            }
+        }
+
+        public async Task RegisterBusinessModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn)
+        {
+            var param = new { studioId, gameId, modifiedBy, modifiedOn };
+            var sql = @"
+                UPDATE dbo.Game
+                SET BusinessModelLastUpdatedOn = @ModifiedOn,
+                    BusinessModelLastUpdatedBy = @ModifiedBy
+                WHERE StudioId = @StudioId
+                    AND Id = @GameId;
+            ";
+            using (var conn = GetConnection())
+            {
+                await conn.ExecuteAsync(sql, param);
+            }
+        }
+
+        public async Task RegisterCashForecastModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn)
+        {
+            var param = new { studioId, gameId, modifiedBy, modifiedOn };
+            var sql = @"
+                UPDATE dbo.Game
+                SET CashForecastLastUpdatedOn = @ModifiedOn,
+                    CashForecastLastUpdatedBy = @ModifiedBy
+                WHERE StudioId = @StudioId
+                    AND Id = @GameId;
+            ";
+            using (var conn = GetConnection())
+            {
+                await conn.ExecuteAsync(sql, param);
             }
         }
     }

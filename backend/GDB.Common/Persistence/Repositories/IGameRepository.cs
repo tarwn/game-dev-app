@@ -10,5 +10,7 @@ namespace GDB.Common.Persistence.Repositories
     {
         Task<List<GameDTO>> GetAllAsync(int studioId);
         Task<GameDTO> GetByIdAsync(int studioId, int gameId);
+        Task RegisterBusinessModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn);
+        Task RegisterCashForecastModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn);
     }
 }

@@ -3,10 +3,10 @@
   import MenuItemGame from "../components/layout/MenuItemGame.svelte";
   import MenuItemLink from "../components/layout/MenuItemLink.svelte";
   import Logo from "../components/layout/Logo.svelte";
-  import type { Game } from "./_stores/gamesStore";
+  import type { GameSummary } from "./_stores/gamesStore";
   import { gamesStore } from "./_stores/gamesStore";
 
-  let games = [] as Game[];
+  let games = [] as GameSummary[];
   const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
   onDestroy(unsubscribe);
 </script>
@@ -87,10 +87,7 @@
             icon="true-Construction_gear_cog_engineering_engine_machine" />
         </li>
         <li>
-          <MenuItemLink
-            path="./studio/members"
-            name="Team Members"
-            icon="true-Users_users_female_male_people" />
+          <MenuItemLink path="./studio/members" name="Team Members" icon="true-Users_users_female_male_people" />
         </li>
         <li>
           <MenuItemLink
