@@ -11,10 +11,10 @@
   import { events } from "../../../_stores/cashForecastStore";
   import { NetIncomeCategory, NetIncomeCategorys, TaxSchedule, TaxSchedules } from "../../../_types/cashForecast";
   import type { ITax, ICashForecast } from "../../../_types/cashForecast";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
-  import LabelCell from "../table/LabelCell.svelte";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../../components/table/TableSubHeaderRow.svelte";
+  import LabelCell from "../../../../../../../components/table/LabelCell.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
   import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
   import { getUtcDate } from "../../../../../../../utilities/date";
 

@@ -13,10 +13,10 @@
   import type { ICashForecast, IContractorExpense } from "../../../_types/cashForecast";
   import { ContractorExpenseFrequencys, ContractorExpenseFrequency } from "../../../_types/cashForecast";
   import { ExpenseCategories, ExpenseCategory } from "../../../_types/cashForecast";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../../components/table/TableSubHeaderRow.svelte";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;

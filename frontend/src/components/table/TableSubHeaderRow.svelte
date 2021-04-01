@@ -4,7 +4,7 @@
 </script>
 
 <style type="text/scss">
-  @import "../../../../../../../styles/_variables.scss";
+  @import "../../styles/_variables.scss";
 
   .gdb-cf-table-subheader > td {
     padding: $space-l 0 $space-m 0;

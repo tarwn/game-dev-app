@@ -72,9 +72,9 @@
         {/each}
         <li>
           <MenuItemLink
-            path="./games/new"
-            name="Add New Game"
-            icon="true-UIEssentials_button_circle_round_add"
+            path="./settings/games"
+            name="Manage Game List"
+            icon="true-Construction_gear_cog_engineering_engine_machine"
             demphasize={true} />
         </li>
       </ul>

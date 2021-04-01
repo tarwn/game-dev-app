@@ -3,8 +3,8 @@
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import DateOutput from "../../../../../../components/inputs/DateOutput.svelte";
-  import TableRowEmpty from "./table/TableRowEmpty.svelte";
-  import TableRowIndented from "./table/TableRowIndented.svelte";
+  import TableRowEmpty from "../../../../../../components/table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../components/table/TableRowIndented.svelte";
   import {
     ForecastLength,
     ForecastLengths,
@@ -18,11 +18,12 @@
   import { cashForecastEventStore, events } from "../../_stores/cashForecastStore";
   import { calculateMonthCount } from "../../_stores/calculator/monthCalculator";
   import CurrencyInput from "../../../../../../components/inputs/CurrencyInput.svelte";
-  import LabelCell from "./table/LabelCell.svelte";
+  import LabelCell from "../../../../../../components/table/LabelCell.svelte";
   import PercentInput from "../../../../../../components/inputs/PercentInput.svelte";
   import LaunchDateDialog from "./general/LaunchDateDialog.svelte";
   import Dropdown from "../../../../../../components/inputs/Dropdown.svelte";
   import ForecastStageDialog from "./general/ForecastStageDialog.svelte";
+  import EntryTable from "../../../../../../components/table/EntryTable.svelte";
 
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
@@ -148,18 +149,6 @@
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
 
-  .gdb-cf-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    min-width: 1200px;
-    table-layout: fixed;
-
-    :global(td) {
-      padding: $space-xs $space-m;
-    }
-  }
-
   .gdb-cf-forecast-row {
     padding-left: 0.1rem; // needs some indent
   }
@@ -235,7 +224,7 @@
   <p>
     <i>An estimated return 18 months after launch, used to evaluate the price and sales estimates.</i>
   </p>
-  <table class="gdb-cf-table">
+  <EntryTable>
     <colgroup>
       <col span="1" style="width: 1rem;" />
       <col span="1" style="width: 12rem;" />
@@ -301,5 +290,5 @@
         </TableRowIndented>
       {/if}
     </tbody>
-  </table>
+  </EntryTable>
 </div>

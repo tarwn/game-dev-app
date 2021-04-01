@@ -13,7 +13,9 @@ export enum PredefinedIcons {
   ConstructionAlert,
   ConstructionPC,
   GraphicAdd,
-  Pencil
+  Pencil,
+  Star,
+  StarOutline
 }
 
 const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
@@ -31,7 +33,9 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.ConstructionAlert, "true-Construction_attention_alert"],
   [PredefinedIcons.ConstructionPC, "true-Construction_pc_computer_engineering"],
   [PredefinedIcons.GraphicAdd, "true-GraphicDesign_picture_add"],
-  [PredefinedIcons.Pencil, "true-GraphicDesign_pencil"]
+  [PredefinedIcons.Pencil, "true-GraphicDesign_pencil"],
+  [PredefinedIcons.Star, "true-UIEssentials_star"],
+  [PredefinedIcons.StarOutline, "true-UIEssentials_star_outline"]
 ]);
 
 export const getIconString = (icon: PredefinedIcons | string): string => {

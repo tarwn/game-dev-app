@@ -19,11 +19,11 @@
     isFrequencyRecurring,
   } from "../../../_types/cashForecast";
   import type { ICashForecast, IGenericExpense } from "../../../_types/cashForecast";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
-  import NotApplicableCell from "../table/NotApplicableCell.svelte";
-  import LabelCell from "../table/LabelCell.svelte";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../../components/table/TableSubHeaderRow.svelte";
+  import NotApplicableCell from "../../../../../../../components/table/NotApplicableCell.svelte";
+  import LabelCell from "../../../../../../../components/table/LabelCell.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;

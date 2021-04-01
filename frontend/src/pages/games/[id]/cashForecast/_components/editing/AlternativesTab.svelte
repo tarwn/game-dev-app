@@ -9,9 +9,10 @@
   import TextInput from "../../../../../../components/inputs/TextInput.svelte";
   import type { ICashForecast } from "../../_types/cashForecast";
   import ForecastSummary from "./ForecastSummary.svelte";
-  import FauxLabelCell from "./table/FauxLabelCell.svelte";
-  import TableRowIndented from "./table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "./table/TableSubHeaderRow.svelte";
+  import FauxLabelCell from "../../../../../../components/table/FauxLabelCell.svelte";
+  import TableRowIndented from "../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../components/table/TableSubHeaderRow.svelte";
+  import EntryTable from "../../../../../../components/table/EntryTable.svelte";
 
   export let cashForecast: ICashForecast;
 
@@ -20,23 +21,11 @@
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
-
-  .gdb-cf-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    min-width: 1200px;
-    // table-layout: fixed;
-
-    td {
-      padding: $space-xs $space-m;
-    }
-  }
 </style>
 
 <ForecastSummary {cashForecast} />
 <ComingSoon subject="Alternate projections feature">
-  <table class="gdb-cf-table">
+  <EntryTable>
     <TableSubHeaderRow colspan={7} value="Scenarios" />
     <TableRowIndented>
       <td colspan={6}> Add names for up to 3 scenarios </td>
@@ -159,5 +148,5 @@
         </ul>
       </td>
     </TableRowIndented>
-  </table>
+  </EntryTable>
 </ComingSoon>

@@ -1,10 +1,10 @@
 @font-face {
     font-family: "UiconMAX";
-    src: url("/fonts/UiconMAX.eot?a78b59d46ee1ad4df04f5b4e0f7ddfe5?#iefix") format("embedded-opentype"),
-url("/fonts/UiconMAX.woff2?a78b59d46ee1ad4df04f5b4e0f7ddfe5") format("woff2"),
-url("/fonts/UiconMAX.woff?a78b59d46ee1ad4df04f5b4e0f7ddfe5") format("woff"),
-url("/fonts/UiconMAX.ttf?a78b59d46ee1ad4df04f5b4e0f7ddfe5") format("truetype"),
-url("/fonts/UiconMAX.svg?a78b59d46ee1ad4df04f5b4e0f7ddfe5#UiconMAX") format("svg");
+    src: url("/fonts/UiconMAX.eot?e0b57c4593e240e59254c6686de84d90?#iefix") format("embedded-opentype"),
+url("/fonts/UiconMAX.woff2?e0b57c4593e240e59254c6686de84d90") format("woff2"),
+url("/fonts/UiconMAX.woff?e0b57c4593e240e59254c6686de84d90") format("woff"),
+url("/fonts/UiconMAX.ttf?e0b57c4593e240e59254c6686de84d90") format("truetype"),
+url("/fonts/UiconMAX.svg?e0b57c4593e240e59254c6686de84d90#UiconMAX") format("svg");
 }
 
 i[class^="true-"]:before, i[class*=" true-"]:before {
@@ -84,15 +84,21 @@ i[class^="true-"]:before, i[class*=" true-"]:before {
 .true-UIEssentials_sand_clock_time:before {
     content: "\f116";
 }
-.true-UIEssentials_time_clock:before {
+.true-UIEssentials_star_outline:before {
     content: "\f117";
 }
-.true-UIEssentials_trash_bin_delete:before {
+.true-UIEssentials_star:before {
     content: "\f118";
 }
-.true-Users_users_female_male_people:before {
+.true-UIEssentials_time_clock:before {
     content: "\f119";
 }
-.true-Videogames_controller_joystick_games_video_console:before {
+.true-UIEssentials_trash_bin_delete:before {
     content: "\f11a";
+}
+.true-Users_users_female_male_people:before {
+    content: "\f11b";
+}
+.true-Videogames_controller_joystick_games_video_console:before {
+    content: "\f11c";
 }

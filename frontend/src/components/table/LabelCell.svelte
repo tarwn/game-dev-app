@@ -2,7 +2,7 @@
 </script>
 
 <style type="text/scss">
-  @import "../../../../../../../styles/_variables.scss";
+  @import "../../styles/_variables.scss";
 
   td.gdb-cell-label {
     line-height: 1.5rem;

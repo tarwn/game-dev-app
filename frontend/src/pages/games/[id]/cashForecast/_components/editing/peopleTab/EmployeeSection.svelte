@@ -19,13 +19,13 @@
     isDatedAdditionalEmployeeExpenseType,
   } from "../../../_types/cashForecast";
   import { AdditionalEmployeeExpenseFrequency, ExpenseCategories, ExpenseCategory } from "../../../_types/cashForecast";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
-  import LabelCell from "../table/LabelCell.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../../components/table/TableSubHeaderRow.svelte";
+  import LabelCell from "../../../../../../../components/table/LabelCell.svelte";
   import PercentInput from "../../../../../../../components/inputs/PercentInput.svelte";
-  import FauxLabelCell from "../table/FauxLabelCell.svelte";
+  import FauxLabelCell from "../../../../../../../components/table/FauxLabelCell.svelte";
   import DateOutput from "../../../../../../../components/inputs/DateOutput.svelte";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;

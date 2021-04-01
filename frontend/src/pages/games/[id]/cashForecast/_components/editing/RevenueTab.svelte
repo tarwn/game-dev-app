@@ -12,10 +12,11 @@
   import CustomRevenue from "./revenueTab/CustomRevenue.svelte";
   import StandardPlatformSelector from "./revenueTab/StandardPlatformSelector.svelte";
   import { StandardPlatformOption, StandardPlatformSettings } from "./revenueTab/types";
-  import FauxLabelCell from "./table/FauxLabelCell.svelte";
-  import TableRowEmpty from "./table/TableRowEmpty.svelte";
-  import TableRowIndented from "./table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "./table/TableSubHeaderRow.svelte";
+  import FauxLabelCell from "../../../../../../components/table/FauxLabelCell.svelte";
+  import TableRowEmpty from "../../../../../../components/table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../components/table/TableSubHeaderRow.svelte";
+  import EntryTable from "../../../../../../components/table/EntryTable.svelte";
 
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;
@@ -93,22 +94,10 @@
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
-
-  .gdb-cf-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    min-width: 1200px;
-    table-layout: fixed;
-
-    :global(td) {
-      padding: $space-xs $space-m;
-    }
-  }
 </style>
 
 <ForecastSummary {cashForecast} />
-<table class="gdb-cf-table">
+<EntryTable>
   <colgroup>
     <col span="1" style="width: 2rem;" />
     <col span="1" style="width: 12rem;" />
@@ -224,4 +213,4 @@
         on:click={addCustomPlatform} />
     </td>
   </TableRowIndented>
-</table>
+</EntryTable>

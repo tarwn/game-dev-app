@@ -11,10 +11,10 @@
     IEstimatedRevenuePlatform,
     IEstimatedRevenuePlatformShare,
   } from "../../../_types/cashForecast";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
   import DateInput from "../../../../../../../components/inputs/DateInput.svelte";
-  import FauxLabelCell from "../table/FauxLabelCell.svelte";
+  import FauxLabelCell from "../../../../../../../components/table/FauxLabelCell.svelte";
   import CurrencyInput from "../../../../../../../components/inputs/CurrencyInput.svelte";
   import IconTextButton from "../../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../../components/buttons/PredefinedIcons";

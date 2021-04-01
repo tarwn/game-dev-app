@@ -11,10 +11,10 @@
   import { events } from "../../../_stores/cashForecastStore";
   import type { ICashForecast, IFundingCashOut, IFundingItem } from "../../../_types/cashForecast";
   import { LoanType, FundingRepaymentType, FundingTypes, FundingRepaymentTypes } from "../../../_types/cashForecast";
-  import FauxLabelCell from "../table/FauxLabelCell.svelte";
-  import TableRowEmpty from "../table/TableRowEmpty.svelte";
-  import TableRowIndented from "../table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "../table/TableSubHeaderRow.svelte";
+  import FauxLabelCell from "../../../../../../../components/table/FauxLabelCell.svelte";
+  import TableRowEmpty from "../../../../../../../components/table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../../components/table/TableSubHeaderRow.svelte";
 
   export let cashForecast: ICashForecast;
   export let forecastDate: Date;

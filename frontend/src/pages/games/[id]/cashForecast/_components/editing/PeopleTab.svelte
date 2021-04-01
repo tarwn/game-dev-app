@@ -1,4 +1,5 @@
 <script lang="ts">
+  import EntryTable from "../../../../../../components/table/EntryTable.svelte";
   import { cashForecastEventStore } from "../../_stores/cashForecastStore";
   import type { ICashForecast } from "../../_types/cashForecast";
   import ForecastSummary from "./ForecastSummary.svelte";
@@ -13,26 +14,10 @@
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
-
-  .gdb-cf-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    min-width: 1200px;
-    table-layout: fixed;
-
-    :global(td) {
-      padding: $space-xs $space-m;
-    }
-
-    :global(select) {
-      max-width: 100%;
-    }
-  }
 </style>
 
 <ForecastSummary {cashForecast} />
-<table class="gdb-cf-table">
+<EntryTable>
   <colgroup>
     <col span="1" style="width: 2rem;" />
     <col span="1" style="width: 14rem;" />
@@ -47,4 +32,4 @@
   </colgroup>
   <EmployeeSection {publish} {cashForecast} {forecastDate} {launchDate} colSpan={10} />
   <ContractorSection {publish} {cashForecast} {forecastDate} colSpan={10} />
-</table>
+</EntryTable>

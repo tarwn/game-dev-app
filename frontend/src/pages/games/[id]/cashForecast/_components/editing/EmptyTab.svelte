@@ -3,31 +3,20 @@
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import type { ICashForecast } from "../../_types/cashForecast";
   import ForecastSummary from "./ForecastSummary.svelte";
-  import TableRowEmpty from "./table/TableRowEmpty.svelte";
-  import TableRowIndented from "./table/TableRowIndented.svelte";
-  import TableSubHeaderRow from "./table/TableSubHeaderRow.svelte";
+  import TableRowEmpty from "../../../../../../components/table/TableRowEmpty.svelte";
+  import TableRowIndented from "../../../../../../components/table/TableRowIndented.svelte";
+  import TableSubHeaderRow from "../../../../../../components/table/TableSubHeaderRow.svelte";
+  import EntryTable from "../../../../../../components/table/EntryTable.svelte";
 
   export let cashForecast: ICashForecast;
 </script>
 
 <style type="text/scss">
   @import "../../../../../../styles/_variables.scss";
-
-  .gdb-cf-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    min-width: 1200px;
-    table-layout: fixed;
-
-    td {
-      padding: $space-xs $space-m;
-    }
-  }
 </style>
 
 <ForecastSummary {cashForecast} />
-<table class="gdb-cf-table">
+<EntryTable>
   <TableSubHeaderRow colspan={7} value="Empty Section" />
   <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
     <td />
@@ -44,4 +33,4 @@
       <IconTextButton icon={PredefinedIcons.Plus} value="Add Funding" buttonStyle="primary-outline" />
     </td>
   </TableRowIndented>
-</table>
+</EntryTable>
