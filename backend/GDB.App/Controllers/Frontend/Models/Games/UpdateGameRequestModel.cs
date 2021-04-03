@@ -9,7 +9,7 @@ namespace GDB.App.Controllers.Frontend.Models.Games
     public class UpdateGameRequestModel
     {
         public bool? IsFavorite { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; }
         public DateTime? LaunchDate { get; set; }
         public GameStatus? Status { get; set; }
     }

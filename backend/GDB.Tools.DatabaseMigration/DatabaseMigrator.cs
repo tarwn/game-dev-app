@@ -1,6 +1,5 @@
 ﻿using DbUp;
 using GDB.Tools.DatabaseMigration.Utilities;
-using GDB.Tools.DatabaseMigration.Utilities;
 using GDB.Tools.DatabaseMigration.Utilities.Logging;
 using System;
 using System.Collections.Generic;

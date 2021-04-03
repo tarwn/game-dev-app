@@ -2,8 +2,8 @@ export interface config {
   environment: string,
   version: string,
   sessionId: string,
-  isFullUser?: boolean,
   actorId: string;
+  userId: number;
   sentry: {
     dsn: string;
     enabled: boolean;

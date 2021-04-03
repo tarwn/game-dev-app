@@ -8,12 +8,6 @@ namespace GDB.App.Controllers.Frontend
 {
     public class SignalRSender : ISignalRSender
     {
-        public const string GamesListSummary = "gamesList";
-        public const string LoggedInStudio = "studio";
-        public const string LoggedInUser = "userProfile";
-        public const string SpecificGame = "game";
-        public const string SpecificBusinessModel = "businessModel";
-        public const string SpecificCashForecast = "cashForecast";
         private IHubContext<SignalRHub> _hubContext;
 
         public SignalRSender(IHubContext<SignalRHub> hubContext)
@@ -33,7 +27,7 @@ namespace GDB.App.Controllers.Frontend
             await _hubContext.Clients.Group(hubgroup).SendAsync(hubgroup, change);
         }
 
-        public string GetSignalRGroupName(UserAuthContext auth, UpdateScope scope, string id = "")
+        public static string GetSignalRGroupName(UserAuthContext auth, UpdateScope scope, string id = "")
         {
             switch (scope)
             {
@@ -41,6 +35,7 @@ namespace GDB.App.Controllers.Frontend
                     return $"user/{auth.UserId}";
                 case UpdateScope.StudioRecord:
                 case UpdateScope.StudioGameList:
+                case UpdateScope.StudioUserList:
                     return $"{auth.StudioId}/{scope}";
                 case UpdateScope.GameBusinessModel:
                 case UpdateScope.GameCashforecast:

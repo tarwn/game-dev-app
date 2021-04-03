@@ -19,12 +19,15 @@
     "UIEssentials_button_circle_round_arrow_next": "\\f112",
     "UIEssentials_button_circle_round_arrow_previous": "\\f113",
     "UIEssentials_button_circle_round_delete_x": "\\f114",
-    "UIEssentials_download": "\\f115",
-    "UIEssentials_sand_clock_time": "\\f116",
-    "UIEssentials_star_outline": "\\f117",
-    "UIEssentials_star": "\\f118",
-    "UIEssentials_time_clock": "\\f119",
-    "UIEssentials_trash_bin_delete": "\\f11a",
-    "Users_users_female_male_people": "\\f11b",
-    "Videogames_controller_joystick_games_video_console": "\\f11c"
+    "UIEssentials_deny": "\\f115",
+    "UIEssentials_download": "\\f116",
+    "UIEssentials_sand_clock_time": "\\f117",
+    "UIEssentials_settings_cog_gear": "\\f118",
+    "UIEssentials_star_outline": "\\f119",
+    "UIEssentials_star": "\\f11a",
+    "UIEssentials_time_clock": "\\f11b",
+    "UIEssentials_trash_bin_delete": "\\f11c",
+    "Users_female_user_config_configuration": "\\f11d",
+    "Users_users_female_male_people": "\\f11e",
+    "Videogames_controller_joystick_games_video_console": "\\f11f"
 }

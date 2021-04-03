@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using GDB.Common.Authentication;
 using GDB.Common.DTOs.Customer;
+using GDB.Common.DTOs.Studio;
 using GDB.Common.DTOs.User;
 using GDB.Common.Persistence.Repositories;
 using System;
@@ -99,6 +100,30 @@ namespace GDB.Persistence.Repositories
             using (var conn = GetConnection())
             {
                 return await conn.QuerySingleOrDefaultAsync<UserDTO>(sql, param);
+            }
+        }
+
+        public async Task<List<StudioUserDTO>> GetByStudioIdAsync(int studioId)
+        {
+            var param = new { studioId };
+            var sql = @"
+                SELECT Id,
+                        UserName,
+                        DisplayName,
+                        -- xref fields
+                        Access,
+                        [Role],
+                        InvitedBy,
+                        InvitedOn,
+                        InviteGoodThrough
+                FROM dbo.[User] U
+                    INNER JOIN UserStudioXref X ON X.UserId = U.Id
+                WHERE StudioId = @StudioId;
+            ";
+            using (var conn = GetConnection())
+            {
+                var results = await conn.QueryAsync<StudioUserDTO>(sql, param);
+                return results.ToList();
             }
         }
     }

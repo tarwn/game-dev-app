@@ -2,12 +2,15 @@
 DECLARE @StudioName varchar(40) = 'Clever Snail Games';
 DECLARE @DemoUserName varchar(40) = 'demo@launchready.co';
 DECLARE @SystemUserId int = -1;
+DECLARE @EarlyAccessPlan int = 1;
+DECLARE @ActiveAccessLevel int = 2;
+DECLARE @StudioRoleAdmin int = 1;
 
 DECLARE @StudioId int;
 IF NOT EXISTS (SELECT * FROM Studio WHERE [Name] = @StudioName)
 BEGIN
-	INSERT INTO dbo.Studio([Name], CreatedOn, CreatedBy)
-	VALUES(@StudioName, '2020-09-04 12:00', @SystemUserId);
+	INSERT INTO dbo.Studio([Name], CreatedOn, CreatedBy, BillingPlan)
+	VALUES(@StudioName, '2020-09-04 12:00', @SystemUserId, @EarlyAccessPlan);
 	SET @StudioId = scope_identity();
 END
 ELSE
@@ -29,13 +32,15 @@ END
 
 IF NOT EXISTS (SELECT 1 FROM UserStudioXref WHERE StudioId = @StudioId AND UserId = @UserId)
 BEGIN
-	INSERT INTO dbo.UserStudioXref(UserId, StudioId, HasAccess)
-	VALUES(@UserId, @StudioId, 'true');
+	INSERT INTO dbo.UserStudioXref(UserId, StudioId, HasAccess, Access, [Role])
+	VALUES(@UserId, @StudioId, 'true', @ActiveAccessLevel, @StudioRoleAdmin);
 END
 ELSE
 BEGIN
 	UPDATE dbo.UserStudioXref
-	SET HasAccess = 'true'
+	SET HasAccess = 'true',
+		Access = @ActiveAccessLevel,
+		[Role] = @StudioRoleAdmin
 	WHERE UserId = @UserId
 		AND StudioId = @StudioId;
 END

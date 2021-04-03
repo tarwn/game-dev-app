@@ -1,4 +1,5 @@
 ﻿using GDB.Common.Authentication;
+using GDB.Common.DTOs.Studio;
 using GDB.Common.DTOs.User;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace GDB.Common.Persistence.Repositories
         Task UpdatePasswordAsync(int userId, string passwordHash, DateTime updatedOn, int updatedBy);
 
         Task<UserDTO> GetByIdAsync(int userId);
+        Task<List<StudioUserDTO>> GetByStudioIdAsync(int studioId);
     }
 }

@@ -16,7 +16,8 @@ namespace GDB.App.Controllers.Frontend
         StudioRecord = 2,
         CurrentUserRecord = 3,
         GameBusinessModel = 4,
-        GameCashforecast = 5
+        GameCashforecast = 5,
+        StudioUserList = 6
     };
 
     [Authorize(Policy = Policies.InteractiveUserAccess)]
@@ -85,19 +86,7 @@ namespace GDB.App.Controllers.Frontend
         private string MapToGroup(UpdateScope updateType, string id)
         {
             var auth = GetUserAuthContext();
-            switch (updateType)
-            {
-                case UpdateScope.CurrentUserRecord:
-                    return $"user/{auth.UserId}";
-                case UpdateScope.StudioRecord:
-                case UpdateScope.StudioGameList:
-                    return $"{auth.StudioId}/{updateType}";
-                case UpdateScope.GameBusinessModel:
-                case UpdateScope.GameCashforecast:
-                    return $"{auth.StudioId}/{id}/{updateType}";
-                default:
-                    throw new Exception("Unexpected update type provided to SignalR registration");
-            }
+            return SignalRSender.GetSignalRGroupName(auth, updateType, id);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)

@@ -1,18 +1,16 @@
+import produce from 'immer';
 import { writable } from 'svelte/store';
-import { jsonOrThrow } from '../_communications/responseHandler';
-
-export type Studio = {
-  name: string;
-}
+import { studioApi } from './studioApi';
 
 function createStudioStore() {
   const { subscribe, set } = writable(null);
+  let studio = null;
 
   const load = () => {
-    return fetch(`/api/fe/studio`)
-      .then(jsonOrThrow)
-      .then((data) => {
-        set(data as Studio);
+    studioApi.get()
+      .then((s) => {
+        studio = produce(studio, () => s);
+        set(studio);
       });
   };
 

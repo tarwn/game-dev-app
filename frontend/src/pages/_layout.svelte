@@ -5,8 +5,10 @@
   import Logo from "../components/layout/Logo.svelte";
   import { gamesStore } from "./_stores/gamesStore";
   import type { Game } from "./_stores/gamesApi";
+  import { PredefinedIcons } from "../components/buttons/PredefinedIcons";
 
   let games = [] as Game[];
+  $: activeGames = games.filter((g) => g.isFavorite);
   const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
   onDestroy(unsubscribe);
 </script>
@@ -65,35 +67,23 @@
     <nav>
       <div class="gdb-nav-header">Active Games</div>
       <ul class="gdb-nav-list">
-        {#each games.filter((g) => g.isFavorite) as game (game.globalId)}
+        {#each activeGames as game (game.globalId)}
           <li>
             <MenuItemGame id={game.globalId} name={game.name} />
           </li>
         {/each}
-        <li>
-          <MenuItemLink
-            path="./settings/games"
-            name="Manage Game List"
-            icon="true-Construction_gear_cog_engineering_engine_machine"
-            demphasize={true} />
-        </li>
+        <MenuItemLink path="./settings/games" name="Add a Game" icon={PredefinedIcons.Plus} demphasize={true} />
       </ul>
-      <div class="gdb-nav-header">Studio Settings</div>
+      <div class="gdb-nav-header">Settings</div>
       <ul class="gdb-nav-list">
         <li>
-          <MenuItemLink
-            path="./studio/settings"
-            name="Settings"
-            icon="true-Construction_gear_cog_engineering_engine_machine" />
+          <MenuItemLink path="./settings/games" name="Games" icon={PredefinedIcons.Gear} />
         </li>
         <li>
-          <MenuItemLink path="./studio/members" name="Team Members" icon="true-Users_users_female_male_people" />
+          <MenuItemLink path="./settings/studio" name="Studio & Users" icon={PredefinedIcons.Gear} />
         </li>
         <li>
-          <MenuItemLink
-            path="./studio/billing"
-            name="Account"
-            icon="true-BusinessandFinance_business_finance_invoice" />
+          <MenuItemLink path="./settings/profile" name="Your Profile" icon={PredefinedIcons.UserConfig} />
         </li>
       </ul>
     </nav>

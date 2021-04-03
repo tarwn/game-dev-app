@@ -41,8 +41,8 @@ namespace GDB.App.Controllers.Frontend
                     environment: """ + _webHostEnvironment.EnvironmentName + @""",
                     version: """ + version + @""",
                     sessionId: """ + user.SessionId + @""",
-                    isFullUser: false,
                     actorId: """ + actorId + @""",
+                    userId: " + user.UserId + @",
                     sentry: {
                         dsn: """ + _sentryConfig.Value.Dsn + @"""
                     }

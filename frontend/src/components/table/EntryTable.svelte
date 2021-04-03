@@ -11,7 +11,7 @@
     min-width: 1200px;
     table-layout: fixed;
 
-    :global(td) {
+    :global(td:not(.gdb-faux-label)) {
       padding: $space-xs $space-m;
     }
 

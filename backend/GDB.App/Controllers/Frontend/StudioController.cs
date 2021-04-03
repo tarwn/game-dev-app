@@ -1,5 +1,7 @@
-﻿using GDB.App.Security;
+﻿using GDB.App.Controllers.Frontend.Models.Studio;
+using GDB.App.Security;
 using GDB.Common.BusinessLogic;
+using GDB.Common.DTOs.Studio;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +16,14 @@ namespace GDB.App.Controllers.Frontend
     public class StudioController : BaseController
     {
         private IInteractiveUserQueryService _userQueries;
+        private IStudioService _studioService;
+        private ISignalRSender _signalrSender;
 
-        public StudioController(IInteractiveUserQueryService userQueries)
+        public StudioController(IInteractiveUserQueryService userQueries, IStudioService studioService, ISignalRSender signalrSender)
         {
             _userQueries = userQueries;
+            _studioService = studioService;
+            _signalrSender = signalrSender;
         }
 
         [HttpGet]
@@ -27,5 +33,34 @@ namespace GDB.App.Controllers.Frontend
             var studio = await _userQueries.GetStudioAsync(user.StudioId, user);
             return Ok(studio);
         }
+
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetStudioUsersAsync()
+        {
+            var user = GetUserAuthContext();
+            var users = await _userQueries.GetStudioUsersAsync(user.StudioId, user);
+            return Ok(users);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStudioAsync([FromBody] UpdateStudioRequestModel update)
+        {
+            if (string.IsNullOrEmpty(update.Name))
+            {
+                ModelState.AddModelError("", "At least one field must be set in an update");
+                return BadRequest(ModelState);
+            }
+
+            var user = GetUserAuthContext();
+            var updateDto = new UpdateStudioDTO()
+            {
+                Name = update.Name
+            };
+            await _studioService.UpdateStudioAsync(updateDto, user);
+            await _signalrSender.SendAsync(user, UpdateScope.StudioRecord, null);
+            return Ok();
+        }
+
     }
 }

@@ -1,10 +1,13 @@
 <script lang="ts">
   import { url, isActive } from "@sveltech/routify";
-  export let icon: string =
-    "true-Videogames_controller_joystick_games_video_console";
+  import { getIconString, PredefinedIcons } from "../buttons/PredefinedIcons";
+
+  export let icon: PredefinedIcons | string = "true-Videogames_controller_joystick_games_video_console";
   export let path: string = "na";
   export let name: string = "na";
   export let demphasize: boolean = false;
+
+  $: iconString = getIconString(icon);
 </script>
 
 <style type="text/scss">
@@ -48,6 +51,6 @@
 </style>
 
 <a class="gdb-nav-link" href={$url(path)} class:active={$isActive(path)}>
-  <i class="gdb-nav-link-icon {icon}" class:demphasize />
+  <i class="gdb-nav-link-icon {iconString}" class:demphasize />
   <div class="gdb-nav-link-name">{name}</div>
 </a>

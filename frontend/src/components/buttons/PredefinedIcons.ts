@@ -15,7 +15,12 @@ export enum PredefinedIcons {
   GraphicAdd,
   Pencil,
   Star,
-  StarOutline
+  StarOutline,
+
+  Deny,
+  Gear,
+  UserConfig,
+  GamePad
 }
 
 const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
@@ -35,7 +40,11 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.GraphicAdd, "true-GraphicDesign_picture_add"],
   [PredefinedIcons.Pencil, "true-GraphicDesign_pencil"],
   [PredefinedIcons.Star, "true-UIEssentials_star"],
-  [PredefinedIcons.StarOutline, "true-UIEssentials_star_outline"]
+  [PredefinedIcons.StarOutline, "true-UIEssentials_star_outline"],
+  [PredefinedIcons.Deny, "true-UIEssentials_deny"],
+  [PredefinedIcons.Gear, "true-UIEssentials_settings_cog_gear"],
+  [PredefinedIcons.UserConfig, "true-Users_female_user_config_configuration"],
+  [PredefinedIcons.GamePad, "true-Videogames_controller_joystick_games_video_console"]
 ]);
 
 export const getIconString = (icon: PredefinedIcons | string): string => {

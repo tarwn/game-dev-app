@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import { metatags } from "@sveltech/routify";
   import PageTop from "../../../components/layout/PageTop.svelte";
   import EntryTable from "../../../components/table/EntryTable.svelte";
@@ -15,7 +15,6 @@
   import { GameStatuses } from "../../_stores/types";
   import TextInput from "../../../components/inputs/TextInput.svelte";
   import { gamesStore } from "../../_stores/gamesStore";
-  import { DetailType } from "../../games/[id]/cashForecast/_stores/calculator/types";
 
   metatags.title = "[LR] Settings / Games";
   metatags.description = "Your LaunchReady Settings: Manage games for your studio.";

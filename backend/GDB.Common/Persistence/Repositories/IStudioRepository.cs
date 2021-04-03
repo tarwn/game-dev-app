@@ -12,5 +12,6 @@ namespace GDB.Common.Persistence.Repositories
         Task<List<AccessibleStudio>> GetAccessibleStudiosByUserAsync(int userId);
         Task<bool> IsAccessibleByUserAsync(int userId, int studioId);
         Task<StudioDTO> GetByIdAsync(int studioId);
+        Task UpdateAsync(StudioDTO studio);
     }
 }

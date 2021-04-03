@@ -66,6 +66,24 @@ namespace GDB.Business.BusinessLogic
             });
         }
 
+        public async Task<List<StudioUserDTO>> GetStudioUsersAsync(int studioId, IAuthContext userAuth)
+        {
+            return await _busOp.Query(async (persistence) =>
+            {
+                if (studioId != userAuth.StudioId)
+                {
+                    throw new AccessDeniedException("That studio does not exist or you do not have access", $"User {userAuth.UserId} attempted to access studio {studioId} and is currently authed for studio {userAuth.StudioId}");
+                }
+
+                if (!await persistence.Studios.IsAccessibleByUserAsync(userAuth.UserId, studioId))
+                {
+                    throw new AccessDeniedException("That studio does not exist or you do not have access", $"User {userAuth.UserId} attempted to access studio {studioId} and does not have access");
+                }
+
+                return await persistence.Users.GetByStudioIdAsync(studioId);
+            });
+        }
+
         public async Task<UserDTO> GetUserAsync(int userId, IAuthContext userAuth)
         {
             return await _busOp.Query(async (persistence) =>

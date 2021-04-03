@@ -39,7 +39,14 @@ namespace GDB.Persistence.Repositories
             var param = new { studioId };
             var sql = @"
                 SELECT S.Id,
-                       S.[Name]
+                       S.[Name],
+                       S.CreatedOn,
+                       S.CreatedBy,
+                       S.UpdatedOn,
+                       S.UpdatedBy,
+                       S.BillingPlan,
+                       S.TrialStart,
+                       S.TrialEnd
                 FROM dbo.Studio S
                 WHERE S.Id = @StudioId;
             ";
@@ -65,5 +72,19 @@ namespace GDB.Persistence.Repositories
             }
         }
 
+        public async Task UpdateAsync(StudioDTO studio)
+        {
+            var sql = @"
+                UPDATE dbo.Studio
+                SET [Name] = @Name,
+                    UpdatedBy = @UpdatedBy,
+                    UpdatedOn = @UpdatedOn
+                WHERE Id = @Id;
+            ";
+            using (var conn = GetConnection())
+            {
+                await conn.ExecuteAsync(sql, studio);
+            }
+        }
     }
 }

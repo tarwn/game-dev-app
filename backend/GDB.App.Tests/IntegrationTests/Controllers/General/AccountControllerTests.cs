@@ -5,6 +5,7 @@ using GDB.App.Controllers.General.Models;
 using GDB.Business.Authentication;
 using GDB.Business.BusinessLogic;
 using GDB.Common.Authentication;
+using GDB.Common.DTOs.Studio;
 using GDB.Common.Settings;
 using GDB.EmailSending;
 using GDB.EmailSending.Templates;
@@ -75,7 +76,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         {
             var user = Database.Users.Add("unit test", "unittest-ii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             var studio = Database.Studios.Add("ut studio");
-            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true);
+            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
 
             var result = await _controller.LoginAsync(new LoginModel()
             {
@@ -99,7 +100,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         {
             var user = Database.Users.Add("unit test", "unittest-iii@launchready.co", _fakeCrypto.HashPassword("password 123"), true);
             var studio = Database.Studios.Add("ut studio");
-            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true);
+            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
             _fakeCrypto.PresetResetToken = "ABC123";
 
             var result = await _controller.LoginAsync(new LoginModel()
@@ -126,7 +127,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         {
             var user = Database.Users.Add("unit test", "unittest-iv@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             var studio = Database.Studios.Add("ut studio");
-            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true);
+            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
 
             var result = await _controller.LoginAsync(new LoginModel()
             {
@@ -146,7 +147,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         {
             var user = Database.Users.Add("unit test", "unittest-v@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             var studio = Database.Studios.Add("ut studio");
-            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true);
+            Database.Studios.AssignUserAccesstoStudio(user.Id, studio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
 
             var result = await _controller.LoginAsync(new LoginModel()
             {
@@ -187,7 +188,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
                 };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
 
 
             var result = await _controller.LoginAsync(new LoginModel()
@@ -210,7 +211,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio")
             };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
 
             // choice cookie value will be captured by FakeCookies object for second call
             await _controller.LoginAsync(new LoginModel()
@@ -235,7 +236,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
                 };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
 
             // choice cookie value will be captured by FakeCookies object for second call
             await _controller.LoginAsync(new LoginModel()
@@ -259,7 +260,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
                 };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
 
             // choice cookie value will be captured by FakeCookies object for second call
             await _controller.LoginAsync(new LoginModel()
@@ -293,7 +294,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
                 };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
             var inaccessibleStudio = Database.Studios.Add("bad studio");
 
             // choice cookie value will be captured by FakeCookies object for second call
@@ -324,7 +325,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
                 Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
                 };
             studios.ForEach(s =>
-                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
+                Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator));
 
             // choice cookie value will be captured by FakeCookies object for second call
             await _controller.LoginAsync(new LoginModel()

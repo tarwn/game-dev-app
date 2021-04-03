@@ -2,10 +2,20 @@
   export let align: string = "";
 </script>
 
-<style>
+<style type="text/scss">
   @import "../../styles/_variables.scss";
+  .gdb-page-bm-buttons {
+    & > :global(button) {
+      margin: 0 $space-xs 0 0;
+    }
+  }
+
   .gdb-page-bm-buttons.right {
     text-align: right;
+
+    & > :global(button) {
+      margin: 0 0 0 $space-xs;
+    }
   }
 </style>
 

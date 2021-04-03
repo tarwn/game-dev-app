@@ -35,7 +35,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             // studio + user for these tests
             _existingStudio = Database.Studios.Add("GamesControllerTests");
             _user = Database.Users.Add("GamesControllerTests", "GamesControllerTests", "GamesControllerTests", false);
-            Database.Studios.AssignUserAccesstoStudio(_user.Id, _existingStudio.Id, true);
+            Database.Studios.AssignUserAccesstoStudio(_user.Id, _existingStudio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
         }
 
         public GamesController GetController(int? userId = null, int? studioId = null)
