@@ -8,6 +8,7 @@
   import { profileStore } from "./pages/_stores/profileStore";
   import WebSocketManager from "./pages/_communications/WebSocketManager.svelte";
   import WebSocketChannel from "./pages/_communications/WebSocketChannel.svelte";
+  import { UpdateScope } from "./pages/_communications/UpdateScope";
 
   function reloadApp() {
     console.log("reload from error");
@@ -30,6 +31,6 @@
 </Modal>
 <ErrorReporter on:dismiss={reloadApp} />
 <WebSocketManager />
-<WebSocketChannel channelId="studio" updateType="studioUpdated" on:receive={() => studioStore.load()} />
-<WebSocketChannel channelId="games" updateType="gamesUpdated" on:receive={() => gamesStore.load()} />
-<WebSocketChannel channelId="profile" updateType="profileUpdated" on:receive={() => profileStore.load()} />
+<WebSocketChannel updateScope={UpdateScope.StudioRecord} on:receive={() => studioStore.load()} />
+<WebSocketChannel updateScope={UpdateScope.StudioGameList} on:receive={() => gamesStore.load()} />
+<WebSocketChannel updateScope={UpdateScope.CurrentUserRecord} on:receive={() => profileStore.load()} />

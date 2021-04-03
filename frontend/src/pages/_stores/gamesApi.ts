@@ -8,7 +8,7 @@ export type Game = {
   isArchived: boolean;
   name: string;
   status: GameStatus;
-  lastUpdated: Date;
+  lastModified: Date;
   launchDate: Date | null;
   businessModelLastUpdatedOn: Date | null;
   cashForecastLastUpdatedOn: Date | null;
@@ -24,7 +24,7 @@ function extractGame(data: any): Game {
     name: data.name,
     status: data.status,
     launchDate: data.launchDate != null ? new Date(data.launchDate) : null,
-    lastUpdated: data.updatedOn != null ? new Date(data.updatedOn) : new Date(data.createdOn),
+    lastModified: new Date(data.lastModified),
     businessModelLastUpdatedOn: data.businessModelLastUpdatedOn != null ? new Date(data.businessModelLastUpdatedOn) : null,
     cashForecastLastUpdatedOn: data.cashForecastLastUpdatedOn != null ? new Date(data.cashForecastLastUpdatedOn) : null,
     comparablesLastUpdatedOn: data.comparablesLastUpdatedOn != null ? new Date(data.comparablesLastUpdatedOn) : null,
@@ -50,5 +50,93 @@ export const gamesApi = {
         log("GamesAPI.getGames():JSON data received", {});
         return data.map(d => extractGame(d));
       });
+  },
+
+  addNewGame: (): Promise<Game> => {
+    log("GamesAPI.addNewGame(): started", {});
+    return fetch(`/api/fe/games/new`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({})
+    }).then(jsonOrThrow)
+      .then((data: any) => {
+        log("GamesAPI.addNewGame():JSON data received", {});
+        return extractGame(data);
+      });
+  },
+
+  delete: (id: string): Promise<void> => {
+    log("GamesAPI.deleteGame(): started", {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'DELETE'
+    })
+      .then(() => {
+        log("GamesAPI.deleteGame():complete", {});
+      });
+  },
+
+  updateFavorite: (id: string, isFavorite: boolean): Promise<void> => {
+    log("GamesAPI.updateFavorite(): started", {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        isFavorite
+      })
+    }).then(() => {
+      log("GamesAPI.updateFavorite():complete", {});
+    });
+  },
+  updateName: (id: string, name: string): Promise<void> => {
+    log("GamesAPI.updateName(): started", {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        name
+      })
+    }).then(() => {
+      log("GamesAPI.updateName():complete", {});
+    });
+  },
+  updateStatus: (id: string, status: GameStatus): Promise<void> => {
+    log("GamesAPI.updateStatus(): started", {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        status
+      })
+    }).then(() => {
+      log("GamesAPI.updateStatus():complete", {});
+    });
+  },
+  updateLaunchDate: (id: string, launchDate: Date): Promise<void> => {
+    log("GamesAPI.updateLaunchDate(): started", {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        launchDate
+      })
+    }).then(() => {
+      log("GamesAPI.updateLaunchDate():complete", {});
+    });
   }
+
+
 };

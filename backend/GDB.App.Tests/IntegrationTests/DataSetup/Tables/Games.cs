@@ -15,13 +15,16 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
             _databaseHelper = databaseHelper;
         }
 
-        public GameDTO Add(int studioId, GameStatus status, string name, string logoUrl = null, DateTime? launchDate = null)
+        public GameDTO Add(int studioId, GameStatus status, string name, string logoUrl = null, DateTime? launchDate = null, bool isFavorite = true, bool isDeleted = false,
+            bool hasCashForecast = false)
         {
             using (var conn = _databaseHelper.GetConnection())
             {
                 var sql = @"
-                    INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, LogoUrl, CreatedOn, CreatedBy, UpdatedOn, UpdatedBy)
-                    VALUES(@StudioId, @Name, @Status, @LaunchDate, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedOn, @UpdatedBy);
+                    INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, IsFavorite, LogoUrl, CreatedOn, CreatedBy, UpdatedOn, UpdatedBy, DeletedOn, DeletedBy,
+                                        CashForecastLastUpdatedOn, CashForecastLastUpdatedBy)
+                    VALUES(@StudioId, @Name, @Status, @LaunchDate, @IsFavorite, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedOn, @UpdatedBy, @DeletedOn, @DeletedBy,
+                                        @CashForecastLastUpdatedOn, @CashForecastLastUpdatedBy);
                     SELECT *, Status = GameStatusId FROM Game WHERE Id = scope_identity();
                 ";
                 var param = new
@@ -31,10 +34,15 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
                     name,
                     logoUrl,
                     launchDate,
+                    isFavorite,
                     createdBy = -1,
                     createdOn = DateTime.UtcNow,
                     updatedBy = -1,
-                    updatedOn = DateTime.UtcNow
+                    updatedOn = DateTime.UtcNow,
+                    deletedOn = isDeleted ? DateTime.UtcNow : (DateTime?) null,
+                    deletedBy = isDeleted ? -1 : (int?)null,
+                    CashForecastLastUpdatedOn = hasCashForecast ? DateTime.UtcNow : (DateTime?) null,
+                    CashForecastLastUpdatedBy = hasCashForecast ? -1 : (int?) null
                 };
                 return conn.QuerySingle<GameDTO>(sql, param);
             }

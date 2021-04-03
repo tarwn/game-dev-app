@@ -4,6 +4,7 @@ using GDB.Business.BusinessLogic._Generic;
 using GDB.Business.BusinessLogic.BusinessModelService;
 using GDB.Business.BusinessLogic.CashForecastService;
 using GDB.Business.BusinessLogic.EventStore;
+using GDB.Business.BusinessLogic.Settings;
 using GDB.Common.Authentication;
 using GDB.Common.BusinessLogic;
 using GDB.Common.DTOs.BusinessModel;
@@ -40,6 +41,7 @@ namespace GDB.App.StartupConfiguration
             services.AddScoped<CashForecastEventApplier>();
             services.AddScoped<EventProcessor<CashForecastDTO, CashForecastEventApplier>>();
             services.AddScoped<ICashForecastService, CashForecastService>();
+            services.AddScoped<IGameService, GameService>();
             services.AddScoped<IInteractiveUserQueryService, InteractiveUserQueryService>();
 
             // security 

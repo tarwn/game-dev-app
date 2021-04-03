@@ -196,6 +196,9 @@ namespace GDB.App
 
             // Monitoring
             services.AddApplicationInsightsTelemetry();
+
+            // SignalR Sender
+            services.AddScoped<ISignalRSender, SignalRSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

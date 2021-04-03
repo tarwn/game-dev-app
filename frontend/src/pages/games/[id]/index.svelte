@@ -2,7 +2,6 @@
   import { url, params, metatags } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
-  import type { GameSummary } from "../../_stores/gamesStore";
   import Tile from "./_components/Tile.svelte";
   import GameStatus from "../../../components/outputs/GameStatus.svelte";
   import { api as cashForecastApi } from "./cashForecast/_stores/cashForecastApi";
@@ -12,30 +11,30 @@
   import ForecastChart from "./cashForecast/_components/ForecastChart.svelte";
   import TaskItem from "./_components/TaskItem.svelte";
   import DateSpan from "../../../components/inputs/DateSpan.svelte";
-  import { gamesApi } from "../../_stores/gamesApi";
   import type { Game } from "../../_stores/gamesApi";
 
   metatags.title = "[LR] Dashboard";
 
   $: id = $params.id;
+  let initializedId = null;
 
-  let games = [] as Array<GameSummary>;
+  let games = [] as Array<Game>;
   let game = null as Game;
-  const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
+  const unsubscribe = gamesStore.subscribe((g) => {
+    games = g ?? [];
+    game = games.find((g) => g.globalId == initializedId) ?? null;
+  });
 
   // Cash forecast data
   //  this is a bit brute force, I don't expect to keep it live so we really only need latest DTO?
-  let initializedId = null;
   let cashForecast = null as ICashForecast | null;
   let projectedCashForecast = getEmptyProjection();
   $: {
+    console.log({ game });
     if (id != null && id != initializedId) {
       initializedId = id;
 
-      gamesApi.getGameById(id).then((data) => {
-        if (initializedId != id) return;
-        game = data;
-      });
+      game = games.find((g) => g.globalId == initializedId) ?? null;
 
       cashForecastApi.get(id).then((data) => {
         if (initializedId != id) return;
@@ -157,7 +156,7 @@
         </div>
         <div class="gdb-game-tile-footer">
           Last updated on
-          <DateSpan date={game.lastUpdated} style={"long date"} />
+          <DateSpan date={game.lastModified} style={"long date"} />
         </div>
       </div>
     </section>

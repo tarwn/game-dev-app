@@ -2,11 +2,13 @@
   import type * as signalR from "@microsoft/signalr";
   import { onDestroy, createEventDispatcher } from "svelte";
   import { log } from "../../utilities/logger";
+  import type { UpdateScope } from "./UpdateScope";
   // import { log } from "./logger";
 
-  export let channelId: string;
-  export let updateType: string;
-  let connectedChannelId: string = "";
+  export let updateScope: UpdateScope;
+  export let gameId: string = "";
+  let connectedEventType = null;
+  let connectedScope: string = "";
   const instance = Math.floor(Math.random() * 100000);
 
   const dispatch = createEventDispatcher();
@@ -15,11 +17,7 @@
     return (window as any).ws as signalR.HubConnection;
   }
 
-  getConnection().on(updateType, (args: any) => {
-    dispatch("receive", args);
-  });
-
-  function attemptConnection(channelId: string, attempt: number = 0) {
+  function attemptConnection(updateScope: UpdateScope, gameId: string, attempt: number = 0) {
     // log("SignalR: attempting connection", { channelId, attempt, instance });
     const connection = getConnection();
     if (attempt >= 10) {
@@ -28,31 +26,45 @@
 
     if (connection.state != "Connected") {
       const nextAttempt = attempt + 1;
-      setTimeout(() => attemptConnection(channelId, nextAttempt), 500 * attempt);
+      setTimeout(() => attemptConnection(updateScope, gameId, nextAttempt), 500 * attempt);
       return;
     }
 
     getConnection()
-      .send("registerForUpdates", channelId)
-      .then(() => {
-        log("SignalR: connected", { channelId, attempt, instance });
-        connectedChannelId = channelId;
-        dispatch("connect", connectedChannelId);
+      .invoke("registerForUpdates", updateScope, gameId)
+      .then((updateTypeFromServer) => {
+        connectedEventType = updateTypeFromServer;
+        connectedScope = `${updateScope}/${gameId}`;
+        log("SignalR: connected", { connectedEventType, connectedScope, attempt, instance });
+
+        // bind to messages coming back to that update type name
+        getConnection().on(connectedEventType, (args: any) => {
+          // log("SignalR: receive", { connectedEventType, args });
+          dispatch("receive", args);
+        });
+
+        dispatch("connect", connectedScope);
       });
   }
 
   $: {
-    if (connectedChannelId != channelId) {
-      attemptConnection(channelId);
+    if (connectedScope != `${updateScope}/${gameId}`) {
+      // remove old connect if non-empty
+      if (connectedEventType != "") {
+        getConnection().off(connectedEventType);
+        connectedEventType = "";
+      }
+      // now connect w/ those values
+      attemptConnection(updateScope, gameId);
     }
   }
 
   onDestroy(async () => {
     getConnection()
-      .send("unregisterForUpdates", channelId)
+      .send("unregisterForUpdates", updateScope, gameId)
       .then(() => {
-        dispatch("disconnect", channelId);
-        connectedChannelId = "";
+        dispatch("disconnect", connectedScope);
+        connectedScope = "";
       });
   });
 </script>

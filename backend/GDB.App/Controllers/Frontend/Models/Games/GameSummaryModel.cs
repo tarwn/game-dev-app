@@ -13,15 +13,17 @@ namespace GDB.App.Controllers.Frontend.Models.Games
 
         public GameSummaryModel(GameDTO game)
         {
-            GlobalId = $"{game.StudioId}:{game.Id}";
+            GlobalId = game.GetGlobalId();
             Name = game.Name;
             Status = game.Status;
             LastModified = game.UpdatedOn;
+            IsFavorite = game.IsFavorite;
         }
 
         public string GlobalId { get; set; }
         public string Name { get; set; }
         public GameStatus Status { get; set; }
         public DateTime LastModified { get; set; }
+        public bool IsFavorite { get; set; }
     }
 }

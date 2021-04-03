@@ -1,25 +1,16 @@
+import produce from 'immer';
 import { writable } from 'svelte/store';
-import { jsonOrThrow } from '../_communications/responseHandler';
-import type { GameStatus } from './types';
-
-export type GameSummary = {
-  globalId: string;
-  name: string;
-  status: GameStatus;
-  lastModified: Date;
-};
+import { gamesApi } from './gamesApi';
+import type { Game } from './gamesApi';
 
 function createGamesStore() {
   const { subscribe, set } = writable(null);
+  let games = [] as Game[];
 
   const load = () => {
-    return fetch(`/api/fe/games`)
-      .then(jsonOrThrow)
-      .then((data: any[]) => {
-        const games = data.map(d => ({
-          ...d,
-          lastModified: new Date(d.lastModified)
-        })) as GameSummary[];
+    return gamesApi.getGames()
+      .then(loadedGames => {
+        games = produce(games, () => loadedGames);
         set(games);
       });
   };

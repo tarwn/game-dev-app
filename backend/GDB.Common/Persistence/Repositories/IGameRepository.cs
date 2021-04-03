@@ -12,5 +12,8 @@ namespace GDB.Common.Persistence.Repositories
         Task<GameDTO> GetByIdAsync(int studioId, int gameId);
         Task RegisterBusinessModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn);
         Task RegisterCashForecastModuleUpdateAsync(int studioId, int gameId, int modifiedBy, DateTime modifiedOn);
+        Task<GameDTO> CreateAsync(GameDTO game);
+        Task DeleteAsync(int id, DateTime deletedOn, int deletedBy);
+        Task UpdateAsync(GameDTO game);
     }
 }

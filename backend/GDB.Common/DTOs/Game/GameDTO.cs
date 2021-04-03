@@ -9,6 +9,7 @@ namespace GDB.Common.DTOs.Game
         public GameDTO() { }
 
         public GameDTO(int id, int studioId, string name, GameStatus status, DateTime launchDate, string logoUrl,
+                        bool isFavorite,
                        DateTime createdOn, int createdBy, DateTime updatedOn, int updatedBy,
                        DateTime? businessModelLastUpdatedOn = null, int? businessModelLastUpdatedBy = null,
                        DateTime? cashForecastLastUpdatedOn = null, int? cashForecastLastUpdatedBy = null,
@@ -18,7 +19,9 @@ namespace GDB.Common.DTOs.Game
             Id = id;
             StudioId = studioId;
             Name = name;
+            Status = status;
             LaunchDate = launchDate;
+            IsFavorite = isFavorite;
             LogoUrl = logoUrl;
             CreatedOn = createdOn;
             CreatedBy = createdBy;
@@ -35,11 +38,17 @@ namespace GDB.Common.DTOs.Game
             MarketingPlanLastUpdatedBy = marketingPlanLastUpdatedBy;
         }
 
+        public string GetGlobalId()
+        {
+            return $"{StudioId}:{Id}";
+        }
+
         public int Id { get; set; }
         public int StudioId { get; set; }
         public string Name { get; set; }
         public GameStatus Status { get; set; }
         public DateTime LaunchDate { get; set; }
+        public bool IsFavorite { get; set; }
         public string LogoUrl { get; set; }
         public DateTime CreatedOn { get; set; }
         public int CreatedBy { get; set; }
@@ -53,5 +62,7 @@ namespace GDB.Common.DTOs.Game
         public int? ComparablesLastUpdatedBy { get; set; }
         public DateTime? MarketingPlanLastUpdatedOn { get; set; }
         public int? MarketingPlanLastUpdatedBy { get; set; }
+
+
     }
 }

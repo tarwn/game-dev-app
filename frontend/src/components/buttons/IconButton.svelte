@@ -14,6 +14,9 @@
       case "icon-only":
         buttonStyleClass = "gdb-bs-iconOnly";
         break;
+      case "accented-icon-only":
+        buttonStyleClass = "accented gdb-bs-iconOnly";
+        break;
       case "bm-edit-charm":
         buttonStyleClass = "gdb-bs-bmEditCharm";
         break;
@@ -57,6 +60,14 @@
     &[disabled]:active {
       color: $cs-grey-1;
       cursor: not-allowed;
+    }
+  }
+
+  .gdb-bs-iconOnly.accented {
+    color: $cs-green-2;
+
+    &:hover {
+      color: $cs-green-4;
     }
   }
 
@@ -125,10 +136,6 @@
   }
 </style>
 
-<button
-  on:click|preventDefault|stopPropagation
-  class="gdb-button {buttonStyleClass}"
-  {disabled}
-  {label}>
+<button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" {disabled} {label}>
   <i class="gdb-button-icon {iconString}" />
 </button>

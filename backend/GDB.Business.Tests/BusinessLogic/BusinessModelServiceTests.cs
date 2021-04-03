@@ -44,7 +44,7 @@ namespace GDB.Business.Tests.BusinessLogic
 
         private GameDTO GetSampleGame(int studioId, int gameId)
         {
-            return new GameDTO(FakeGameId, FakeStudioId, "sample game", GameStatus.Developing, DateTime.UtcNow, "", DateTime.UtcNow, FakeUserId, DateTime.UtcNow, FakeUserId);
+            return new GameDTO(FakeGameId, FakeStudioId, "sample game", GameStatus.Developing, DateTime.UtcNow, "", true, DateTime.UtcNow, FakeUserId, DateTime.UtcNow, FakeUserId);
         }
 
         [Test]

@@ -206,8 +206,9 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
         {
             var user = Database.Users.Add("unit test", "unittest-vii@launchready.co", _fakeCrypto.HashPassword("password 123"), false);
             var studios = new List<AccessibleStudio> {
-                Database.Studios.Add("ut studio"),  Database.Studios.Add("ut studio")
-                };
+                Database.Studios.Add("ut studio"),  
+                Database.Studios.Add("ut studio")
+            };
             studios.ForEach(s =>
                 Database.Studios.AssignUserAccesstoStudio(user.Id, s.Id, true));
 

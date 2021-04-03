@@ -3,10 +3,10 @@
   import MenuItemGame from "../components/layout/MenuItemGame.svelte";
   import MenuItemLink from "../components/layout/MenuItemLink.svelte";
   import Logo from "../components/layout/Logo.svelte";
-  import type { GameSummary } from "./_stores/gamesStore";
   import { gamesStore } from "./_stores/gamesStore";
+  import type { Game } from "./_stores/gamesApi";
 
-  let games = [] as GameSummary[];
+  let games = [] as Game[];
   const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
   onDestroy(unsubscribe);
 </script>
@@ -65,7 +65,7 @@
     <nav>
       <div class="gdb-nav-header">Active Games</div>
       <ul class="gdb-nav-list">
-        {#each games as game (game.globalId)}
+        {#each games.filter((g) => g.isFavorite) as game (game.globalId)}
           <li>
             <MenuItemGame id={game.globalId} name={game.name} />
           </li>

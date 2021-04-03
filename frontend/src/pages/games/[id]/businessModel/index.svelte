@@ -31,6 +31,7 @@
   import CostStructureInstructions from "./_components/sections/CostStructureInstructions.svelte";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
+  import { UpdateScope } from "../../../_communications/UpdateScope";
 
   metatags.title = "[LR] Business Model";
 
@@ -150,8 +151,8 @@
 </style>
 
 <WebSocketChannel
-  channelId={id}
-  updateType="businessModelUpdate"
+  updateScope={UpdateScope.GameBusinessModel}
+  gameId={id}
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);
     businessModelEventStore.receiveEvent(detail.gameId, detail.event);

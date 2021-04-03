@@ -27,6 +27,7 @@
   import GeneralInstructions from "./_components/editing/general/GeneralInstructions.svelte";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import RevenueInstructions from "./_components/editing/revenueTab/RevenueInstructions.svelte";
+  import { UpdateScope } from "../../../_communications/UpdateScope";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -344,8 +345,8 @@
 </div>
 
 <WebSocketChannel
-  channelId={id}
-  updateType="cashForecastUpdate"
+  updateScope={UpdateScope.GameCashforecast}
+  gameId={id}
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);
     cashForecastEventStore.receiveEvent(detail.gameId, detail.event);

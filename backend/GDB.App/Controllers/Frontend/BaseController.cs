@@ -18,5 +18,6 @@ namespace GDB.App.Controllers.Frontend
 
             return new UserAuthContext(sessionId, userId, username, studioId);
         }
+
     }
 }

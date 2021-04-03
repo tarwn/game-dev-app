@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { metatags } from "@sveltech/routify";
   import PageTop from "../../../components/layout/PageTop.svelte";
   import EntryTable from "../../../components/table/EntryTable.svelte";
@@ -11,22 +11,27 @@
   import { PredefinedIcons } from "../../../components/buttons/PredefinedIcons";
   import IconButton from "../../../components/buttons/IconButton.svelte";
   import TableRowEmpty from "../../../components/table/TableRowEmpty.svelte";
-  import { gamesStore } from "../../_stores/gamesStore";
   import Dropdown from "../../../components/inputs/Dropdown.svelte";
   import { GameStatuses } from "../../_stores/types";
   import TextInput from "../../../components/inputs/TextInput.svelte";
+  import { gamesStore } from "../../_stores/gamesStore";
+  import { DetailType } from "../../games/[id]/cashForecast/_stores/calculator/types";
 
   metatags.title = "[LR] Settings / Games";
   metatags.description = "Your LaunchReady Settings: Manage games for your studio.";
 
   let games = [] as Array<Game>;
-  onMount(() => {
-    gamesApi.getGames().then((loadedGames) => {
-      games = loadedGames;
-    });
+  var unsubscribe = gamesStore.subscribe((update) => {
+    games = update ?? [];
   });
-  // todo - update methods
-  // todo - WebSocketChannel - call for fresh game record and weave it in - super cutrate update loop
+
+  onDestroy(unsubscribe);
+
+  function addGame() {
+    gamesApi.addNewGame().then((game) => {
+      games = [...games, game];
+    });
+  }
 
   function hasNotBeenUsed(game: Game) {
     return (
@@ -76,13 +81,18 @@
           <td
             ><IconButton
               icon={PredefinedIcons.Star}
-              buttonStyle="icon-only"
+              buttonStyle={game.isFavorite ? "accented-icon-only" : "icon-only"}
               on:click={() => gamesApi.updateFavorite(game.globalId, !game.isFavorite)} /></td>
           <td
             ><TextInput
               value={game.name}
               on:change={({ detail }) => gamesApi.updateName(game.globalId, detail.value)} /></td>
-          <td><Dropdown options={GameStatuses} value={game.status} /></td>
+          <td>
+            <Dropdown
+              options={GameStatuses}
+              value={game.status}
+              on:change={({ detail }) => gamesApi.updateStatus(game.globalId, detail.value)} />
+          </td>
           <td>
             {#if game.launchDate}
               <DateInput
@@ -110,7 +120,7 @@
             icon={PredefinedIcons.Plus}
             value={"Add Game"}
             buttonStyle="primary-outline"
-            on:click={() => gamesApi.addNewGame()} />
+            on:click={addGame} />
         </td>
       </TableRowIndented>
     </EntryTable>

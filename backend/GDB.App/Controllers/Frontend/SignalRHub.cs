@@ -10,6 +10,15 @@ using System.Threading.Tasks;
 
 namespace GDB.App.Controllers.Frontend
 {
+    public enum UpdateScope
+    {
+        StudioGameList = 1,
+        StudioRecord = 2,
+        CurrentUserRecord = 3,
+        GameBusinessModel = 4,
+        GameCashforecast = 5
+    };
+
     [Authorize(Policy = Policies.InteractiveUserAccess)]
     public class SignalRHub : Hub<ISignalRHub>
     {
@@ -23,52 +32,73 @@ namespace GDB.App.Controllers.Frontend
             _logger = logger;
         }
 
-        public async Task JoinGroup(string gameId)
-        {
-            // TODO validate user is allowed to access this game id [ch926] or [ch993]
+        //public async Task JoinGroup(string gameId)
+        //{
+        //    // TODO validate user is allowed to access this game id [ch926] or [ch993]
 
-            _logger.LogInformation($"Client connected to '{gameId}': {Context.ConnectionId}");
-            if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
+        //    _logger.LogInformation($"Client connected to '{gameId}': {Context.ConnectionId}");
+        //    if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
+        //    {
+        //        await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
+        //    }
+        //    _connectionGroupAssignments.AddOrUpdate(Context.ConnectionId, gameId, (key, old) => gameId);
+        //    await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+        //}
+
+        //public async Task LeaveGroups()
+        //{
+        //    _logger.LogInformation($"Client leaving groups': {Context.ConnectionId}");
+        //    if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
+        //    {
+        //        await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
+        //    }
+        //}
+
+        public async Task<string> RegisterForUpdates(UpdateScope updateType, string id = "")
+        {
+            var group = MapToGroup(updateType, id);
+
+            _logger.LogInformation($"Client connected to '{group}': {Context.ConnectionId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, group);
+            _connectionRegistrations.AddOrUpdate(Context.ConnectionId, new List<string> { group }, (k, list) =>
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
-            }
-            _connectionGroupAssignments.AddOrUpdate(Context.ConnectionId, gameId, (key, old) => gameId);
-            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        }
-
-        public async Task LeaveGroups()
-        {
-            _logger.LogInformation($"Client leaving groups': {Context.ConnectionId}");
-            if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
-            {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
-            }
-        }
-
-        public async Task RegisterForUpdates(string updateTypeId)
-        {
-            // TODO validate user is allowed to access this game id [ch926] or [ch993]
-
-            _logger.LogInformation($"Client connected to '{updateTypeId}': {Context.ConnectionId}");
-            await Groups.AddToGroupAsync(Context.ConnectionId, updateTypeId);
-            _connectionRegistrations.AddOrUpdate(Context.ConnectionId, new List<string> { updateTypeId }, (k, list) => {
-                list.Add(updateTypeId);
+                list.Add(group);
                 return list;
             });
+            return group;
         }
 
-        public async Task UnregisterForUpdates(string updateTypeId)
+        public async Task UnregisterForUpdates(UpdateScope updateType, string id = "")
         {
-            _logger.LogInformation($"Client leaving '{updateTypeId}': {Context.ConnectionId}");
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, updateTypeId);
-            if (_connectionRegistrations.TryGetValue(Context.ConnectionId, out var list)) {
+            var group = MapToGroup(updateType, id);
+
+            _logger.LogInformation($"Client leaving '{group}': {Context.ConnectionId}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
+            if (_connectionRegistrations.TryGetValue(Context.ConnectionId, out var list))
+            {
                 var newList = list.Select(s => s).ToList();
-                newList.RemoveAll(s => s.Equals(updateTypeId));
+                newList.RemoveAll(s => s.Equals(group));
                 _connectionRegistrations.TryUpdate(Context.ConnectionId, newList, list);
             }
-            
         }
 
+        private string MapToGroup(UpdateScope updateType, string id)
+        {
+            var auth = GetUserAuthContext();
+            switch (updateType)
+            {
+                case UpdateScope.CurrentUserRecord:
+                    return $"user/{auth.UserId}";
+                case UpdateScope.StudioRecord:
+                case UpdateScope.StudioGameList:
+                    return $"{auth.StudioId}/{updateType}";
+                case UpdateScope.GameBusinessModel:
+                case UpdateScope.GameCashforecast:
+                    return $"{auth.StudioId}/{id}/{updateType}";
+                default:
+                    throw new Exception("Unexpected update type provided to SignalR registration");
+            }
+        }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
@@ -78,10 +108,21 @@ namespace GDB.App.Controllers.Frontend
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
             }
         }
+
+        private UserAuthContext GetUserAuthContext()
+        {
+            var userId = int.Parse(Context.User.FindFirst(ClaimNames.UserId).Value);
+            var username = Context.User.FindFirst(ClaimNames.UserName).Value;
+            var sessionId = int.Parse(Context.User.FindFirst(ClaimNames.SessionId).Value);
+            var studioId = int.Parse(Context.User.FindFirst(ClaimNames.StudioId).Value);
+
+            return new UserAuthContext(sessionId, userId, username, studioId);
+        }
     }
 
     public interface ISignalRHub
     {
-        Task JoinGroup(string gameId);
+        Task<string> RegisterForUpdates(UpdateScope updateType);
+        Task UnregisterForUpdates(UpdateScope updateType);
     }
 }

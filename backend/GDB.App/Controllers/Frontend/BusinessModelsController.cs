@@ -21,13 +21,13 @@ namespace GDB.App.Controllers.Frontend
     {
         private IInteractiveUserQueryService _queryService;
         private IBusinessModelService _businessModelService;
-        private IHubContext<SignalRHub> _hubContext;
+        private ISignalRSender _signalrSender;
 
-        public BusinessModelsController(IInteractiveUserQueryService queryService, IBusinessModelService businessModelService, IHubContext<SignalRHub> hubContext)
+        public BusinessModelsController(IInteractiveUserQueryService queryService, IBusinessModelService businessModelService, ISignalRSender signalrSender)
         {
             _queryService = queryService;
             _businessModelService = businessModelService;
-            _hubContext = hubContext;
+            _signalrSender = signalrSender;
         }
 
         [HttpGet("{gameId}")]
@@ -64,7 +64,7 @@ namespace GDB.App.Controllers.Frontend
 
             var user = GetUserAuthContext();
             var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change, user);
-            await _hubContext.Clients.Group(gameId).SendAsync("businessModelUpdate", savedEvent);
+            await _signalrSender.SendAsync(user, UpdateScope.GameBusinessModel, gameId, change);
             return Ok(savedEvent);
         }
     }

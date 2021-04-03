@@ -19,13 +19,13 @@ namespace GDB.App.Controllers.Frontend
     {
         private IInteractiveUserQueryService _queryService;
         private ICashForecastService _cashForecastService;
-        private IHubContext<SignalRHub> _hubContext;
+        private ISignalRSender _signalrSender;
 
-        public CashForecastsController(IInteractiveUserQueryService queryService, ICashForecastService cashForecastService, IHubContext<SignalRHub> hubContext)
+        public CashForecastsController(IInteractiveUserQueryService queryService, ICashForecastService cashForecastService, ISignalRSender signalrSender)
         {
             _queryService = queryService;
             _cashForecastService = cashForecastService;
-            _hubContext = hubContext;
+            _signalrSender = signalrSender;
         }
 
         [HttpGet("{gameId}")]
@@ -62,7 +62,7 @@ namespace GDB.App.Controllers.Frontend
 
             var user = GetUserAuthContext();
             var savedEvent = await _cashForecastService.ApplyEventAsync(gameId, change, user);
-            await _hubContext.Clients.Group(gameId).SendAsync("cashForecastUpdate", savedEvent);
+            await _signalrSender.SendAsync(user, UpdateScope.GameCashforecast, gameId, change);
             return Ok(savedEvent);
         }
     }
