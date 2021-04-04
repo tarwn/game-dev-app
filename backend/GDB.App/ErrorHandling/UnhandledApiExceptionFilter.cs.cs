@@ -35,6 +35,18 @@ namespace GDB.App.ErrorHandling
                         Message = context.Exception.Message,
                         Type = typeof(Exception).Name
                     });
+                    context.ExceptionHandled = true;
+                }
+                else if (context.Exception is AuthorizationDeniedException)
+                {
+                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Result = new ObjectResult(new ErrorDetails
+                    {
+                        StatusCode = HttpStatusCode.Unauthorized,
+                        Message = context.Exception.Message,
+                        Type = typeof(Exception).Name
+                    });
+                    context.ExceptionHandled = true;
                 }
                 else
                 {

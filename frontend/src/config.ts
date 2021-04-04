@@ -4,6 +4,7 @@ export interface config {
   sessionId: string,
   actorId: string;
   userId: number;
+  studioUserRole: StudioUserRole;
   sentry: {
     dsn: string;
     enabled: boolean;
@@ -13,3 +14,8 @@ export interface config {
 export const getConfig = (): config => {
   return (window as any).config as config;
 };
+
+export enum StudioUserRole {
+  Administrator = 1,
+  User = 2
+}

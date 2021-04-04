@@ -1,5 +1,6 @@
 ﻿using GDB.App.Security;
 using GDB.App.Tests.IntegrationTests.DataSetup;
+using GDB.Common.DTOs.Studio;
 using GDB.Tools.DatabaseMigration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,7 @@ namespace GDB.App.Tests.IntegrationTests
             return DateTime.SpecifyKind(datetime, DateTimeKind.Utc);
         }
 
-        protected ControllerContext GetControllerContextForFrontEnd(int userId = 1, string userName = "none", int sessionId = 2, int studioId = 3)
+        protected ControllerContext GetControllerContextForFrontEnd(int userId = 1, string userName = "none", int sessionId = 2, int studioId = 3, StudioUserRole role = StudioUserRole.Administrator)
         {
             return new ControllerContext
             {
@@ -59,7 +60,8 @@ namespace GDB.App.Tests.IntegrationTests
                             new Claim(ClaimNames.UserId, userId.ToString()),
                             new Claim(ClaimNames.UserName, userName),
                             new Claim(ClaimNames.SessionId, sessionId.ToString()),
-                            new Claim(ClaimNames.StudioId, studioId.ToString())
+                            new Claim(ClaimNames.StudioId, studioId.ToString()),
+                            new Claim(ClaimNames.StudioRole, ((int)role).ToString())
                         }))
                 }
             };

@@ -21,11 +21,13 @@
   import type { User } from "../../_stores/usersApi";
   import { UserAccess } from "../../_stores/usersApi";
   import { getConfig } from "../../../config";
+  import { isUserSessionAdmin } from "../../../authorization";
 
   metatags.title = "[LR] Settings / Studio";
   metatags.description = "Your LaunchReady Settings: Studio Administration";
 
   let config = getConfig();
+  const isUserAnAdmin = isUserSessionAdmin();
   let studio = null;
   let users = [] as Array<User>;
   const unsubscribeStudio = studioStore.subscribe((update) => (studio = update));
@@ -89,10 +91,22 @@
         <col span="1" style="width: 14rem;" />
         <col span="1" style="" /><!-- soak up excess width -->
       </colgroup>
+      {#if !isUserAnAdmin}
+        <TableRowIndented>
+          <td colspan={4}>
+            <i
+              >Note: you do not have edit rights for game settings, you need Administrator access to make changes here.</i>
+          </td>
+        </TableRowIndented>
+      {/if}
       <TableRowIndented>
         <td colspan={2}>
           <LabeledInput label="Studio Name" vertical={true}>
-            <TextInput value={studio?.name} on:change={({ detail }) => updateStudioName(detail.value)} maxLength={80} />
+            <TextInput
+              value={studio?.name}
+              on:change={({ detail }) => updateStudioName(detail.value)}
+              maxLength={80}
+              disabled={!isUserAnAdmin} />
           </LabeledInput>
         </td>
       </TableRowIndented>
@@ -104,7 +118,7 @@
           </LabeledInput>
         </td>
         <FauxLabelCell>
-          <IconTextButton icon={PredefinedIcons.Star} value="Activate Subscription" disabled={true} />
+          <IconTextButton icon={PredefinedIcons.Star} value="Activate Subscription" disabled={true || !isUserAnAdmin} />
         </FauxLabelCell>
       </TableRowIndented>
     </EntryTable>
@@ -119,6 +133,14 @@
         <col span="1" style="width: 30rem;" />
         <col span="1" style="" /><!-- soak up excess width -->
       </colgroup>
+      {#if !isUserAnAdmin}
+        <TableRowIndented>
+          <td colspan={5}>
+            <i
+              >Note: you do not have edit rights for game settings, you need Administrator access to make changes here.</i>
+          </td>
+        </TableRowIndented>
+      {/if}
       {#each users as user}
         <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
           <td>
@@ -143,9 +165,13 @@
                   icon={PredefinedIcons.Edit}
                   value="Change Access"
                   buttonStyle="primary-outline"
-                  disabled={config.userId == user.id} />
+                  disabled={config.userId == user.id || !isUserAnAdmin} />
                 {#if user.access == UserAccess.PendingActivation}
-                  <IconTextButton icon={PredefinedIcons.Delete} value="Cancel Invite" buttonStyle="primary-outline" />
+                  <IconTextButton
+                    icon={PredefinedIcons.Delete}
+                    value="Cancel Invite"
+                    buttonStyle="primary-outline"
+                    disabled={!isUserAnAdmin} />
                 {/if}
               </SpacedButtons>
             </LabeledInput>
@@ -159,7 +185,7 @@
             icon={PredefinedIcons.Plus}
             value="Send an Invite"
             buttonStyle="primary-outline"
-            disabled={true} />
+            disabled={true || !isUserAnAdmin} />
         </td>
       </TableRowIndented>
     </EntryTable>

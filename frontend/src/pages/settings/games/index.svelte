@@ -15,10 +15,12 @@
   import { GameStatuses } from "../../_stores/types";
   import TextInput from "../../../components/inputs/TextInput.svelte";
   import { gamesStore } from "../../_stores/gamesStore";
+  import { isUserSessionAdmin } from "../../../authorization";
 
   metatags.title = "[LR] Settings / Games";
   metatags.description = "Your LaunchReady Settings: Manage games for your studio.";
 
+  const isUserAnAdmin = isUserSessionAdmin();
   let games = [] as Array<Game>;
   var unsubscribe = gamesStore.subscribe((update) => {
     games = update ?? [];
@@ -75,30 +77,44 @@
         <col span="1" style="width: 4rem;" />
         <col span="1" style="" /><!-- soak up excess width -->
       </colgroup>
+      {#if !isUserAnAdmin}
+        <TableRowIndented>
+          <td colspan={5}>
+            <i
+              >Note: you do not have edit rights for game settings, you need Administrator access to make changes here.</i>
+          </td>
+        </TableRowIndented>
+      {/if}
       {#each games as game}
         <TableRowIndented>
-          <td
-            ><IconButton
+          <td>
+            <IconButton
               icon={PredefinedIcons.Star}
               buttonStyle={game.isFavorite ? "accented-icon-only" : "icon-only"}
-              on:click={() => gamesApi.updateFavorite(game.globalId, !game.isFavorite)} /></td>
+              on:click={() => gamesApi.updateFavorite(game.globalId, !game.isFavorite)}
+              disabled={!isUserAnAdmin} /></td>
           <td
             ><TextInput
               value={game.name}
-              on:change={({ detail }) => gamesApi.updateName(game.globalId, detail.value)} /></td>
+              on:change={({ detail }) => gamesApi.updateName(game.globalId, detail.value)}
+              disabled={!isUserAnAdmin} /></td>
           <td>
             <Dropdown
               options={GameStatuses}
               value={game.status}
-              on:change={({ detail }) => gamesApi.updateStatus(game.globalId, detail.value)} />
+              on:change={({ detail }) => gamesApi.updateStatus(game.globalId, detail.value)}
+              disabled={!isUserAnAdmin} />
           </td>
           <td>
             {#if game.launchDate}
               <DateInput
                 value={game.launchDate}
-                on:change={({ detail }) => gamesApi.updateLaunchDate(game.globalId, detail.value)} />
+                on:change={({ detail }) => gamesApi.updateLaunchDate(game.globalId, detail.value)}
+                disabled={!isUserAnAdmin} />
             {:else}
-              <DateInput on:change={({ detail }) => gamesApi.updateLaunchDate(game.globalId, detail.value)} />
+              <DateInput
+                on:change={({ detail }) => gamesApi.updateLaunchDate(game.globalId, detail.value)}
+                disabled={!isUserAnAdmin} />
             {/if}
           </td>
           <td>
@@ -106,7 +122,8 @@
               <IconButton
                 icon={PredefinedIcons.Delete}
                 buttonStyle={"secondary-negative"}
-                on:click={() => gamesApi.delete(game.globalId)} />
+                on:click={() => gamesApi.delete(game.globalId)}
+                disabled={!isUserAnAdmin} />
             {/if}
           </td>
         </TableRowIndented>
@@ -119,7 +136,8 @@
             icon={PredefinedIcons.Plus}
             value={"Add Game"}
             buttonStyle="primary-outline"
-            on:click={addGame} />
+            on:click={addGame}
+            disabled={!isUserAnAdmin} />
         </td>
       </TableRowIndented>
     </EntryTable>

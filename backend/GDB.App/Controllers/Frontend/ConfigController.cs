@@ -43,6 +43,7 @@ namespace GDB.App.Controllers.Frontend
                     sessionId: """ + user.SessionId + @""",
                     actorId: """ + actorId + @""",
                     userId: " + user.UserId + @",
+                    studioUserRole: " + ((int)user.Role) + @",
                     sentry: {
                         dsn: """ + _sentryConfig.Value.Dsn + @"""
                     }

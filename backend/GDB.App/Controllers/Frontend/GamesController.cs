@@ -66,6 +66,12 @@ namespace GDB.App.Controllers.Frontend
         [HttpPost("{globalId}")]
         public async Task<IActionResult> UpdateGameAsync(string globalId, [FromBody] UpdateGameRequestModel update)
         {
+            if (!update.IsFavorite.HasValue && !update.LaunchDate.HasValue && !update.Status.HasValue && string.IsNullOrEmpty(update.Name))
+            {
+                ModelState.AddModelError("", "At least one field must be specified in order to perform an update");
+                return BadRequest(ModelState);
+            }
+
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(globalId, user);
             var updateDto = new UpdateGameDTO()

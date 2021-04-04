@@ -1,5 +1,5 @@
 import { log } from "../../utilities/logger";
-import { jsonOrThrow } from "../_communications/responseHandler";
+import { jsonOrThrow, throwFor401 } from "../_communications/responseHandler";
 import type { GameStatus } from "./types";
 
 export type Game = {
@@ -60,7 +60,8 @@ export const gamesApi = {
         'Content-Type': 'application/json;charset=utf-8'
       },
       body: JSON.stringify({})
-    }).then(jsonOrThrow)
+    }).then(throwFor401)
+      .then(jsonOrThrow)
       .then((data: any) => {
         log("GamesAPI.addNewGame():JSON data received", {});
         return extractGame(data);
@@ -71,7 +72,7 @@ export const gamesApi = {
     log("GamesAPI.deleteGame(): started", {});
     return fetch(`/api/fe/games/${id}`, {
       method: 'DELETE'
-    })
+    }).then(throwFor401)
       .then(() => {
         log("GamesAPI.deleteGame():complete", {});
       });
@@ -88,9 +89,10 @@ export const gamesApi = {
         id,
         isFavorite
       })
-    }).then(() => {
-      log("GamesAPI.updateFavorite():complete", {});
-    });
+    }).then(throwFor401)
+      .then(() => {
+        log("GamesAPI.updateFavorite():complete", {});
+      });
   },
   updateName: (id: string, name: string): Promise<void> => {
     log("GamesAPI.updateName(): started", {});
@@ -103,9 +105,10 @@ export const gamesApi = {
         id,
         name
       })
-    }).then(() => {
-      log("GamesAPI.updateName():complete", {});
-    });
+    }).then(throwFor401)
+      .then(() => {
+        log("GamesAPI.updateName():complete", {});
+      });
   },
   updateStatus: (id: string, status: GameStatus): Promise<void> => {
     log("GamesAPI.updateStatus(): started", {});
@@ -118,9 +121,10 @@ export const gamesApi = {
         id,
         status
       })
-    }).then(() => {
-      log("GamesAPI.updateStatus():complete", {});
-    });
+    }).then(throwFor401)
+      .then(() => {
+        log("GamesAPI.updateStatus():complete", {});
+      });
   },
   updateLaunchDate: (id: string, launchDate: Date): Promise<void> => {
     log("GamesAPI.updateLaunchDate(): started", {});
@@ -133,9 +137,10 @@ export const gamesApi = {
         id,
         launchDate
       })
-    }).then(() => {
-      log("GamesAPI.updateLaunchDate():complete", {});
-    });
+    }).then(throwFor401)
+      .then(() => {
+        log("GamesAPI.updateLaunchDate():complete", {});
+      });
   }
 
 

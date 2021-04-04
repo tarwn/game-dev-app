@@ -8,6 +8,7 @@ using GDB.Common.Authorization;
 using GDB.Common.DTOs._Events;
 using GDB.Common.DTOs.CashForecast;
 using GDB.Common.DTOs.Game;
+using GDB.Common.DTOs.Studio;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
@@ -55,7 +56,7 @@ namespace GDB.Business.Tests.BusinessLogic
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, It.IsAny<int>()))
                 .ReturnsAsync(new List<ChangeEvent>());
 
-            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId));
+            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             Assert.IsNotNull(state);
             Assert.AreEqual(1, state.VersionNumber);
@@ -77,7 +78,7 @@ namespace GDB.Business.Tests.BusinessLogic
                     _applier.GetCreateEvent(FakeGameString, DateTime.UtcNow)
                 });
 
-            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId));
+            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             Assert.IsNotNull(state);
             Assert.AreEqual(1, state.VersionNumber);
@@ -103,7 +104,7 @@ namespace GDB.Business.Tests.BusinessLogic
                     oldCreateEvent
                 });
 
-            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId));
+            var state = await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             Assert.IsNotNull(state);
             Assert.AreEqual(1, state.VersionNumber);
@@ -123,7 +124,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 .ReturnsAsync(new List<ChangeEvent> { });
 
             Assert.ThrowsAsync<AccessDeniedException>(async () =>
-                await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId))
+                await _cashForecastService.GetOrCreateAsync(FakeGameString, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator))
             );
 
             _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 
@@ -145,7 +146,7 @@ namespace GDB.Business.Tests.BusinessLogic
             _persistenceMock.EventStoreMock.Setup(es => es.GetEventsAsync(FakeStudioId, FakeGameId, _applier.ObjectType, 1))
                 .ReturnsAsync(new List<ChangeEvent>());
 
-            var events = await _cashForecastService.GetSinceAsync(FakeGameString, 1, new TestAuthContext(FakeUserId, FakeStudioId));
+            var events = await _cashForecastService.GetSinceAsync(FakeGameString, 1, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             events.Should().HaveCount(0);
         }
@@ -165,7 +166,7 @@ namespace GDB.Business.Tests.BusinessLogic
                     new ChangeEvent("unit test", 1, "test", 3, 2),
                 });
 
-            var events = await _cashForecastService.GetSinceAsync(FakeGameString, 1, new TestAuthContext(FakeUserId, FakeStudioId));
+            var events = await _cashForecastService.GetSinceAsync(FakeGameString, 1, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             events.Should().HaveCount(2)
                 .And.Contain(e => e.VersionNumber == 2)
@@ -183,7 +184,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 });
             var change = GetSampleEvent($"{FakeGameId}:cf:b", $"{FakeGameId}:cf:b:2", 123.45M);
 
-            var evt = await _cashForecastService.ApplyEventAsync(FakeGameString, change, new TestAuthContext(FakeUserId, FakeStudioId));
+            var evt = await _cashForecastService.ApplyEventAsync(FakeGameString, change, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             evt.VersionNumber.Should().Be(change.PreviousVersionNumber + 1);
             _persistenceMock.EventStoreMock.Verify(es => es.CreateEventAsync(FakeStudioId, FakeGameId, _applier.ObjectType,
@@ -205,7 +206,7 @@ namespace GDB.Business.Tests.BusinessLogic
                 });
             var change = GetSampleEvent($"{FakeGameId}:cf:b", $"{FakeGameId}:cf:b:2", 123.45M);
 
-            var evt = await _cashForecastService.ApplyEventAsync(FakeGameString, change, new TestAuthContext(FakeUserId, FakeStudioId));
+            var evt = await _cashForecastService.ApplyEventAsync(FakeGameString, change, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator));
 
             _persistenceMock.ActorsMock.Verify(a => a.UpdateActorAsync(change.Actor, change.SeqNo + change.Operations.Count, FakeUserId, It.IsAny<DateTime>()));
             _persistenceMock.GamesMock.Verify(g => g.RegisterCashForecastModuleUpdateAsync(FakeStudioId, FakeGameId, FakeUserId, It.IsAny<DateTime>()));
@@ -218,7 +219,7 @@ namespace GDB.Business.Tests.BusinessLogic
             var change = GetSampleEvent($"{FakeGameId}:cf:b", $"{FakeGameId}:cf:b:2", 123.45M);
 
             Assert.ThrowsAsync<AccessDeniedException>(async () =>
-                await _cashForecastService.ApplyEventAsync("123", change, new TestAuthContext(FakeUserId, FakeStudioId))
+                await _cashForecastService.ApplyEventAsync("123", change, new TestAuthContext(FakeUserId, FakeStudioId, StudioUserRole.Administrator))
             );
         }
 

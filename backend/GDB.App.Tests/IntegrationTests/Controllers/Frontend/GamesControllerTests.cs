@@ -27,6 +27,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
     {
         private AccessibleStudio _existingStudio;
         private User _user;
+        //private Dictionary<StudioUserRole, User> _users = new Dictionary<StudioUserRole, User>();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -36,9 +37,10 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             _existingStudio = Database.Studios.Add("GamesControllerTests");
             _user = Database.Users.Add("GamesControllerTests", "GamesControllerTests", "GamesControllerTests", false);
             Database.Studios.AssignUserAccesstoStudio(_user.Id, _existingStudio.Id, true, StudioUserAccess.Active, StudioUserRole.Administrator);
+            //_users[StudioUserRole.Administrator] = _user;
         }
 
-        public GamesController GetController(int? userId = null, int? studioId = null)
+        public GamesController GetController(int? userId = null, int? studioId = null, StudioUserRole? role = null)
         {
             var persistence = new DapperPersistence(Database.GetConnectionSettings());
             var busOps = new BusinessServiceOperatorWithRetry(persistence);
@@ -47,9 +49,20 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             var signalrService = new Mock<ISignalRSender>().Object;
             return new GamesController(queryService, gamesService, signalrService)
             {
-                ControllerContext = GetControllerContextForFrontEnd(userId: userId ?? _user.Id, studioId: studioId ?? _existingStudio.Id)
+                ControllerContext = GetControllerContextForFrontEnd(userId: userId ?? _user.Id, studioId: studioId ?? _existingStudio.Id, role: role ?? StudioUserRole.Administrator)
             };
         }
+
+        //public User CreateAndAssignUserForExistingStudio(StudioUserRole role)
+        //{
+        //    if (!_users.ContainsKey(role))
+        //    {
+        //        var user = Database.Users.Add(role.ToString() + " user", "ut-" + role.ToString(), "unit test", false);
+        //        Database.Studios.AssignUserAccesstoStudio(user.Id, _existingStudio.Id, true, StudioUserAccess.Active, role);
+        //        _users.Add(role, user);
+        //    }
+        //    return _users[role];
+        //}
 
         [Test]
         public async Task GetGamesSummariesAsync_NoParams_ReturnsAllGames()
@@ -107,7 +120,6 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 .Should().HaveCount(0);
         }
 
-
         [Test]
         public async Task GetGamesAsync_NoParams_DoesNotReturnDeletedGames()
         {
@@ -143,6 +155,19 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             resultList.CashForecastLastUpdatedOn.Should().BeNull();
             resultList.ComparablesLastUpdatedOn.Should().BeNull();
             resultList.MarketingPlanLastUpdatedOn.Should().BeNull();
+        }
+
+
+        [Test]
+        public void CreateGamesAsync_NotAnAdmin_FailsWithError()
+        {
+            // user was a diff role when they logged in + we use role from then
+            var controller = GetController(role: StudioUserRole.User);
+
+            AsyncTestDelegate apiCall = async () =>
+                await controller.CreateGameAsync();
+
+            Assert.ThrowsAsync<AuthorizationDeniedException>(apiCall);
         }
 
         [Test]
@@ -256,7 +281,6 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             }
         }
 
-
         [Test]
         public async Task UpdateGamesAsync_LaunchDate_UpdatesNameOnly()
         {
@@ -288,6 +312,36 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             }
         }
 
+        [Test]
+        public async Task UpdateGamesAsync_NoArgs_ReturnsBadRequest()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                isFavorite: false);
+            var controller = GetController();
+
+            var result = await controller.UpdateGameAsync(game.GetGlobalId(), new UpdateGameRequestModel()
+            {
+                // no fields
+            });
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Test]
+        public void UpdateGamesAsync_NotAnAdmin_FailsWithError()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            // user was a diff role when they logged in + we use role from then
+            var controller = GetController(role: StudioUserRole.User);
+
+            AsyncTestDelegate apiCall = async () =>
+                await controller.UpdateGameAsync(game.GetGlobalId(), new UpdateGameRequestModel()
+                {
+                    IsFavorite = true
+                });
+
+            Assert.ThrowsAsync<AuthorizationDeniedException>(apiCall);
+        }
 
         [Test]
         public async Task DeleteGameAsync_ValidGame_IsDeleted()
@@ -307,7 +361,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
         }
 
         [Test]
-        public async Task DeleteGameAsync_HasPlanning_ReturnsAnError()
+        public void DeleteGameAsync_HasPlanning_ReturnsAnError()
         {
             var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc), hasCashForecast: true);
             var controller = GetController();
@@ -329,6 +383,19 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 await controller.DeleteGameAsync(game.GetGlobalId());
 
             Assert.ThrowsAsync<AccessDeniedException>(apiCall);
+        }
+
+        [Test]
+        public void DeleteGamesAsync_NotAnAdmin_FailsWithError()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc), hasCashForecast: true);
+            // user was a diff role when they logged in + we use role from then
+            var controller = GetController(role: StudioUserRole.User);
+
+            AsyncTestDelegate apiCall = async () =>
+                await controller.DeleteGameAsync(game.GetGlobalId());
+
+            Assert.ThrowsAsync<AuthorizationDeniedException>(apiCall);
         }
     }
 }

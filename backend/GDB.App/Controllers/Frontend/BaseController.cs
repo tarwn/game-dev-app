@@ -1,4 +1,5 @@
 ﻿using GDB.App.Security;
+using GDB.Common.DTOs.Studio;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,9 @@ namespace GDB.App.Controllers.Frontend
             var username = User.FindFirst(ClaimNames.UserName).Value;
             var sessionId = int.Parse(User.FindFirst(ClaimNames.SessionId).Value);
             var studioId = int.Parse(User.FindFirst(ClaimNames.StudioId).Value);
+            var role = (StudioUserRole) int.Parse(User.FindFirst(ClaimNames.StudioRole).Value);
 
-            return new UserAuthContext(sessionId, userId, username, studioId);
+            return new UserAuthContext(sessionId, userId, username, studioId, role);
         }
 
     }

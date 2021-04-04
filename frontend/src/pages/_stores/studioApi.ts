@@ -1,5 +1,5 @@
 import { log } from "../../utilities/logger";
-import { jsonOrThrow } from "../_communications/responseHandler";
+import { jsonOrThrow, throwFor401 } from "../_communications/responseHandler";
 
 
 
@@ -49,8 +49,9 @@ export const studioApi = {
       body: JSON.stringify({
         name
       })
-    }).then(() => {
-      log("StudioAPI.updateName():complete", {});
-    });
+    }).then(throwFor401)
+      .then(() => {
+        log("StudioAPI.updateName():complete", {});
+      });
   },
 };

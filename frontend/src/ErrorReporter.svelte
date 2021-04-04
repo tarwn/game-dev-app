@@ -32,7 +32,6 @@
         console.log("Sentry: Skipping websocket messages, will reconnect when able");
         return null;
       }
-
       // back to our regular programming
       anErrorHasOccurred = true;
       dispatch("error", { event });

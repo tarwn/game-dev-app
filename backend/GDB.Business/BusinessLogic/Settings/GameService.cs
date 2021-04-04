@@ -3,6 +3,7 @@ using GDB.Common.Authorization;
 using GDB.Common.BusinessLogic;
 using GDB.Common.Context;
 using GDB.Common.DTOs.Game;
+using GDB.Common.DTOs.Studio;
 using GDB.Common.Persistence;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,11 @@ namespace GDB.Business.BusinessLogic.Settings
 
         public async Task<GameDTO> CreateGameAsync(IAuthContext authContext)
         {
+            if (authContext.Role != StudioUserRole.Administrator)
+            {
+                throw new AuthorizationDeniedException("Only administrators can create new games", $"Authorization error: {authContext.UserId} attempted to CreateGameAsync and is currently Role {authContext.Role}");
+            }
+
             return await _busOp.Operation<GameDTO>(async (p) => {
                 var launchDate = Helper.GetUtcDate(DateTime.UtcNow.Year + 1, 1, 1);
                 var game = new GameDTO(0, authContext.StudioId, "New Game", GameStatus.Idea, launchDate, "", true,
@@ -35,6 +41,11 @@ namespace GDB.Business.BusinessLogic.Settings
 
         public async Task DeleteGameAsync(int id, IAuthContext authContext)
         {
+            if (authContext.Role != StudioUserRole.Administrator)
+            {
+                throw new AuthorizationDeniedException("Only administrators can delete games", $"Authorization error: {authContext.UserId} attempted to DeleteGameAsync and is currently Role {authContext.Role}");
+            }
+
             await _busOp.Operation(async (p) => {
                 var game = await p.Games.GetByIdAsync(authContext.StudioId, id);
                 if (game.BusinessModelLastUpdatedBy.HasValue || game.CashForecastLastUpdatedBy.HasValue ||
@@ -49,6 +60,11 @@ namespace GDB.Business.BusinessLogic.Settings
 
         public async Task UpdateGameAsync(int id, UpdateGameDTO updateDto, IAuthContext authContext)
         {
+            if (authContext.Role != StudioUserRole.Administrator)
+            {
+                throw new AuthorizationDeniedException("Only administrators can update top-level game settings", $"Authorization error: {authContext.UserId} attempted to UpdateGameAsync and is currently Role {authContext.Role}");
+            }
+
             await _busOp.Operation(async (p) => {
                 var game = await p.Games.GetByIdAsync(authContext.StudioId, id);
                 if (updateDto.IsFavorite.HasValue)

@@ -1,3 +1,4 @@
+import { AuthorizationError } from "../../authorization";
 
 
 export const jsonOrThrow = <T>(r: Response): Promise<T> => {
@@ -10,4 +11,14 @@ export const jsonOrThrow = <T>(r: Response): Promise<T> => {
   else {
     throw Error(`HTTP server error, ${r.status}: ${r.statusText}`);
   }
+};
+
+
+export const throwFor401 = (r: Response): Response | Promise<any> => {
+  if (r.status === 401) {
+    return r.json().then(details => {
+      throw new AuthorizationError(details?.message ?? "Authorization error");
+    });
+  }
+  return r;
 };

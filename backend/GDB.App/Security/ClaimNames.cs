@@ -12,5 +12,6 @@ namespace GDB.App.Security
         public const string UserId = "uid";
         public const string UserName = "name";
         public const string StudioId = "studioid";
+        public const string StudioRole = "studiorole";
     }
 }

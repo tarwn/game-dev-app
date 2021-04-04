@@ -23,8 +23,9 @@ namespace GDB.Persistence.Repositories
                 INSERT INTO dbo.UserSession(UserId, StudioId, CreatedOn, LastSeenOn, AbsoluteExpirationDate, IsForcedExpiration)
                 VALUES(@UserId, @StudioId, @CreatedOn, @CreatedOn, @ValidUntil, 'false');
 
-                SELECT Id, UserId, StudioId
-                FROM dbo.UserSession
+                SELECT US.Id, US.UserId, US.StudioId, X.Role AS StudioUserRole
+                FROM dbo.UserSession US
+                    INNER JOIN dbo.UserStudioXref X ON X.UserId = US.UserId AND X.StudioId = US.StudioId
                 WHERE Id = scope_identity();
             ";
             using (var conn = GetConnection())

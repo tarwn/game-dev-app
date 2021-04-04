@@ -205,7 +205,8 @@ namespace GDB.App.Controllers.General
                 new Claim(ClaimNames.SessionId, session.Id.ToString()),
                 new Claim(ClaimNames.UserId, session.UserId.ToString()),
                 new Claim(ClaimNames.StudioId, session.StudioId.ToString()),
-                new Claim(ClaimNames.UserName, user.UserName)
+                new Claim(ClaimNames.UserName, user.UserName),
+                new Claim(ClaimNames.StudioRole, ((int)session.StudioUserRole).ToString())
             }, SecurityConstants.CookieAuthScheme);
             var principal = new ClaimsPrincipal(identity);
             await _cookieHandler.SignInAsync(HttpContext, SecurityConstants.CookieAuthScheme, principal);

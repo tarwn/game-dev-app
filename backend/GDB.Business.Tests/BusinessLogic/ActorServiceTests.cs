@@ -1,6 +1,7 @@
 ﻿using GDB.Business.BusinessLogic;
 using GDB.Business.Tests.Utilities;
 using GDB.Common.Authorization;
+using GDB.Common.DTOs.Studio;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -33,7 +34,7 @@ namespace GDB.Business.Tests.BusinessLogic
             var actorId = "test123";
             _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(actorId))
                   .ReturnsAsync(new ActorRegistration(actorId, 123, FakeUserId, DateTime.UtcNow));
-            var auth = new TestAuthContext(FakeUserId, 1);
+            var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             var result = await _service.GetLatestSeqNoAsync(actorId, auth);
 
@@ -46,7 +47,7 @@ namespace GDB.Business.Tests.BusinessLogic
             var actorId = "test123";
             _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(actorId))
                   .ReturnsAsync(new ActorRegistration(actorId, 123, FakeUserId + 5, DateTime.UtcNow));
-            var auth = new TestAuthContext(FakeUserId, 1);
+            var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             Assert.ThrowsAsync<AccessDeniedException>(async() => 
                 await _service.GetLatestSeqNoAsync(actorId, auth)
@@ -61,7 +62,7 @@ namespace GDB.Business.Tests.BusinessLogic
             _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(It.IsAny<string>()))
                   .Callback<string>(s => { actorId = s; })
                   .Returns<string>(s => Task.FromResult(new ActorRegistration(s, 123, FakeUserId + 5, DateTime.UtcNow.AddYears(-1))));
-            var auth = new TestAuthContext(FakeUserId, 1);
+            var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             var actor = await _service.GetActorAsync(auth);
 
@@ -76,7 +77,7 @@ namespace GDB.Business.Tests.BusinessLogic
             _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(It.IsAny<string>()))
                   .Callback<string>(s => { actorIds.Add(s); })
                   .Returns<string>(s => Task.FromResult(new ActorRegistration(s, 123, FakeUserId + 5, actorIds.Count >= 2 ? DateTime.UtcNow.AddYears(-1) : DateTime.UtcNow.AddDays(-1))));
-            var auth = new TestAuthContext(FakeUserId, 1);
+            var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             var actor = await _service.GetActorAsync(auth);
 
