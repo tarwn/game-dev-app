@@ -47,7 +47,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             var queryService = new InteractiveUserQueryService(busOps);
             var gamesService = new GameService(busOps, persistence);
             var signalrService = new Mock<ISignalRSender>().Object;
-            return new GamesController(queryService, gamesService, signalrService)
+            return new GamesController(queryService, gamesService, signalrService, null)
             {
                 ControllerContext = GetControllerContextForFrontEnd(userId: userId ?? _user.Id, studioId: studioId ?? _existingStudio.Id, role: role ?? StudioUserRole.Administrator)
             };

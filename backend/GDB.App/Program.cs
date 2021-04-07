@@ -24,7 +24,7 @@ namespace GDB.App
                     webBuilder.UseSentry(options =>
                     {
                         options.MinimumEventLevel = LogLevel.Error;
-                        options.DiagnosticsLevel = Sentry.Protocol.SentryLevel.Error;
+                        options.DiagnosticLevel = Sentry.SentryLevel.Error;
                         options.BeforeSend = @event => {
 #if DEBUG
                             return null;

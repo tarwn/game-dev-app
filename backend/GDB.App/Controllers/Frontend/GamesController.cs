@@ -3,6 +3,7 @@ using GDB.App.Security;
 using GDB.Business.BusinessLogic;
 using GDB.Common.BusinessLogic;
 using GDB.Common.DTOs.Game;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,12 +20,14 @@ namespace GDB.App.Controllers.Frontend
         private IInteractiveUserQueryService _userQueries;
         private IGameService _gameService;
         private ISignalRSender _signalrSender;
+        private TelemetryClient _telemetryClient;
 
-        public GamesController(IInteractiveUserQueryService userQueries, IGameService gameService, ISignalRSender signalrSender)
+        public GamesController(IInteractiveUserQueryService userQueries, IGameService gameService, ISignalRSender signalrSender, TelemetryClient telemetryClient)
         {
             _userQueries = userQueries;
             _gameService = gameService;
             _signalrSender = signalrSender;
+            _telemetryClient = telemetryClient;
         }
 
         [HttpGet]
@@ -66,6 +69,8 @@ namespace GDB.App.Controllers.Frontend
         [HttpPost("{globalId}")]
         public async Task<IActionResult> UpdateGameAsync(string globalId, [FromBody] UpdateGameRequestModel update)
         {
+            _telemetryClient?.TrackEvent("UpdateGameAsync-Started");
+
             if (!update.IsFavorite.HasValue && !update.LaunchDate.HasValue && !update.Status.HasValue && string.IsNullOrEmpty(update.Name))
             {
                 ModelState.AddModelError("", "At least one field must be specified in order to perform an update");
@@ -81,8 +86,11 @@ namespace GDB.App.Controllers.Frontend
                 LaunchDate = update.LaunchDate.HasValue ? update.LaunchDate.Value.ToUniversalTime() : (DateTime?)null,
                 Status = update.Status
             };
+            _telemetryClient?.TrackEvent("UpdateGameAsync-CallingUpdate");
             await _gameService.UpdateGameAsync(id, updateDto, user);
+            _telemetryClient?.TrackEvent("UpdateGameAsync-CallingSignalR");
             await _signalrSender.SendAsync(user, UpdateScope.StudioGameList, new { GameId = globalId });
+            _telemetryClient?.TrackEvent("UpdateGameAsync-Complete");
             return Ok();
         }
 
