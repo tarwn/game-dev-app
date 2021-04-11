@@ -12,6 +12,9 @@
   import TaskItem from "./_components/TaskItem.svelte";
   import DateSpan from "../../../components/inputs/DateSpan.svelte";
   import type { Game } from "../../_stores/gamesApi";
+  import ScreenTitle from "../../../components/layout/ScreenTitle.svelte";
+  import DashboardWitp from "./_components/DashboardWITP.svelte";
+  import ButtonWithPopup from "../../../components/buttons/ButtonWithPopup.svelte";
 
   metatags.title = "[LR] Dashboard";
 
@@ -137,7 +140,19 @@
   }
 </style>
 
-<h1>Dashboard</h1>
+<ButtonWithPopup buttonStyle="primary-outline-circle" label="?">
+  <DashboardWitp />
+</ButtonWithPopup>
+
+<ScreenTitle title="Dashboard">
+  <ButtonWithPopup
+    buttonStyle="primary-outline-circle"
+    label="?"
+    buttonTitle="Help: How to use this screen"
+    ariaLabel="Help: How to use this screen">
+    <DashboardWitp />
+  </ButtonWithPopup>
+</ScreenTitle>
 
 {#if game}
   <div class="row">

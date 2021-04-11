@@ -2,13 +2,19 @@
   export let value: string;
   export let buttonStyle: string = "primary";
   export let disabled: boolean = false;
+  export let pulse = false;
+  export let title: string | null = null;
 
+  let buttonElem;
   let buttonStyleClass = "";
 
   $: {
     switch (buttonStyle) {
       case "primary-outline":
         buttonStyleClass = "gdb-bs-primary-outline";
+        break;
+      case "primary-outline-circle":
+        buttonStyleClass = "gdb-bs-primary-outline-circle";
         break;
       case "secondary-negative":
         buttonStyleClass = "gdb-bs-secondary-negative";
@@ -19,6 +25,13 @@
         break;
     }
   }
+
+  $: {
+    // hacky
+    if (pulse) {
+      buttonElem.focus();
+    }
+  }
 </script>
 
 <style type="text/scss">
@@ -26,6 +39,10 @@
 
   .gdb-button {
     white-space: nowrap;
+
+    &.pulse {
+      animation: pulse-orange 0.4s;
+    }
   }
 
   .gdb-button-text {
@@ -58,6 +75,37 @@
     }
   }
 
+  .gdb-bs-primary-outline-circle {
+    width: $space-l + $space-s;
+    height: $space-l + $space-s;
+    margin-top: -1 * $space-s;
+    margin-bottom: -1 * $space-s;
+    line-height: $space-l + $space-s - $space-xs;
+    padding: 0;
+
+    display: inline-block;
+    // box-shadow: unset;
+
+    background-color: white;
+    border: 3px solid $color-accent-1;
+    border-radius: 50%;
+    font-size: 1.75rem;
+    font-weight: bold;
+
+    opacity: 0.7;
+
+    color: $cs-blue-3;
+
+    &:hover {
+      box-shadow: $shadow-main-hover;
+      opacity: 1;
+    }
+    &:active {
+      box-shadow: $shadow-main;
+      opacity: 1;
+    }
+  }
+
   .gdb-bs-secondary-negative {
     background-color: $color-background-white;
     color: $cs-red-2;
@@ -85,8 +133,31 @@
       cursor: default;
     }
   }
+
+  @keyframes pulse-orange {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 2px 0px $cs_orange;
+    }
+
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 4px 3px $cs_orange;
+    }
+
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 8px 0px $cs_orange;
+    }
+  }
 </style>
 
-<button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" {disabled}>
+<button
+  on:click|preventDefault|stopPropagation
+  class="gdb-button {buttonStyleClass}"
+  class:pulse
+  {disabled}
+  bind:this={buttonElem}
+  {title}>
   <span class="gdb-button-text">{value}</span>
 </button>

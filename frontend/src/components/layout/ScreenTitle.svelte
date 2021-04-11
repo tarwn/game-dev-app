@@ -10,6 +10,7 @@
     display: flex;
     align-items: center;
     & > h1 {
+      color: $cs-grey-4;
       flex-grow: 2;
     }
   }

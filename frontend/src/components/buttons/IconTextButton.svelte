@@ -4,6 +4,7 @@
   export let value: string;
   export let buttonStyle: string = "primary";
   export let disabled: boolean = false;
+  export let pulse = false;
 
   let buttonStyleClass = "";
   let iconStyleClass = "";
@@ -33,6 +34,10 @@
 
   .gdb-button {
     white-space: nowrap;
+
+    &.pulse {
+      animation: pulse-orange 0.4s;
+    }
   }
 
   .gdb-button-icon {
@@ -102,9 +107,43 @@
       cursor: default;
     }
   }
+
+  @keyframes pulse-orange {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 2px 0px $cs_orange;
+    }
+
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 4px 3px $cs_orange;
+    }
+
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 8px 0px $cs_orange;
+    }
+  }
+
+  @keyframes pulse-grey {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 2px 0px $cs_grey_2;
+    }
+
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 4px 3px $cs_grey_2;
+    }
+
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 8px 0px $cs_grey_2;
+    }
+  }
 </style>
 
-<button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" {disabled}>
+<button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" class:pulse {disabled}>
   <i class="gdb-button-icon {iconString} {iconStyleClass}" />
   <span class="gdb-button-text">{value}</span>
 </button>
