@@ -24,7 +24,6 @@
   const dispatch = createEventDispatcher();
 
   $: currentTab = tabs.find((t) => t.id === selectedTab);
-  $: stage = cashForecast.stage.value;
   $: availableTabs = tabs.filter((t) => t.isVisible(cashForecast.stage.value));
 
   onMount(() => {

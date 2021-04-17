@@ -5,17 +5,20 @@
   import Portal from "../Portal.svelte";
   import Button from "./Button.svelte";
   import SpacedButtons from "./SpacedButtons.svelte";
-  import { onDestroy } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
 
   export let label = "Open";
   export let ariaLabel: string = "Help information for the screen";
   export let buttonStyle = "primary" as "primary" | "primary-outline" | "primary-outline-circle" | "secondary-negative";
   export let buttonTitle: string = "Help information for the screen";
+  export let forceOpen = false;
 
-  let isOpen = false;
+  const dispatch = createEventDispatcher();
+
+  let isOpen = forceOpen;
   let pulseButton = false;
   // capture the button and the modal window for aria purposes
-  let visibleModal;
+  let visibleModal: any;
 
   let closeDelay = 300;
 
@@ -33,6 +36,7 @@
 
   function close() {
     isOpen = false;
+    dispatch("close");
     // aria - set the focus to the button they clicked to open the modal
     setTimeout(() => (pulseButton = true), closeDelay - 20);
     setTimeout(() => (pulseButton = false), closeDelay + 1000);
@@ -57,7 +61,7 @@
   });
 
   // aria - escape closes, tab is locked inside
-  const handleKeydown = (event) => {
+  const handleKeydown = (event: any) => {
     if (isOpen && event.key === "Escape") {
       event.preventDefault();
       close();

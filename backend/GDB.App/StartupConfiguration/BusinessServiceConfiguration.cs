@@ -43,6 +43,7 @@ namespace GDB.App.StartupConfiguration
             services.AddScoped<ICashForecastService, CashForecastService>();
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<IStudioService, StudioService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IInteractiveUserQueryService, InteractiveUserQueryService>();
 
             // security 

@@ -15,12 +15,10 @@ namespace GDB.Business.BusinessLogic.Settings
     public class GameService: IGameService
     {
         private IBusinessServiceOperator _busOp;
-        private IPersistence _persistence;
 
-        public GameService(IBusinessServiceOperator busOp, IPersistence persistence)
+        public GameService(IBusinessServiceOperator busOp)
         {
             _busOp = busOp;
-            _persistence = persistence;
         }
 
         public async Task<GameDTO> CreateGameAsync(IAuthContext authContext)

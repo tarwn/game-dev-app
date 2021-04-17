@@ -40,7 +40,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             var persistence = new DapperPersistence(Database.GetConnectionSettings());
             var busOps = new BusinessServiceOperatorWithRetry(persistence);
             var queryService = new InteractiveUserQueryService(busOps);
-            var studioService = new StudioService(busOps, persistence);
+            var studioService = new StudioService(busOps);
             var signalrService = new Mock<ISignalRSender>().Object;
             return new StudioController(queryService, studioService, signalrService)
             {

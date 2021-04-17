@@ -45,7 +45,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             var persistence = new DapperPersistence(Database.GetConnectionSettings());
             var busOps = new BusinessServiceOperatorWithRetry(persistence);
             var queryService = new InteractiveUserQueryService(busOps);
-            var gamesService = new GameService(busOps, persistence);
+            var gamesService = new GameService(busOps);
             var signalrService = new Mock<ISignalRSender>().Object;
             return new GamesController(queryService, gamesService, signalrService, null)
             {

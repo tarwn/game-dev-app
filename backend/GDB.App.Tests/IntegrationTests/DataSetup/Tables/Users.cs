@@ -20,8 +20,8 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
             using (var conn = _databaseHelper.GetConnection())
             {
                 var sql = @"
-                    INSERT INTO dbo.[User](DisplayName, Username, PasswordHash, MustResetPassword, CreatedOn, CreatedBy)
-                    VALUES(@DisplayName, @Username, @PasswordHash, @MustResetPassword, @CreatedOn, @CreatedBy);
+                    INSERT INTO dbo.[User](DisplayName, Username, PasswordHash, MustResetPassword, CreatedOn, CreatedBy, HasSeenPopup)
+                    VALUES(@DisplayName, @Username, @PasswordHash, @MustResetPassword, @CreatedOn, @CreatedBy, 0);
                     SELECT * FROM [User] WHERE Id = scope_identity();
                 ";
                 var param = new

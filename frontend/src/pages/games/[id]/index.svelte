@@ -15,6 +15,9 @@
   import ScreenTitle from "../../../components/layout/ScreenTitle.svelte";
   import DashboardWitp from "./_components/DashboardWITP.svelte";
   import ButtonWithPopup from "../../../components/buttons/ButtonWithPopup.svelte";
+  import { profileStore } from "../../_stores/profileStore";
+  import { AutomaticPopup } from "../../_stores/profileApi";
+  import type { UserProfile } from "../../_stores/profileApi";
 
   metatags.title = "[LR] Dashboard";
 
@@ -33,7 +36,6 @@
   let cashForecast = null as ICashForecast | null;
   let projectedCashForecast = getEmptyProjection();
   $: {
-    console.log({ game });
     if (id != null && id != initializedId) {
       initializedId = id;
 
@@ -51,7 +53,15 @@
     }
   }
 
-  onDestroy(unsubscribe);
+  let latestProfile: null | UserProfile = null;
+  var unsubscribe2 = profileStore.subscribe((p) => {
+    if (p != null) latestProfile = p;
+  });
+
+  onDestroy(() => {
+    unsubscribe();
+    unsubscribe2();
+  });
 </script>
 
 <style type="text/scss">
@@ -139,18 +149,18 @@
   }
 </style>
 
-<ButtonWithPopup buttonStyle="primary-outline-circle" label="?">
-  <DashboardWitp />
-</ButtonWithPopup>
-
 <ScreenTitle title="Dashboard">
-  <ButtonWithPopup
-    buttonStyle="primary-outline-circle"
-    label="?"
-    buttonTitle="Help: How to use this screen"
-    ariaLabel="Help: How to use this screen">
-    <DashboardWitp />
-  </ButtonWithPopup>
+  {#if latestProfile}
+    <ButtonWithPopup
+      buttonStyle="primary-outline-circle"
+      label="?"
+      buttonTitle="Help: How to use this screen"
+      ariaLabel="Help: How to use this screen"
+      forceOpen={(latestProfile.hasSeenPopup & AutomaticPopup.GameDashboard) !== AutomaticPopup.GameDashboard}
+      on:close={() => profileStore.markPopupSeen(AutomaticPopup.GameDashboard)}>
+      <DashboardWitp />
+    </ButtonWithPopup>
+  {/if}
 </ScreenTitle>
 
 {#if game}

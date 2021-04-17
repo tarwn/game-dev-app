@@ -12,12 +12,10 @@ namespace GDB.Business.BusinessLogic.Settings
     public class StudioService : IStudioService
     {
         private IBusinessServiceOperator _busOp;
-        private IPersistence _persistence;
 
-        public StudioService(IBusinessServiceOperator busOp, IPersistence persistence)
+        public StudioService(IBusinessServiceOperator busOp)
         {
             _busOp = busOp;
-            _persistence = persistence;
         }
 
         public async Task UpdateStudioAsync(UpdateStudioDTO update, IAuthContext auth)

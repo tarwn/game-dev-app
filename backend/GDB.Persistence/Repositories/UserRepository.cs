@@ -93,7 +93,8 @@ namespace GDB.Persistence.Repositories
             var sql = @"
                 SELECT Id,
                         UserName,
-                        DisplayName
+                        DisplayName,
+                        HasSeenPopup
                 FROM dbo.[User]
                 WHERE Id = @UserId;
             ";
@@ -110,6 +111,7 @@ namespace GDB.Persistence.Repositories
                 SELECT Id,
                         UserName,
                         DisplayName,
+                        HasSeenPopup,
                         -- xref fields
                         Access,
                         [Role],
@@ -124,6 +126,27 @@ namespace GDB.Persistence.Repositories
             {
                 var results = await conn.QueryAsync<StudioUserDTO>(sql, param);
                 return results.ToList();
+            }
+        }
+
+        public async Task UpdateUserAsync(UserDTO user, DateTime updatedOn, int updatedBy)
+        {
+            var param = new { 
+                user.Id,
+                user.HasSeenPopup,
+                updatedBy,
+                updatedOn
+            };
+            var sql = @"
+                UPDATE dbo.[User]
+                SET HasSeenPopup = @HasSeenPopup,
+                    UpdatedBy = @UpdatedBy,
+                    UpdatedOn = @UpdatedOn
+                WHERE Id = @Id;
+            ";
+            using (var conn = GetConnection())
+            {
+                await conn.ExecuteAsync(sql, param);
             }
         }
     }

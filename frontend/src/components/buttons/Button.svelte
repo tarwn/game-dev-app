@@ -5,7 +5,7 @@
   export let pulse = false;
   export let title: string | null = null;
 
-  let buttonElem;
+  let buttonElem: any;
   let buttonStyleClass = "";
 
   $: {

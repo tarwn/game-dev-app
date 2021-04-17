@@ -17,5 +17,6 @@ namespace GDB.Common.Persistence.Repositories
 
         Task<UserDTO> GetByIdAsync(int userId);
         Task<List<StudioUserDTO>> GetByStudioIdAsync(int studioId);
+        Task UpdateUserAsync(UserDTO user, DateTime updatedOn, int updatedBy);
     }
 }
