@@ -24,14 +24,18 @@
   const dispatch = createEventDispatcher();
 
   $: currentTab = tabs.find((t) => t.id === selectedTab);
+  $: stage = cashForecast.stage.value;
+  $: availableTabs = tabs.filter((t) => t.isVisible(cashForecast.stage.value));
 
   onMount(() => {
-    log("Tabbed Editor: mounting", { selectedTab });
-    if (selectedTab != null) {
-      selectTab(selectedTab);
-    } else {
-      selectTab(TabType.GeneralExpenses);
+    // if the selected tab is not visible for this forecast stage, default to general
+    // if it's not set, default to general
+    if (selectedTab == null || !availableTabs.find((t) => t.id == selectedTab)) {
+      selectedTab = TabType.GeneralExpenses;
     }
+
+    log("Tabbed Editor: mounting", { selectedTab });
+    selectTab(selectedTab);
   });
 
   function selectTab(id: TabType) {
@@ -40,31 +44,31 @@
   }
 
   function selectTabFromKeyPress(e: any) {
-    const currentIndex = tabs.findIndex((t) => t.id === selectedTab);
+    const currentIndex = availableTabs.findIndex((t) => t.id === selectedTab);
     let newIndex = undefined;
     let handled = false;
 
     if (e.keyCode !== undefined) {
       if (e.keyCode === 37) {
-        newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        newIndex = (currentIndex - 1 + availableTabs.length) % availableTabs.length;
         handled = true;
       } else if (e.keyCode === 39) {
-        newIndex = (currentIndex + 1) % tabs.length;
+        newIndex = (currentIndex + 1) % availableTabs.length;
         handled = true;
       }
     } else if (e.key !== undefined) {
       if (e.key === "ArrowLeft") {
-        newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        newIndex = (currentIndex - 1 + availableTabs.length) % availableTabs.length;
         handled = true;
       } else if (e.key === "ArrowRight") {
-        newIndex = (currentIndex + 1) % tabs.length;
+        newIndex = (currentIndex + 1) % availableTabs.length;
         handled = true;
       }
     }
 
     if (handled) {
       e.preventDefault();
-      selectTab(tabs[newIndex].id);
+      selectTab(availableTabs[newIndex].id);
       const button = document.getElementsByClassName("gdb-tab")[newIndex] as HTMLButtonElement;
       button?.focus();
     }
@@ -161,12 +165,12 @@
 
 <section class="gdb-tabArea">
   <ul aria-hidden="true" class="gdb-tablist-shadow">
-    {#each tabs as tab (tab.id)}
+    {#each availableTabs as tab (tab.id)}
       <li role="presentation" class="gdb-tab-shadow">{tab.text}</li>
     {/each}
   </ul>
   <ul role="tablist" class="gdb-tablist">
-    {#each tabs as tab (tab.id)}
+    {#each availableTabs as tab (tab.id)}
       <li role="presentation" class="gdb-tab-container">
         <button
           role="tab"

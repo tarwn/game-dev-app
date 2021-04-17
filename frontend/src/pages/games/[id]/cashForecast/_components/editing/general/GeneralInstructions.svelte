@@ -23,8 +23,8 @@
   <ol>
     <li>Check your Forecast start date and enter your target launch date, leaving "Forecast To" set to "Launch"</li>
     <li>Next, use the tabs to enter funds, funding, and all of your major expenses for the current project scope</li>
-    <li><b>Goals</b> below, will be included later to help with Price/Sales analysis</li>
   </ol>
+  <p><b>Goals</b>, <b>Estimated Sales</b>, and more will be available in the next stage.</p>
   <p>After getting a sense for your potential costs, next steps can be found on the dashboard task list.</p>
 {:else if stage == ForecastStage.ViabilitySales}
   <p>
