@@ -9,14 +9,14 @@
   import { cashForecastEventStore, events } from "../../_stores/cashForecastStore";
   import type { ICashForecast } from "../../_types/cashForecast";
   import ForecastSummary from "./ForecastSummary.svelte";
-  import CustomRevenue from "./revenueTab/CustomRevenue.svelte";
-  import StandardPlatformSelector from "./revenueTab/StandardPlatformSelector.svelte";
-  import { StandardPlatformOption, StandardPlatformSettings } from "./revenueTab/types";
   import FauxLabelCell from "../../../../../../components/table/FauxLabelCell.svelte";
   import TableRowEmpty from "../../../../../../components/table/TableRowEmpty.svelte";
   import TableRowIndented from "../../../../../../components/table/TableRowIndented.svelte";
   import TableSubHeaderRow from "../../../../../../components/table/TableSubHeaderRow.svelte";
   import EntryTable from "../../../../../../components/table/EntryTable.svelte";
+  import StandardPlatformSelector from "./estUnitSalesTab/StandardPlatformSelector.svelte";
+  import { StandardPlatformOption, StandardPlatformSettings } from "./estUnitSalesTab/types";
+  import CustomRevenue from "./estUnitSalesTab/CustomRevenue.svelte";
 
   export let cashForecast: ICashForecast;
   const publish = cashForecastEventStore.addEvent;

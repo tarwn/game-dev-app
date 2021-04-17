@@ -112,7 +112,15 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         model.ForecastMonthCount.Value = this.ToInt(change.Operations[1].Value);
                     }
                     break;
-
+                case "SetForecastStageAndLength":
+                    this.EnsureOperationCount(change, 3);
+                    if (model.Stage.GlobalId == change.Operations[0].ObjectId)
+                    {
+                        model.Stage.Value = this.ToEnum<ForecastStage>(change.Operations[0].Value);
+                        model.Length.Value = this.ToEnum<ForecastLength>(change.Operations[1].Value);
+                        model.ForecastMonthCount.Value = this.ToInt(change.Operations[2].Value);
+                    }
+                    break;
                 // ==== GOALS
                 case "SetYourGoal":
                     this.EnsureOperationCount(change, 1);
@@ -1291,7 +1299,8 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                         if (platform != null)
                         {
                             var revShare = platform.RevenueShares.List.Single(rs => rs.GlobalId == change.Operations[0].ParentId);
-                            if (revShare.RevenueShare.GlobalId == change.Operations[0].ObjectId) {
+                            if (revShare.RevenueShare.GlobalId == change.Operations[0].ObjectId)
+                            {
                                 revShare.RevenueShare.Value = this.ToDecimal(change.Operations[0].Value);
                             }
                         }

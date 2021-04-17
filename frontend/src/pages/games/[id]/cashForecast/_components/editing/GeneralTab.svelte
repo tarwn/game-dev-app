@@ -74,7 +74,17 @@
   }
   function updateForecastStage(newStage: ForecastStage) {
     if (newStage == cashForecast.stage.value) return;
-    publish(events.SetForecastStage(cashForecast.stage, newStage));
+    // if we change to Cost, we need to reset some other fields too
+    if (newStage == ForecastStage.ViabilityCost) {
+      const newLength = ForecastLength.ToLaunch;
+      const newMonthCount =
+        getForecastMonths(newLength) +
+        calculateMonthCount(cashForecast.forecastStartDate.value, cashForecast.launchDate.value, true);
+      const { stage, length, forecastMonthCount } = cashForecast;
+      publish(events.SetForecastStageAndLength(stage, newStage, length, newLength, forecastMonthCount, newMonthCount));
+    } else {
+      publish(events.SetForecastStage(cashForecast.stage, newStage));
+    }
   }
 
   // forecast date
@@ -218,77 +228,85 @@
     </div>
   </div>
 </div>
-<div class="gdb-cf-forecast-row">
-  <h3>Goals</h3>
-  <p>How much of a profit are you aiming to make from this game for yourself? For your partners?</p>
-  <p>
-    <i>An estimated return 18 months after launch, used to evaluate the price and sales estimates.</i>
-  </p>
-  <EntryTable>
-    <colgroup>
-      <col span="1" style="width: 1rem;" />
-      <col span="1" style="width: 12rem;" />
-      <col span="1" style="width: 10rem;" />
-      <col span="1" style="width: 10rem;" />
-      <col span="1" style="width: 10rem;" />
-      <col span="1" style="" /><!-- soak up excess width -->
-    </colgroup>
-    <tbody>
-      <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
-        <td class="gdb-nowrap"> Your Goal: </td>
-        <td>
-          <CurrencyInput
-            value={cashForecast.goals.yourGoal.value}
-            on:change={({ detail }) => publish(events.SetYourGoal(cashForecast.goals.yourGoal, detail.value))} />
-        </td>
-      </TableRowIndented>
-      <TableRowEmpty colspan={6} />
-    </tbody>
-    <tbody>
-      <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
-        <td class="gdb-nowrap">Partner(s) Goal: </td>
-        <td>
-          <PercentInput
-            value={cashForecast.goals.partnerGoal.value}
-            max={10}
-            on:change={({ detail }) => publish(events.SetPartnerGoal(cashForecast.goals.partnerGoal, detail.value))} />
-        </td>
-      </TableRowIndented>
-
-      <TableRowEmpty colspan={6} />
-      <TableRowEmpty colspan={6} />
-      <TableRowIndented>
-        <td colspan="5"><b>Partners from the Assets & Funding tab:</b></td>
-      </TableRowIndented>
-      <TableRowIndented>
-        <LabelCell>Name</LabelCell>
-        <LabelCell>Investment</LabelCell>
-        <LabelCell>Target Return</LabelCell>
-        <LabelCell>Target Profit</LabelCell>
-      </TableRowIndented>
-      {#if partnersWithTerms.length > 0}
-        {#each partnersWithTerms as partner (partner.globalId)}
-          <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
-            <td class="gdb-nowrap">{partner.name}</td>
-            <td>
-              <CurrencyInput disabled={true} value={partner.investment} />
-            </td>
-            <td>
-              <PercentInput disabled={true} value={partner.targetReturn} />
-            </td>
-            <td>
-              <CurrencyInput disabled={true} value={partner.profit} />
-            </td>
-          </TableRowIndented>
-        {/each}
-      {:else}
+{#if cashForecast.stage.value != ForecastStage.ViabilityCost}
+  <div class="gdb-cf-forecast-row">
+    <h3>Goals</h3>
+    <p>How much of a profit are you aiming to make from this game for yourself? For your partners?</p>
+    <p>
+      <i>An estimated return 18 months after launch, used to evaluate the price and sales estimates.</i>
+    </p>
+    <EntryTable>
+      <colgroup>
+        <col span="1" style="width: 1rem;" />
+        <col span="1" style="width: 12rem;" />
+        <col span="1" style="width: 10rem;" />
+        <col span="1" style="width: 10rem;" />
+        <col span="1" style="width: 10rem;" />
+        <col span="1" style="" /><!-- soak up excess width -->
+      </colgroup>
+      <tbody>
         <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
-          <td class="gdb-nowrap"><i>No Partners Yet</i></td>
-          <td />
-          <td />
-          <td />
+          <td class="gdb-nowrap"> Your Goal: </td>
+          <td>
+            <CurrencyInput
+              value={cashForecast.goals.yourGoal.value}
+              on:change={({ detail }) => publish(events.SetYourGoal(cashForecast.goals.yourGoal, detail.value))} />
+          </td>
         </TableRowIndented>
-      {/if}
-    </tbody>
-  </EntryTable>
-</div>
+        <TableRowEmpty colspan={6} />
+      </tbody>
+      <tbody>
+        <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+          <td class="gdb-nowrap">Partner(s) Goal: </td>
+          <td>
+            <PercentInput
+              value={cashForecast.goals.partnerGoal.value}
+              max={10}
+              on:change={({ detail }) =>
+                publish(events.SetPartnerGoal(cashForecast.goals.partnerGoal, detail.value))} />
+          </td>
+        </TableRowIndented>
+
+        <TableRowEmpty colspan={6} />
+        <TableRowEmpty colspan={6} />
+        <TableRowIndented>
+          <td colspan="5"><b>Partners from the Assets & Funding tab:</b></td>
+        </TableRowIndented>
+        <TableRowIndented>
+          <LabelCell>Name</LabelCell>
+          <LabelCell>Investment</LabelCell>
+          <LabelCell>Target Return</LabelCell>
+          <LabelCell>Target Profit</LabelCell>
+        </TableRowIndented>
+        {#if partnersWithTerms.length > 0}
+          {#each partnersWithTerms as partner (partner.globalId)}
+            <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+              <td class="gdb-nowrap">{partner.name}</td>
+              <td>
+                <CurrencyInput disabled={true} value={partner.investment} />
+              </td>
+              <td>
+                <PercentInput disabled={true} value={partner.targetReturn} />
+              </td>
+              <td>
+                <CurrencyInput disabled={true} value={partner.profit} />
+              </td>
+            </TableRowIndented>
+          {/each}
+        {:else}
+          <TableRowIndented isRecord={true} isTop={true} isBottom={true}>
+            <td class="gdb-nowrap"><i>No Partners Yet</i></td>
+            <td />
+            <td />
+            <td />
+          </TableRowIndented>
+        {/if}
+      </tbody>
+    </EntryTable>
+  </div>
+{:else}
+  <div class="gdb-cf-forecast-row">
+    <h3>Goals</h3>
+    <p>This section will be available in later stages to help evaluate against estimates sales</p>
+  </div>
+{/if}

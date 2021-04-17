@@ -26,8 +26,8 @@
   import { getUtcDate } from "../../../../utilities/date";
   import GeneralInstructions from "./_components/editing/general/GeneralInstructions.svelte";
   import SaveMessage from "../../../../components/SaveMessage.svelte";
-  import RevenueInstructions from "./_components/editing/revenueTab/RevenueInstructions.svelte";
   import { UpdateScope } from "../../../_communications/UpdateScope";
+  import EstUnitSalesInstructions from "./_components/editing/estUnitSalesTab/EstUnitSalesInstructions.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -324,8 +324,8 @@
           <GeneralExpensesInstructions />
         {:else if selectedTab === TabType.Taxes}
           <TaxInstructions />
-        {:else if selectedTab === TabType.Revenue}
-          <RevenueInstructions stage={cashForecast.stage.value} />
+        {:else if selectedTab === TabType.EstUnitSales}
+          <EstUnitSalesInstructions stage={cashForecast.stage.value} />
         {:else if selectedTab === TabType.TableView}
           <TableInstructions />
         {/if}

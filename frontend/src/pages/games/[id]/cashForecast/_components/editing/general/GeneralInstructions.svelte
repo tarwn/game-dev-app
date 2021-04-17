@@ -22,8 +22,8 @@
   </p>
   <ol>
     <li>Check your Forecast start date and enter your target launch date, leaving "Forecast To" set to "Launch"</li>
-    <li>Enter <b>Goals</b> below, to help set your focus for the game (and later used for Price/Sales analysis)</li>
     <li>Next, use the tabs to enter funds, funding, and all of your major expenses for the current project scope</li>
+    <li><b>Goals</b> below, will be included later to help with Price/Sales analysis</li>
   </ol>
   <p>After getting a sense for your potential costs, next steps can be found on the dashboard task list.</p>
 {:else if stage == ForecastStage.ViabilitySales}

@@ -109,7 +109,6 @@
     margin: $space-s 0 $space-m 0;
   }
 
-  h1,
   h2 {
     color: $cs-grey-4;
     // font-weight: normal;

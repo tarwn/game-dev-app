@@ -68,6 +68,17 @@ export const events = {
   },
   "SetForecastStage": ef.createPropUpdate<ForecastStage>("SetForecastStage", ValueType.integer),
   // eslint-disable-next-line max-len
+  "SetForecastStageAndLength": (stage: Identified, newStage: ForecastStage, length: Identified, newLength: ForecastLength, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
+    return cashForecastEventStore.createEvent(() => ({
+      type: "SetForecastStageAndLength",
+      operations: [
+        of.updateProp(stage.parentId, stage.globalId, ValueType.integer, newStage),
+        of.updateProp(length.parentId, length.globalId, ValueType.integer, newLength),
+        of.updateProp(forecastMonthCount.parentId, forecastMonthCount.globalId, ValueType.integer, newMonthCount)
+      ]
+    }));
+  },
+  // eslint-disable-next-line max-len
   "SetForecastLength": (length: Identified, newLength: ForecastLength, forecastMonthCount: Identified, newMonthCount: number): IEvent<ICashForecast> => {
     return cashForecastEventStore.createEvent(() => ({
       type: "SetForecastLength",

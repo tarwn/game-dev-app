@@ -8,10 +8,10 @@
 
   import AssetTab from "./AssetTab.svelte";
   import EmptyTab from "./EmptyTab.svelte";
+  import EstUnitSalesTab from "./EstUnitSalesTab.svelte";
   import ExpenseTab from "./ExpenseTab.svelte";
   import GeneralTab from "./GeneralTab.svelte";
   import PeopleTab from "./PeopleTab.svelte";
-  import RevenueTab from "./RevenueTab.svelte";
   import TableTab from "./TableTab.svelte";
   import { tabs, TabType } from "./tabList";
   import TaxesTab from "./TaxesTab.svelte";
@@ -197,8 +197,8 @@
       <ExpenseTab {cashForecast} expenseCategory={ExpenseCategory.General} />
     {:else if selectedTab == TabType.Taxes}
       <TaxesTab {cashForecast} />
-    {:else if selectedTab == TabType.Revenue}
-      <RevenueTab {cashForecast} />
+    {:else if selectedTab == TabType.EstUnitSales}
+      <EstUnitSalesTab {cashForecast} />
     {:else if selectedTab == TabType.Alternates}
       <AlternativesTab {cashForecast} />
     {:else if selectedTab == TabType.TableView}
