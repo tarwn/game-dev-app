@@ -200,18 +200,16 @@
 <div class="row gdb-row-tiles">
   <Tile
     title="Business Model"
-    status={game?.businessModelLastUpdatedOn != null ? "Done" : null}
     href={$url("../businessModel")}
     imgHref={"/images/BusinessModelCanvas.svg"}
     lastUpdated={game?.businessModelLastUpdatedOn} />
   <Tile
     title="Cash Forecast"
-    status={game?.cashForecastLastUpdatedOn != null ? "Done" : null}
     href={$url("../cashForecast")}
     imgHref={"/images/FinanceForecast.svg"}
     lastUpdated={game?.cashForecastLastUpdatedOn} />
-  <Tile title="Comparables" status={null} href={$url(id)} imgHref={"/images/Comparables.svg"} />
-  <Tile title="Marketing Plan" status={null} href={$url(id)} imgHref={"/images/MarketingPlan.svg"} />
+  <Tile title="Comparables" href={$url(id)} imgHref={"/images/Comparables.svg"} disabled={true} />
+  <Tile title="Marketing Plan" href={$url(id)} imgHref={"/images/MarketingPlan.svg"} disabled={true} />
 </div>
 
 <h2>Next Stages</h2>
