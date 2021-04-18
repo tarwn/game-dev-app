@@ -134,14 +134,14 @@
     margin-top: $space-xl;
   }
 
-  .gdb-task-list {
-    margin: $space-m;
-    padding-left: 1rem;
+  // .gdb-task-list {
+  //   margin: $space-m;
+  //   padding-left: 1rem;
 
-    & > :global(li) {
-      margin: $space-s 0;
-    }
-  }
+  //   & > :global(li) {
+  //     margin: $space-s 0;
+  //   }
+  // }
 
   .gdb-game-title {
     font-weight: bold;
