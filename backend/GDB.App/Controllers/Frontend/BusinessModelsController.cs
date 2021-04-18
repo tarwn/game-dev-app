@@ -64,7 +64,7 @@ namespace GDB.App.Controllers.Frontend
 
             var user = GetUserAuthContext();
             var savedEvent = await _businessModelService.ApplyEventAsync(gameId, change, user);
-            await _signalrSender.SendAsync(user, UpdateScope.GameBusinessModel, gameId, change);
+            await _signalrSender.SendAsync(user, UpdateScope.GameBusinessModel, gameId, savedEvent);
             return Ok(savedEvent);
         }
     }

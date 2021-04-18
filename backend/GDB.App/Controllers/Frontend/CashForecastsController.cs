@@ -62,7 +62,7 @@ namespace GDB.App.Controllers.Frontend
 
             var user = GetUserAuthContext();
             var savedEvent = await _cashForecastService.ApplyEventAsync(gameId, change, user);
-            await _signalrSender.SendAsync(user, UpdateScope.GameCashforecast, gameId, change);
+            await _signalrSender.SendAsync(user, UpdateScope.GameCashforecast, gameId, savedEvent);
             return Ok(savedEvent);
         }
     }

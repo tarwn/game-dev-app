@@ -17,7 +17,7 @@ namespace GDB.App.Controllers.Frontend
 
         public async Task SendAsync(UserAuthContext user, UpdateScope scope, string gameId, object change)
         {
-            var hubgroup = GetSignalRGroupName(user, UpdateScope.GameCashforecast, gameId);
+            var hubgroup = GetSignalRGroupName(user, scope, gameId);
             await _hubContext.Clients.Group(hubgroup).SendAsync(hubgroup, change);
         }
 

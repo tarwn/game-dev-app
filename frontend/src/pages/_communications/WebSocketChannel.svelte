@@ -13,6 +13,9 @@
   let webSocketIsConnected = false;
   const instance = Math.floor(Math.random() * 100000);
 
+  // flag to prevent parallel in flight requests to connect
+  let isConnecting = false;
+
   const dispatch = createEventDispatcher();
   const unsubscribe = webSocketStore.subscribe((val) => {
     const wasConnected = webSocketIsConnected;
@@ -45,9 +48,10 @@
 
   function attemptConnection(updateScope: UpdateScope, gameId: string, attempt: number = 0) {
     if (!webSocketIsConnected) return;
+    if (isConnecting) return;
 
     // log("SignalR: attempting connection", { updateScope, gameId, attempt, instance });
-
+    isConnecting = true;
     getConnection()
       .invoke("registerForUpdates", updateScope, gameId)
       .then((updateTypeFromServer) => {
@@ -62,6 +66,9 @@
         });
 
         dispatch("connect", connectedScope);
+      })
+      .finally(() => {
+        isConnecting = false;
       });
   }
 
