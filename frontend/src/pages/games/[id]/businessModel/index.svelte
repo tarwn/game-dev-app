@@ -32,6 +32,7 @@
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
   import { UpdateScope } from "../../../_communications/UpdateScope";
+  import LinkAsButton from "../../../../components/buttons/LinkAsButton.svelte";
 
   metatags.title = "[LR] Business Model";
 
@@ -174,6 +175,7 @@
     buttonStyle="primary-outline"
     on:click={handleOnFullScreen}
     disabled={isLoading || displaySectionCommit == null} />
+  <LinkAsButton value="Exit" buttonStyle="primary-outline" href={`/games/${id}`} disabled={isLoading} />
   {#if displaySection == null}
     <IconTextButton
       icon={PredefinedIcons.Next}

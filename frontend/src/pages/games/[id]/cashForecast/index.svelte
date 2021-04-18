@@ -28,6 +28,7 @@
   import SaveMessage from "../../../../components/SaveMessage.svelte";
   import { UpdateScope } from "../../../_communications/UpdateScope";
   import EstUnitSalesInstructions from "./_components/editing/estUnitSalesTab/EstUnitSalesInstructions.svelte";
+  import LinkAsButton from "../../../../components/buttons/LinkAsButton.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -258,6 +259,7 @@
     buttonStyle="primary-outline"
     on:click={switchToEditView}
     disabled={true} />
+  <LinkAsButton value="Exit" buttonStyle="primary-outline" href={`/games/${id}`} disabled={isLoading} />
   {#if view == "summary"}
     <IconTextButton
       icon={PredefinedIcons.Next}

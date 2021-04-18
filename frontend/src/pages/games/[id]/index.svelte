@@ -153,6 +153,17 @@
     display: inline-block;
     width: 4rem;
   }
+
+  .gdb-placeholder-tile {
+    width: 200px;
+    background-color: $cs-grey-0;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    font-size: $font-size-smallest;
+  }
 </style>
 
 <ScreenTitle title="Dashboard">
@@ -209,6 +220,19 @@
   </div>
 {/if}
 
+<h2>Next Core Tasks</h2>
+
+<div class="row">
+  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
+  <section class="tile"><div class="gdb-placeholder-tile">Coming</div></section>
+  <section class="tile"><div class="gdb-placeholder-tile">Soon</div></section>
+  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
+  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
+</div>
+<div class="row">
+  <a href="#c" class:disabled={true}>View History</a>
+</div>
+
 <h2>Planning Modules</h2>
 
 <div class="row gdb-row-tiles">
@@ -224,12 +248,4 @@
     lastUpdated={game?.cashForecastLastUpdatedOn} />
   <Tile title="Comparables" href={$url(id)} imgHref={"/images/Comparables.svg"} disabled={true} />
   <Tile title="Marketing Plan" href={$url(id)} imgHref={"/images/MarketingPlan.svg"} disabled={true} />
-</div>
-
-<h2>Next Stages</h2>
-
-<div class="row">
-  <section class="tile" />
-  <section class="tile" />
-  <section class="tile" />
 </div>

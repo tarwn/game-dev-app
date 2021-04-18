@@ -33,7 +33,7 @@
   }
 
   function reconnect() {
-    log("SignalR: reconnect", { updateScope, gameId, instance });
+    // log("SignalR: reconnect", { updateScope, gameId, instance });
     // remove old connect if non-empty
     if (connectedEventType != "") {
       getConnection().off(connectedEventType);
@@ -46,7 +46,7 @@
   function attemptConnection(updateScope: UpdateScope, gameId: string, attempt: number = 0) {
     if (!webSocketIsConnected) return;
 
-    log("SignalR: attempting connection", { updateScope, gameId, attempt, instance });
+    // log("SignalR: attempting connection", { updateScope, gameId, attempt, instance });
 
     getConnection()
       .invoke("registerForUpdates", updateScope, gameId)

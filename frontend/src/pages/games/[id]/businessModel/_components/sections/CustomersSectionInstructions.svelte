@@ -5,14 +5,11 @@
 <Instructions
   title="What types of players will buy the game?"
   href="https://www.launchready.co/blog/define-your-business-model/?utm_source=inapp&medium=inapp&name=inapp#section-1-player-customer-segments">
+  <p>What are specifi charecteristics that help identify the peopel that will buy or play this game?</p>
   <p>
-    We're outlining the key characteristics of players, based on what we know
-    now.
-  </p>
-  <p>
-    <em>Later we'll use this information for activity like investing more in
-      user research, identifying comparable games these playuers play, finding
-      the most effective social channels to reach them through, and so on.
+    <em
+      >We don't need an answer for every question, just the key ones for this game. Later you wil use these for testing,
+      comparables research, and the marketing plan.
     </em>
   </p>
   <p>Questions to spark your thinking process:</p>
@@ -22,18 +19,15 @@
     <li><b>What device:</b> PC vs console vs mobile?</li>
     <li>
       <b>What platform(s)?</b>
-      are there specific platforms they are on that are a core part of this
-      (Steam vs ...)?
+      are there specific platforms they are on that define the player (Steam vs ...)?
     </li>
     <li>
       <b>Hardware:</b>
-      Are there specific hardware requirements, like VR headsets that help shape
-      the audience?
+      Are there specific hardware requirements, like VR headsets that help shape the audience?
     </li>
     <li>
       <b>Genre(s):</b>
-      Do they have a specific genre they focus on? Does the genre of this game
-      have specific audience needs?
+      Do they have a specific genre they focus on? Does the genre of this game have specific audience needs?
     </li>
     <li>
       <b>Time Available:</b>
@@ -41,13 +35,11 @@
     </li>
     <li>
       <b>Extra benefits:</b>
-      Do they generate content for games they love? Post socially? Buy for
-      friends?
+      Do they generate content for games they love? Post socially? Buy for friends?
     </li>
     <li>
       <b>Motivation:</b>
-      Are they seeking social interaction? Escapism? Challenge? The rush of
-      being a super hero/doing cool things?
+      Are they seeking social interaction? Escapism? Challenge? The rush of being a super hero/doing cool things?
     </li>
     <li>
       <b>Social backgrounds:</b>
@@ -59,9 +51,8 @@
     </li>
     <li>
       <b>Other interests:</b>
-      Are other interests or goals outside gaming a key factor? (for instance,
-      people that buy a particular sports game probably have an interest in that
-      sport)
+      Are other interests or goals outside gaming a key factor? (for instance, people that buy a particular sports game probably
+      have an interest in that sport)
     </li>
   </ul>
 </Instructions>
