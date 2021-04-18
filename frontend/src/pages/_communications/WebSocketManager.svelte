@@ -2,6 +2,7 @@
   import { onDestroy, createEventDispatcher } from "svelte";
   import * as signalR from "@microsoft/signalr";
   import { portal } from "../../components/Portal.svelte";
+  import { webSocketStore } from "./webSocketStore";
 
   const dispatch = createEventDispatcher();
 
@@ -10,11 +11,16 @@
 
   function setConnected(isConnected: boolean) {
     connected = isConnected;
+    if (connected) {
+      webSocketStore.connect();
+    } else {
+      webSocketStore.disconnect();
+    }
     dispatch(connected ? "connected" : "disconnected");
   }
 
   const connection = new signalR.HubConnectionBuilder()
-    .withAutomaticReconnect()
+    .withAutomaticReconnect([0, 500, 2000, 5000, 5000, 5000, 5000, 15000, 15000, 15000, 15000, 30000])
     .withUrl("/api/fe/hub")
     .configureLogging(signalR.LogLevel.Information)
     .build();
@@ -25,6 +31,7 @@
     .start()
     .then(() => {
       connected = true;
+      webSocketStore.connect();
     })
     .catch((err) => document.write(err));
   connection.onreconnecting(() => setConnected(false));

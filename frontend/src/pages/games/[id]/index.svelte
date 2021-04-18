@@ -94,6 +94,9 @@
       line-height: 2rem;
       flex: 1;
       min-width: 240px;
+      // temp width for taking up space
+      width: 200px + 64px + 200px;
+      box-sizing: border-box;
 
       .gdb-game-tile-footer {
         position: absolute;
@@ -110,6 +113,9 @@
   .gdb-forecast-tile {
     width: 420px;
     padding: $space-m $space-m $space-m $space-m;
+    // temp width for taking up space
+    width: 200px + 64px + 200px;
+    box-sizing: border-box;
   }
 
   .gdb-forecast-tile > h3 {
@@ -137,7 +143,7 @@
     }
   }
 
-  .gdb-dame-title {
+  .gdb-game-title {
     font-weight: bold;
   }
 
@@ -167,7 +173,7 @@
   <div class="row">
     <section class="gdb-tile-container">
       <div class="gdb-game-tile">
-        <div class="gdb-dame-title">{game.name}</div>
+        <div class="gdb-game-title">{game.name}</div>
         <div>
           <span class="gdb-label">Status:</span>
           <GameStatus status={game.status} />
@@ -190,17 +196,16 @@
         <ForecastChart width={400} height={120} {cashForecast} {projectedCashForecast} />
       </div>
     </section>
-    <section class="gdb-tile-container">
+    <!-- <section class="gdb-tile-container">
       <div class="gdb-forecast-tile">
         <h3>Core Biz Loop: Next Tasks</h3>
         <ol class="gdb-task-list">
           <TaskItem module="Business Model" task={'"Have I missed anything?"'} />
           <TaskItem module="Cash Forecast" task={'"Can I afford the development?"'} />
           <TaskItem module="Cash Forecast" task={'"Will this game make a profit?"'} />
-          <!-- <TaskItem module="Business Model" task={"Find the biggest risks"} /> -->
         </ol>
       </div>
-    </section>
+    </section> -->
   </div>
 {/if}
 
