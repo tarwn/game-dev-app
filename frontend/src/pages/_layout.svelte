@@ -59,11 +59,15 @@
     padding: 0;
     list-style: none;
   }
+
+  .gdb-logo-link {
+    text-decoration: none;
+  }
 </style>
 
 <div class="gdb-screen">
   <div class="gdb-sidebar">
-    <Logo />
+    <a class="gdb-logo-link" href="/"><Logo /></a>
     <nav>
       <div class="gdb-nav-header">Active Games</div>
       <ul class="gdb-nav-list">

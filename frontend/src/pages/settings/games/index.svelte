@@ -16,6 +16,7 @@
   import TextInput from "../../../components/inputs/TextInput.svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import { isUserSessionAdmin } from "../../../authorization";
+  import LabelCell from "../../../components/table/LabelCell.svelte";
 
   metatags.title = "[LR] Settings / Games";
   metatags.description = "Your LaunchReady Settings: Manage games for your studio.";
@@ -85,6 +86,13 @@
           </td>
         </TableRowIndented>
       {/if}
+      <TableRowIndented>
+        <LabelCell />
+        <LabelCell>Name</LabelCell>
+        <LabelCell>Status</LabelCell>
+        <LabelCell>Launch Date</LabelCell>
+        <LabelCell>Actions</LabelCell>
+      </TableRowIndented>
       {#each games as game}
         <TableRowIndented>
           <td>

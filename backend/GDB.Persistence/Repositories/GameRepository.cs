@@ -40,8 +40,8 @@ namespace GDB.Persistence.Repositories
         public async Task<GameDTO> CreateAsync(GameDTO game)
         {
             var sql = @"
-                INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, LogoUrl, CreatedOn, CreatedBy, UpdatedBy, UpdatedOn)
-                VALUES(@StudioId, @Name, @Status, @LaunchDate, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedBy, @UpdatedOn);
+                INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, IsFavorite, LogoUrl, CreatedOn, CreatedBy, UpdatedBy, UpdatedOn)
+                VALUES(@StudioId, @Name, @Status, @LaunchDate, @IsFavorite, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedBy, @UpdatedOn);
 
                 SELECT " + AllFields + @"
                 FROM dbo.Game
