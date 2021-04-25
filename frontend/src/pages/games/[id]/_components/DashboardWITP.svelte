@@ -18,7 +18,7 @@ importantly holds your Core Tasks.
 <p>When in doubt, this is the place to start 😀</p>
 <p>
   These are the tasks LaunchReady is tracking for you. Early on, they are more generic and high level. As you begin to
-  fill in more color, complete prototypes or get user feedback, etc. they get more custom and specific.
+  make decisions from prototypes and user feedback, the tasks and guidance gets more custom and specific.
 </p>
 <h4>How to use?</h4>
 <p>

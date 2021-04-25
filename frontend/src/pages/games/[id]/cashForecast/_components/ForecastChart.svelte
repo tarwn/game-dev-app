@@ -5,6 +5,7 @@
   import type { ICashForecast } from "../_types/cashForecast";
   import type { IProjectedCashFlowData } from "../_stores/calculator/types";
   import { getUtcDate } from "../../../../../utilities/date";
+  import { log } from "../../../../../utilities/logger";
 
   export let cashForecast: ICashForecast;
   export let projectedCashForecast: IProjectedCashFlowData;
@@ -75,8 +76,40 @@
   //   .ticks(4)
   //   .tickFormat((d: any) => d.toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" }));
 
+  function resetToEmptyChart() {
+    data = [
+      {
+        date: getUtcDate(2020, 0, 1),
+        value: 0,
+      },
+      {
+        date: getUtcDate(2022, 0, 1),
+        value: 0,
+      },
+    ];
+    minAmount = 0;
+    maxAmount = 50000;
+    yTicks = [0, 10000, 20000, 30000, 40000, 50000];
+    xTicks = [getUtcDate(2020, 1, 1), getUtcDate(2021, 1, 1), getUtcDate(2022, 1, 1)];
+    extentX[0] = xTicks[0];
+    extentX[1] = xTicks[2];
+    xScale.domain(extentX);
+    xTicks = xScale.ticks(5);
+    const minY = Math.floor(minAmount / 10000) * 10000;
+    const maxY = Math.ceil(maxAmount / 10000) * 10000;
+    yScale.domain([minY, maxY]);
+    yTicks = yScale.ticks(10);
+    originPositionY = yScale(0);
+    if (el) {
+      lineCharts.forEach((c) => c.data([data]).attr("d", line as any));
+      areaCharts.forEach((c) => c.data([data]).attr("d", area as any));
+    }
+  }
+
   $: {
-    if (cashForecast && projectedCashForecast && el) {
+    if (!cashForecast) {
+      resetToEmptyChart();
+    } else if (projectedCashForecast && el) {
       // resize data if necessary
       if (!data || data.length != cashForecast.forecastMonthCount.value) {
         data = Array.from(new Array(cashForecast.forecastMonthCount.value).keys()).map((i) => ({
@@ -131,6 +164,7 @@
   }
 
   onMount(() => {
+    console.log("mount");
     const svg = d3.select(el);
 
     // TODO - trying to add a background fill to red area for visual contrast other than color

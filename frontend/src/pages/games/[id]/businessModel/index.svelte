@@ -33,6 +33,11 @@
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
   import { UpdateScope } from "../../../_communications/UpdateScope";
   import LinkAsButton from "../../../../components/buttons/LinkAsButton.svelte";
+  import { AutomaticPopup } from "../../../_stores/profileApi";
+  import type { UserProfile } from "../../../_stores/profileApi";
+  import { profileStore } from "../../../_stores/profileStore";
+  import ButtonWithPopup from "../../../../components/buttons/ButtonWithPopup.svelte";
+  import BusinessModelWitp from "./_components/BusinessModelWITP.svelte";
 
   metatags.title = "[LR] Business Model";
 
@@ -90,11 +95,16 @@
     }
     hasUnsaved = update.pendingEvents.length > 0;
   });
+  let latestProfile: null | UserProfile = null;
+  var unsubscribe3 = profileStore.subscribe((p) => {
+    if (p != null) latestProfile = p;
+  });
 
   onDestroy(() => {
     // -- end signalR close
     unsubscribe();
     unsubscribe2();
+    unsubscribe3();
   });
 
   // overall state for screen
@@ -169,13 +179,13 @@
 
 <ScreenTitle title="Business Model">
   <SaveMessage {hasUnsaved} {lastSaved} />
+  <LinkAsButton value="Exit" buttonStyle="primary-outline" href={`/games/${id}`} disabled={isLoading} />
   <IconTextButton
     icon={PredefinedIcons.Expand}
     value="Full View"
     buttonStyle="primary-outline"
     on:click={handleOnFullScreen}
     disabled={isLoading || displaySectionCommit == null} />
-  <LinkAsButton value="Exit" buttonStyle="primary-outline" href={`/games/${id}`} disabled={isLoading} />
   {#if displaySection == null}
     <IconTextButton
       icon={PredefinedIcons.Next}
@@ -193,6 +203,17 @@
           detail: { section: getNextSectionInLine(displaySection) },
         })}
       disabled={isLoading || businessModel.customers.list.length == 0} />
+  {/if}
+  {#if latestProfile}
+    <ButtonWithPopup
+      buttonStyle="primary-outline-circle"
+      label="?"
+      buttonTitle="Help: How to use this screen"
+      ariaLabel="Help: How to use this screen"
+      forceOpen={(latestProfile.hasSeenPopup & AutomaticPopup.BusinessModel) !== AutomaticPopup.BusinessModel}
+      on:close={() => profileStore.markPopupSeen(AutomaticPopup.BusinessModel)}>
+      <BusinessModelWitp />
+    </ButtonWithPopup>
   {/if}
 </ScreenTitle>
 <div class="gdb-page-bm-container">

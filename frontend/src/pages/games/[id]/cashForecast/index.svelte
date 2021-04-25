@@ -29,6 +29,11 @@
   import { UpdateScope } from "../../../_communications/UpdateScope";
   import EstUnitSalesInstructions from "./_components/editing/estUnitSalesTab/EstUnitSalesInstructions.svelte";
   import LinkAsButton from "../../../../components/buttons/LinkAsButton.svelte";
+  import { profileStore } from "../../../_stores/profileStore";
+  import { AutomaticPopup } from "../../../_stores/profileApi";
+  import type { UserProfile } from "../../../_stores/profileApi";
+  import ButtonWithPopup from "../../../../components/buttons/ButtonWithPopup.svelte";
+  import CashForecastWitp from "./_components/CashForecastWITP.svelte";
 
   // page title
   metatags.title = "[LR] Cash Forecast";
@@ -110,12 +115,17 @@
   const unsubscribe3 = projectedCashFlowStore.subscribe((update) => {
     projectedCashForecast = update;
   });
+  let latestProfile: null | UserProfile = null;
+  var unsubscribe4 = profileStore.subscribe((p) => {
+    if (p != null) latestProfile = p;
+  });
 
   onDestroy(() => {
     // -- end signalR close
     unsubscribe();
     unsubscribe2();
     unsubscribe3();
+    unsubscribe4();
   });
 
   // misc
@@ -274,6 +284,17 @@
       buttonStyle="primary"
       on:click={switchToSummaryView}
       disabled={isLoading} />
+  {/if}
+  {#if latestProfile}
+    <ButtonWithPopup
+      buttonStyle="primary-outline-circle"
+      label="?"
+      buttonTitle="Help: How to use this screen"
+      ariaLabel="Help: How to use this screen"
+      forceOpen={(latestProfile.hasSeenPopup & AutomaticPopup.CashForecast) !== AutomaticPopup.CashForecast}
+      on:close={() => profileStore.markPopupSeen(AutomaticPopup.CashForecast)}>
+      <CashForecastWitp />
+    </ButtonWithPopup>
   {/if}
 </ScreenTitle>
 

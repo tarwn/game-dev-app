@@ -29,13 +29,20 @@ namespace GDB.App.Controllers.Frontend
         }
 
         [HttpGet("{gameId}")]
-        public async Task<IActionResult> GetByIdAsync(string gameId)
+        public async Task<IActionResult> GetByIdAsync(string gameId, [FromQuery] bool? skipCreate)
         {
             var user = GetUserAuthContext();
-            var dto = await _cashForecastService.GetOrCreateAsync(gameId, user);
+            var dto = await _cashForecastService.GetOrCreateAsync(gameId, skipCreate ?? false, user);
             if (dto == null)
             {
-                return NotFound();
+                if (skipCreate.GetValueOrDefault(false))
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
             return Ok(dto);
         }

@@ -133,6 +133,8 @@
     display: flex;
     flex-direction: column;
     max-height: 100%;
+    max-width: 1000px;
+    min-width: 640px;
 
     background-color: white;
     border: 3px solid $color-accent-1;

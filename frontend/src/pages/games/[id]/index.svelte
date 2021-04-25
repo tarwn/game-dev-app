@@ -9,7 +9,6 @@
   import type { ICashForecast } from "./cashForecast/_types/cashForecast";
   import { getEmptyProjection } from "./cashForecast/_stores/calculator/types";
   import ForecastChart from "./cashForecast/_components/ForecastChart.svelte";
-  import TaskItem from "./_components/TaskItem.svelte";
   import DateSpan from "../../../components/inputs/DateSpan.svelte";
   import type { Game } from "../../_stores/gamesApi";
   import ScreenTitle from "../../../components/layout/ScreenTitle.svelte";
@@ -41,9 +40,10 @@
 
       game = games.find((g) => g.globalId == initializedId) ?? null;
 
-      cashForecastApi.get(id).then((data) => {
+      cashForecastApi.get(id, { skipCreate: true }).then((data) => {
         if (initializedId != id) return;
         cashForecast = data.payload;
+        // if a cashforecast wasn't loaded, we want an empty projection
         if (cashForecast?.forecastMonthCount.value != null) {
           projectedCashForecast = calculate(cashForecast, projectedCashForecast, cashForecast.forecastMonthCount.value);
         } else {

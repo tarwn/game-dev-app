@@ -96,6 +96,7 @@
 
       &.isLoading {
         @include loading-pulse;
+        margin-left: $space-s;
         max-width: 10rem;
         overflow: hidden;
         white-space: nowrap;
@@ -235,8 +236,7 @@
       className="gdb-board-section gdb-board-valueProposition"
       label="Value Proposition"
       {isLoading}
-      isNextToStart={sectionStatuses.nextNonStartedSection ==
-        "valueProposition"}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "valueProposition"}
       isStarted={sectionStatuses.valueProposition}
       isSelected={selectedSection == "valueProposition"}
       {isMiniMap}
@@ -251,8 +251,7 @@
       className="gdb-board-section gdb-board-customerRelationships"
       label="Customer Relationships"
       {isLoading}
-      isNextToStart={sectionStatuses.nextNonStartedSection ==
-        "customerRelationships"}
+      isNextToStart={sectionStatuses.nextNonStartedSection == "customerRelationships"}
       isStarted={sectionStatuses.customerRelationships}
       isSelected={selectedSection == "customerRelationships"}
       {isMiniMap}

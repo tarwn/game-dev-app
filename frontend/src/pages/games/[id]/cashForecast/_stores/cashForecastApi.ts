@@ -3,7 +3,10 @@ import type { GetActorSeqNoResponse, IEvent, IEventStateApi } from "../../../../
 import type { ICashForecast } from "../_types/cashForecast";
 
 const jsonOrThrow = (r: Response) => {
-  if (r.status <= 299) {
+  if (r.status == 204) {
+    return null;
+  }
+  else if (r.status <= 299) {
     return r.json();
   }
   else if (r.status <= 499) {
@@ -61,13 +64,18 @@ function readPayload(data: ICashForecast) {
 }
 
 export const api: IEventStateApi<ICashForecast> = {
-  get: (id: any) => {
-    log("CashforecastAPI.get(): started", {});
-    return fetch(`/api/fe/cashForecasts/${id}`)
+  get: (id: any, apiArgs?: any) => {
+    log("CashforecastAPI.get(): started", { apiArgs });
+    return fetch(`/api/fe/cashForecasts/${id}?skipCreate=${!!apiArgs?.skipCreate}`)
       .then(jsonOrThrow)
       .then((data) => {
         log("CashforecastAPI.get():JSON data received", {});
-        return { payload: readPayload(data) };
+        if (data) {
+          return { payload: readPayload(data) };
+        }
+        else {
+          return { payload: null };
+        }
       });
   },
   getSince: (id: any, versionNumber: number) => {

@@ -25,7 +25,7 @@ namespace GDB.Business.BusinessLogic.CashForecastService
             _persistence = persistence;
         }
 
-        public async Task<CashForecastDTO> GetOrCreateAsync(string gameId, IAuthContext authContext)
+        public async Task<CashForecastDTO> GetOrCreateAsync(string gameId, bool skipCreate, IAuthContext authContext)
         {
             var actualGameId = IdHelper.CheckAndExtractGameId(gameId, authContext);
 
@@ -42,6 +42,8 @@ namespace GDB.Business.BusinessLogic.CashForecastService
                 {
                     throw new AccessDeniedException("Specified game does not exist or is not accessible by this studio", $"NonExistent Game Id: User {authContext.UserId} attempted to access game {gameId} while logged in for studio {authContext.StudioId}");
                 }
+
+                if (skipCreate) return null;
 
                 var createEvent = _processor.GetCreateEvent(gameId);
                 await _processor.AddAndApplyEventAsync(authContext.StudioId, actualGameId, gameId, createEvent);

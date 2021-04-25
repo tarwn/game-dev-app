@@ -10,7 +10,7 @@ namespace GDB.Common.BusinessLogic
 {
     public interface ICashForecastService
     {
-        Task<CashForecastDTO> GetOrCreateAsync(string gameId, IAuthContext authContext);
+        Task<CashForecastDTO> GetOrCreateAsync(string gameId, bool skipCreate, IAuthContext authContext);
         Task<List<ChangeEvent>> GetSinceAsync(string gameId, int sinceVersionNumber, IAuthContext authContext);
         Task<Applied<ChangeEvent>> ApplyEventAsync(string gameId, IncomingChangeEvent change, IAuthContext authContext);
     }
