@@ -17,6 +17,10 @@
   import { profileStore } from "../../_stores/profileStore";
   import { AutomaticPopup } from "../../_stores/profileApi";
   import type { UserProfile } from "../../_stores/profileApi";
+  import TaskTile from "./_components/TaskTile.svelte";
+  import { getUtcDate } from "../../../utilities/date";
+  import { TaskStatus } from "./_components/TaskStatus";
+  import TaskTilePlaceholder from "./_components/TaskTilePlaceholder.svelte";
 
   metatags.title = "[LR] Dashboard";
 
@@ -125,6 +129,10 @@
     margin: $space-s 0 $space-m 0;
   }
 
+  .gdb-tile-carousel {
+    margin: $space-l 0;
+  }
+
   h2 {
     color: $cs-grey-4;
     // font-weight: normal;
@@ -133,15 +141,6 @@
   h2 {
     margin-top: $space-xl;
   }
-
-  // .gdb-task-list {
-  //   margin: $space-m;
-  //   padding-left: 1rem;
-
-  //   & > :global(li) {
-  //     margin: $space-s 0;
-  //   }
-  // }
 
   .gdb-game-title {
     font-weight: bold;
@@ -152,17 +151,6 @@
     font-size: $font-size-small;
     display: inline-block;
     width: 4rem;
-  }
-
-  .gdb-placeholder-tile {
-    width: 200px;
-    background-color: $cs-grey-0;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
-    font-size: $font-size-smallest;
   }
 </style>
 
@@ -207,30 +195,40 @@
         <ForecastChart width={400} height={120} {cashForecast} {projectedCashForecast} />
       </div>
     </section>
-    <!-- <section class="gdb-tile-container">
-      <div class="gdb-forecast-tile">
-        <h3>Core Biz Loop: Next Tasks</h3>
-        <ol class="gdb-task-list">
-          <TaskItem module="Business Model" task={'"Have I missed anything?"'} />
-          <TaskItem module="Cash Forecast" task={'"Can I afford the development?"'} />
-          <TaskItem module="Cash Forecast" task={'"Will this game make a profit?"'} />
-        </ol>
-      </div>
-    </section> -->
   </div>
 {/if}
 
 <h2>Next Core Tasks</h2>
 
-<div class="row">
-  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
-  <section class="tile"><div class="gdb-placeholder-tile">Coming</div></section>
-  <section class="tile"><div class="gdb-placeholder-tile">Soon</div></section>
-  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
-  <section class="tile"><div class="gdb-placeholder-tile">😀</div></section>
-</div>
-<div class="row">
-  <a href="#c" class:disabled={true}>View History</a>
+<div class="gdb-tile-carousel">
+  <div class="row">
+    <TaskTile
+      module="External Task"
+      title="Identify Goals"
+      description="Outline your goals for this game release"
+      status={TaskStatus.Selected} />
+    <TaskTile
+      module="External Task"
+      title="Team Agreement"
+      description="Ensure the team is agreed on leadership, ownership, and goals"
+      status={TaskStatus.Ready} />
+    <TaskTile
+      module="Business Model"
+      title="Business Outline"
+      description="Initial definition: unique concept/hook, audience, resources, and cashflow"
+      status={TaskStatus.Ready}
+      disabled={true} />
+    <TaskTile
+      dueDate={getUtcDate(2020, 1, 1)}
+      module="Business Model"
+      title="Business Outline"
+      description="Initial definition: unique concept/hook, audience, resources, and cashflow"
+      status={TaskStatus.Overdue} />
+    <TaskTilePlaceholder />
+  </div>
+  <div class="row">
+    <a href="#c" class:disabled={true}>View All Tasks</a>
+  </div>
 </div>
 
 <h2>Planning Modules</h2>
