@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +6,8 @@ using System.Transactions;
 using GDB.Common.Persistence;
 using Microsoft.ApplicationInsights;
 using GDB.Common.BusinessLogic;
+using GDB.Business.Utility;
+using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
 namespace GDB.Business.BusinessLogic
 {
@@ -24,7 +25,7 @@ namespace GDB.Business.BusinessLogic
             // 1. Chose Exponential backoff based on experience 
             // 2. Used shorter timeframes similar to MSDN suggestions due to interactive users and
             //      small batches when we have batch data
-            _retryPolicy = new RetryPolicy<SqlDatabaseTransientErrorDetectionStrategy>(
+            _retryPolicy = new RetryPolicy<DatabaseErrorDetection>(
                 3,
                 TimeSpan.FromMilliseconds(100),
                 TimeSpan.FromMilliseconds(500),

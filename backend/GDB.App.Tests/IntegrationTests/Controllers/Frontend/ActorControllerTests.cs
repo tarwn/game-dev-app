@@ -5,6 +5,8 @@ using GDB.Business.BusinessLogic;
 using GDB.Common.Authentication;
 using GDB.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -32,7 +34,8 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
         {
             var persistence = new DapperPersistence(Database.GetConnectionSettings());
             var busOps = new BusinessServiceOperatorWithRetry(persistence);
-            var service = new ActorService(busOps, persistence);
+            var logger = new Mock<ILogger<ActorService>>();
+            var service = new ActorService(busOps, persistence, logger.Object);
             _controller = new ActorController(service)
             {
                 ControllerContext = GetControllerContextForFrontEnd(userId: _sampleUser.Id)

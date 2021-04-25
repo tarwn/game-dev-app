@@ -9,6 +9,7 @@
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Configuration.NetCore" Version="6.0.1312" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
   </ItemGroup>
   
   <ItemGroup>

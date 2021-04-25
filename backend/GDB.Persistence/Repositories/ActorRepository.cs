@@ -32,6 +32,45 @@ namespace GDB.Persistence.Repositories
             }
         }
 
+        public async Task<ActorRegistration> RegisterActorAsync(string actorId, int numberOfDaysUnused, int userId, DateTime registeredOn)
+        {
+            var param = new { 
+                actorId,
+                userId,
+                UpdatedOn = registeredOn,
+                LastUnused = DateTime.UtcNow.AddDays(-1 * numberOfDaysUnused)
+            };
+            var sql = @"
+                IF NOT EXISTS(SELECT * FROM dbo.Actor WHERE Actor = @ActorId AND UpdatedOn > @LastUnused)
+                BEGIN
+                    UPDATE dbo.Actor WITH (UPDLOCK, SERIALIZABLE) 
+                    SET UserId = @UserId,
+                        UpdatedOn = @UpdatedOn
+                    WHERE Actor = @ActorId;
+ 
+                    IF @@ROWCOUNT = 0
+                    BEGIN
+                        INSERT INTO dbo.Actor(Actor, Seqno, UserId, UpdatedOn)
+                        VALUES(@ActorId, 0, @UserId, @UpdatedOn);
+                    END
+
+                    SELECT Actor, Seqno, UserId, UpdatedOn
+                    FROM dbo.Actor 
+                    WHERE Actor = @ActorId
+                END
+                ELSE
+                BEGIN
+                    SELECT Actor, Seqno, UserId, UpdatedOn
+                    FROM dbo.Actor 
+                    WHERE 0 = 1;
+                END
+            ";
+            using (var conn = GetConnection())
+            {
+                return await conn.QuerySingleOrDefaultAsync<ActorRegistration>(sql, param);
+            }
+        }
+
         public async Task UpdateActorAsync(string actor, int seqNo, int userId, DateTime updatedOn)
         {
             // UPSERT pattern from Aaron Bertrand: https://sqlperformance.com/2020/09/locking/upsert-anti-pattern

@@ -30,7 +30,7 @@ namespace GDB.Business.BusinessLogic._Generic
 
         public async Task<TDTO> GetByIdAsync(int studioId, int actualGameId, string gameId)
         {
-            using (var lockObj = await _store.GetLockAsync())
+            using (var lockObj = await _store.GetLockAsync(gameId))
             {
                 var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
                 return model.Model;
@@ -44,7 +44,7 @@ namespace GDB.Business.BusinessLogic._Generic
 
         public async Task<Applied<ChangeEvent>> AddAndApplyEventAsync(int studioId, int actualGameId, string gameId, ChangeEvent changeEvent)
         {
-            using (var lockObj = await _store.GetLockAsync())
+            using (var lockObj = await _store.GetLockAsync(gameId))
             {
                 var model = await GetLatestModelAsync(studioId, actualGameId, gameId);
                 if (model.Model == null && changeEvent.VersionNumber != 1)

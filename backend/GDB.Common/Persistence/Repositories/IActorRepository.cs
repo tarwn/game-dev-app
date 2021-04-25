@@ -10,5 +10,6 @@ namespace GDB.Common.Persistence.Repositories
     {
         Task UpdateActorAsync(string actor, int seqNo, int userId, DateTime updatedOn);
         Task<ActorRegistration> GetActorAsync(string actorId);
+        Task<ActorRegistration> RegisterActorAsync(string actorId, int numberOfDaysUnused, int userId, DateTime registeredOn);
     }
 }

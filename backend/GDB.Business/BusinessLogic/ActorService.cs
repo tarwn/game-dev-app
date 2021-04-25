@@ -2,6 +2,7 @@
 using GDB.Common.BusinessLogic;
 using GDB.Common.Context;
 using GDB.Common.Persistence;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,27 +14,38 @@ namespace GDB.Business.BusinessLogic
     {
         private IBusinessServiceOperator _busOp;
         private IPersistence _persistence;
+        private ILogger<ActorService> _logger;
+        private Random _random;
 
-        public ActorService(IBusinessServiceOperator busOp, IPersistence persistence)
+        public ActorService(IBusinessServiceOperator busOp, IPersistence persistence, ILogger<ActorService> logger)
         {
             _busOp = busOp;
             _persistence = persistence;
+            _logger = logger;
+            _random = new Random();
         }
 
         public async Task<string> GetActorAsync(IAuthContext user)
         {
-            return await _busOp.Query(async (p) =>
+            ActorRegistration actor = null;
+            int attemptCount = 0;
+            // find a non-recently used actor
+            do
             {
-                var randomActorId = RandomString(4);
-                var actor = await _persistence.Actors.GetActorAsync(randomActorId);
-                while (actor.UpdatedOn > DateTime.UtcNow.AddDays(-30))
+                attemptCount++;
+                actor = await _busOp.Query(async (p) =>
                 {
-                    randomActorId = RandomString(4);
-                    actor = await _persistence.Actors.GetActorAsync(randomActorId);
+                    var randomActorId = RandomString(5);
+                    _logger.LogDebug($"Attempting to register actorId {randomActorId} for user {user.UserId}, attempt {attemptCount}");
+                    return await _persistence.Actors.RegisterActorAsync(randomActorId, 30, user.UserId, DateTime.UtcNow);
+                });
+                if (actor == null)
+                {
+                    await Task.Delay((int)(5 * _random.NextDouble()));
                 }
-                await _persistence.Actors.UpdateActorAsync(randomActorId, actor.LatestSeqNo, user.UserId, DateTime.UtcNow);
-                return randomActorId;
-            });
+            } while (actor == null && attemptCount < 20);
+
+            return actor.Actor;
         }
 
         public async Task<int> GetLatestSeqNoAsync(string actor, IAuthContext user)

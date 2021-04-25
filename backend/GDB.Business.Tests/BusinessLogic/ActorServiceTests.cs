@@ -2,6 +2,7 @@
 using GDB.Business.Tests.Utilities;
 using GDB.Common.Authorization;
 using GDB.Common.DTOs.Studio;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -25,7 +26,8 @@ namespace GDB.Business.Tests.BusinessLogic
         {
             _persistenceMock = new MockPersistence();
             var busop = new BusinessServiceOperatorWithRetry(_persistenceMock);
-            _service = new ActorService(busop, _persistenceMock);
+            var logger = new Mock<ILogger<ActorService>>();
+            _service = new ActorService(busop, _persistenceMock, logger.Object);
         }
 
         [Test]
@@ -59,32 +61,32 @@ namespace GDB.Business.Tests.BusinessLogic
         public async Task GetActorAsync_ValidUser_GeneratesAndRegistersActorId()
         {
             var actorId = "";
-            _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(It.IsAny<string>()))
-                  .Callback<string>(s => { actorId = s; })
-                  .Returns<string>(s => Task.FromResult(new ActorRegistration(s, 123, FakeUserId + 5, DateTime.UtcNow.AddYears(-1))));
+            _persistenceMock.ActorsMock.Setup(a => a.RegisterActorAsync(It.IsAny<string>(), 30, FakeUserId, It.IsAny<DateTime>()))
+                  .Callback<string, int, int, DateTime>((s, _, __, ___) => { actorId = s; })
+                  .Returns<string, int, int, DateTime>((s, _, __, ___) => Task.FromResult(new ActorRegistration(s, 123, FakeUserId + 5, DateTime.UtcNow.AddYears(-1))));
             var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             var actor = await _service.GetActorAsync(auth);
 
             Assert.AreEqual(actorId, actor);
-            _persistenceMock.ActorsMock.Verify(a => a.UpdateActorAsync(actorId, 123, FakeUserId, It.IsAny<DateTime>()), Times.Once());
+            _persistenceMock.ActorsMock.Verify(a => a.RegisterActorAsync(actorId, 30, FakeUserId, It.IsAny<DateTime>()), Times.Once());
         }
 
         [Test]
         public async Task GetActorAsync_ValidUserSeveralActorsInUse_GeneratesAndRegistersActorId()
         {
             var actorIds = new List<string>();
-            _persistenceMock.ActorsMock.Setup(a => a.GetActorAsync(It.IsAny<string>()))
-                  .Callback<string>(s => { actorIds.Add(s); })
-                  .Returns<string>(s => Task.FromResult(new ActorRegistration(s, 123, FakeUserId + 5, actorIds.Count >= 2 ? DateTime.UtcNow.AddYears(-1) : DateTime.UtcNow.AddDays(-1))));
+            _persistenceMock.ActorsMock.Setup(a => a.RegisterActorAsync(It.IsAny<string>(), 30, FakeUserId, It.IsAny<DateTime>()))
+                  .Callback<string, int, int, DateTime>((s, _, __, ___) => { actorIds.Add(s); })
+                  .Returns<string, int, int, DateTime>((s, _, __, ___) => Task.FromResult(actorIds.Count < 2 ? null : new ActorRegistration(s, 123, FakeUserId + 5, DateTime.UtcNow.AddYears(-1))));
             var auth = new TestAuthContext(FakeUserId, 1, StudioUserRole.Administrator);
 
             var actor = await _service.GetActorAsync(auth);
 
             Assert.AreEqual(actorIds.Count, 2); // skipped first choice one
             Assert.AreEqual(actorIds.Last(), actor);
-            _persistenceMock.ActorsMock.Verify(a => a.UpdateActorAsync(actorIds[0], 123, FakeUserId, It.IsAny<DateTime>()), Times.Never());
-            _persistenceMock.ActorsMock.Verify(a => a.UpdateActorAsync(actorIds[1], 123, FakeUserId, It.IsAny<DateTime>()), Times.Once());
+            _persistenceMock.ActorsMock.Verify(a => a.RegisterActorAsync(actorIds[0], 30, FakeUserId, It.IsAny<DateTime>()), Times.Once());
+            _persistenceMock.ActorsMock.Verify(a => a.RegisterActorAsync(actorIds[1], 30, FakeUserId, It.IsAny<DateTime>()), Times.Once());
         }
 
     }

@@ -2,6 +2,7 @@
 using GDB.Common.DTOs.BusinessModel;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -13,28 +14,29 @@ namespace GDB.Business.BusinessLogic.EventStore
     {
         //private Dictionary<string, List<BusinessModelChangeEvent>> _cache;
         private IMemoryCache _memoryCache;
-        private LockObject _curLock = null;
+        private ConcurrentDictionary<string, object> _locks = new ConcurrentDictionary<string, object>();
+        private Random _random;
 
         public ModelEventStore(IMemoryCache memoryCache)
         {
             //_cache = new Dictionary<string, List<BusinessModelChangeEvent>>();
             _memoryCache = memoryCache;
+            _random = new Random();
         }
 
-        public async Task<LockObject> GetLockAsync()
+        public async Task<LockObject> GetLockAsync(string id)
         {
             var cancellation = new CancellationTokenSource();
             cancellation.CancelAfter(TimeSpan.FromSeconds(10));
-            do
+            var lockObj = new LockObject(() => _locks.Remove(id, out var _));
+            while (!_locks.TryAdd(id, lockObj) && !cancellation.Token.IsCancellationRequested){
+                await Task.Delay((int)(32 * _random.NextDouble()), cancellation.Token);
+            }
+            if (cancellation.Token.IsCancellationRequested)
             {
-                if (_curLock == null)
-                {
-                    _curLock = new LockObject(() => _curLock = null);
-                    return _curLock;
-                }
-                await Task.Delay(32, cancellation.Token);
-            } while (_curLock != null && !cancellation.Token.IsCancellationRequested);
-            throw new LockTimeoutException("Could not get a lock");
+                throw new LockTimeoutException("Could not get a lock");
+            }
+            return lockObj;
         }
 
         public bool ContainsEventsFor(string globalId)
