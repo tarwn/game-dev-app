@@ -5,6 +5,7 @@ using GDB.Common.Context;
 using GDB.Common.DTOs.Customer;
 using GDB.Common.DTOs.Game;
 using GDB.Common.DTOs.Studio;
+using GDB.Common.DTOs.Task;
 using GDB.Common.DTOs.User;
 using GDB.Common.Persistence;
 using System;
@@ -40,11 +41,28 @@ namespace GDB.Business.BusinessLogic
             });
         }
 
+
         public async Task<GameDTO> GetGameAsync(int id, IAuthContext userAuth)
         {
             return await _busOp.Query(async (persistence) =>
             {
                 return await persistence.Games.GetByIdAsync(userAuth.StudioId, id);
+            });
+        }
+
+        public async Task<List<TaskDTO>> GetOpenTasksAsync(int gameId, IAuthContext userAuth)
+        {
+            return await _busOp.Query(async (persistence) =>
+            {
+                return await persistence.Tasks.GetOpenTasksAsync(gameId);
+            });
+        }
+
+        public async Task<List<TaskDTO>> GetAllTasksAsync(int gameId, IAuthContext userAuth)
+        {
+            return await _busOp.Query(async (persistence) =>
+            {
+                return await persistence.Tasks.GetAllTasksAsync(gameId);
             });
         }
 

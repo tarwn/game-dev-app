@@ -42,6 +42,7 @@ namespace GDB.App.StartupConfiguration
             services.AddScoped<EventProcessor<CashForecastDTO, CashForecastEventApplier>>();
             services.AddScoped<ICashForecastService, CashForecastService>();
             services.AddScoped<IGameService, GameService>();
+            services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IStudioService, StudioService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IInteractiveUserQueryService, InteractiveUserQueryService>();

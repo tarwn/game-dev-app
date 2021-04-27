@@ -6,6 +6,8 @@ DELETE FROM dbo.Customer;
 DELETE FROM dbo.Actor;
 DELETE FROM dbo.UserSession;
 DELETE FROM dbo.UserStudioXref;
+DELETE FROM dbo.GameTaskAssignment;
+DELETE FROM dbo.GameTask;
 DELETE FROM dbo.Game;
 DELETE FROM dbo.Studio;
 DELETE FROM dbo.PasswordHistory;

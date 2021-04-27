@@ -25,6 +25,7 @@ namespace GDB.Persistence
             Customers = new CustomerRepository(_settings.Database);
             EventStore = new EventStoreRepository(_settings.Database);
             Games = new GameRepository(_settings.Database);
+            Tasks = new TasksRepository(_settings.Database);
             Studios = new StudioRepository(_settings.Database);
             Users = new UserRepository(_settings.Database);
             UserSessions = new UserSessionRepository(_settings.Database);
@@ -37,6 +38,7 @@ namespace GDB.Persistence
         public ICustomerRepository Customers { get; }
         public IEventStoreRepository EventStore { get; }
         public IGameRepository Games { get; }
+        public ITasksRepository Tasks { get; }
         public IStudioRepository Studios { get; }
         public IUserRepository Users { get; }
         public IUserSessionRepository UserSessions { get; }

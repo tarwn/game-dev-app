@@ -180,7 +180,7 @@
         <div>
           {#if cashForecast}
             <span class="gdb-label">Launch:</span>
-            <DateSpan date={cashForecast.launchDate.value} />
+            <DateSpan date={game.launchDate} />
           {/if}
         </div>
         <div class="gdb-game-tile-footer">
@@ -220,9 +220,9 @@
       disabled={true} />
     <TaskTile
       dueDate={getUtcDate(2020, 1, 1)}
-      module="Business Model"
-      title="Business Outline"
-      description="Initial definition: unique concept/hook, audience, resources, and cashflow"
+      module="External"
+      title="Example Late Task"
+      description="This is an example late task to see overdue LF"
       status={TaskStatus.Overdue} />
     <TaskTilePlaceholder />
   </div>

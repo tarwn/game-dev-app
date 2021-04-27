@@ -21,6 +21,7 @@ namespace GDB.Business.Tests.Utilities
             PasswordHistoryMock = new Mock<IPasswordHistoryRepository>();
             PasswordResetTokensMock = new Mock<IPasswordResetTokenRepository>();
             GamesMock = new Mock<IGameRepository>();
+            TasksMock = new Mock<ITasksRepository>();
             EventStoreMock = new Mock<IEventStoreRepository>();
         }
 
@@ -42,6 +43,8 @@ namespace GDB.Business.Tests.Utilities
         public IPasswordResetTokenRepository PasswordResetTokens { get { return PasswordResetTokensMock.Object; } }
         public Mock<IGameRepository> GamesMock { get; }
         public IGameRepository Games { get { return GamesMock.Object; } }
+        public Mock<ITasksRepository> TasksMock { get; }
+        public ITasksRepository Tasks { get { return TasksMock.Object; } }
         public Mock<IEventStoreRepository> EventStoreMock { get; }
         public IEventStoreRepository EventStore { get { return EventStoreMock.Object; } }
     }

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using GDB.Common.DTOs.Game;
+using GDB.Common.DTOs.Task;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,7 +26,15 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
                                         CashForecastLastUpdatedOn, CashForecastLastUpdatedBy)
                     VALUES(@StudioId, @Name, @Status, @LaunchDate, @IsFavorite, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedOn, @UpdatedBy, @DeletedOn, @DeletedBy,
                                         @CashForecastLastUpdatedOn, @CashForecastLastUpdatedBy);
-                    SELECT *, Status = GameStatusId FROM Game WHERE Id = scope_identity();
+                    
+                    DECLARE @GameId int = scope_identity();
+
+                    INSERT INTO dbo.GameTask(TaskTypeId, GameId, TaskStateId, DueDate, CreatedOn, CreatedBy)
+                    SELECT TT.Id, @GameId, 1 /* Open */, NULL, GetUtcDate(), -1
+                    FROM dbo.TaskType TT
+                    WHERE TT.Id <= 10;  -- standard tasks
+
+                    SELECT *, Status = GameStatusId FROM Game WHERE Id = @GameId;
                 ";
                 var param = new
                 {
@@ -45,6 +54,21 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
                     CashForecastLastUpdatedBy = hasCashForecast ? -1 : (int?) null
                 };
                 return conn.QuerySingle<GameDTO>(sql, param);
+            }
+        }
+
+        public void CloseTask(int id, TaskType taskType, TaskState state = TaskState.ClosedComplete)
+        {
+            var param = new { id, taskType, state };
+            var sql = @"
+                UPDATE dbo.GameTask 
+                SET TaskStateId = @state
+                WHERE GameId = @id
+                    AND TaskTypeId = @TaskType;
+            ";
+            using (var conn = _databaseHelper.GetConnection())
+            {
+                conn.Execute(sql, param);
             }
         }
     }
