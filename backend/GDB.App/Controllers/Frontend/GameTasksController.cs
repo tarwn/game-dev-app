@@ -1,6 +1,7 @@
 ﻿using GDB.App.Controllers.Frontend.Models.Tasks;
 using GDB.App.Security;
 using GDB.Business.BusinessLogic;
+using GDB.Common.Authorization;
 using GDB.Common.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,13 @@ namespace GDB.App.Controllers.Frontend
     {
         private IInteractiveUserQueryService _queryService;
         private ITaskService _taskService;
+        private ISignalRSender _signalrSender;
 
-        public GameTasksController(IInteractiveUserQueryService queryService, ITaskService taskService)
+        public GameTasksController(IInteractiveUserQueryService queryService, ITaskService taskService, ISignalRSender signalrSender)
         {
             _queryService = queryService;
             _taskService = taskService;
+            _signalrSender = signalrSender;
         }
 
 
@@ -58,6 +61,7 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             await _taskService.UpdateTaskStateAsync(id, taskId, model.TaskState, user);
+            await _signalrSender.SendAsync(user, UpdateScope.GameTasks, gameId, new { taskId });
             return Ok();
         }
     }

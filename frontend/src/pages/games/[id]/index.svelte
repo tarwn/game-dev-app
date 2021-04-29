@@ -21,12 +21,18 @@
   import { getUtcDate } from "../../../utilities/date";
   import { TaskStatus } from "./_components/TaskStatus";
   import TaskTilePlaceholder from "./_components/TaskTilePlaceholder.svelte";
+  import type { Task } from "../../_stores/tasksApi";
+  import { openTasksStore } from "../../_stores/tasksStore";
+  import { log } from "../../../utilities/logger";
+  import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
+  import { UpdateScope } from "../../_communications/UpdateScope";
 
   metatags.title = "[LR] Dashboard";
 
   $: id = $params.id;
   let initializedId = null;
 
+  // game data
   let games = [] as Array<Game>;
   let game = null as Game;
   const unsubscribe = gamesStore.subscribe((g) => {
@@ -44,6 +50,8 @@
 
       game = games.find((g) => g.globalId == initializedId) ?? null;
 
+      openTasksStore.load(initializedId);
+
       cashForecastApi.get(id, { skipCreate: true }).then((data) => {
         if (initializedId != id) return;
         cashForecast = data.payload;
@@ -57,14 +65,24 @@
     }
   }
 
+  // user profile data
   let latestProfile: null | UserProfile = null;
   var unsubscribe2 = profileStore.subscribe((p) => {
     if (p != null) latestProfile = p;
   });
 
+  // open tasks data
+  let openTasks: null | Task[] = null;
+  var unsubscribe3 = openTasksStore.subscribe((t) => {
+    if (initializedId != t.gameId) return;
+    openTasks = t.tasks;
+    log("Tasks received", { openTasks });
+  });
+
   onDestroy(() => {
     unsubscribe();
     unsubscribe2();
+    unsubscribe3();
   });
 </script>
 
@@ -153,6 +171,11 @@
     width: 4rem;
   }
 </style>
+
+<WebSocketChannel
+  updateScope={UpdateScope.GameTasks}
+  gameId={initializedId}
+  on:receive={() => openTasksStore.load(initializedId)} />
 
 <ScreenTitle title="Dashboard">
   {#if latestProfile}

@@ -39,6 +39,7 @@ namespace GDB.App.Controllers.Frontend
                     return $"{auth.StudioId}/{scope}";
                 case UpdateScope.GameBusinessModel:
                 case UpdateScope.GameCashforecast:
+                case UpdateScope.GameTasks:
                     return $"{auth.StudioId}/{id}/{scope}";
                 default:
                     throw new Exception("Unexpected update type provided to SignalR registration");

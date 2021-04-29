@@ -11,5 +11,8 @@ namespace GDB.Common.Persistence.Repositories
     {
         Task<List<TaskDTO>> GetOpenTasksAsync(int gameId);
         Task<List<TaskDTO>> GetAllTasksAsync(int gameId);
+        Task AssignTaskToUserAsync(int gameId, int taskId, int userId);
+        Task<TaskDTO> GetAsync(int taskId);
+        Task UpdateAsync(TaskDTO task);
     }
 }

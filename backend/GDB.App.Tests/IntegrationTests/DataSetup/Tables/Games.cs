@@ -59,10 +59,22 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
 
         public void CloseTask(int id, TaskType taskType, TaskState state = TaskState.ClosedComplete)
         {
-            var param = new { id, taskType, state };
+            var param = new { 
+                id, 
+                taskType, 
+                state, 
+                ClosedOn = state != TaskState.Open ? DateTime.UtcNow : (DateTime?)null,
+                ClosedBy = state != TaskState.Open ? -1 : (int?)null,
+                UpdatedOn = DateTime.UtcNow,
+                UpdatedBy = -1
+            };
             var sql = @"
                 UPDATE dbo.GameTask 
-                SET TaskStateId = @state
+                SET TaskStateId = @state,
+                    ClosedOn = @ClosedOn,
+                    ClosedBy = @ClosedBy,
+                    UpdatedOn = @UpdatedOn,
+                    UpdatedBy = @UpdatedBy
                 WHERE GameId = @id
                     AND TaskTypeId = @TaskType;
             ";
