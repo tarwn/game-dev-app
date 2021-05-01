@@ -66,6 +66,14 @@ namespace GDB.Business.BusinessLogic
             });
         }
 
+        public async Task<TaskDTO> GetAssignedTaskAsync(int gameId, IAuthContext userAuth)
+        {
+            return await _busOp.Query(async (persistence) =>
+            {
+                return await persistence.Tasks.GetAssignedTaskAsync(gameId, userAuth.UserId);
+            });
+        }
+
         public async Task<StudioDTO> GetStudioAsync(int studioId, IAuthContext userAuth)
         {
             return await _busOp.Query(async (persistence) =>
@@ -115,5 +123,6 @@ namespace GDB.Business.BusinessLogic
                 return await persistence.Users.GetByIdAsync(userId);
             });
         }
+
     }
 }

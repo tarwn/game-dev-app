@@ -15,17 +15,19 @@
     height: 200px;
     background-color: transparent;
     text-decoration: none;
-
-    border-radius: 4px;
-    margin-bottom: $space-s;
+    margin-bottom: $space-m;
 
     overflow: hidden;
 
+    // thee styles are similarly reflected in TopBar for the empty todo item
+    border-radius: 4px;
     border: 4px dashed $cs-grey-1;
-
     opacity: 0.6;
 
     justify-content: center;
+
+    // extend slightly outside normal tile height
+    margin-top: -$space-xs;
   }
 
   .gdb-placeholder-icon {
@@ -50,7 +52,7 @@
 <div class="gdb-tile-container">
   <div class="gdb-tile">
     <div class="gdb-placeholder-icon"><Icon icon={PredefinedIcons.Check} /></div>
-    <div class="gdb-placeholder-text">More will load when the tasks to the left are complete.</div>
+    <div class="gdb-placeholder-text">More will load once all items to the left are complete.</div>
   </div>
   <div class="gdb-due-date" />
 </div>

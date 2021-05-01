@@ -22,5 +22,6 @@ namespace GDB.Common.BusinessLogic
         Task<List<StudioUserDTO>> GetStudioUsersAsync(int studioId, IAuthContext userAuth);
         Task<List<TaskDTO>> GetOpenTasksAsync(int gameId, IAuthContext userAuth);
         Task<List<TaskDTO>> GetAllTasksAsync(int gameId, IAuthContext userAuth);
+        Task<TaskDTO> GetAssignedTaskAsync(int gameId, IAuthContext userAuth);
     }
 }

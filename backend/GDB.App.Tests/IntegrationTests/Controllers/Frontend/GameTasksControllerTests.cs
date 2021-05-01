@@ -222,6 +222,42 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
         }
 
         [Test]
+        public async Task GetAssignedTaskAsync_HasTaskAssignment_ReturnsRelevantTask()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");
+            var taskIds = new List<int>();
+            using (var conn = Database.GetConnection())
+            {
+                taskIds = conn.Query<int>("SELECT Id FROM GameTask WHERE GameId = @Id", game).ToList();
+            }
+            var controller = GetController(studioId: _existingStudio.Id);
+
+            await controller.AssignTaskAsync(game.GetGlobalId(), taskIds[0]);
+            var result = await controller.GetAssignedTaskAsync(game.GetGlobalId());
+
+            var resultTask = AssertResponseIs<OkObjectResult, TaskModel>(result);
+            resultTask.Should().NotBeNull();
+            resultTask.Id.Should().Be(taskIds[0]);
+        }
+
+        [Test]
+        public async Task GetAssignedTaskAsync_NoTaskAssignment_ReturnsNull()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");
+            var taskIds = new List<int>();
+            using (var conn = Database.GetConnection())
+            {
+                taskIds = conn.Query<int>("SELECT Id FROM GameTask WHERE GameId = @Id", game).ToList();
+            }
+            var controller = GetController(studioId: _existingStudio.Id);
+
+            //await controller.AssignTaskAsync(game.GetGlobalId(), taskIds[0]);
+            var result = await controller.GetAssignedTaskAsync(game.GetGlobalId());
+
+            result.Should().BeOfType<NoContentResult>();
+        }
+
+        [Test]
         public async Task UpdateTaskStateAsync_OpenTask_MarksTaskAsComplete()
         {
             var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");

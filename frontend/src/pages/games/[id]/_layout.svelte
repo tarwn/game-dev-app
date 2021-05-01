@@ -2,19 +2,32 @@
   import { params } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
+  import type { Task } from "../../_stores/tasksApi";
+  import { activeTaskStore } from "../../_stores/tasksStore";
   import TopBar from "./_components/TopBar.svelte";
 
   $: id = $params.id;
 
   let games = [];
   const unsubscribe = gamesStore.subscribe((g) => (games = g ?? []));
-
   $: game = {
     icon: "true-Videogames_controller_joystick_games_video_console",
     ...games.find((g) => g.globalId == id),
   };
 
-  onDestroy(unsubscribe);
+  // manage the data for the assigned task
+  let activeTask: { gameId: number | null; task: Task | null };
+  const unsubscribe2 = activeTaskStore.subscribe((t) => (activeTask = t ?? { gameId: null, task: null }));
+  $: {
+    if (id != activeTask.gameId) {
+      activeTaskStore.load(id);
+    }
+  }
+
+  onDestroy(() => {
+    unsubscribe();
+    unsubscribe2();
+  });
 </script>
 
 <style type="text/scss">

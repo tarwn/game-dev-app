@@ -1,21 +1,7 @@
 import { log } from "../../../../../utilities/logger";
+import { jsonOrThrow } from "../../../../_communications/responseHandler";
 import type { GetActorSeqNoResponse, IEvent, IEventStateApi } from "../../../../_stores/eventStore/types";
 import type { ICashForecast } from "../_types/cashForecast";
-
-const jsonOrThrow = (r: Response) => {
-  if (r.status == 204) {
-    return null;
-  }
-  else if (r.status <= 299) {
-    return r.json();
-  }
-  else if (r.status <= 499) {
-    throw Error(`HTTP response error, ${r.status}: ${r.statusText}`);
-  }
-  else {
-    throw Error(`HTTP server error, ${r.status}: ${r.statusText}`);
-  }
-};
 
 function readPayload(data: ICashForecast) {
   data.forecastStartDate.value = new Date(data.forecastStartDate.value);
@@ -68,7 +54,7 @@ export const api: IEventStateApi<ICashForecast> = {
     log("CashforecastAPI.get(): started", { apiArgs });
     return fetch(`/api/fe/cashForecasts/${id}?skipCreate=${!!apiArgs?.skipCreate}`)
       .then(jsonOrThrow)
-      .then((data) => {
+      .then((data: any) => {
         log("CashforecastAPI.get():JSON data received", {});
         if (data) {
           return { payload: readPayload(data) };
@@ -81,7 +67,7 @@ export const api: IEventStateApi<ICashForecast> = {
   getSince: (id: any, versionNumber: number) => {
     return fetch(`/api/fe/cashForecasts/${id}/since/${versionNumber}`)
       .then(jsonOrThrow)
-      .then((data) => {
+      .then((data: any) => {
         return data as { events: IEvent<ICashForecast>[] };
       });
   },
@@ -94,7 +80,7 @@ export const api: IEventStateApi<ICashForecast> = {
       body: JSON.stringify(event)
     })
       .then(jsonOrThrow)
-      .then((data) => {
+      .then((data: any) => {
         return {
           versionNumber: data.versionNumber,
           previousVersionNumber: data.previousVersionNumber
@@ -104,7 +90,7 @@ export const api: IEventStateApi<ICashForecast> = {
   getActorSeqNo: (actor: string) => {
     return fetch(`/api/fe/actors/${actor}/latestSeqNo`)
       .then(jsonOrThrow)
-      .then((data) => {
+      .then((data: any) => {
         return data as GetActorSeqNoResponse;
       });
   }

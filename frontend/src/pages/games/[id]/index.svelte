@@ -19,10 +19,10 @@
   import type { UserProfile } from "../../_stores/profileApi";
   import TaskTile from "./_components/TaskTile.svelte";
   import { getUtcDate } from "../../../utilities/date";
-  import { TaskStatus } from "./_components/TaskStatus";
   import TaskTilePlaceholder from "./_components/TaskTilePlaceholder.svelte";
-  import type { Task } from "../../_stores/tasksApi";
-  import { openTasksStore } from "../../_stores/tasksStore";
+  import { tasksApi, TaskState } from "../../_stores/tasksApi";
+  import type { DetailedTask, Task } from "../../_stores/tasksApi";
+  import { activeTaskStore, openTasksStore } from "../../_stores/tasksStore";
   import { log } from "../../../utilities/logger";
   import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
   import { UpdateScope } from "../../_communications/UpdateScope";
@@ -72,17 +72,22 @@
   });
 
   // open tasks data
-  let openTasks: null | Task[] = null;
+  let openTasks: null | DetailedTask[] = null;
   var unsubscribe3 = openTasksStore.subscribe((t) => {
     if (initializedId != t.gameId) return;
     openTasks = t.tasks;
     log("Tasks received", { openTasks });
   });
 
+  // active tasks
+  let activeTask: { gameId: number | null; task: Task | null };
+  const unsubscribe4 = activeTaskStore.subscribe((t) => (activeTask = t ?? { gameId: null, task: null }));
+
   onDestroy(() => {
     unsubscribe();
     unsubscribe2();
     unsubscribe3();
+    unsubscribe4();
   });
 </script>
 
@@ -170,6 +175,12 @@
     display: inline-block;
     width: 4rem;
   }
+
+  .gdb-instructions-light {
+    font-size: $font-size-small;
+    display: inline-block;
+    color: $text-color-light;
+  }
 </style>
 
 <WebSocketChannel
@@ -197,7 +208,7 @@
       <div class="gdb-game-tile">
         <div class="gdb-game-title">{game.name}</div>
         <div>
-          <span class="gdb-label">Status:</span>
+          <span class="gdb-label">Stage:</span>
           <GameStatus status={game.status} />
         </div>
         <div>
@@ -221,32 +232,14 @@
   </div>
 {/if}
 
-<h2>Next Core Tasks</h2>
-
+<h2>Game To Do List</h2>
+<span class="gdb-instructions-light"
+  >The next business tasks to make progress on the business side of your game. Click tile to expand details.</span>
 <div class="gdb-tile-carousel">
   <div class="row">
-    <TaskTile
-      module="External Task"
-      title="Identify Goals"
-      description="Outline your goals for this game release"
-      status={TaskStatus.Selected} />
-    <TaskTile
-      module="External Task"
-      title="Team Agreement"
-      description="Ensure the team is agreed on leadership, ownership, and goals"
-      status={TaskStatus.Ready} />
-    <TaskTile
-      module="Business Model"
-      title="Business Outline"
-      description="Initial definition: unique concept/hook, audience, resources, and cashflow"
-      status={TaskStatus.Ready}
-      disabled={true} />
-    <TaskTile
-      dueDate={getUtcDate(2020, 1, 1)}
-      module="External"
-      title="Example Late Task"
-      description="This is an example late task to see overdue LF"
-      status={TaskStatus.Overdue} />
+    {#each openTasks as task (task.id)}
+      <TaskTile {task} isAssignedTask={task.id == activeTask?.task?.id} />
+    {/each}
     <TaskTilePlaceholder />
   </div>
   <div class="row">
@@ -255,7 +248,9 @@
 </div>
 
 <h2>Planning Modules</h2>
-
+<span class="gdb-instructions-light"
+  >Direct access to the main modules for updates, reviewing information, or making progress on a task. Click tile to go
+  to module.</span>
 <div class="row gdb-row-tiles">
   <Tile
     title="Business Model"

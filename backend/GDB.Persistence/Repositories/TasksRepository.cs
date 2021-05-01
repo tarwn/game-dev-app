@@ -59,6 +59,32 @@ namespace GDB.Persistence.Repositories
             }
         }
 
+        public async Task<TaskDTO> GetAssignedTaskAsync(int gameId, int userId)
+        {
+            var param = new { gameId, userId };
+            var sql = @"
+                SELECT GT.Id,
+                    TaskType = GT.TaskTypeId,
+                    GT.GameId,
+                    TaskState = GT.TaskStateId,
+                    GT.DueDate,
+                    GT.CreatedOn,
+                    GT.CreatedBy,
+                    GT.UpdatedOn,
+                    GT.UpdatedBy,
+                    GT.ClosedOn,
+                    GT.ClosedBy
+                FROM dbo.GameTaskAssignment GTA 
+                    LEFT JOIN dbo.GameTask GT ON GT.Id = GTA.GameTaskId
+                WHERE GTA.UserId = @UserId 
+                    AND GTA.GameId = @GameId;
+            ";
+            using (var conn = GetConnection())
+            {
+                return await conn.QuerySingleOrDefaultAsync<TaskDTO>(sql, param);
+            }
+        }
+
         public async Task<TaskDTO> GetAsync(int taskId)
         {
             var param = new { taskId };

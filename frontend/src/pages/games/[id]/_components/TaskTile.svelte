@@ -1,17 +1,37 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
+
+  import AnythingWithPopup from "../../../../components/buttons/AnythingWithPopup.svelte";
   import Icon from "../../../../components/buttons/Icon.svelte";
 
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
 
   import DateSpan from "../../../../components/inputs/DateSpan.svelte";
-  import { TaskStatus } from "./TaskStatus";
+  import type { DetailedTask } from "../../../_stores/tasksApi";
+  import TaskTileDialog from "./TaskTileDialog.svelte";
 
-  export let dueDate: Date | undefined;
-  export let module: string;
-  export let title: string;
-  export let description: string;
+  export let task: DetailedTask;
   export let disabled: boolean = false;
-  export let status: TaskStatus = TaskStatus.Ready;
+  export let isAssignedTask: boolean = false;
+
+  // manage dialog popup
+  let isOpen = false;
+  let ariaLabel = "More details about this todo item";
+  let buttonElem: any;
+
+  function open() {
+    isOpen = true;
+  }
+
+  function close() {
+    isOpen = false;
+    // aria - set the focus to the button they clicked to open the modal
+    buttonElem.focus();
+  }
+
+  onDestroy(() => {
+    close();
+  });
 </script>
 
 <style type="text/scss">
@@ -47,14 +67,26 @@
       box-shadow: $shadow-main;
     }
 
+    &:focus-within {
+      outline: dotted $cs_orange;
+    }
+
     &.disabled {
       opacity: 0.8;
       box-shadow: none;
       background-color: $cs-grey-0;
+
+      &:hover {
+        box-shadow: none;
+      }
+      &:active {
+        box-shadow: none;
+      }
     }
   }
 
-  .gdb-tile-container + :global(.gdb-tile-container) {
+  .gdb-tile-container + :global(.gdb-tile-container),
+  .gdb-tile-container + :global(.gdb-popup-placeholder) + :global(.gdb-tile-container) {
     margin-left: $space-xl;
   }
 
@@ -153,53 +185,56 @@
       opacity: 0.9;
     }
 
-    &.gdb-tile-status-none {
-      // border: 2px solid $cs_blue;
-      // background-color: $cs_lightblue;
-      color: $cs_lightblue;
-      opacity: 0.9;
-    }
+    // &.gdb-tile-status-none {
+    //   // border: 2px solid $cs_blue;
+    //   // background-color: $cs_lightblue;
+    //   color: $cs_lightblue;
+    //   opacity: 0.9;
+    // }
 
     .gdb-tile:hover & {
       opacity: 0.5;
     }
+
+    .gdb-tile.disabled:hover & {
+      opacity: 0.9;
+    }
   }
 </style>
 
-<div class="gdb-tile-container">
-  <button class="gdb-tile" {disabled} class:disabled>
-    <!-- <img class="gdb-tile-image" src={imgHref} alt={title} /> -->
-    <div class="gdb-tile-content">
-      <div class="gdb-tile-title">{title}</div>
-      <div class="gdb-tile-description">
-        <div class="gdb-tile-cutout" />
-        <div class="gdb-tile-description-text">
-          {description}
+<AnythingWithPopup {ariaLabel} {isOpen} on:close={close}>
+  <div class="gdb-tile-container" slot="button">
+    <button class="gdb-tile" {disabled} class:disabled on:click={open} bind:this={buttonElem}>
+      <!-- <img class="gdb-tile-image" src={imgHref} alt={title} /> -->
+      <div class="gdb-tile-content">
+        <div class="gdb-tile-title">{task.title}</div>
+        <div class="gdb-tile-description">
+          <div class="gdb-tile-cutout" />
+          <div class="gdb-tile-description-text">
+            {task.shortDescription}
+          </div>
         </div>
       </div>
+      {#if isAssignedTask}
+        <div class="gdb-tile-status gdb-tile-status-selected">
+          <Icon icon={PredefinedIcons.Star} />
+        </div>
+      {:else if task.isOverdue}
+        <div class="gdb-tile-status gdb-tile-status-overdue">
+          <Icon icon={PredefinedIcons.InProgress} />
+        </div>
+      {:else}
+        <div class="gdb-tile-status gdb-tile-status-ready">
+          <Icon icon={PredefinedIcons.Plus} />
+        </div>
+      {/if}
+      <div class="gdb-tile-module">{task.moduleName}</div>
+    </button>
+    <div class="gdb-due-date">
+      {#if task.dueDate != null}
+        Due by <DateSpan date={task.dueDate} style="long date" />
+      {/if}
     </div>
-    {#if status == TaskStatus.Ready}
-      <div class="gdb-tile-status gdb-tile-status-ready">
-        <Icon icon={PredefinedIcons.Plus} />
-      </div>
-    {:else if status == TaskStatus.Selected}
-      <div class="gdb-tile-status gdb-tile-status-selected">
-        <Icon icon={PredefinedIcons.Star} />
-      </div>
-    {:else if status == TaskStatus.Overdue}
-      <div class="gdb-tile-status gdb-tile-status-overdue">
-        <Icon icon={PredefinedIcons.InProgress} />
-      </div>
-    {:else}
-      <div class="gdb-tile-status gdb-tile-status-none">
-        <Icon icon={PredefinedIcons.Plus} />
-      </div>
-    {/if}
-    <div class="gdb-tile-module">{module}</div>
-  </button>
-  <div class="gdb-due-date">
-    {#if dueDate != null}
-      Due by <DateSpan date={dueDate} style="long date" />
-    {/if}
   </div>
-</div>
+  <TaskTileDialog />
+</AnythingWithPopup>

@@ -55,6 +55,20 @@ namespace GDB.App.Controllers.Frontend
             return Ok();
         }
 
+
+        [HttpGet("{gameId}/task/assigned")]
+        public async Task<IActionResult> GetAssignedTaskAsync(string gameId)
+        {
+            var user = GetUserAuthContext();
+            var id = IdHelper.CheckAndExtractGameId(gameId, user);
+            var task = await _queryService.GetAssignedTaskAsync(id, user);
+            if (task == null)
+            {
+                return NoContent();
+            }
+            return Ok(new TaskModel(task));
+        }
+
         [HttpPost("{gameId}/task/{taskId}/state")]
         public async Task<IActionResult> UpdateTaskStateAsync(string gameId, int taskId, [FromBody] UpdateTaskStateRequestModel model)
         {
