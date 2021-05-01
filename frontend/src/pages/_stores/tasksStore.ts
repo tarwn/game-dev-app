@@ -3,12 +3,12 @@ import { writable } from 'svelte/store';
 import { DetailedTask, mapToDetailedTask, tasksApi } from './tasksApi';
 
 function createOpenTasksStore() {
-  const { subscribe, set } = writable<{ gameId: number | null, tasks: DetailedTask[] }>(null);
+  const { subscribe, set } = writable<{ gameId: string | null, tasks: DetailedTask[] }>(null);
   let tasks = [] as DetailedTask[];
-  let gameId: number | null = null;
+  let gameId: string | null = null;
   set({ gameId, tasks });
 
-  const load = (newGameId: number) => {
+  const load = (newGameId: string) => {
     gameId = newGameId;
     return tasksApi.getOpenTasks(gameId)
       .then(loadedTasks => {
@@ -30,12 +30,12 @@ function createOpenTasksStore() {
 }
 
 function createActiveTaskStore() {
-  const { subscribe, set } = writable<{ gameId: number | null, task: DetailedTask | null }>(null);
+  const { subscribe, set } = writable<{ gameId: string | null, task: DetailedTask | null }>(null);
   let task: DetailedTask | null = null;
-  let gameId: number | null = null;
+  let gameId: string | null = null;
   set({ gameId, task });
 
-  const load = (newGameId: number) => {
+  const load = (newGameId: string) => {
     gameId = newGameId;
     return tasksApi.getAssignedTask(gameId)
       .then(loadedTask => {

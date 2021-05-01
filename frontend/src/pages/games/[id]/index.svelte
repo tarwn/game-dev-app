@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { url, params, metatags } from "@sveltech/routify";
+  import { params, metatags } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import Tile from "./_components/Tile.svelte";
@@ -18,14 +18,14 @@
   import { AutomaticPopup } from "../../_stores/profileApi";
   import type { UserProfile } from "../../_stores/profileApi";
   import TaskTile from "./_components/TaskTile.svelte";
-  import { getUtcDate } from "../../../utilities/date";
   import TaskTilePlaceholder from "./_components/TaskTilePlaceholder.svelte";
-  import { tasksApi, TaskState } from "../../_stores/tasksApi";
-  import type { DetailedTask, Task } from "../../_stores/tasksApi";
+  import type { Task, DetailedTask } from "../../_stores/tasksApi";
+  import { TaskType } from "../../_stores/tasksApi";
   import { activeTaskStore, openTasksStore } from "../../_stores/tasksStore";
   import { log } from "../../../utilities/logger";
   import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
   import { UpdateScope } from "../../_communications/UpdateScope";
+  import { isModuleAvailable, ModuleLinkType } from "../../_types/modules";
 
   metatags.title = "[LR] Dashboard";
 
@@ -80,7 +80,7 @@
   });
 
   // active tasks
-  let activeTask: { gameId: number | null; task: Task | null };
+  let activeTask: { gameId: string | null; task: Task | null };
   const unsubscribe4 = activeTaskStore.subscribe((t) => (activeTask = t ?? { gameId: null, task: null }));
 
   onDestroy(() => {
@@ -237,8 +237,11 @@
   >The next business tasks to make progress on the business side of your game. Click tile to expand details.</span>
 <div class="gdb-tile-carousel">
   <div class="row">
-    {#each openTasks as task (task.id)}
-      <TaskTile {task} isAssignedTask={task.id == activeTask?.task?.id} />
+    {#each openTasks as task, i (task.id)}
+      <TaskTile
+        {task}
+        isAssignedTask={task.id == activeTask?.task?.id}
+        disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
     {/each}
     <TaskTilePlaceholder />
   </div>
@@ -252,16 +255,8 @@
   >Direct access to the main modules for updates, reviewing information, or making progress on a task. Click tile to go
   to module.</span>
 <div class="row gdb-row-tiles">
-  <Tile
-    title="Business Model"
-    href={$url("../businessModel")}
-    imgHref={"/images/BusinessModelCanvas.svg"}
-    lastUpdated={game?.businessModelLastUpdatedOn} />
-  <Tile
-    title="Cash Forecast"
-    href={$url("../cashForecast")}
-    imgHref={"/images/FinanceForecast.svg"}
-    lastUpdated={game?.cashForecastLastUpdatedOn} />
-  <Tile title="Comparables" href={$url(id)} imgHref={"/images/Comparables.svg"} disabled={true} />
-  <Tile title="Marketing Plan" href={$url(id)} imgHref={"/images/MarketingPlan.svg"} disabled={true} />
+  <Tile {id} module={ModuleLinkType.BusinessModel} lastUpdated={game?.businessModelLastUpdatedOn} />
+  <Tile {id} module={ModuleLinkType.CashForecast} lastUpdated={game?.cashForecastLastUpdatedOn} />
+  <Tile {id} module={ModuleLinkType.Comparables} disabled={true} />
+  <Tile {id} module={ModuleLinkType.MarketingStrategy} disabled={true} />
 </div>

@@ -1,11 +1,12 @@
 import { log } from "../../utilities/logger";
 import { jsonOrThrow, throwFor401 } from "../_communications/responseHandler";
+import { getModuleName, getModuleUrl, ModuleLinkType } from "../_types/modules";
 
 
 export type Task = {
   id: number,
   taskType: TaskType,
-  gameId: number,
+  gameId: string,
   taskState: TaskState,
   dueDate: Date | null
 };
@@ -13,6 +14,7 @@ export type Task = {
 export type DetailedTask = Task & {
   moduleType: ModuleLinkType;
   moduleName: string;
+  moduleHref: string;
   title: string;
   shortDescription: string;
   isOverdue: boolean;
@@ -39,34 +41,11 @@ export enum TaskState {
 
 // detail items - projected values
 
-export enum ModuleLinkType {
-  External = 0,
-  GameDetails = 1,
-  BusinessModel = 2,
-  CashForecast = 3,
-  Comparables = 4,
-  MarketingStrategy = 5,
-  // RiskAnalysis = 6
-}
-
 type BuiltInTaskDetail = {
   title: string;
   shortDescription: string;
   moduleType: ModuleLinkType;
   moduleName: string;
-};
-
-const getModuleName = (type: ModuleLinkType) => {
-  switch (type) {
-    case ModuleLinkType.External: return "External Task";
-    case ModuleLinkType.GameDetails: return "Game Details";
-    case ModuleLinkType.BusinessModel: return "Business Model";
-    case ModuleLinkType.CashForecast: return "Cash Forecast";
-    case ModuleLinkType.Comparables: return "Comparables";
-    case ModuleLinkType.MarketingStrategy: return "Marketing";
-    default:
-      throw new Error(`Undefined module link type, cannot create detailed todo item. Module type: ${ModuleLinkType[type]}`);
-  }
 };
 
 const bitd = (title: string, moduleType: ModuleLinkType, shortDescription: string): BuiltInTaskDetail => {
@@ -105,6 +84,7 @@ export const mapToDetailedTask = (task: Task): DetailedTask => {
       ...task,
       moduleType: details.moduleType,
       moduleName: details.moduleName,
+      moduleHref: getModuleUrl(details.moduleType, task.gameId),
       title: details.title,
       shortDescription: details.shortDescription,
       isOverdue: !!task.dueDate && task.dueDate < new Date()
@@ -126,7 +106,7 @@ function extractTask(data: any) {
 }
 
 export const tasksApi = {
-  getOpenTasks: (gameId: number): Promise<Array<Task>> => {
+  getOpenTasks: (gameId: string): Promise<Array<Task>> => {
     log("TasksAPI.getOpenTasks(): started", {});
     return fetch(`/api/fe/gameTasks/${gameId}/open`)
       .then(jsonOrThrow)
@@ -136,7 +116,7 @@ export const tasksApi = {
       });
   },
 
-  getAllTasks: (gameId: number): Promise<Array<Task>> => {
+  getAllTasks: (gameId: string): Promise<Array<Task>> => {
     log("TasksAPI.getAllTasks(): started", {});
     return fetch(`/api/fe/gameTasks/${gameId}/all`)
       .then(jsonOrThrow)
@@ -146,7 +126,7 @@ export const tasksApi = {
       });
   },
 
-  getAssignedTask: (gameId: number): Promise<Task | null> => {
+  getAssignedTask: (gameId: string): Promise<Task | null> => {
     log("TasksAPI.getAssignedTask(): started", {});
     return fetch(`/api/fe/gameTasks/${gameId}/task/assigned`)
       .then(jsonOrThrow)
@@ -156,7 +136,7 @@ export const tasksApi = {
       });
   },
 
-  assignTask: (gameId: number, taskId: number): Promise<void> => {
+  assignTask: (gameId: string, taskId: number): Promise<void> => {
     log("TasksAPI.assignTask(): started", {});
     return fetch(`/api/fe/gameTasks/${gameId}/task/${taskId}/assignToMe`, {
       method: 'POST',
@@ -171,7 +151,7 @@ export const tasksApi = {
       });
   },
 
-  updateTaskState: (gameId: number, taskId: number, taskState: TaskState): Promise<void> => {
+  updateTaskState: (gameId: string, taskId: number, taskState: TaskState): Promise<void> => {
     log("TasksAPI.updateTaskState(): started", {});
     return fetch(`/api/fe/gameTasks/${gameId}/task/${taskId}/assignToMe`, {
       method: 'POST',

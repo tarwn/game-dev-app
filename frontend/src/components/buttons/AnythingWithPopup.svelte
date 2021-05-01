@@ -9,6 +9,7 @@
 
   export let ariaLabel: string = "Help information for the screen";
   export let isOpen: boolean = false;
+  export let borderStyle: "blue" | "task" = "blue";
 
   const dispatch = createEventDispatcher();
 
@@ -26,6 +27,7 @@
   }
 
   function close() {
+    isOpen = false;
     dispatch("close");
   }
 
@@ -56,7 +58,8 @@
     if (isOpen && event.key === "Tab") {
       // trap focus
       const nodes = visibleModal.querySelectorAll("*") as Array<any>;
-      const tabbable = Array.from(nodes).filter((node) => node.tabIndex >= 0);
+      const tabbable = Array.from(nodes).filter((node) => node.tabIndex >= 0 && !node.disabled);
+      console.log(tabbable);
       let index = tabbable.indexOf(document.activeElement);
       if (index === -1 && event.shiftKey) index = 0;
       index += tabbable.length + (event.shiftKey ? -1 : 1);
@@ -127,6 +130,16 @@
     border: 3px solid $color-accent-1;
     border-radius: 4px;
 
+    &.task {
+      border-radius: 8px;
+      border: 3px solid $cs-grey-5;
+      border-top: 10px solid $cs-grey-5;
+
+      & > :global(.gdb-page-bm-buttons) {
+        background-color: $cs-grey-5;
+      }
+    }
+
     box-shadow: $shadow-main;
 
     // hack to get at the bottom div w/ buttons
@@ -158,7 +171,7 @@
       <div class="gdb-popup-main">
         {#key "portal"}
           <div
-            class="gdb-popup-visible-box"
+            class={`gdb-popup-visible-box ${borderStyle}`}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}

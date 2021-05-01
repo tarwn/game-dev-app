@@ -20,7 +20,9 @@ export enum PredefinedIcons {
   Deny,
   Gear,
   UserConfig,
-  GamePad
+  GamePad,
+  Pin,
+  Unpin
 }
 
 const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
@@ -44,7 +46,9 @@ const PredefinedIconsMap = new Map<PredefinedIcons | string, string>([
   [PredefinedIcons.Deny, "true-UIEssentials_deny"],
   [PredefinedIcons.Gear, "true-UIEssentials_settings_cog_gear"],
   [PredefinedIcons.UserConfig, "true-Users_female_user_config_configuration"],
-  [PredefinedIcons.GamePad, "true-Videogames_controller_joystick_games_video_console"]
+  [PredefinedIcons.GamePad, "true-Videogames_controller_joystick_games_video_console"],
+  [PredefinedIcons.Pin, "true-Construction_attention_alert"],
+  [PredefinedIcons.Unpin, "true-Construction_attention_alert"],
 ]);
 
 export const getIconString = (icon: PredefinedIcons | string): string => {

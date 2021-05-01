@@ -19,7 +19,7 @@
 
     overflow: hidden;
 
-    // thee styles are similarly reflected in TopBar for the empty todo item
+    // these styles are similarly reflected in TopBar for the empty todo item
     border-radius: 4px;
     border: 4px dashed $cs-grey-1;
     opacity: 0.6;

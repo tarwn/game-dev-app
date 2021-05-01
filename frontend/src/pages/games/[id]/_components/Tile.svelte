@@ -1,10 +1,18 @@
 <script lang="ts">
   import DateSpan from "../../../../components/inputs/DateSpan.svelte";
-  export let title: string;
-  export let href: string;
-  export let imgHref: string;
+  import { getModuleImageHref, getModuleName, getModuleUrl } from "../../../_types/modules";
+  import type { ModuleLinkType } from "../../../_types/modules";
+
+  export let module: ModuleLinkType;
+  export let id: string | null;
   export let lastUpdated: Date | null;
   export let disabled: boolean = false;
+
+  const title = getModuleName(module);
+  const imgHref = getModuleImageHref(module);
+  const path = getModuleUrl(module, id);
+
+  $: actuallyDisabled = disabled || id == null;
 </script>
 
 <style type="text/scss">
@@ -75,7 +83,7 @@
 </style>
 
 <div class="gdb-tile-container">
-  <a class="gdb-tile" {href} {disabled} class:disabled>
+  <a class="gdb-tile" href={path} disabled={actuallyDisabled} class:disabled={actuallyDisabled}>
     <img class="gdb-tile-image" src={imgHref} alt={title} />
     <div class="gdb-tile-title">{title}</div>
   </a>

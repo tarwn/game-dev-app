@@ -8,11 +8,11 @@ namespace GDB.App.Controllers.Frontend.Models.Tasks
 {
     public class TaskModel
     {
-        public TaskModel(TaskDTO t)
+        public TaskModel(TaskDTO t, string gameId)
         {
             Id = t.Id;
             TaskType = t.TaskType;
-            GameId = t.GameId;
+            GameId = gameId;
             TaskState = t.TaskState;
             DueDate = t.DueDate;
             CreatedOn = t.CreatedOn;
@@ -25,7 +25,7 @@ namespace GDB.App.Controllers.Frontend.Models.Tasks
 
         public int Id { get; set; }
         public TaskType TaskType { get; set; }
-        public int GameId { get; set; }
+        public string GameId { get; set; }
         public TaskState TaskState { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime CreatedOn { get; set; }

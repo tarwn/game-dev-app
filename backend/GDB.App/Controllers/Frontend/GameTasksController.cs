@@ -34,7 +34,7 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             var tasks = await _queryService.GetOpenTasksAsync(id, user);
-            return Ok(tasks.Select(t => new TaskModel(t)).ToList());
+            return Ok(tasks.Select(t => new TaskModel(t, gameId)).ToList());
         }
 
         [HttpGet("{gameId}/all")]
@@ -43,7 +43,7 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             var tasks = await _queryService.GetAllTasksAsync(id, user);
-            return Ok(tasks.Select(t => new TaskModel(t)).ToList());
+            return Ok(tasks.Select(t => new TaskModel(t, gameId)).ToList());
         }
 
         [HttpPost("{gameId}/task/{taskId}/assignToMe")]
@@ -66,7 +66,7 @@ namespace GDB.App.Controllers.Frontend
             {
                 return NoContent();
             }
-            return Ok(new TaskModel(task));
+            return Ok(new TaskModel(task, gameId));
         }
 
         [HttpPost("{gameId}/task/{taskId}/state")]

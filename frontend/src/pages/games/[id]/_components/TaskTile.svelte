@@ -13,9 +13,10 @@
   export let task: DetailedTask;
   export let disabled: boolean = false;
   export let isAssignedTask: boolean = false;
+  export let force: boolean = false;
 
   // manage dialog popup
-  let isOpen = false;
+  let isOpen = false || force;
   let ariaLabel = "More details about this todo item";
   let buttonElem: any;
 
@@ -86,7 +87,7 @@
   }
 
   .gdb-tile-container + :global(.gdb-tile-container),
-  .gdb-tile-container + :global(.gdb-popup-placeholder) + :global(.gdb-tile-container) {
+  .gdb-tile-container + :global(.gdb-popup-placeholder) {
     margin-left: $space-xl;
   }
 
@@ -202,7 +203,7 @@
   }
 </style>
 
-<AnythingWithPopup {ariaLabel} {isOpen} on:close={close}>
+<AnythingWithPopup {ariaLabel} {isOpen} on:close={close} borderStyle="task">
   <div class="gdb-tile-container" slot="button">
     <button class="gdb-tile" {disabled} class:disabled on:click={open} bind:this={buttonElem}>
       <!-- <img class="gdb-tile-image" src={imgHref} alt={title} /> -->
@@ -236,5 +237,5 @@
       {/if}
     </div>
   </div>
-  <TaskTileDialog />
+  <TaskTileDialog {task} {isAssignedTask} />
 </AnythingWithPopup>
