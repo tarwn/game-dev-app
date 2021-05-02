@@ -55,6 +55,7 @@
     box-shadow: $shadow-main;
 
     overflow: hidden;
+    white-space: normal;
 
     // button specific things
     cursor: pointer;
@@ -118,6 +119,7 @@
       flex: 1 0 0;
       text-align: left;
       overflow-y: hidden;
+      white-space: normal;
     }
 
     .gdb-tile-cutout {

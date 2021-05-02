@@ -18,6 +18,7 @@
     margin-bottom: $space-m;
 
     overflow: hidden;
+    white-space: normal;
 
     // these styles are similarly reflected in TopBar for the empty todo item
     border-radius: 4px;

@@ -26,6 +26,7 @@
   import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
   import { UpdateScope } from "../../_communications/UpdateScope";
   import { isModuleAvailable, ModuleLinkType } from "../../_types/modules";
+  import TaskTileLoading from "./_components/TaskTileLoading.svelte";
 
   metatags.title = "[LR] Dashboard";
 
@@ -154,6 +155,7 @@
 
   .gdb-tile-carousel {
     margin: $space-l 0;
+    white-space: nowrap;
   }
 
   h2 {
@@ -236,15 +238,25 @@
 <span class="gdb-instructions-light"
   >The next business tasks to make progress on the business side of your game. Click tile to expand details.</span>
 <div class="gdb-tile-carousel">
-  <div class="row">
-    {#each openTasks as task, i (task.id)}
-      <TaskTile
-        {task}
-        isAssignedTask={task.id == activeTask?.task?.id}
-        disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
-    {/each}
-    <TaskTilePlaceholder />
-  </div>
+  {#if openTasks}
+    <div class="row">
+      {#each openTasks as task, i (task.id)}
+        <TaskTile
+          {task}
+          isAssignedTask={task.id == activeTask?.task?.id}
+          disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+      {/each}
+      {#if openTasks.length < 5}
+        <TaskTilePlaceholder />
+      {/if}
+    </div>
+  {:else}
+    <TaskTileLoading />
+    <TaskTileLoading />
+    <TaskTileLoading />
+    <TaskTileLoading />
+    <TaskTileLoading />
+  {/if}
   <div class="row">
     <a href="#c" class:disabled={true}>View All Tasks</a>
   </div>

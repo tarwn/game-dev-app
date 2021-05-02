@@ -2,7 +2,7 @@
   import { fade } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import { crossfade } from "svelte/transition";
-  import Portal from "../Portal.svelte";
+  import Portal from "svelte-portal";
   import Button from "./Button.svelte";
   import SpacedButtons from "./SpacedButtons.svelte";
   import { createEventDispatcher, onDestroy } from "svelte";

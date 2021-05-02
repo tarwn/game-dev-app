@@ -17,6 +17,7 @@ function createOpenTasksStore() {
           if (loadedTasks == null) {
             return null;
           }
+          loadedTasks.sort(sortTasks);
           return loadedTasks.map(t => mapToDetailedTask(t));
         });
         set({ gameId, tasks });
@@ -27,6 +28,10 @@ function createOpenTasksStore() {
     subscribe,
     load
   };
+}
+
+function sortTasks(a: any, b: any) {
+  return a.taskTypeId - b.taskTypeId;
 }
 
 function createActiveTaskStore() {

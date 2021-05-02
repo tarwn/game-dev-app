@@ -44,6 +44,10 @@
     line-height: 2rem;
   }
 
+  .gdb-bs-primary {
+    color: white;
+  }
+
   .gdb-bs-primary-outline {
     background-color: $color-background-white;
     color: $color-accent-1;

@@ -234,7 +234,7 @@
 
     <BusinessModelCanvasSection
       className="gdb-board-section gdb-board-valueProposition"
-      label="Value Proposition"
+      label="Unique Proposition"
       {isLoading}
       isNextToStart={sectionStatuses.nextNonStartedSection == "valueProposition"}
       isStarted={sectionStatuses.valueProposition}
@@ -276,7 +276,7 @@
 
     <BusinessModelCanvasSection
       className="gdb-board-section gdb-board-customers"
-      label="Customers / Players"
+      label="Audience"
       {isLoading}
       isNextToStart={sectionStatuses.nextNonStartedSection == "customers"}
       isStarted={sectionStatuses.customers}

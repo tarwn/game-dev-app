@@ -84,7 +84,7 @@ export const mapToDetailedTask = (task: Task): DetailedTask => {
       ...task,
       moduleType: details.moduleType,
       moduleName: details.moduleName,
-      moduleHref: getModuleUrl(details.moduleType, task.gameId),
+      moduleHref: details.moduleType != ModuleLinkType.External ? getModuleUrl(details.moduleType, task.gameId) : "#",
       title: details.title,
       shortDescription: details.shortDescription,
       isOverdue: !!task.dueDate && task.dueDate < new Date()

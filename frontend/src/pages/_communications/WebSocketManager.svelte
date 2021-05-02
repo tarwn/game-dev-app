@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onDestroy, createEventDispatcher } from "svelte";
   import * as signalR from "@microsoft/signalr";
-  import { portal } from "../../components/Portal.svelte";
+  // import { portal } from "../../components/Portal.svelte";
+  import { portal } from "svelte-portal";
   import { webSocketStore } from "./webSocketStore";
 
   const dispatch = createEventDispatcher();

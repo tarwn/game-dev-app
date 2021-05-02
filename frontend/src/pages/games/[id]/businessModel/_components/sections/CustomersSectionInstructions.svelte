@@ -5,7 +5,7 @@
 <Instructions
   title="What types of players will buy the game?"
   href="https://www.launchready.co/blog/define-your-business-model/?utm_source=inapp&medium=inapp&name=inapp#section-1-player-customer-segments">
-  <p>What are specific charecteristics that help identify the peopel that will buy or play this game?</p>
+  <p>What are specific charecteristics that help identify the people that will buy or play this game?</p>
   <p>
     <em
       >We don't need an answer for every question, just the key ones for this game. Later you wil use these for testing,

@@ -20,7 +20,9 @@
   const unsubscribe2 = activeTaskStore.subscribe((t) => (activeTask = t ?? { gameId: null, task: null }));
   $: {
     if (id != activeTask.gameId) {
-      activeTaskStore.load(id);
+      if (id != null) {
+        activeTaskStore.load(id);
+      }
     }
   }
 

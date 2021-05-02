@@ -3,10 +3,7 @@
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
   import EntryList from "./components/EntryList.svelte";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../_stores/businessModelStore";
   import TagEntryList from "./components/TagEntryList.svelte";
 
   export let businessModel: IBusinessModel;
@@ -27,7 +24,7 @@
 </style>
 
 <InputPanel
-  title="Value Proposition"
+  title="Unique Proposition"
   canUndo={false}
   canRedo={false}
   canNext={hasMinimumInfo}
