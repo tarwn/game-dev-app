@@ -5,7 +5,6 @@
   import type { ICashForecast } from "../_types/cashForecast";
   import type { IProjectedCashFlowData } from "../_stores/calculator/types";
   import { getUtcDate } from "../../../../../utilities/date";
-  import { log } from "../../../../../utilities/logger";
 
   export let cashForecast: ICashForecast;
   export let projectedCashForecast: IProjectedCashFlowData;

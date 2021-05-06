@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Icon from "../../../../components/buttons/Icon.svelte";
-  import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
 </script>
 
 <style type="text/scss">

@@ -240,7 +240,7 @@
 <div class="gdb-tile-carousel">
   {#if openTasks}
     <div class="row">
-      {#each openTasks as task, i (task.id)}
+      {#each openTasks as task (task.id)}
         <TaskTile
           {task}
           isAssignedTask={task.id == activeTask?.task?.id}
