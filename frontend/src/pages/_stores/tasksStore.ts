@@ -30,6 +30,34 @@ function createOpenTasksStore() {
   };
 }
 
+function createAllTasksStore() {
+  const { subscribe, set } = writable<{ gameId: string | null, tasks: DetailedTask[] }>(null);
+  let tasks = [] as DetailedTask[];
+  let gameId: string | null = null;
+  set({ gameId, tasks });
+
+  const load = (newGameId: string) => {
+    gameId = newGameId;
+    return tasksApi.getAllTasks(gameId)
+      .then(loadedTasks => {
+        if (newGameId != gameId) return;
+        tasks = produce(tasks, () => {
+          if (loadedTasks == null) {
+            return null;
+          }
+          loadedTasks.sort(sortTasks);
+          return loadedTasks.map(t => mapToDetailedTask(t));
+        });
+        set({ gameId, tasks });
+      });
+  };
+
+  return {
+    subscribe,
+    load
+  };
+}
+
 function sortTasks(a: any, b: any) {
   return a.taskTypeId - b.taskTypeId;
 }
@@ -61,5 +89,6 @@ function createActiveTaskStore() {
   };
 }
 
+export const allTasksStore = createAllTasksStore();
 export const openTasksStore = createOpenTasksStore();
 export const activeTaskStore = createActiveTaskStore();

@@ -220,7 +220,7 @@
       </div>
       {#if isAssignedTask}
         <div class="gdb-tile-status gdb-tile-status-selected">
-          <Icon icon={PredefinedIcons.Star} />
+          <Icon icon={PredefinedIcons.CommunicationStar} />
         </div>
       {:else if task.isOverdue}
         <div class="gdb-tile-status gdb-tile-status-overdue">
@@ -228,7 +228,7 @@
         </div>
       {:else}
         <div class="gdb-tile-status gdb-tile-status-ready">
-          <Icon icon={PredefinedIcons.Plus} />
+          <Icon icon={PredefinedIcons.CommunicationsBlank} />
         </div>
       {/if}
       <div class="gdb-tile-module">{task.moduleName}</div>

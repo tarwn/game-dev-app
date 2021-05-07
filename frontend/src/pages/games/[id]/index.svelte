@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { params, metatags } from "@sveltech/routify";
+  import { params, metatags, url } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import Tile from "./_components/Tile.svelte";
@@ -258,7 +258,7 @@
     <TaskTileLoading />
   {/if}
   <div class="row">
-    <a href="#c" class:disabled={true}>View All Tasks</a>
+    <a href={$url("../tasks")}>View All Tasks</a>
   </div>
 </div>
 

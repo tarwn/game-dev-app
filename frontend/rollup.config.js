@@ -77,6 +77,8 @@ export default {
       targets: [
         { src: [`public/*`, "!*/(index.html)"], dest: config.dest },
         { src: [`public/index.html`], dest: config.dest, rename: 'index.html', transform },
+        { src: [`src/styles/uiconmax.css`], dest: 'dist/fonts/' },
+        { src: [`resources/font/preview.html`], dest: 'dist/fonts/', transform: c => c.toString().replace("..\\..\\src\\styles\\", "../styles/") },
       ],
       copyOnce: true,
       flatten: false

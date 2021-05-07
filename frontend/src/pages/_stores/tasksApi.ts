@@ -1,6 +1,7 @@
 import { log } from "../../utilities/logger";
 import { jsonOrThrow, throwFor401 } from "../_communications/responseHandler";
 import { getModuleName, getModuleUrl, ModuleLinkType } from "../_types/modules";
+import { GameStatus } from "./types";
 
 
 export type Task = {
@@ -15,8 +16,11 @@ export type DetailedTask = Task & {
   moduleType: ModuleLinkType;
   moduleName: string;
   moduleHref: string;
+  // these will be overridable by customer/recurring tasks later
   title: string;
   shortDescription: string;
+  gameStatus: GameStatus;
+  // calculated field
   isOverdue: boolean;
 };
 
@@ -32,6 +36,19 @@ export enum TaskType {
   ProfitForecast = 9,
   MarketingStrategy = 10
 }
+
+const TaskTypeToGameStatus = new Map<TaskType, GameStatus>([
+  [TaskType.Concept, GameStatus.Idea],
+  [TaskType.Goals, GameStatus.Idea],
+  [TaskType.Groundwork, GameStatus.Idea],
+  [TaskType.BusinessModel, GameStatus.Idea],
+  [TaskType.RiskAnalysis, GameStatus.Planning],
+  [TaskType.ProjectPlan, GameStatus.Planning],
+  [TaskType.CostForecast, GameStatus.Planning],
+  [TaskType.Comparables, GameStatus.Planning],
+  [TaskType.ProfitForecast, GameStatus.Planning],
+  [TaskType.MarketingStrategy, GameStatus.Planning]
+]);
 
 export enum TaskState {
   Open = 1,
@@ -80,6 +97,8 @@ const defaults = new Map<TaskType, BuiltInTaskDetail>([
 export const mapToDetailedTask = (task: Task): DetailedTask => {
   if (defaults.has(task.taskType)) {
     const details = defaults.get(task.taskType);
+    // eslint-disable-next-line max-len
+    const gameStatus = /* task.gameStatus ?? */ TaskTypeToGameStatus.has(task.taskType) ? TaskTypeToGameStatus.get(task.taskType) : GameStatus.Developing;
     return {
       ...task,
       moduleType: details.moduleType,
@@ -87,6 +106,7 @@ export const mapToDetailedTask = (task: Task): DetailedTask => {
       moduleHref: details.moduleType != ModuleLinkType.External ? getModuleUrl(details.moduleType, task.gameId) : "#",
       title: details.title,
       shortDescription: details.shortDescription,
+      gameStatus,
       isOverdue: !!task.dueDate && task.dueDate < new Date()
     };
   }

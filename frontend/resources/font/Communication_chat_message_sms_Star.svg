@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Icons"
+   x="0px"
+   y="0px"
+   viewBox="0 0 32 32"
+   style="enable-background:new 0 0 32 32;"
+   xml:space="preserve"
+   sodipodi:docname="Communication_chat_message_sms_Star.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"><metadata
+   id="metadata9"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs7" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1725"
+   inkscape:window-height="1044"
+   id="namedview5"
+   showgrid="false"
+   inkscape:zoom="22.273864"
+   inkscape:cx="22.903559"
+   inkscape:cy="18.697478"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="Icons" />
+<path
+   id="path2"
+   d="M 8 4 C 5.2 4 3 6.2 3 9 L 3 28 C 3 28.4 3.1996094 28.700391 3.5996094 28.900391 C 3.6996094 29.000391 3.9 29 4 29 C 4.2 29 4.4992188 28.900781 4.6992188 28.800781 C 7.6968818 26.151684 11.284132 24.398174 15.109375 23.566406 L 10.191406 19.984375 C 9.8063282 19.791837 9.7104006 19.308908 9.8066406 18.923828 C 9.9991786 18.538754 10.384456 18.25 10.769531 18.25 L 19.144531 18.25 L 21.646484 10.259766 C 21.83902 9.8746919 22.128032 9.5859375 22.609375 9.5859375 C 23.090722 9.5859375 23.476026 9.8746919 23.572266 10.259766 L 26.076172 18.25 L 28.988281 18.25 C 28.992246 18.166618 29 18.084519 29 18 L 29 9 C 29 6.2 26.8 4 24 4 L 8 4 z M 11 11 L 17 11 C 17.6 11 18 11.4 18 12 C 18 12.6 17.6 13 17 13 L 11 13 C 10.4 13 10 12.6 10 12 C 10 11.4 10.4 11 11 11 z M 11 15 L 14 15 C 14.6 15 15 15.4 15 16 C 15 16.6 14.6 17 14 17 L 11 17 C 10.4 17 10 16.6 10 16 C 10 15.4 10.4 15 11 15 z " />
+<path
+   d="m 31.541785,20.276813 c -0.06597,-0.263836 -0.329797,-0.461714 -0.659593,-0.461714 H 25.143734 L 23.42879,14.340477 c -0.06594,-0.263836 -0.329795,-0.461715 -0.659593,-0.461715 -0.329795,0 -0.527675,0.197879 -0.659592,0.461715 l -1.714943,5.474622 h -5.73846 c -0.263836,0 -0.527674,0.197878 -0.659592,0.461714 -0.06594,0.26384 0,0.593634 0.263838,0.725553 l 4.617152,3.363925 -1.780904,5.474621 c -0.06597,0.263839 0,0.593635 0.26384,0.725553 0.263835,0.197878 0.527674,0.197878 0.79151,0 l 4.617151,-3.363926 4.617152,3.363926 c 0.131924,0.06594 0.263838,0.131925 0.395756,0.131925 0.131926,0 0.263836,-0.06597 0.395756,-0.131925 0.263837,-0.197879 0.329796,-0.461714 0.263837,-0.725553 l -1.780902,-5.474621 4.617151,-3.363925 c 0.197878,-0.131911 0.329797,-0.461713 0.263838,-0.725553 z"
+   id="path2-6-4-7"
+   style="stroke-width:0.659592" /></svg>
