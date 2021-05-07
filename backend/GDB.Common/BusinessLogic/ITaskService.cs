@@ -11,6 +11,7 @@ namespace GDB.Common.BusinessLogic
     public interface ITaskService
     {
         Task AssignTaskToUserAsync(int gameId, int taskId, IAuthContext authUser);
+        Task UnassignTaskToUserAsync(int id, int taskId, IAuthContext authUser);
         Task UpdateTaskStateAsync(int gameId, int taskId, TaskState taskState, IAuthContext authUser);
     }
 }

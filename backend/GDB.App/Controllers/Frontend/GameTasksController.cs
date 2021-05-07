@@ -52,6 +52,17 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             await _taskService.AssignTaskToUserAsync(id, taskId, user);
+            await _signalrSender.SendAsync(user, UpdateScope.AssignedGameTask, gameId, new { taskId });
+            return Ok();
+        }
+
+        [HttpPost("{gameId}/task/{taskId}/unassignToMe")]
+        public async Task<IActionResult> UnassignTaskAsync(string gameId, int taskId)
+        {
+            var user = GetUserAuthContext();
+            var id = IdHelper.CheckAndExtractGameId(gameId, user);
+            await _taskService.UnassignTaskToUserAsync(id, taskId, user);
+            await _signalrSender.SendAsync(user, UpdateScope.AssignedGameTask, gameId, new { taskId });
             return Ok();
         }
 
@@ -62,7 +73,7 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             var task = await _queryService.GetAssignedTaskAsync(id, user);
-            if (task == null)
+            if (task == null || task.Id == 0)
             {
                 return NoContent();
             }

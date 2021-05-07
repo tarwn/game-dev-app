@@ -1,6 +1,7 @@
 <script lang="ts">
   import { PredefinedIcons, getIconString } from "./PredefinedIcons";
   export let icon: PredefinedIcons | string;
+  export let spinIcon: boolean = false;
   export let value: string;
   export let buttonStyle: string = "primary";
   export let disabled: boolean = false;
@@ -141,9 +142,24 @@
       box-shadow: 0 0 8px 0px $cs_grey_2;
     }
   }
+
+  .spin {
+    animation-name: spin;
+    animation-duration: 500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 </style>
 
 <button on:click|preventDefault|stopPropagation class="gdb-button {buttonStyleClass}" class:pulse {disabled}>
-  <i class="gdb-button-icon {iconString} {iconStyleClass}" />
+  <i class="gdb-button-icon {iconString} {iconStyleClass}" class:spin={spinIcon} />
   <span class="gdb-button-text">{value}</span>
 </button>

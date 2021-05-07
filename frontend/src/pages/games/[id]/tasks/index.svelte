@@ -131,7 +131,7 @@
     }
   }
 
-  :global(.gdb-tile-container) {
+  .gdb-task-timeline :global(.gdb-tile-container) {
     margin: $space-m;
   }
 </style>

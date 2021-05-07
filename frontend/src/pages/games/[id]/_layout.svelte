@@ -1,6 +1,8 @@
 <script lang="ts">
   import { params } from "@sveltech/routify";
   import { onDestroy } from "svelte";
+  import { UpdateScope } from "../../_communications/UpdateScope";
+  import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import type { Task } from "../../_stores/tasksApi";
   import { activeTaskStore } from "../../_stores/tasksStore";
@@ -64,10 +66,12 @@
   }
 </style>
 
+<WebSocketChannel updateScope={UpdateScope.AssignedGameTask} gameId={id} on:receive={() => activeTaskStore.load(id)} />
+
 {#if game}
   <div class="gdp-page">
     <div class="gdb-page-head">
-      <TopBar id={game.globalId} {...game} />
+      <TopBar id={game.globalId} {...game} assignedTask={activeTask?.task} />
     </div>
     <div class="gdb-page-content">
       <slot />

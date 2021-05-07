@@ -35,6 +35,19 @@ namespace GDB.Business.BusinessLogic
             });
         }
 
+        public async Task UnassignTaskToUserAsync(int gameId, int taskId, IAuthContext authUser)
+        {
+            await _busOp.Operation(async (p) => {
+                var task = await p.Tasks.GetAsync(taskId);
+                if (task == null || task.GameId != gameId)
+                {
+                    throw new MismatchedIdsException("Cannot find that task for the specified game", $"User {authUser.UserId} sent mismatched game id of {gameId} and task id of {taskId}");
+                }
+
+                await p.Tasks.UnassignTaskToUserAsync(gameId, taskId, authUser.UserId);
+            });
+        }
+
         public async Task UpdateTaskStateAsync(int gameId, int taskId, TaskState taskState, IAuthContext authUser)
         {
             await _busOp.Operation(async (p) => {

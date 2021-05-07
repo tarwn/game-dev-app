@@ -35,6 +35,21 @@ namespace GDB.Persistence.Repositories
             }
         }
 
+        public async Task UnassignTaskToUserAsync(int gameId, int taskId, int userId)
+        {
+            var param = new { gameId, taskId, userId };
+            var sql = @"
+                DELETE FROM dbo.GameTaskAssignment
+                WHERE UserId = @UserId
+                    AND GameId = @GameId
+                    AND GameTaskId = @taskId;
+            ";
+            using (var conn = GetConnection())
+            {
+                await conn.ExecuteAsync(sql, param);
+            }
+        }
+
         public async Task<List<TaskDTO>> GetAllTasksAsync(int gameId)
         {
             var param = new { gameId };

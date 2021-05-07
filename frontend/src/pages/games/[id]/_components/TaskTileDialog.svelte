@@ -6,7 +6,7 @@
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import ContactMe from "../../../../components/ContactMe.svelte";
   import type { DetailedTask } from "../../../_stores/tasksApi";
-  import { TaskType } from "../../../_stores/tasksApi";
+  import { TaskType, tasksApi } from "../../../_stores/tasksApi";
   import { getModuleImageHref } from "../../../_types/modules";
   import BusinessModelTaskDialog from "./taskDialogContent/BusinessModelTaskDialog.svelte";
   import ComparablesTaskDialog from "./taskDialogContent/ComparablesTaskDialog.svelte";
@@ -23,6 +23,18 @@
   export let isAssignedTask: boolean;
 
   $: moduleImageHref = getModuleImageHref(task.moduleType);
+
+  $: futureIsAssignedTask = isAssignedTask;
+  $: isSaving = futureIsAssignedTask != isAssignedTask;
+  function pinTask() {
+    futureIsAssignedTask = true;
+    tasksApi.assignTask(task.gameId, task.id);
+  }
+
+  function unpinTask() {
+    futureIsAssignedTask = false;
+    tasksApi.unassignTask(task.gameId, task.id);
+  }
 </script>
 
 <style type="text/scss">
@@ -66,15 +78,17 @@
       {#if isAssignedTask}
         <IconTextButton
           icon={PredefinedIcons.Unpin}
+          spinIcon={isSaving}
           value="Unpin as active task"
           buttonStyle="primary-outline"
-          on:click={() => {}} />
+          on:click={unpinTask} />
       {:else}
         <IconTextButton
           icon={PredefinedIcons.Pin}
+          spinIcon={isSaving}
           value="Pin as active task"
           buttonStyle="primary-outline"
-          on:click={() => {}} />
+          on:click={pinTask} />
       {/if}
       <LinkAsButton
         value={`Go to ${task.moduleName}`}

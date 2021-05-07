@@ -222,6 +222,59 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
         }
 
         [Test]
+        public async Task UnassignTaskAsync_GameAndTaskWithTaskAssigned_UnassignsTaskForUser()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");
+            var taskIds = new List<int>();
+            using (var conn = Database.GetConnection())
+            {
+                taskIds = conn.Query<int>("SELECT Id FROM GameTask WHERE GameId = @Id", game).ToList();
+            }
+            var controller = GetController(studioId: _existingStudio.Id);
+
+            var result = await controller.AssignTaskAsync(game.GetGlobalId(), taskIds[0]);
+            result = await controller.UnassignTaskAsync(game.GetGlobalId(), taskIds[0]);
+
+            result.Should().BeOfType<OkResult>();
+            using (var conn = Database.GetConnection())
+            {
+                var dbAssignment = conn.QuerySingleOrDefault<int?>("SELECT GameTaskId FROM GameTaskAssignment WHERE GameId = @GameId AND UserId = @UserId", new
+                {
+                    gameId = game.Id,
+                    userId = _user.Id
+                });
+                dbAssignment.Should().Be(null);
+            }
+        }
+
+        [Test]
+        public async Task UnassignTaskAsync_GameAndTaskWithDiffTaskAssigned_LeavesDiffTaskAssignedToUser()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");
+            var taskIds = new List<int>();
+            using (var conn = Database.GetConnection())
+            {
+                taskIds = conn.Query<int>("SELECT Id FROM GameTask WHERE GameId = @Id", game).ToList();
+            }
+            var controller = GetController(studioId: _existingStudio.Id);
+
+            var result = await controller.AssignTaskAsync(game.GetGlobalId(), taskIds[0]);
+            result = await controller.UnassignTaskAsync(game.GetGlobalId(), taskIds[1]);
+
+            result.Should().BeOfType<OkResult>();
+            using (var conn = Database.GetConnection())
+            {
+                var dbAssignment = conn.QuerySingleOrDefault<int?>("SELECT GameTaskId FROM GameTaskAssignment WHERE GameId = @GameId AND UserId = @UserId", new
+                {
+                    gameId = game.Id,
+                    userId = _user.Id
+                });
+                dbAssignment.Should().Be(taskIds[0]);
+            }
+        }
+
+
+        [Test]
         public async Task GetAssignedTaskAsync_HasTaskAssignment_ReturnsRelevantTask()
         {
             var game = Database.Games.Add(_existingStudio.Id, GameStatus.Idea, "Whatever");

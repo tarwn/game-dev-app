@@ -19,7 +19,8 @@ namespace GDB.App.Controllers.Frontend
         GameBusinessModel = 4,
         GameCashforecast = 5,
         StudioUserList = 6,
-        GameTasks = 7
+        GameTasks = 7,
+        AssignedGameTask = 8
     };
 
     [Authorize(Policy = Policies.InteractiveUserAccess)]

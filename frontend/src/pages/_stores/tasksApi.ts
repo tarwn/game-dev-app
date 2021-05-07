@@ -1,5 +1,5 @@
 import { log } from "../../utilities/logger";
-import { jsonOrThrow, throwFor401 } from "../_communications/responseHandler";
+import { jsonOrThrow, nullOrThrow, throwFor401 } from "../_communications/responseHandler";
 import { getModuleName, getModuleUrl, ModuleLinkType } from "../_types/modules";
 import { GameStatus } from "./types";
 
@@ -113,7 +113,7 @@ export const mapToDetailedTask = (task: Task): DetailedTask => {
   throw new Error(`Non-default tasks are not yet supported. TaskType ${task.taskType} on task id ${task.id}`);
 };
 
-// end detail itemds
+// end detail items
 
 function extractTask(data: any) {
   return {
@@ -165,7 +165,22 @@ export const tasksApi = {
       },
       body: JSON.stringify({})
     }).then(throwFor401)
-      .then(jsonOrThrow)
+      .then(nullOrThrow)
+      .then(() => {
+        log("TasksAPI.assignTask():JSON data received", {});
+      });
+  },
+
+  unassignTask: (gameId: string, taskId: number): Promise<void> => {
+    log("TasksAPI.assignTask(): started", {});
+    return fetch(`/api/fe/gameTasks/${gameId}/task/${taskId}/unassignToMe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({})
+    }).then(throwFor401)
+      .then(nullOrThrow)
       .then(() => {
         log("TasksAPI.assignTask():JSON data received", {});
       });
