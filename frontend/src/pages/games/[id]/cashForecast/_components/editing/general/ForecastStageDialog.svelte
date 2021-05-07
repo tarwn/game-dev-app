@@ -68,7 +68,7 @@
   <SpacedButtons align="right">
     <Button value="Close without Changing" buttonStyle="primary-outline" on:click={onCloseClick} />
     <IconTextButton
-      icon={PredefinedIcons.Next}
+      icon={PredefinedIcons.NextRound}
       value="Apply Stage Update"
       buttonStyle="primary"
       on:click={onClickOkay} />

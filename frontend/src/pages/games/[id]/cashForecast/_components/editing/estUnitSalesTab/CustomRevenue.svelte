@@ -162,7 +162,7 @@
   <td />
   <td>
     <IconTextButton
-      icon={PredefinedIcons.Plus}
+      icon={PredefinedIcons.PlusRound}
       on:click={addRevShare}
       buttonStyle="primary-outline"
       value="Add Another" />

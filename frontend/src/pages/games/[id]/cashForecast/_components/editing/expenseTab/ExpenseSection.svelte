@@ -167,7 +167,7 @@
 <TableRowIndented>
   <td colspan={colSpan - 1}>
     <IconTextButton
-      icon={PredefinedIcons.Plus}
+      icon={PredefinedIcons.PlusRound}
       value={expenses.length === 0 ? "Add an Expense" : "Add another Expense"}
       buttonStyle="primary-outline"
       on:click={() =>

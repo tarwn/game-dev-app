@@ -48,7 +48,7 @@
         </LabeledInput>
       </td>
       <td>
-        <IconTextButton icon={PredefinedIcons.Plus} value="Add Scenario" />
+        <IconTextButton icon={PredefinedIcons.PlusRound} value="Add Scenario" />
       </td>
     </TableRowIndented>
     <TableRowIndented isRecord={true} isBottom={true}>

@@ -147,7 +147,7 @@
             <div class="gdb-task-title">{assignedTask.title}</div>
           </button>
         </div>
-        <TaskTileDialog task={assignedTask} isAssignedTask={true} />
+        <TaskTileDialog task={assignedTask} isAssignedTask={true} on:click={close} />
       </AnythingWithPopup>
     {/if}
   </div>

@@ -69,6 +69,10 @@
   </div>
   <SpacedButtons align="right">
     <Button value="Close without Changing" buttonStyle="primary-outline" on:click={onCloseClick} />
-    <IconTextButton icon={PredefinedIcons.Next} value="Apply New Date" buttonStyle="primary" on:click={onClickOkay} />
+    <IconTextButton
+      icon={PredefinedIcons.NextRound}
+      value="Apply New Date"
+      buttonStyle="primary"
+      on:click={onClickOkay} />
   </SpacedButtons>
 </div>

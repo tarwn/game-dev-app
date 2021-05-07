@@ -30,7 +30,7 @@
   <!-- add row -->
   <TableRowIndented>
     <td colspan="6">
-      <IconTextButton icon={PredefinedIcons.Plus} value="Add Funding" buttonStyle="primary-outline" />
+      <IconTextButton icon={PredefinedIcons.PlusRound} value="Add Funding" buttonStyle="primary-outline" />
     </td>
   </TableRowIndented>
 </EntryTable>

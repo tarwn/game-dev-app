@@ -188,14 +188,14 @@
     disabled={isLoading || displaySectionCommit == null} />
   {#if displaySection == null}
     <IconTextButton
-      icon={PredefinedIcons.Next}
+      icon={PredefinedIcons.NextRound}
       value="Start"
       buttonStyle="primary"
       on:click={() => handleChangeSection({ detail: { section: "customers" } })}
       disabled={isLoading} />
   {:else}
     <IconTextButton
-      icon={PredefinedIcons.Next}
+      icon={PredefinedIcons.NextRound}
       value="Next"
       buttonStyle="primary"
       on:click={() =>

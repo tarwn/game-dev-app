@@ -190,7 +190,7 @@
     <div class="gdb-gen-input">{forecastStageText}</div>
     <div class="gdb-gen-button">
       <IconTextButton
-        icon={PredefinedIcons.Next}
+        icon={PredefinedIcons.NextRound}
         value="Go to next Stage"
         on:click={openUpdateForecastStage}
         buttonStyle="primary-outline" />
@@ -201,7 +201,7 @@
     <div class="gdb-gen-input"><DateOutput date={cashForecast.forecastStartDate.value} /></div>
     <div class="gdb-gen-button">
       <IconTextButton
-        icon={PredefinedIcons.Next}
+        icon={PredefinedIcons.NextRound}
         value="Update"
         on:click={openUpdateForecastDate}
         buttonStyle="primary-outline" />
@@ -212,7 +212,7 @@
     <div class="gdb-gen-input"><DateOutput date={cashForecast.launchDate.value} /></div>
     <div class="gdb-gen-button">
       <IconTextButton
-        icon={PredefinedIcons.Next}
+        icon={PredefinedIcons.NextRound}
         value="Update"
         on:click={openUpdateLaunchDate}
         buttonStyle="primary-outline" />

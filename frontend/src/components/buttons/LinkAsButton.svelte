@@ -149,6 +149,6 @@
   }
 </style>
 
-<a class="gdb-button {buttonStyleClass}" disabled={disabled ? true : null} {title} {href}>
+<a class="gdb-button {buttonStyleClass}" disabled={disabled ? true : null} {title} {href} on:click>
   <span class="gdb-button-text">{value}</span>
 </a>

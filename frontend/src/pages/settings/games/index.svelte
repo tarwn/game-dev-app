@@ -141,7 +141,7 @@
       <TableRowIndented>
         <td colspan={6}>
           <IconTextButton
-            icon={PredefinedIcons.Plus}
+            icon={PredefinedIcons.PlusRound}
             value={"Add Game"}
             buttonStyle="primary-outline"
             on:click={addGame}

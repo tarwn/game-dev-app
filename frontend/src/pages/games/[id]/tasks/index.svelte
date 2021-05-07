@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { metatags, params, url } from "@sveltech/routify";
-  import { onDestroy, onMount } from "svelte";
+  import { metatags, params } from "@sveltech/routify";
+  import { onDestroy } from "svelte";
   import ButtonWithPopup from "../../../../components/buttons/ButtonWithPopup.svelte";
   import ScreenTitle from "../../../../components/layout/ScreenTitle.svelte";
-  import { getConfig } from "../../../../config";
   import { log } from "../../../../utilities/logger";
   import { UpdateScope } from "../../../_communications/UpdateScope";
   import WebSocketChannel from "../../../_communications/WebSocketChannel.svelte";
-  import type { Game } from "../../../_stores/gamesApi";
-  import { gamesStore } from "../../../_stores/gamesStore";
   import type { UserProfile } from "../../../_stores/profileApi";
   import { profileStore } from "../../../_stores/profileStore";
   import type { DetailedTask, Task } from "../../../_stores/tasksApi";
@@ -18,7 +15,6 @@
   import { isModuleAvailable } from "../../../_types/modules";
   import TaskTile from "../_components/TaskTile.svelte";
   import TaskTileLoading from "../_components/TaskTileLoading.svelte";
-  import TaskTilePlaceholder from "../_components/TaskTilePlaceholder.svelte";
   import TaskTileRecurringPlaceholder from "../_components/TaskTileRecurringPlaceholder.svelte";
   import TasksWitp from "./_components/TasksWITP.svelte";
 
@@ -26,27 +22,15 @@
   metatags.title = "[LR] Cash Forecast";
 
   // params
-  const { actorId } = getConfig();
   $: id = $params.id;
   let initializedId = null;
 
   $: {
     if (id != null && id != initializedId) {
       initializedId = id;
-
-      game = games.find((g) => g.globalId == initializedId) ?? null;
-
       allTasksStore.load(initializedId);
     }
   }
-
-  // game data
-  let games = [] as Array<Game>;
-  let game = null as Game;
-  const unsubscribe = gamesStore.subscribe((g) => {
-    games = g ?? [];
-    game = games.find((g) => g.globalId == id) ?? null;
-  });
 
   // user profile data
   let latestProfile: null | UserProfile = null;
@@ -72,7 +56,6 @@
   const unsubscribe4 = activeTaskStore.subscribe((t) => (activeTask = t ?? { gameId: null, task: null }));
 
   onDestroy(() => {
-    unsubscribe();
     unsubscribe2();
     unsubscribe3();
     unsubscribe4();

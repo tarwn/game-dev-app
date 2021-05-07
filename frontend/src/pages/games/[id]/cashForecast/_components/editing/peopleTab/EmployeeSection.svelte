@@ -232,7 +232,7 @@
       <td />
       <td colSpan={colSpan - 3}>
         <IconTextButton
-          icon={PredefinedIcons.Plus}
+          icon={PredefinedIcons.PlusRound}
           buttonStyle="primary-outline"
           disabled={false}
           value="Add bonus or profit sharing"
@@ -248,7 +248,7 @@
 <TableRowIndented>
   <td colspan={colSpan - 1}>
     <IconTextButton
-      icon={PredefinedIcons.Plus}
+      icon={PredefinedIcons.PlusRound}
       value={cashForecast.employees.list.length === 0 ? "Add an Employee" : "Add another Employee"}
       buttonStyle="primary-outline"
       on:click={() =>

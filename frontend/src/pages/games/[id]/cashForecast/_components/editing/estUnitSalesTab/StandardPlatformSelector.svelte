@@ -85,7 +85,7 @@
   <SpacedButtons align="right">
     <Button value="Cancel" buttonStyle="primary-outline" on:click={onCloseClick} />
     <IconTextButton
-      icon={PredefinedIcons.Next}
+      icon={PredefinedIcons.NextRound}
       value="Add Platform"
       buttonStyle="primary"
       on:click={onClickOkay}

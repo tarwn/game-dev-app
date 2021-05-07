@@ -154,7 +154,7 @@
       <td />
       <td>
         <IconTextButton
-          icon={PredefinedIcons.Plus}
+          icon={PredefinedIcons.PlusRound}
           value="Add Next Amount"
           buttonStyle="primary-outline"
           on:click={() =>
@@ -235,7 +235,7 @@
       <td />
       <td colspan={colSpan - 3}>
         <IconTextButton
-          icon={PredefinedIcons.Plus}
+          icon={PredefinedIcons.PlusRound}
           value="Add Another Term"
           buttonStyle="primary-outline"
           on:click={() => addFundingRepaymentTermsCashOut(funding)} />
@@ -247,7 +247,7 @@
       <td />
       <td colspan={colSpan - 3}>
         <IconTextButton
-          icon={PredefinedIcons.Plus}
+          icon={PredefinedIcons.PlusRound}
           value="Add Repayment Terms"
           buttonStyle="primary-outline"
           on:click={() => addFundingRepaymentTerms(funding)} />
@@ -260,7 +260,7 @@
 <TableRowIndented>
   <td colspan={colSpan - 1}>
     <IconTextButton
-      icon={PredefinedIcons.Plus}
+      icon={PredefinedIcons.PlusRound}
       value={"Add Funding"}
       buttonStyle="primary-outline"
       on:click={() => publish(events.AddFunding(cashForecast.funding.globalId, { date: forecastDate }))} />

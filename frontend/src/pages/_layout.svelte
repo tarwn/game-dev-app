@@ -76,7 +76,7 @@
             <MenuItemGame id={game.globalId} name={game.name} />
           </li>
         {/each}
-        <MenuItemLink path="./settings/games" name="Add a Game" icon={PredefinedIcons.Plus} demphasize={true} />
+        <MenuItemLink path="./settings/games" name="Add a Game" icon={PredefinedIcons.PlusRound} demphasize={true} />
       </ul>
       <div class="gdb-nav-header">Settings</div>
       <ul class="gdb-nav-list">

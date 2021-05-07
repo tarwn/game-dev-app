@@ -202,12 +202,12 @@
   <TableRowIndented>
     <td colspan="8">
       <IconTextButton
-        icon={PredefinedIcons.Plus}
+        icon={PredefinedIcons.PlusRound}
         value="Add from List"
         buttonStyle="primary"
         on:click={addStandardPlatform} />
       <IconTextButton
-        icon={PredefinedIcons.Plus}
+        icon={PredefinedIcons.PlusRound}
         value="Add Custom"
         buttonStyle="primary-outline"
         on:click={addCustomPlatform} />

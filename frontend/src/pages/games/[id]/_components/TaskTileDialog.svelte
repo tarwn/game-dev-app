@@ -94,7 +94,8 @@
         value={`Go to ${task.moduleName}`}
         buttonStyle="primary"
         title={`Go to ${task.moduleName}`}
-        href={task.moduleHref} />
+        href={task.moduleHref}
+        on:click />
     </SpacedButtons>
   </div>
   <div class="gdb-dialog-instructions">

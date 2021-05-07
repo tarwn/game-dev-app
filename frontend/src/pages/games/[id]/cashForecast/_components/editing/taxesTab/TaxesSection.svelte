@@ -116,7 +116,7 @@
 <TableRowIndented>
   <td colspan={colSpan - 1}>
     <IconTextButton
-      icon={PredefinedIcons.Plus}
+      icon={PredefinedIcons.PlusRound}
       value={"Add Tax"}
       buttonStyle="primary-outline"
       on:click={() =>

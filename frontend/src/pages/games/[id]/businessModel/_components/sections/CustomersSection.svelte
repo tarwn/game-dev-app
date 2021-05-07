@@ -5,10 +5,7 @@
   import InputPanel from "../InputPanel.svelte";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../_stores/businessModelStore";
   import CustomerInput from "./components/CustomerInput.svelte";
 
   export let businessModel: IBusinessModel;
@@ -58,16 +55,19 @@
   {#if !hasMinimumInfo}
     <div class="gdb-customer-new-section">
       <p>
-        Who are the people that will love this game? Are they the same ones that
-        buy it? Let's start by defining a Player:
+        Who are the people that will love this game? Are they the same ones that buy it? Let's start by defining a
+        Player:
       </p>
       <IconTextButton
-        icon={PredefinedIcons.Plus}
+        icon={PredefinedIcons.PlusRound}
         value="Add a Player"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(events.AddNewCustomer({
+        on:click={() =>
+          businessModelEventStore.addEvent(
+            events.AddNewCustomer({
               parentId: businessModel.customers.globalId,
-            }))} />
+            })
+          )} />
     </div>
   {:else}
     {#each businessModel.customers.list as customer (customer.globalId)}
@@ -75,12 +75,15 @@
     {/each}
     <div class="gdb-customer-new-section-small">
       <IconTextButton
-        icon={PredefinedIcons.Plus}
+        icon={PredefinedIcons.PlusRound}
         value="Add another Customer"
         buttonStyle="primary"
-        on:click={() => businessModelEventStore.addEvent(events.AddNewCustomer({
+        on:click={() =>
+          businessModelEventStore.addEvent(
+            events.AddNewCustomer({
               parentId: businessModel.customers.globalId,
-            }))} />
+            })
+          )} />
     </div>
   {/if}
 </InputPanel>

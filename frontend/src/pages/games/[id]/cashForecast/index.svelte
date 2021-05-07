@@ -272,7 +272,7 @@
   <LinkAsButton value="Exit" buttonStyle="primary-outline" href={`/games/${id}`} disabled={isLoading} />
   {#if view == "summary"}
     <IconTextButton
-      icon={PredefinedIcons.Next}
+      icon={PredefinedIcons.NextRound}
       value="Edit"
       buttonStyle="primary"
       on:click={switchToEditView}

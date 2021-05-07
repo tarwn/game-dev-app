@@ -1,14 +1,8 @@
 <script lang="ts">
-  import type {
-    IBusinessModel,
-    IBusinessModelCost,
-  } from "../../_types/businessModel";
+  import type { IBusinessModel, IBusinessModelCost } from "../../_types/businessModel";
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../_stores/businessModelStore";
   import IconTextButton from "../../../../../../components/buttons/IconTextButton.svelte";
   import { PredefinedIcons } from "../../../../../../components/buttons/PredefinedIcons";
   import type { Identified } from "../../../../../_stores/eventStore/types";
@@ -105,19 +99,14 @@
   on:clickFullscreen
   on:clickNext>
   <Row>
-    <p>
-      What are the key costs required before launch and that apply once the game
-      is live?
-    </p>
+    <p>What are the key costs required before launch and that apply once the game is live?</p>
   </Row>
   <Row>
     <ul class="gdb-cost-list">
       {#each businessModel.costStructure.list as cost (cost.globalId)}
         <li class="gdb-cost-list-item">
           <!-- svelte-ignore a11y-no-onchange -->
-          <select
-            value={cost.type.value}
-            on:change={(e) => handleTypeChange(cost, e)}>
+          <select value={cost.type.value} on:change={(e) => handleTypeChange(cost, e)}>
             <option value="onetime">One Time</option>
             <option value="monthly">Monthly</option>
             <option value="annual">Annual</option>
@@ -157,12 +146,15 @@
       {/each}
       <li class="gdb-entry-list-item-new">
         <IconTextButton
-          icon={PredefinedIcons.Plus}
-          value={businessModel.costStructure.list.length > 0 ? 'Add another Cost' : 'Add a Cost'}
+          icon={PredefinedIcons.PlusRound}
+          value={businessModel.costStructure.list.length > 0 ? "Add another Cost" : "Add a Cost"}
           buttonStyle="primary"
-          on:click={() => businessModelEventStore.addEvent(events.AddCost({
+          on:click={() =>
+            businessModelEventStore.addEvent(
+              events.AddCost({
                 parentId: businessModel.customers.globalId,
-              }))} />
+              })
+            )} />
       </li>
     </ul>
   </Row>

@@ -182,7 +182,7 @@
       <TableRowIndented>
         <td colspan="2">
           <IconTextButton
-            icon={PredefinedIcons.Plus}
+            icon={PredefinedIcons.PlusRound}
             value="Send an Invite"
             buttonStyle="primary-outline"
             disabled={true || !isUserAnAdmin} />

@@ -60,16 +60,8 @@
   <div class="gdb-bm-inputPanel-head">
     <h3>{title}</h3>
     <div style="display: none">
-      <IconButton
-        icon={PredefinedIcons.Undo}
-        disabled={!canUndo}
-        buttonStyle="primary"
-      />
-      <IconButton
-        icon={PredefinedIcons.Redo}
-        disabled={!canRedo}
-        buttonStyle="primary"
-      />
+      <IconButton icon={PredefinedIcons.Undo} disabled={!canUndo} buttonStyle="primary" />
+      <IconButton icon={PredefinedIcons.Redo} disabled={!canRedo} buttonStyle="primary" />
     </div>
   </div>
   <div class="gdb-bm-inputPanel-content">
@@ -82,15 +74,13 @@
         value="Full View"
         disabled={!canFullscreen}
         buttonStyle="primary-outline"
-        on:click={onClickFullscreen}
-      />
+        on:click={onClickFullscreen} />
       <IconTextButton
-        icon={PredefinedIcons.Next}
+        icon={PredefinedIcons.NextRound}
         value="Next"
         disabled={!canNext}
         buttonStyle="primary-outline"
-        on:click={onClickNext}
-      />
+        on:click={onClickNext} />
     </SpacedButtons>
   </div>
 </div>
