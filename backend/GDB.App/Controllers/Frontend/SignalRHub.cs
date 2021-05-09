@@ -76,13 +76,27 @@ namespace GDB.App.Controllers.Frontend
         {
             var group = MapToGroup(updateType, id);
 
-            _logger.LogInformation($"Client leaving '{group}': {Context.ConnectionId}");
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
             if (_connectionRegistrations.TryGetValue(Context.ConnectionId, out var list))
             {
-                var newList = list.Select(s => s).ToList();
-                newList.RemoveAll(s => s.Equals(group));
-                _connectionRegistrations.TryUpdate(Context.ConnectionId, newList, list);
+                // removing only the first list - going to see if we can have multiple registrations
+                //  for the same group so that screens can set more than one web socket channel for the same channel for
+                //  different behaviors from the same updates
+                // but want to be able to disconnect from a granular one withotu disconnected at the layout level
+                var count = list.Count(s => s.Equals(group));
+                _logger.LogInformation($"Client unregistered '{group}': {Context.ConnectionId} - {count} registrations");
+                if (count == 1)
+                {
+                    _logger.LogInformation($"Client leaving '{group}': {Context.ConnectionId}");
+                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
+                }
+
+                var firstMatch = list.Where(s => s.Equals(group)).FirstOrDefault();
+                if (firstMatch != null)
+                {
+                    var newList = list.Select(s => s).ToList();
+                    newList.Remove(firstMatch);
+                    _connectionRegistrations.TryUpdate(Context.ConnectionId, newList, list);
+                }
             }
         }
 

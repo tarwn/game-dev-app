@@ -87,6 +87,7 @@ namespace GDB.App.Controllers.Frontend
             var id = IdHelper.CheckAndExtractGameId(gameId, user);
             await _taskService.UpdateTaskStateAsync(id, taskId, model.TaskState, user);
             await _signalrSender.SendAsync(user, UpdateScope.GameTasks, gameId, new { taskId });
+            // todo - fire events for all users this task is assigned to...?
             return Ok();
         }
     }

@@ -27,6 +27,7 @@
   import { UpdateScope } from "../../_communications/UpdateScope";
   import { isModuleAvailable, ModuleLinkType } from "../../_types/modules";
   import TaskTileLoading from "./_components/TaskTileLoading.svelte";
+  import TaskTileAdvanceGame from "./_components/TaskTileAdvanceGame.svelte";
 
   metatags.title = "[LR] Dashboard";
 
@@ -38,7 +39,12 @@
   let game = null as Game;
   const unsubscribe = gamesStore.subscribe((g) => {
     games = g ?? [];
+    let prevGame = game;
     game = games.find((g) => g.globalId == initializedId) ?? null;
+    // see if anything significant has changed
+    if (prevGame && game && prevGame.status != game.status) {
+      openTasksStore.load(initializedId);
+    }
   });
 
   // Cash forecast data
@@ -241,13 +247,17 @@
   {#if openTasks}
     <div class="row">
       {#each openTasks as task (task.id)}
-        <TaskTile
-          {task}
-          isAssignedTask={task.id == activeTask?.task?.id}
-          disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+        <TaskTile {task} isAssignedTask={task.id == activeTask?.task?.id} disabled={false} />
+        <!-- !isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept -->
       {/each}
-      {#if openTasks.length < 5}
+      {#if openTasks.length > 0 && openTasks.length < 5}
         <TaskTilePlaceholder />
+      {:else if openTasks.length == 0}
+        {#if game}
+          <TaskTileAdvanceGame gameId={id} gameStatus={game?.status} />
+        {:else}
+          <TaskTileLoading />
+        {/if}
       {/if}
     </div>
   {:else}

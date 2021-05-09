@@ -6,6 +6,7 @@
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
   import PageTop from "../../../../components/layout/PageTop.svelte";
   import type { DetailedTask } from "../../../_stores/tasksApi";
+  import { TaskState } from "../../../_stores/tasksApi";
   import TaskTileDialog from "./TaskTileDialog.svelte";
   export let icon: string;
   export let id: string;
@@ -142,7 +143,12 @@
       <AnythingWithPopup ariaLabel="View details" {isOpen} on:close={close} borderStyle="task">
         <div slot="button">
           <button on:click={open} bind:this={buttonElem} class="gdb-pinned-button gdb-button">
-            <div class="gdb-task-icon"><Icon icon={PredefinedIcons.CommunicationStar} /></div>
+            <div class="gdb-task-icon">
+              <Icon
+                icon={assignedTask.taskState == TaskState.Open
+                  ? PredefinedIcons.CommunicationStar
+                  : PredefinedIcons.Check} />
+            </div>
             <div class="gdb-task-subtitle">Pinned:</div>
             <div class="gdb-task-title">{assignedTask.title}</div>
           </button>

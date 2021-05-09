@@ -107,11 +107,12 @@
               on:change={({ detail }) => gamesApi.updateName(game.globalId, detail.value)}
               disabled={!isUserAnAdmin} /></td>
           <td>
-            <Dropdown
+            <!-- <Dropdown
               options={GameStatuses}
               value={game.status}
               on:change={({ detail }) => gamesApi.updateStatus(game.globalId, detail.value)}
-              disabled={!isUserAnAdmin} />
+              disabled={!isUserAnAdmin} /> -->
+            {GameStatuses.find((s) => s.id == game.status).name}
           </td>
           <td>
             {#if game.launchDate}

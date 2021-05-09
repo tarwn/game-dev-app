@@ -6,7 +6,8 @@
   import SpacedButtons from "../../../../components/buttons/SpacedButtons.svelte";
   import ContactMe from "../../../../components/ContactMe.svelte";
   import type { DetailedTask } from "../../../_stores/tasksApi";
-  import { TaskType, tasksApi } from "../../../_stores/tasksApi";
+  import { TaskType, tasksApi, TaskState } from "../../../_stores/tasksApi";
+  import { activeTaskStore } from "../../../_stores/tasksStore";
   import { getModuleImageHref } from "../../../_types/modules";
   import BusinessModelTaskDialog from "./taskDialogContent/BusinessModelTaskDialog.svelte";
   import ComparablesTaskDialog from "./taskDialogContent/ComparablesTaskDialog.svelte";
@@ -34,6 +35,18 @@
   function unpinTask() {
     futureIsAssignedTask = false;
     tasksApi.unassignTask(task.gameId, task.id);
+  }
+
+  async function completeTask() {
+    await tasksApi.updateTaskState(task.gameId, task.id, TaskState.ClosedComplete).then(() => {
+      // task.taskState = TaskState.ClosedComplete;
+    });
+  }
+
+  async function reopenTask() {
+    await tasksApi.updateTaskState(task.gameId, task.id, TaskState.Open).then(() => {
+      // task.taskState = TaskState.Open;
+    });
   }
 </script>
 
@@ -129,13 +142,21 @@
     {/if}
   </div>
   <div class="gdb-dialog-completion">
-    {#if task.taskType == TaskType.Concept}
-      <p>Excellent, all done! Go ahead and mark this task as Complete.</p>
+    {#if task.taskState != TaskState.Open}
+      {#if task.taskType == TaskType.Concept}
+        <p>Excellent, all done! Go ahead and mark this task as Complete.</p>
+      {:else}
+        <p>Finished with the planning for this task? Mark it complete here.</p>
+      {/if}
     {:else}
-      <p>Finished with the planning for this task? Mark it complete here.</p>
+      <p>This task was marked complete, but you can re-open it if needed</p>
     {/if}
     <SpacedButtons>
-      <Button value="This Task Is Complete" buttonStyle="primary-outline" disabled={true} on:click={() => {}} />
+      {#if task.taskState == TaskState.Open}
+        <Button value="This Task Is Complete" buttonStyle="primary-outline" on:click={completeTask} />
+      {:else}
+        <Button value="Re-open this Task" buttonStyle="primary-outline" on:click={reopenTask} />
+      {/if}
       <!-- <Button value="Skip (Close without doing)" buttonStyle="primary-outline" disabled={true} on:click={() => {}} /> -->
     </SpacedButtons>
   </div>

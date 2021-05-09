@@ -46,10 +46,10 @@
     log("Tasks received", { allTasks });
   });
 
-  $: ideaTasks = allTasks.filter((t) => t.gameStatus == GameStatus.Idea);
-  $: planningTasks = allTasks.filter((t) => t.gameStatus == GameStatus.Planning);
-  $: devTasks = allTasks.filter((t) => t.gameStatus == GameStatus.Developing);
-  $: liveTasks = allTasks.filter((t) => t.gameStatus == GameStatus.Live);
+  $: ideaTasks = allTasks == null ? null : allTasks.filter((t) => t.gameStatus == GameStatus.Idea);
+  $: planningTasks = allTasks == null ? null : allTasks.filter((t) => t.gameStatus == GameStatus.Planning);
+  $: devTasks = allTasks == null ? null : allTasks.filter((t) => t.gameStatus == GameStatus.Developing);
+  $: liveTasks = allTasks == null ? null : allTasks.filter((t) => t.gameStatus == GameStatus.Live);
 
   // active tasks
   let activeTask: { gameId: string | null; task: Task | null };
@@ -119,7 +119,14 @@
   }
 </style>
 
-<WebSocketChannel updateScope={UpdateScope.GameTasks} gameId={id} on:receive={() => allTasksStore.load(id)} />
+<WebSocketChannel
+  updateScope={UpdateScope.GameTasks}
+  gameId={id}
+  on:receive={(e) => {
+    log("WebSocketChannel-GameTasks", e.detail);
+    allTasksStore.load(id);
+    activeTaskStore.notifyOfUpdate(id, e.detail.taskId);
+  }} />
 
 <ScreenTitle title="All Tasks">
   {#if latestProfile}

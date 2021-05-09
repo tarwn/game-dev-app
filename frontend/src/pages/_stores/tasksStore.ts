@@ -83,9 +83,16 @@ function createActiveTaskStore() {
       });
   };
 
+  const notifyOfUpdate = async (gameId: string, taskId: number): Promise<void> => {
+    if (task != null && task.gameId == gameId && task.id == taskId) {
+      await load(gameId);
+    }
+  };
+
   return {
     subscribe,
-    load
+    load,
+    notifyOfUpdate
   };
 }
 

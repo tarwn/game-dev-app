@@ -188,7 +188,7 @@ export const tasksApi = {
 
   updateTaskState: (gameId: string, taskId: number, taskState: TaskState): Promise<void> => {
     log("TasksAPI.updateTaskState(): started", {});
-    return fetch(`/api/fe/gameTasks/${gameId}/task/${taskId}/assignToMe`, {
+    return fetch(`/api/fe/gameTasks/${gameId}/task/${taskId}/state`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -197,7 +197,7 @@ export const tasksApi = {
         taskState
       })
     }).then(throwFor401)
-      .then(jsonOrThrow)
+      .then(nullOrThrow)
       .then(() => {
         log("TasksAPI.updateTaskState():JSON data received", {});
       });

@@ -8,6 +8,7 @@
 
   import DateSpan from "../../../../components/inputs/DateSpan.svelte";
   import type { DetailedTask } from "../../../_stores/tasksApi";
+  import { TaskState } from "../../../_stores/tasksApi";
   import TaskTileDialog from "./TaskTileDialog.svelte";
 
   export let task: DetailedTask;
@@ -181,6 +182,12 @@
       color: $cs-green-4;
     }
 
+    &.gdb-tile-status-done {
+      border: 2px solid $cs-green-3;
+      background-color: $cs-green-1;
+      color: $cs-green-4;
+    }
+
     &.gdb-tile-status-overdue {
       border: 2px solid $cs-red;
       background-color: $cs-red-1;
@@ -218,7 +225,11 @@
           </div>
         </div>
       </div>
-      {#if isAssignedTask}
+      {#if task.taskState != TaskState.Open}
+        <div class="gdb-tile-status gdb-tile-status-done">
+          <Icon icon={PredefinedIcons.Check} />
+        </div>
+      {:else if isAssignedTask}
         <div class="gdb-tile-status gdb-tile-status-selected">
           <Icon icon={PredefinedIcons.CommunicationStar} />
         </div>
