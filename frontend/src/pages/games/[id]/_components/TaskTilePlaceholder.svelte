@@ -1,6 +1,9 @@
 <script lang="ts">
   import Icon from "../../../../components/buttons/Icon.svelte";
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";
+
+  export let type: string | null = null;
+  export let count: number | null = null;
 </script>
 
 <style type="text/scss">
@@ -52,8 +55,13 @@
 
 <div class="gdb-tile-container">
   <div class="gdb-tile">
-    <div class="gdb-placeholder-icon"><Icon icon={PredefinedIcons.Check} /></div>
-    <div class="gdb-placeholder-text">More will load once all items to the left are complete.</div>
+    {#if !type}
+      <div class="gdb-placeholder-icon"><Icon icon={PredefinedIcons.Check} /></div>
+      <div class="gdb-placeholder-text">More will load once all items to the left are complete.</div>
+    {:else}
+      <div class="gdb-placeholder-icon">...</div>
+      <div class="gdb-placeholder-text">Plus {count} more tasks ready after these</div>
+    {/if}
   </div>
   <div class="gdb-due-date" />
 </div>

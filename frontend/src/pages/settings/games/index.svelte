@@ -11,7 +11,6 @@
   import { PredefinedIcons } from "../../../components/buttons/PredefinedIcons";
   import IconButton from "../../../components/buttons/IconButton.svelte";
   import TableRowEmpty from "../../../components/table/TableRowEmpty.svelte";
-  import Dropdown from "../../../components/inputs/Dropdown.svelte";
   import { GameStatuses } from "../../_stores/types";
   import TextInput from "../../../components/inputs/TextInput.svelte";
   import { gamesStore } from "../../_stores/gamesStore";

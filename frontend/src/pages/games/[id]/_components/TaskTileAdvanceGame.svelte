@@ -4,7 +4,6 @@
   import AnythingWithPopup from "../../../../components/buttons/AnythingWithPopup.svelte";
   import Button from "../../../../components/buttons/Button.svelte";
   import Icon from "../../../../components/buttons/Icon.svelte";
-  import IconButton from "../../../../components/buttons/IconButton.svelte";
   import IconTextButton from "../../../../components/buttons/IconTextButton.svelte";
 
   import { PredefinedIcons } from "../../../../components/buttons/PredefinedIcons";

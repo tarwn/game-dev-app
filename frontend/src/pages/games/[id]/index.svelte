@@ -246,9 +246,13 @@
 <div class="gdb-tile-carousel">
   {#if openTasks}
     <div class="row">
-      {#each openTasks as task (task.id)}
-        <TaskTile {task} isAssignedTask={task.id == activeTask?.task?.id} disabled={false} />
-        <!-- !isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept -->
+      {#each openTasks as task, i (task.id)}
+        {#if openTasks.length <= 5 || i < 4}
+          <TaskTile
+            {task}
+            isAssignedTask={task.id == activeTask?.task?.id}
+            disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+        {/if}
       {/each}
       {#if openTasks.length > 0 && openTasks.length < 5}
         <TaskTilePlaceholder />
@@ -258,6 +262,8 @@
         {:else}
           <TaskTileLoading />
         {/if}
+      {:else if openTasks.length > 5}
+        <TaskTilePlaceholder count={openTasks.length - 4} type="..." />
       {/if}
     </div>
   {:else}
