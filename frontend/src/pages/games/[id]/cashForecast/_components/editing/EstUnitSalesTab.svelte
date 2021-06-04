@@ -156,7 +156,7 @@
       <LabeledInput label="Target (Main Forecast)" vertical={true}>
         <NumberInput
           min={0}
-          max={100000000}
+          max={1000000000}
           value={cashForecast.estimatedRevenue.targetUnitsSold.value}
           on:change={({ detail }) =>
             publish(

@@ -13,7 +13,7 @@ export enum ModuleLinkType {
 export const isModuleAvailable = (type: ModuleLinkType): boolean => {
   switch (type) {
     case ModuleLinkType.External: return false;
-    case ModuleLinkType.GameDetails: return false;
+    case ModuleLinkType.GameDetails: return true;
     case ModuleLinkType.BusinessModel: return true;
     case ModuleLinkType.CashForecast: return true;
     case ModuleLinkType.Comparables: return false;

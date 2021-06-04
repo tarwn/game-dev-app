@@ -1,4 +1,5 @@
 <script lang="ts">
+  import WitpImage from "../../../../components/witp/WitpImage.svelte";
 </script>
 
 <style type="text/scss">
@@ -7,22 +8,6 @@
   h2 {
     margin-top: $space-l;
   }
-
-  img {
-    display: inline-block;
-    color: $cs-grey-2;
-    opacity: 0.9;
-    margin: auto;
-    max-width: 600px;
-  }
-
-  .gdb-witp-image-container {
-    margin-top: 1.5rem;
-    padding-left: 4rem;
-    text-align: center;
-    color: $text-color-lightest;
-    font-size: $font-size-small;
-  }
 </style>
 
 <h1>This is the Game Dashboard</h1>
@@ -30,10 +15,10 @@
 Every game has a planning dashboard just like this one. It shows a quick summary of the game details, but more
 importantly holds your To Do List.
 
-<div class="gdb-witp-image-container">
-  <img src="/images/witp/DashboardOverview.png" alt="Getting started on the Game Dashboard screen" />
-  <div>Key areas on the dashboard</div>
-</div>
+<WitpImage
+  src="/images/witp/DashboardOverview.png"
+  alt="Getting started on the Game Dashboard screen"
+  caption="Key areas on the dashboard" />
 
 <h2>Game To Do List</h2>
 <p>When in doubt, this is the place to start 😀</p>

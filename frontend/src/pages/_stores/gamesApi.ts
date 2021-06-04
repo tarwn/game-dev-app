@@ -16,6 +16,13 @@ export type Game = {
   marketingPlanLastUpdatedOn: Date | null;
 };
 
+export type GameDetails = Game & {
+  goalsDocUrl: string | null;
+  goalsNotes: string | null;
+  groundworkDocUrl: string | null;
+  groundworkNotes: string | null;
+};
+
 function extractGame(data: any): Game {
   return {
     globalId: data.globalId,
@@ -32,6 +39,16 @@ function extractGame(data: any): Game {
   };
 }
 
+function extractGameDetails(data: any): GameDetails {
+  return {
+    ...extractGame(data),
+    goalsDocUrl: data.goalsDocUrl ?? null,
+    goalsNotes: data.goalsNotes ?? null,
+    groundworkDocUrl: data.groundworkDocUrl ?? null,
+    groundworkNotes: data.groundworkNotes ?? null,
+  };
+}
+
 export const gamesApi = {
   getGameById: (id: string): Promise<Game> => {
     log("GamesAPI.getGameById(): started", {});
@@ -40,6 +57,15 @@ export const gamesApi = {
       .then((data: any) => {
         log("GamesAPI.getGameById():JSON data received", {});
         return extractGame(data);
+      });
+  },
+  getGameDetailsById: (id: string): Promise<GameDetails> => {
+    log("GamesAPI.getGameDetailsById(): started", {});
+    return fetch(`/api/fe/games/${id}/details`)
+      .then(jsonOrThrow)
+      .then((data: any) => {
+        log("GamesAPI.getGameDetailsById():JSON data received", {});
+        return extractGameDetails(data);
       });
   },
   getGames: (): Promise<Array<Game>> => {
@@ -78,70 +104,51 @@ export const gamesApi = {
       });
   },
 
-  updateFavorite: (id: string, isFavorite: boolean): Promise<void> => {
-    log("GamesAPI.updateFavorite(): started", {});
-    return fetch(`/api/fe/games/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({
-        id,
-        isFavorite
-      })
-    }).then(throwFor401)
-      .then(() => {
-        log("GamesAPI.updateFavorite():complete", {});
-      });
-  },
-  updateName: (id: string, name: string): Promise<void> => {
-    log("GamesAPI.updateName(): started", {});
-    return fetch(`/api/fe/games/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({
-        id,
-        name
-      })
-    }).then(throwFor401)
-      .then(() => {
-        log("GamesAPI.updateName():complete", {});
-      });
-  },
-  updateStatus: (id: string, status: GameStatus): Promise<void> => {
-    log("GamesAPI.updateStatus(): started", {});
-    return fetch(`/api/fe/games/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({
-        id,
-        status
-      })
-    }).then(throwFor401)
-      .then(() => {
-        log("GamesAPI.updateStatus():complete", {});
-      });
-  },
-  updateLaunchDate: (id: string, launchDate: Date): Promise<void> => {
-    log("GamesAPI.updateLaunchDate(): started", {});
-    return fetch(`/api/fe/games/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({
-        id,
-        launchDate
-      })
-    }).then(throwFor401)
-      .then(() => {
-        log("GamesAPI.updateLaunchDate():complete", {});
-      });
-  }
-
-
+  updateFavorite: updateGame<boolean>("isFavorite"),
+  updateName: updateGame<string>("name"),
+  updateStatus: updateGame<GameStatus>("status"),
+  updateLaunchDate: updateGame<Date>("launchDate"),
+  updateGoalsDocUrl: updateDetails<string>("goalsDocUrl"),
+  updateGoalsNotes: updateDetails<string>("goalsNotes"),
+  updateGroundworkDocUrl: updateDetails<string>("groundworkDocUrl"),
+  updateGroundworkNotes: updateDetails<string>("groundworkNotes"),
 };
+
+
+function updateGame<T>(fieldName: string) {
+  return (id: string, value: T): Promise<void> => {
+    log(`GamesAPI.update${fieldName[0].toLocaleUpperCase()}(): started`, {});
+    return fetch(`/api/fe/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        [fieldName]: value
+      })
+    }).then(throwFor401)
+      .then(() => {
+        log(`GamesAPI.update${fieldName.toLocaleUpperCase()}(): complete`, {});
+      });
+  };
+}
+
+function updateDetails<T>(fieldName: string) {
+  return (id: string, value: T): Promise<void> => {
+    log(`GamesAPI.update${fieldName.toLocaleUpperCase()}(): started`, {});
+    return fetch(`/api/fe/games/${id}/details`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        id,
+        [fieldName]: value
+      })
+    }).then(throwFor401)
+      .then(() => {
+        log(`GamesAPI.update${fieldName.toLocaleUpperCase()}(): complete`, {});
+      });
+  };
+}

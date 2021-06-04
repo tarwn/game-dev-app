@@ -1,10 +1,16 @@
 <script lang="ts">
 </script>
 
-<p>An important step before getting too far in developing your new game is to decide on the goals.</p>
-<p>What do you need to achieve with this game release to consider it a success?</p>
 <p>
-  Keeping the goals in mind will help you make key choices along the way. If you're working with a team, creating a
-  common set of goals and understanding individual goals will help align folks better from the beginning.
+  What do you need for this game to be successful? If you're not solo, what do other team membes (and the studio) need?
+</p>
+<p>
+  Goals can be financial, can reflect a desire to learn, build exposure, or achieve a lifelong dream of shipping a game.
+  Most importantly, defining them is the first step towards stacking the deck as you make decisions and tradeoffs on
+  your game.
+</p>
+<p>
+  If you're solo, this will help you prioritize and make decisions. If you're working with a team, this can ensure folks
+  are aligned (or detect differences from the beginning and adjust for them).
 </p>
 <p>Head over to the "Game Details" screen to get started.</p>

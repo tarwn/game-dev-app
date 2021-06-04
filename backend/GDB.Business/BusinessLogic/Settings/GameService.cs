@@ -81,6 +81,22 @@ namespace GDB.Business.BusinessLogic.Settings
                 {
                     game.Status = updateDto.Status.Value;
                 }
+                if (updateDto.GoalsDocUrl != null)
+                {
+                    game.GoalsDocUrl = updateDto.GoalsDocUrl;
+                }
+                if (updateDto.GoalsNotes != null)
+                {
+                    game.GoalsNotes = updateDto.GoalsNotes;
+                }
+                if (updateDto.GroundworkDocUrl != null)
+                {
+                    game.GroundworkDocUrl = updateDto.GroundworkDocUrl;
+                }
+                if (updateDto.GroundworkNotes != null)
+                {
+                    game.GroundworkNotes = updateDto.GroundworkNotes;
+                }
                 game.UpdatedBy = authContext.UserId;
                 game.UpdatedOn = DateTime.UtcNow;
 

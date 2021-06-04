@@ -96,7 +96,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var result = await controller.GetGamesAsync();
 
-            var resultList = AssertResponseIs<OkObjectResult, List<GameDetailsModel>>(result);
+            var resultList = AssertResponseIs<OkObjectResult, List<GameExpSummaryModel>>(result);
             resultList.OrderBy(g => g.GlobalId)
                 .Should().HaveCountGreaterOrEqualTo(3)
                 .And.BeEquivalentTo(games.Select(g => new GameSummaryModel(g)).ToList());
@@ -115,7 +115,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var result = await controller.GetGamesAsync();
 
-            var resultList = AssertResponseIs<OkObjectResult, List<GameDetailsModel>>(result);
+            var resultList = AssertResponseIs<OkObjectResult, List<GameExpSummaryModel>>(result);
             resultList.OrderBy(g => g.GlobalId)
                 .Should().HaveCount(0);
         }
@@ -133,7 +133,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var result = await controller.GetGamesAsync();
 
-            var resultList = AssertResponseIs<OkObjectResult, List<GameDetailsModel>>(result);
+            var resultList = AssertResponseIs<OkObjectResult, List<GameExpSummaryModel>>(result);
             resultList.OrderBy(g => g.GlobalId)
                 .Should().HaveCount(2);
         }
@@ -216,6 +216,10 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 dto.CashForecastLastUpdatedOn.Should().BeNull();
                 dto.ComparablesLastUpdatedOn.Should().BeNull();
                 dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+                dto.GoalsDocUrl.Should().Be("");
+                dto.GoalsNotes.Should().Be("");
+                dto.GroundworkDocUrl.Should().Be("");
+                dto.GroundworkNotes.Should().Be("");
             }
         }
 
@@ -247,6 +251,10 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 dto.CashForecastLastUpdatedOn.Should().BeNull();
                 dto.ComparablesLastUpdatedOn.Should().BeNull();
                 dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+                dto.GoalsDocUrl.Should().Be("");
+                dto.GoalsNotes.Should().Be("");
+                dto.GroundworkDocUrl.Should().Be("");
+                dto.GroundworkNotes.Should().Be("");
             }
         }
 
@@ -278,11 +286,15 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 dto.CashForecastLastUpdatedOn.Should().BeNull();
                 dto.ComparablesLastUpdatedOn.Should().BeNull();
                 dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+                dto.GoalsDocUrl.Should().Be("");
+                dto.GoalsNotes.Should().Be("");
+                dto.GroundworkDocUrl.Should().Be("");
+                dto.GroundworkNotes.Should().Be("");
             }
         }
 
         [Test]
-        public async Task UpdateGamesAsync_LaunchDate_UpdatesNameOnly()
+        public async Task UpdateGamesAsync_LaunchDate_UpdatesDateOnly()
         {
             var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc), false);
             var controller = GetController();
@@ -309,6 +321,10 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
                 dto.CashForecastLastUpdatedOn.Should().BeNull();
                 dto.ComparablesLastUpdatedOn.Should().BeNull();
                 dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+                dto.GoalsDocUrl.Should().Be("");
+                dto.GoalsNotes.Should().Be("");
+                dto.GroundworkDocUrl.Should().Be("");
+                dto.GroundworkNotes.Should().Be("");
             }
         }
 
@@ -342,6 +358,129 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             Assert.ThrowsAsync<AuthorizationDeniedException>(apiCall);
         }
+
+        [Test]
+        public void UpdateGameDetailsAsync_GameUserDoesNotHaveAccessTo_ReturnsError()
+        {
+            var studio = Database.Studios.Add("A Studio");
+            var game = Database.Games.Add(studio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                isFavorite: false);
+            var controller = GetController();
+
+            AsyncTestDelegate apiCall = async () =>
+                await controller.UpdateGameDetailsAsync(game.GetGlobalId(), new UpdateGameDetailsRequestModel()
+                {
+                    GoalsDocUrl = "abc"
+                });
+
+            Assert.ThrowsAsync<AccessDeniedException>(apiCall);
+        }
+
+        [Test]
+        public async Task UpdateGameDetailssAsync_NoArgs_ReturnsBadRequest()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                isFavorite: false);
+            var controller = GetController();
+
+            var result = await controller.UpdateGameDetailsAsync(game.GetGlobalId(), new UpdateGameDetailsRequestModel()
+            {
+                // no fields
+            });
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Test]
+        public void UpdateGameDetailsAsync_NotAnAdmin_FailsWithError()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            // user was a diff role when they logged in + we use role from then
+            var controller = GetController(role: StudioUserRole.User);
+
+            AsyncTestDelegate apiCall = async () =>
+                await controller.UpdateGameDetailsAsync(game.GetGlobalId(), new UpdateGameDetailsRequestModel()
+                {
+                    GoalsDocUrl = "abc"
+                });
+
+            Assert.ThrowsAsync<AuthorizationDeniedException>(apiCall);
+        }
+
+        [Test]
+        public async Task UpdateGameDetailsAsync_OneField_UpdatesOneFieldOnly()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc), false);
+            var controller = GetController();
+
+            var result = await controller.UpdateGameDetailsAsync(game.GetGlobalId(), new UpdateGameDetailsRequestModel()
+            {
+                GoalsDocUrl = "abc"
+            });
+
+            result.Should().BeOfType<OkResult>();
+            using (var conn = Database.GetConnection())
+            {
+                var dto = await conn.QuerySingleAsync<GameDTO>("SELECT *, Status = GameStatusId FROM Game WHERE Id = @Id", game);
+                dto.Should().NotBeNull();
+                dto.UpdatedBy.Should().Be(_user.Id);
+                dto.GoalsDocUrl.Should().Be("abc");
+                // unchanged
+                dto.CreatedBy.Should().Be(-1);
+                dto.StudioId.Should().Be(_existingStudio.Id);
+                dto.Name.Should().Be(game.Name);
+                dto.IsFavorite.Should().Be(false);
+                dto.Status.Should().Be(GameStatus.Live);
+                dto.LaunchDate.Should().Be(new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+                dto.BusinessModelLastUpdatedOn.Should().BeNull();
+                dto.CashForecastLastUpdatedOn.Should().BeNull();
+                dto.ComparablesLastUpdatedOn.Should().BeNull();
+                dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+                dto.GoalsNotes.Should().Be("");
+                dto.GroundworkDocUrl.Should().Be("");
+                dto.GroundworkNotes.Should().Be("");
+            }
+        }
+
+        [Test]
+        public async Task UpdateGameDetailsAsync_AllDetailsFields_UpdatesDetailFieldsOnly()
+        {
+            var game = Database.Games.Add(_existingStudio.Id, GameStatus.Live, "name", "logo url", new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc), false);
+            var controller = GetController();
+
+            var result = await controller.UpdateGameDetailsAsync(game.GetGlobalId(), new UpdateGameDetailsRequestModel()
+            {
+                GoalsDocUrl = "abc",
+                GoalsNotes = "def",
+                GroundworkDocUrl = "ghi",
+                GroundworkNotes = "jkl"
+            });
+
+            result.Should().BeOfType<OkResult>();
+            using (var conn = Database.GetConnection())
+            {
+                var dto = await conn.QuerySingleAsync<GameDTO>("SELECT *, Status = GameStatusId FROM Game WHERE Id = @Id", game);
+                dto.Should().NotBeNull();
+                dto.UpdatedBy.Should().Be(_user.Id);
+                dto.GoalsDocUrl.Should().Be("abc");
+                dto.GoalsNotes.Should().Be("def");
+                dto.GroundworkDocUrl.Should().Be("ghi");
+                dto.GroundworkNotes.Should().Be("jkl");
+                // unchanged
+                dto.CreatedBy.Should().Be(-1);
+                dto.StudioId.Should().Be(_existingStudio.Id);
+                dto.Name.Should().Be(game.Name);
+                dto.IsFavorite.Should().Be(false);
+                dto.Status.Should().Be(GameStatus.Live);
+                dto.LaunchDate.Should().Be(new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+                dto.BusinessModelLastUpdatedOn.Should().BeNull();
+                dto.CashForecastLastUpdatedOn.Should().BeNull();
+                dto.ComparablesLastUpdatedOn.Should().BeNull();
+                dto.MarketingPlanLastUpdatedOn.Should().BeNull();
+            }
+        }
+
+
 
         [Test]
         public async Task DeleteGameAsync_ValidGame_IsDeleted()

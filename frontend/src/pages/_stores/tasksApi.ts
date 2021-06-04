@@ -78,7 +78,7 @@ const defaults = new Map<TaskType, BuiltInTaskDetail>([
   [TaskType.Concept, bitd("Concept", ModuleLinkType.GameDetails, "Creating your initial game idea.")],
   [TaskType.Goals, bitd("Goals", ModuleLinkType.GameDetails, "Write down your goals for this game release.")],
   // eslint-disable-next-line max-len
-  [TaskType.Groundwork, bitd("Project Groundwork", ModuleLinkType.GameDetails, "Quickly define the working methods, decision-making, storage of assets, etc.")],
+  [TaskType.Groundwork, bitd("Project Groundwork", ModuleLinkType.GameDetails, "Quickly define a pipeline, decision-making, project management, roles, etc.")],
   // eslint-disable-next-line max-len
   [TaskType.BusinessModel, bitd("Business Outline", ModuleLinkType.BusinessModel, "Initial definition: unique concept/hook, audience, resources, and cashflow.")],
   // eslint-disable-next-line max-len

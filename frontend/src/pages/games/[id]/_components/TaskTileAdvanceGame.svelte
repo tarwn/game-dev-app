@@ -18,7 +18,7 @@
   $: nextStatusName = GameStatuses.find((gs) => gs.id == nextStatus)?.name ?? "";
 
   function getNextGameStatus(status: GameStatus) {
-    switch (gameStatus) {
+    switch (status) {
       case GameStatus.Idea:
         return GameStatus.Planning;
       case GameStatus.Planning:
@@ -28,7 +28,7 @@
       case GameStatus.Live:
         return null;
       default:
-        throw new Error(`Cannot advance a game in status ${gameStatus}`);
+        throw new Error(`Cannot advance a game in status ${status}`);
     }
   }
 

@@ -35,7 +35,7 @@ namespace GDB.App.Controllers.Frontend
         {
             var user = GetUserAuthContext();
             var games = await _userQueries.GetAllGamesAsync(user);
-            var result = games.Select(game => new GameDetailsModel(game)).ToList();
+            var result = games.Select(game => new GameExpSummaryModel(game)).ToList();
             return Ok(result);
         }
 
@@ -54,7 +54,16 @@ namespace GDB.App.Controllers.Frontend
             var user = GetUserAuthContext();
             var id = IdHelper.CheckAndExtractGameId(globalId, user);
             var game = await _userQueries.GetGameAsync(id, user);
-            return Ok(game);
+            return Ok(new GameExpSummaryModel(game));
+        }
+
+        [HttpGet("{globalId}/details")]
+        public async Task<IActionResult> GetGameDetailsAsync(string globalId)
+        {
+            var user = GetUserAuthContext();
+            var id = IdHelper.CheckAndExtractGameId(globalId, user);
+            var game = await _userQueries.GetGameAsync(id, user);
+            return Ok(new GameModel(game));
         }
 
         [HttpPost("new")]
@@ -90,7 +99,34 @@ namespace GDB.App.Controllers.Frontend
             await _gameService.UpdateGameAsync(id, updateDto, user);
             _telemetryClient?.TrackEvent("UpdateGameAsync-CallingSignalR");
             await _signalrSender.SendAsync(user, UpdateScope.StudioGameList, new { GameId = globalId });
+            await _signalrSender.SendAsync(user, UpdateScope.GameDetails, globalId, new { GameId = globalId });
             _telemetryClient?.TrackEvent("UpdateGameAsync-Complete");
+            return Ok();
+        }
+
+        [HttpPost("{globalId}/details")]
+        public async Task<IActionResult> UpdateGameDetailsAsync(string globalId, [FromBody] UpdateGameDetailsRequestModel update)
+        {
+            _telemetryClient?.TrackEvent("UpdateGameAsync-Started");
+
+            if (update.GoalsDocUrl == null && update.GoalsNotes == null && update.GroundworkDocUrl == null && update.GroundworkNotes == null)
+            {
+                ModelState.AddModelError("", "At least one field must be specified in order to perform an update");
+                return BadRequest(ModelState);
+            }
+
+            var user = GetUserAuthContext();
+            var id = IdHelper.CheckAndExtractGameId(globalId, user);
+            var updateDto = new UpdateGameDTO()
+            {
+                GoalsDocUrl = update.GoalsDocUrl,
+                GoalsNotes = update.GoalsNotes,
+                GroundworkDocUrl = update.GroundworkDocUrl,
+                GroundworkNotes = update.GroundworkNotes
+            };
+            await _gameService.UpdateGameAsync(id, updateDto, user);
+            await _signalrSender.SendAsync(user, UpdateScope.StudioGameList, new { GameId = globalId });
+            await _signalrSender.SendAsync(user, UpdateScope.GameDetails, globalId, new { GameId = globalId });
             return Ok();
         }
 

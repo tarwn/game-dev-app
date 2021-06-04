@@ -23,9 +23,9 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
             {
                 var sql = @"
                     INSERT INTO dbo.Game(StudioId, [Name], GameStatusId, LaunchDate, IsFavorite, LogoUrl, CreatedOn, CreatedBy, UpdatedOn, UpdatedBy, DeletedOn, DeletedBy,
-                                        CashForecastLastUpdatedOn, CashForecastLastUpdatedBy)
+                                        CashForecastLastUpdatedOn, CashForecastLastUpdatedBy, GoalsDocUrl, GoalsNotes, GroundworkDocUrl, GroundworkNotes)
                     VALUES(@StudioId, @Name, @Status, @LaunchDate, @IsFavorite, @LogoUrl, @CreatedOn, @CreatedBy, @UpdatedOn, @UpdatedBy, @DeletedOn, @DeletedBy,
-                                        @CashForecastLastUpdatedOn, @CashForecastLastUpdatedBy);
+                                        @CashForecastLastUpdatedOn, @CashForecastLastUpdatedBy, @GoalsDocUrl, @GoalsNotes, @GroundworkDocUrl, @GroundworkNotes);
                     
                     DECLARE @GameId int = scope_identity();
 
@@ -51,7 +51,11 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
                     deletedOn = isDeleted ? DateTime.UtcNow : (DateTime?) null,
                     deletedBy = isDeleted ? -1 : (int?)null,
                     CashForecastLastUpdatedOn = hasCashForecast ? DateTime.UtcNow : (DateTime?) null,
-                    CashForecastLastUpdatedBy = hasCashForecast ? -1 : (int?) null
+                    CashForecastLastUpdatedBy = hasCashForecast ? -1 : (int?) null,
+                    GoalsDocUrl = "",
+                    GoalsNotes = "",
+                    GroundworkDocUrl = "",
+                    GroundworkNotes = ""
                 };
                 return conn.QuerySingle<GameDTO>(sql, param);
             }

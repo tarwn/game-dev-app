@@ -9,7 +9,6 @@
   import type { UserProfile } from "../../../_stores/profileApi";
   import { profileStore } from "../../../_stores/profileStore";
   import type { DetailedTask, Task } from "../../../_stores/tasksApi";
-  import { TaskType } from "../../../_stores/tasksApi";
   import { activeTaskStore, allTasksStore } from "../../../_stores/tasksStore";
   import { GameStatus } from "../../../_stores/types";
   import { isModuleAvailable } from "../../../_types/modules";
@@ -19,7 +18,7 @@
   import TasksWitp from "./_components/TasksWITP.svelte";
 
   // page title
-  metatags.title = "[LR] Cash Forecast";
+  metatags.title = "[LR] Tasks";
 
   // params
   $: id = $params.id;
@@ -152,7 +151,7 @@
             <TaskTile
               {task}
               isAssignedTask={task.id == activeTask?.task?.id}
-              disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+              disabled={!isModuleAvailable(task.moduleType)} />
           </div>
         {/each}
       </div>
@@ -173,7 +172,7 @@
             <TaskTile
               {task}
               isAssignedTask={task.id == activeTask?.task?.id}
-              disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+              disabled={!isModuleAvailable(task.moduleType)} />
           </div>
         {/each}
       </div>
@@ -195,7 +194,7 @@
               <TaskTile
                 {task}
                 isAssignedTask={task.id == activeTask?.task?.id}
-                disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+                disabled={!isModuleAvailable(task.moduleType)} />
             </div>
           {/each}
         </div>
@@ -236,7 +235,7 @@
               <TaskTile
                 {task}
                 isAssignedTask={task.id == activeTask?.task?.id}
-                disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
+                disabled={!isModuleAvailable(task.moduleType)} />
             </div>
           {/each}
         </div>

@@ -20,14 +20,14 @@
   import TaskTile from "./_components/TaskTile.svelte";
   import TaskTilePlaceholder from "./_components/TaskTilePlaceholder.svelte";
   import type { Task, DetailedTask } from "../../_stores/tasksApi";
-  import { TaskType } from "../../_stores/tasksApi";
   import { activeTaskStore, openTasksStore } from "../../_stores/tasksStore";
   import { log } from "../../../utilities/logger";
   import WebSocketChannel from "../../_communications/WebSocketChannel.svelte";
   import { UpdateScope } from "../../_communications/UpdateScope";
-  import { isModuleAvailable, ModuleLinkType } from "../../_types/modules";
+  import { ModuleLinkType } from "../../_types/modules";
   import TaskTileLoading from "./_components/TaskTileLoading.svelte";
   import TaskTileAdvanceGame from "./_components/TaskTileAdvanceGame.svelte";
+  import LinkAsButton from "../../../components/buttons/LinkAsButton.svelte";
 
   metatags.title = "[LR] Dashboard";
 
@@ -189,6 +189,10 @@
     display: inline-block;
     color: $text-color-light;
   }
+
+  .gdb-game-buttons {
+    float: right;
+  }
 </style>
 
 <WebSocketChannel
@@ -214,6 +218,9 @@
   <div class="row">
     <section class="gdb-tile-container">
       <div class="gdb-game-tile">
+        <div class="gdb-game-buttons">
+          <LinkAsButton value="Edit details" buttonStyle="primary-outline" href={`/games/${game.globalId}/details`} />
+        </div>
         <div class="gdb-game-title">{game.name}</div>
         <div>
           <span class="gdb-label">Stage:</span>
@@ -246,13 +253,10 @@
 <div class="gdb-tile-carousel">
   {#if openTasks}
     <div class="row">
-      {#each openTasks as task, i (task.id)}
-        {#if openTasks.length <= 5 || i < 4}
-          <TaskTile
-            {task}
-            isAssignedTask={task.id == activeTask?.task?.id}
-            disabled={!isModuleAvailable(task.moduleType) && task.taskType !== TaskType.Concept} />
-        {/if}
+      {#each openTasks as task (task.id)}
+        <!-- {#if openTasks.length <= 5 || i < 4} -->
+        <TaskTile {task} isAssignedTask={task.id == activeTask?.task?.id} disabled={false} />
+        <!-- {/if} -->
       {/each}
       {#if openTasks.length > 0 && openTasks.length < 5}
         <TaskTilePlaceholder />
@@ -285,6 +289,6 @@
 <div class="row gdb-row-tiles">
   <Tile {id} module={ModuleLinkType.BusinessModel} lastUpdated={game?.businessModelLastUpdatedOn} />
   <Tile {id} module={ModuleLinkType.CashForecast} lastUpdated={game?.cashForecastLastUpdatedOn} />
-  <Tile {id} module={ModuleLinkType.Comparables} disabled={true} />
-  <Tile {id} module={ModuleLinkType.MarketingStrategy} disabled={true} />
+  <Tile {id} module={ModuleLinkType.Comparables} disabled={false} />
+  <Tile {id} module={ModuleLinkType.MarketingStrategy} disabled={false} />
 </div>

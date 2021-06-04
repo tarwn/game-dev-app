@@ -1,81 +1,87 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { getCurrencyHelper } from "./currencyHelper";
   import ValidationPopup from "./ValidationPopup.svelte";
 
   export let disabled: boolean = false;
-  export let min: number = 0;
-  export let max: number = 100000000;
   export let id: string | undefined = undefined;
-  export let value: number = 0.0;
+  export let value: string = "";
+  export let maxLength: number = 20;
   const ariaLabel: string | null = $$props["aria-label"];
   const DEBOUNCE_LIMIT = 100; // ms
 
-  let internalValue = value;
-  const dispatch = createEventDispatcher();
+  // TODO - add delayed update - if they pause for a second or two, treat is as an update
+  //  consumers can opt into that behavior, but also will have to consider ignoring the regular change event
 
   // -- debug
   // const log = (o: any) => console.log(o);
   const log = (_: any) => undefined;
   // --
 
-  // -- prep for currency operations
-  const locale = "en-US";
-  const currency = "USD";
-  const decimalScale = 2;
-  const helper = getCurrencyHelper(locale, currency, decimalScale);
-  // --
+  let internalValue = value;
+  const dispatch = createEventDispatcher();
 
-  function validateValue(parsedValue: number) {
-    return !isNaN(parsedValue) && parsedValue >= min && parsedValue <= max;
+  function parseValue(rawValue: string) {
+    return rawValue.trim();
   }
 
-  function formatValue(value: number) {
-    return helper.formatValue(value).replace("$", "");
+  function validateValue(parsedValue: string) {
+    return parsedValue.length <= maxLength;
   }
 
   // this is the value displayed in the box
   //  if the external value is altered, we will react and update the visible value to match
-  let visibleValue = formatValue(value);
+  let visibleValue = value;
   let isValid = true;
-  let formattedMin = helper.formatValue(min);
-  let formattedMax = helper.formatValue(max);
 
   $: {
     if (internalValue !== value) {
       log("external value change detected");
+      log({ a: "ext-a", internalValue, visibleValue, value });
+
       internalValue = value;
-      visibleValue = formatValue(value);
+      visibleValue = value;
+      log({ a: "ext-b", internalValue, visibleValue, value });
     }
+  }
+  $: {
+    log("visible value changed: " + visibleValue);
+    log({ value, internalValue, visibleValue });
   }
 
   function filterKeyDown(e: KeyboardEvent) {
     if (e.key === "Escape") {
       internalValue = value;
-      visibleValue = formatValue(value);
+      visibleValue = value;
       isValid = validateValue(value);
-    } else if (!e.metaKey && !e.ctrlKey && !e.altKey && !helper.allowedCharacters.has(e.key)) {
-      e.preventDefault();
     }
   }
 
-  function handleFocusOut(e: any) {
-    const rawValue = e.target.value;
-    const parsedValue = helper.parseValue(rawValue);
+  function handleInput(e: Event) {
+    const target = e.target as HTMLInputElement;
+    if (target.value.length > maxLength) {
+      target.value = target.value.substr(0, maxLength);
+    }
+  }
+
+  function handleFocusOut(e: Event) {
+    const target = e.target as HTMLInputElement;
+    const rawValue = target.value;
+    const parsedValue = parseValue(rawValue);
+
     if (!validateValue(parsedValue)) {
       e.stopPropagation();
       isValid = false;
-      refocusWithDebounce(e.target);
-      visibleValue = e.target.value;
+      refocusWithDebounce(target);
+      visibleValue = target.value;
       dispatch("validation", { isValid });
       return;
     }
 
     // may be unnecessary - if we exclude this it requires full round-trip from bound value to display fresh formatting
     isValid = true;
-    visibleValue = formatValue(parsedValue);
+    visibleValue = parsedValue;
     // forced update in case the underlying values haven't changed
-    e.target.value = visibleValue;
+    target.value = visibleValue;
     dispatch("validation", { isValid });
     if (parsedValue != value) {
       dispatch("change", { value: parsedValue, formattedValue: visibleValue });
@@ -99,18 +105,10 @@
     position: relative;
     display: flex;
     // width: 100%; remove because it was overflowin parent after other fixes
-    box-sizing: content-box;
+    box-sizing: border-box;
   }
 
-  .gdb-faux-input > .gdb-input-symbol {
-    font-size: $font-size-smallest;
-    line-height: $line-height-base;
-    color: $cs-grey-3;
-    padding-right: $space-xs;
-  }
-
-  .gdb-faux-input > input {
-    text-align: right;
+  .gdb-faux-input > textarea {
     flex: 1 1 auto;
     padding: 0;
     border: 0;
@@ -122,7 +120,7 @@
     border-color: $cs-red-4;
     background-color: $cs-red-0;
 
-    & > input {
+    & > textarea {
       color: $cs-red-4;
       background-color: $cs-red-0;
     }
@@ -130,23 +128,23 @@
 </style>
 
 <div class="gdb-input gdb-faux-input" class:isInvalid={!isValid} class:disabled>
-  <span class="gdb-input-symbol">$</span>
-  <input
+  <textarea
     type="text"
     {id}
     value={visibleValue}
     on:keydown={filterKeyDown}
     on:focusout={handleFocusOut}
+    on:input={handleInput}
     role="textbox"
     {disabled}
     tabIndex={disabled ? -1 : 0}
     aria-label={ariaLabel} />
   <ValidationPopup {isValid}>
     <span slot="message">
-      Enter a value between <b>{formattedMin}</b> - <b>{formattedMax}</b>.
+      Enter a value that is {maxLength} characters or less.
     </span>
     <span slot="note">
-      or press "Esc" to return to {helper.formatValue(internalValue)}
+      or press "Esc" to return to "{internalValue}"
     </span>
   </ValidationPopup>
 </div>

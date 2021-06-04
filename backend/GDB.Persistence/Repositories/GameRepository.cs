@@ -34,7 +34,11 @@ namespace GDB.Persistence.Repositories
             ComparablesLastUpdatedOn,
             ComparablesLastUpdatedBy,
             MarketingPlanLastUpdatedOn,
-            MarketingPlanLastUpdatedBy
+            MarketingPlanLastUpdatedBy,
+            GoalsDocUrl,
+            GoalsNotes,
+            GroundworkDocUrl,
+            GroundworkNotes
         ";
 
         public async Task<GameDTO> CreateAsync(GameDTO game)
@@ -141,6 +145,10 @@ namespace GDB.Persistence.Repositories
                     [Name] = @Name,
                     GameStatusId = @Status,
                     LaunchDate = @LaunchDate,
+                    GoalsDocUrl = @GoalsDocUrl,
+                    GoalsNotes = @GoalsNotes,
+                    GroundworkDocUrl = @GroundworkDocUrl,
+                    GroundworkNotes = @GroundworkNotes,
                     UpdatedBy = @UpdatedBy,
                     UpdatedOn = @UpdatedOn
                 WHERE StudioId = @StudioId

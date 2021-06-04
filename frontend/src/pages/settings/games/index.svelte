@@ -16,6 +16,7 @@
   import { gamesStore } from "../../_stores/gamesStore";
   import { isUserSessionAdmin } from "../../../authorization";
   import LabelCell from "../../../components/table/LabelCell.svelte";
+  import LinkAsButton from "../../../components/buttons/LinkAsButton.svelte";
 
   metatags.title = "[LR] Settings / Games";
   metatags.description = "Your LaunchReady Settings: Manage games for your studio.";
@@ -126,6 +127,7 @@
             {/if}
           </td>
           <td>
+            <LinkAsButton href={`/games/${game.globalId}/details`} value="Open details" buttonStyle="primary-outline" />
             {#if hasNotBeenUsed(game)}
               <IconButton
                 icon={PredefinedIcons.Delete}

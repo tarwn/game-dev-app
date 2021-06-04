@@ -6,5 +6,6 @@ export enum UpdateScope {
   GameCashforecast = 5,
   StudioUserList = 6,
   GameTasks = 7,
-  AssignedGameTask = 8
+  AssignedGameTask = 8,
+  GameDetails = 9
 }

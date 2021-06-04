@@ -62,7 +62,10 @@ namespace GDB.Common.DTOs.Game
         public int? ComparablesLastUpdatedBy { get; set; }
         public DateTime? MarketingPlanLastUpdatedOn { get; set; }
         public int? MarketingPlanLastUpdatedBy { get; set; }
-
+        public string GoalsDocUrl { get; set; }
+        public string GoalsNotes { get; set; }
+        public string GroundworkDocUrl { get; set; }
+        public string GroundworkNotes { get; set; }
 
     }
 }

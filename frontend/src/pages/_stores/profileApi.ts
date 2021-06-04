@@ -11,7 +11,8 @@ export enum AutomaticPopup {
   None = 0,
   GameDashboard = 1,
   BusinessModel = 2,
-  CashForecast = 4
+  CashForecast = 4,
+  GameDetails = 8
 }
 
 function extractUserProfile(data: any): UserProfile {

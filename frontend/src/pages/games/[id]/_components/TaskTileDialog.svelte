@@ -7,7 +7,6 @@
   import ContactMe from "../../../../components/ContactMe.svelte";
   import type { DetailedTask } from "../../../_stores/tasksApi";
   import { TaskType, tasksApi, TaskState } from "../../../_stores/tasksApi";
-  import { activeTaskStore } from "../../../_stores/tasksStore";
   import { getModuleImageHref } from "../../../_types/modules";
   import BusinessModelTaskDialog from "./taskDialogContent/BusinessModelTaskDialog.svelte";
   import ComparablesTaskDialog from "./taskDialogContent/ComparablesTaskDialog.svelte";

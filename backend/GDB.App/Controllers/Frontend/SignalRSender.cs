@@ -40,6 +40,7 @@ namespace GDB.App.Controllers.Frontend
                 case UpdateScope.GameBusinessModel:
                 case UpdateScope.GameCashforecast:
                 case UpdateScope.GameTasks:
+                case UpdateScope.GameDetails:
                     return $"{auth.StudioId}/{id}/{scope}";
                 case UpdateScope.AssignedGameTask:
                     return $"user/{auth.UserId}/game/{id}/task";

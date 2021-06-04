@@ -1,4 +1,5 @@
 <script lang="ts">
+  import WitpImage from "../../../../../components/witp/WitpImage.svelte";
 </script>
 
 <style type="text/scss">
@@ -10,14 +11,6 @@
 
   p {
     max-width: 800px;
-  }
-
-  img {
-    display: inline-block;
-    color: $cs-grey-2;
-    opacity: 0.9;
-    margin: auto;
-    max-width: 600px;
   }
 
   .indented {
@@ -52,11 +45,11 @@
 
 <p>Click "Start" to begin entering details ("Full View" will zoom back out).</p>
 
-<img src="/images/witp/BusinessModelGetStarted.png" alt="Getting started on the Business Model screen" />
+<WitpImage src="/images/witp/BusinessModelGetStarted.png" alt="Getting started on the Business Model screen" />
 
 <p>Inside, each section includes instructions, ideas, and links to external content.</p>
 
-<img src="/images/witp/BusinessModelStage1.png" alt="Overview of the Business Model screen" />
+<WitpImage src="/images/witp/BusinessModelStage1.png" alt="Overview of the Business Model screen" />
 
 <p>
   <i>Note: Everything autosaves so you won't lose work. A message will appear if you're offline and it can't save.</i>

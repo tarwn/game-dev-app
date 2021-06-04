@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace GDB.App.Controllers.Frontend.Models.Games
 {
-    public class GameDetailsModel
+    public class GameModel
     {
         [Obsolete("Serialization Only", false)]
-        public GameDetailsModel() { }
+        public GameModel() { }
 
-        public GameDetailsModel(GameDTO game)
+        public GameModel(GameDTO game)
         {
             GlobalId = game.GetGlobalId();
             Name = game.Name;
@@ -19,6 +19,10 @@ namespace GDB.App.Controllers.Frontend.Models.Games
             LastModified = game.UpdatedOn;
             LaunchDate = game.LaunchDate;
             IsFavorite = game.IsFavorite;
+            GoalsDocUrl = game.GoalsDocUrl;
+            GoalsNotes = game.GoalsNotes;
+            GroundworkDocUrl = game.GroundworkDocUrl;
+            GroundworkNotes = game.GroundworkNotes;
             // modules
             BusinessModelLastUpdatedOn = game.BusinessModelLastUpdatedOn;
             BusinessModelLastUpdatedBy = game.BusinessModelLastUpdatedBy;
@@ -36,6 +40,10 @@ namespace GDB.App.Controllers.Frontend.Models.Games
         public DateTime LastModified { get; set; }
         public DateTime LaunchDate { get; }
         public bool IsFavorite { get; set; }
+        public string GoalsDocUrl { get; }
+        public string GoalsNotes { get; }
+        public string GroundworkDocUrl { get; }
+        public string GroundworkNotes { get; }
         public DateTime? BusinessModelLastUpdatedOn { get; }
         public int? BusinessModelLastUpdatedBy { get; }
         public DateTime? CashForecastLastUpdatedOn { get; }
