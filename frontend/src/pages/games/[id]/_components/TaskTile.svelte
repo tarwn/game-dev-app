@@ -141,6 +141,8 @@
     text-align: center;
     padding: $space-s;
     z-index: 6;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .gdb-due-date {

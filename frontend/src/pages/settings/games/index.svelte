@@ -74,7 +74,7 @@
         <col span="1" style="width: 14rem;" />
         <col span="1" style="width: 10rem;" />
         <col span="1" style="width: 10rem;" />
-        <col span="1" style="width: 8rem;" />
+        <col span="1" style="width: 14rem;" />
         <col span="1" style="width: 4rem;" />
         <col span="1" style="" /><!-- soak up excess width -->
       </colgroup>
