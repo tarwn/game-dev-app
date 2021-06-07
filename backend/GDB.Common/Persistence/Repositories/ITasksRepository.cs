@@ -1,4 +1,5 @@
-﻿using GDB.Common.DTOs.Task;
+﻿using GDB.Common.DTOs.Game;
+using GDB.Common.DTOs.Task;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace GDB.Common.Persistence.Repositories
         Task<TaskDTO> GetAsync(int taskId);
         Task UpdateAsync(TaskDTO task);
         Task<TaskDTO> GetAssignedTaskAsync(int gameId, int userId);
+        Task<int> CreateInitialTasksAsync(int gameId, int userId, DateTime createdOn);
     }
 }

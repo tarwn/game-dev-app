@@ -33,7 +33,12 @@ namespace GDB.Business.BusinessLogic.Settings
                 var game = new GameDTO(0, authContext.StudioId, "New Game", GameStatus.Idea, launchDate, "", true,
                     DateTime.UtcNow, authContext.UserId,
                     DateTime.UtcNow, authContext.UserId);
-                return await p.Games.CreateAsync(game);
+                var createdGame = await p.Games.CreateAsync(game);
+
+                // and now initial tasks
+                await p.Tasks.CreateInitialTasksAsync(createdGame.Id, authContext.UserId, DateTime.UtcNow);
+
+                return createdGame;
             });
         }
 

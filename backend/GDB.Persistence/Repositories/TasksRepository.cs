@@ -171,5 +171,19 @@ namespace GDB.Persistence.Repositories
                 await conn.ExecuteAsync(sql, task);
             }
         }
+
+        public async Task<int> CreateInitialTasksAsync(int gameId, int userId, DateTime createdOn)
+        {
+            var param = new { gameId, userId, createdOn };
+            var sql = @"
+                INSERT INTO dbo.GameTask(TaskTypeId, GameId, TaskStateId, DueDate, CreatedOn, CreatedBy)
+                SELECT TT.Id, @GameId, 1 /* Open */, NULL, @CreatedOn, @UserId
+                FROM dbo.TaskType TT;
+            ";
+            using (var conn = GetConnection())
+            {
+                return await conn.ExecuteAsync(sql, param);
+            }
+        }
     }
 }
