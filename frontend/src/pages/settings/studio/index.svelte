@@ -110,7 +110,7 @@
           </LabeledInput>
         </td>
       </TableRowIndented>
-      <TableRowEmpty />
+      <TableRowEmpty colspan={3} />
       <TableRowIndented>
         <td>
           <LabeledInput label="Current LaunchReady Plan" vertical={true}>

@@ -2,8 +2,8 @@
 {
     public enum BillingPlan
     {
-        EarlyAccess = 1,
-        SmallIndie = 2,
-        GrowingStudio = 3
+        EarlyAccessFlatFee = 1,
+        SmallIndieFlatFee = 2,
+        GrowingStudioFlatFee = 3
     }
 }

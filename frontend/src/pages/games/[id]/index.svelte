@@ -229,7 +229,7 @@
         <div>
           {#if cashForecast}
             <span class="gdb-label">Launch:</span>
-            <DateSpan date={game.launchDate} />
+            <DateSpan date={game.launchDate} style="date" />
           {/if}
         </div>
         <div class="gdb-game-tile-footer">
@@ -289,6 +289,6 @@
 <div class="row gdb-row-tiles">
   <Tile {id} module={ModuleLinkType.BusinessModel} lastUpdated={game?.businessModelLastUpdatedOn} />
   <Tile {id} module={ModuleLinkType.CashForecast} lastUpdated={game?.cashForecastLastUpdatedOn} />
-  <Tile {id} module={ModuleLinkType.Comparables} disabled={false} />
-  <Tile {id} module={ModuleLinkType.MarketingStrategy} disabled={false} />
+  <Tile {id} module={ModuleLinkType.Comparables} lastUpdated={null} disabled={false} />
+  <Tile {id} module={ModuleLinkType.MarketingStrategy} lastUpdated={null} disabled={false} />
 </div>

@@ -11,15 +11,15 @@ export type Studio = {
 }
 
 export enum BillingPlan {
-  EarlyAccess = 1,
-  SmallIndie = 2,
-  GrowingStudio = 3
+  EarlyAccessFlatFee = 1,
+  SmallIndieFlatFee = 2,
+  GrowingStudioFlatFee = 3
 }
 
 export const BillingPlans: { id: BillingPlan, name: string }[] = [
-  { id: BillingPlan.EarlyAccess, name: "Early Access" },
-  { id: BillingPlan.SmallIndie, name: "Small Indie" },
-  { id: BillingPlan.GrowingStudio, name: "Growing Studio" },
+  { id: BillingPlan.EarlyAccessFlatFee, name: "Early Access" },
+  { id: BillingPlan.SmallIndieFlatFee, name: "Small Indie" },
+  { id: BillingPlan.GrowingStudioFlatFee, name: "Growing Studio" },
 ];
 
 
