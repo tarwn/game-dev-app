@@ -16,7 +16,7 @@ namespace GDB.App.Tests.IntegrationTests.DataSetup.Tables
             _databaseHelper = databaseHelper;
         }
 
-        public AccessibleStudio Add(string name, BillingPlan billingPlan = BillingPlan.EarlyAccess, DateTime? trialStart = null, DateTime? trialEnd = null)
+        public AccessibleStudio Add(string name, BillingPlan billingPlan = BillingPlan.EarlyAccessFlatFee, DateTime? trialStart = null, DateTime? trialEnd = null)
         {
             using (var conn = _databaseHelper.GetConnection())
             {
