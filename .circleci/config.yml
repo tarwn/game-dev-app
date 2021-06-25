@@ -102,7 +102,7 @@ jobs:
 
   deploy-application:
     docker:
-      - image: microsoft/azure-cli:latest
+      - image: mcr.microsoft.com/azure-cli/azure-cli:latest
     environment:
       VERSION_NUMBER: 0.0.0.<< pipeline.number >>
     steps:
