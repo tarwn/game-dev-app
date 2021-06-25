@@ -83,42 +83,41 @@
     }
   }
 
+  $defPadding: $space-s;
+  $toggle: $space-m + $space-s;
+  $indent: $space-s;
   .gdb-cf-summaryTable :global(tbody th) {
     text-align: left;
     white-space: nowrap;
     font-weight: normal;
     background-color: white;
     padding: $space-xs $space-s;
+  }
 
-    $defPadding: $space-s;
-    $toggle: $space-m + $space-s;
-    $indent: $space-s;
+  // top level group: $defPadding + $toggle
 
-    // top level group: $defPadding + $toggle
+  // indented member of top group
+  .gdb-cf-summaryTable :global(tbody th.isIndented) {
+    padding-left: $defPadding + $toggle + $indent;
+  }
 
-    // indented member of top group
-    &.isIndented {
-      padding-left: $defPadding + $toggle + $indent;
-    }
+  // subtotal of top group
+  .gdb-cf-summaryTable :global(tbody th.isSubTotalValue) {
+    // lines up with first row
+    padding-left: $defPadding + $toggle;
+  }
 
-    // subtotal of top group
-    &.isSubTotalValue {
-      // lines up with first row
-      padding-left: $defPadding + $toggle;
-    }
+  // indented group of top group
+  .gdb-cf-summaryTable :global(tbody th.isIndented.isGroup) {
+    padding-left: $defPadding + $toggle + $indent + $toggle;
+  }
+  .gdb-cf-summaryTable :global(tbody th.isIndented.isGroup.hasToggle) {
+    padding-left: $defPadding + $toggle + $indent;
+  }
 
-    // indented group of top group
-    &.isIndented.isGroup {
-      padding-left: $defPadding + $toggle + $indent + $toggle;
-    }
-    &.isIndented.isGroup.hasToggle {
-      padding-left: $defPadding + $toggle + $indent;
-    }
-
-    // indented child (double indented)
-    &.isDoubleIndented {
-      padding-left: $defPadding + $toggle + $indent + $toggle + $indent;
-    }
+  // indented child (double indented)
+  .gdb-cf-summaryTable :global(tbody th.isDoubleIndented) {
+    padding-left: $defPadding + $toggle + $indent + $toggle + $indent;
   }
 
   .gdb-cf-summaryTable :global(td) {

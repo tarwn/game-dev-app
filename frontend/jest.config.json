@@ -15,5 +15,6 @@
     "js",
     "ts",
     "svelte"
-  ]
+  ],
+  "testEnvironment": "jsdom"
 }
