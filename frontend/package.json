@@ -12,7 +12,7 @@
     "test:watch": "yarn run test -- --watch",
     "ci:validate": "svelte-check --fail-on-warnings --output machine",
     "ci:lint": "eslint ./src/**/*.ts --format junit",
-    "ci:test": "jest src --reporters=jest-junit",
+    "ci:test": "jest src --reporters=jest-junit --maxWorkers=2",
     "icon": "./node_modules/.bin/icon-font-generator ./resources/font/*.svg -n UiconMAX -o ./public/fonts/ --csspath ./src/styles/uiconmax.css --cssfontsurl /fonts -p --htmlpath ./resources/font/preview.html uiconmax --descent 4"
   },
   "devDependencies": {
