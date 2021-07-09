@@ -1,13 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
-  import type {
-    IIdentifiedList,
-    IIdentifiedPrimitive,
-  } from "../../../../../../_stores/eventStore/types";
+  import type { IIdentifiedList, IIdentifiedPrimitive } from "../../../../../../_stores/eventStore/types";
 
   export let entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
-  export let label: string;
+  export let label: string | undefined = undefined;
 
   const dispatch = createEventDispatcher();
 
@@ -120,7 +117,7 @@
     <input
       type="text"
       class="gdb-entry-input-new"
-      placeholder={entries.list.length == 0 ? 'Enter a key characteristic' : 'Enter another key characteristic'}
+      placeholder={entries.list.length == 0 ? "Enter a key characteristic" : "Enter another key characteristic"}
       id={`${entries.globalId}-newEntry`}
       bind:value={hackyNewValue}
       on:input|stopPropagation={handleNewValue} />

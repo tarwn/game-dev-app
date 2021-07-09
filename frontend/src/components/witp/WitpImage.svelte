@@ -1,7 +1,7 @@
 <script lang="ts">
   export let src: string;
   export let alt: string;
-  export let caption: string | undefined;
+  export let caption: string | undefined = undefined;
 </script>
 
 <style type="text/scss">

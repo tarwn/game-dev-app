@@ -10,12 +10,13 @@
 
   export let cashForecast: ICashForecast;
   export let projection: IProjectedCashFlowData;
-  export let startMode: StartMode;
 
   enum StartMode {
     TableView,
     SummaryView,
   }
+
+  const startMode = StartMode.TableView;
 
   $: dates = cashForecast
     ? Array.from(new Array(cashForecast.forecastMonthCount.value).keys()).map((i) => ({

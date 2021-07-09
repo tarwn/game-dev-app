@@ -2,7 +2,7 @@
   type dateStyle = null | "date" | "long date";
 
   export let date: Date;
-  export let style: dateStyle;
+  export let style: dateStyle = null;
   const className: string | undefined = $$props["class"];
   $: formattedDate = formatDate(date, style);
 
