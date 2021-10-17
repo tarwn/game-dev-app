@@ -1,90 +1,61 @@
 <script lang="ts">
-  import type * as signalR from "@microsoft/signalr";
   import { onDestroy, createEventDispatcher } from "svelte";
   import { log } from "../../utilities/logger";
   import type { UpdateScope } from "./UpdateScope";
   import { webSocketStore } from "./webSocketStore";
-  // import { log } from "./logger";
+  import { webSocketConnectionStore } from "./webSocketConnectionStore";
+  import type { WebSocketMessage } from "./webSocketStore";
 
-  export let updateScope: UpdateScope;
+  export let scope: UpdateScope;
   export let gameId: string = "";
-  let connectedEventType = null;
-  let connectedScope: string = "";
+  let registeredScope = null as UpdateScope | null;
+  let registeredGameId: string = "";
+  let registeredTopic: string | null = null;
   let webSocketIsConnected = false;
-  const instance = Math.floor(Math.random() * 100000);
+  let webSocketIsReconnecting = false;
 
-  // flag to prevent parallel in flight requests to connect
-  let isConnecting = false;
+  const channelId = Math.floor(Math.random() * 100000);
 
   const dispatch = createEventDispatcher();
-  const unsubscribe = webSocketStore.subscribe((val) => {
-    const wasConnected = webSocketIsConnected;
-    if (val == null) return;
-    // disconnect if the manager indicates it disconnected (will happen for disconnect + reconnect we we auto-re-register for groups)
-    if (val == false && connectedScope) {
-      connectedScope = null;
-    }
-    webSocketIsConnected = val;
-    // if changing to connected, start reconnection (subscribe to group)
-    if (webSocketIsConnected && !wasConnected) {
-      reconnect();
+  const unsubscribe = webSocketStore.subscribe((msg: WebSocketMessage) => {
+    if (msg != null && msg.topic == registeredTopic) {
+      log("WebSocketMessage Event Received", msg);
+      dispatch("receive", msg.event);
     }
   });
-
-  function getConnection() {
-    return (window as any).ws as signalR.HubConnection;
-  }
-
-  function reconnect() {
-    // log("SignalR: reconnect", { updateScope, gameId, instance });
-    // remove old connect if non-empty
-    if (connectedEventType != "") {
-      getConnection().off(connectedEventType);
-      connectedEventType = "";
+  const unsubscribe2 = webSocketConnectionStore.subscribe((connected) => {
+    if (connected == null) return;
+    if (!webSocketIsConnected && connected) {
+      webSocketIsReconnecting = true;
     }
-    // now connect w/ those values
-    attemptConnection(updateScope, gameId);
-  }
-
-  function attemptConnection(updateScope: UpdateScope, gameId: string, attempt: number = 0) {
-    if (!webSocketIsConnected) return;
-    if (isConnecting) return;
-
-    // log("SignalR: attempting connection", { updateScope, gameId, attempt, instance });
-    isConnecting = true;
-    getConnection()
-      .invoke("registerForUpdates", updateScope, gameId)
-      .then((updateTypeFromServer) => {
-        connectedEventType = updateTypeFromServer;
-        connectedScope = `${updateScope}/${gameId}`;
-        log("SignalR: connected", { connectedEventType, connectedScope, attempt, instance });
-
-        // bind to messages coming back to that update type name
-        getConnection().on(connectedEventType, (args: any) => {
-          // log("SignalR: receive", { connectedEventType, args });
-          dispatch("receive", args);
-        });
-
-        dispatch("connect", connectedScope);
-      })
-      .finally(() => {
-        isConnecting = false;
-      });
-  }
+    webSocketIsConnected = connected;
+  });
 
   $: {
-    if (connectedScope != `${updateScope}/${gameId}`) {
-      reconnect();
+    if (webSocketIsConnected && (scope != registeredScope || gameId != registeredGameId)) {
+      if (registeredScope != null) {
+        webSocketStore.unregisterForScope(channelId, registeredScope, registeredGameId);
+      }
+      registeredScope = scope;
+      registeredGameId = gameId;
+      webSocketStore.registerForScope(channelId, scope, gameId).then((t) => {
+        registeredTopic = t;
+      });
+      webSocketIsReconnecting = false;
+    } else if (webSocketIsConnected && webSocketIsReconnecting) {
+      webSocketStore.registerForScope(channelId, scope, gameId).then((t) => {
+        registeredTopic = t;
+      });
+      webSocketIsReconnecting = false;
     }
   }
 
   onDestroy(async () => {
+    registeredTopic = null;
+    if (webSocketIsConnected && registeredScope != null) {
+      webSocketStore.unregisterForScope(channelId, registeredScope, registeredGameId);
+    }
     unsubscribe();
-    getConnection()
-      .send("unregisterForUpdates", updateScope, gameId)
-      .then(() => {
-        dispatch("disconnect", connectedScope);
-        connectedScope = "";
-      });
+    unsubscribe2();
   });
 </script>

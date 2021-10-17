@@ -11,8 +11,8 @@ interface CurrencyHelper {
     decimalSeperator: string;
     currencySymbol: string;
   };
-  parseValue: (string) => number;
-  formatValue: (number) => string;
+  parseValue: (rawValue: string) => number;
+  formatValue: (number: number) => string;
   allowedCharacters: Set<string>;
 }
 

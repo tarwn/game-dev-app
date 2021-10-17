@@ -1,47 +1,52 @@
 <script lang="ts">
   import { onDestroy, createEventDispatcher } from "svelte";
   import * as signalR from "@microsoft/signalr";
-  // import { portal } from "../../components/Portal.svelte";
   import { portal } from "svelte-portal";
   import { webSocketStore } from "./webSocketStore";
+  import { webSocketConnectionStore } from "./webSocketConnectionStore";
 
   const dispatch = createEventDispatcher();
 
   let connected = false;
-  // let connectedChannelId = null;
-
-  function setConnected(isConnected: boolean) {
-    connected = isConnected;
-    if (connected) {
-      webSocketStore.connect();
-    } else {
-      webSocketStore.disconnect();
-    }
-    dispatch(connected ? "connected" : "disconnected");
+  function setConnected() {
+    connected = true;
+    webSocketConnectionStore.connect();
+    dispatch("connected");
+  }
+  function setDisconnected() {
+    connected = false;
+    webSocketConnectionStore.disconnect();
+    dispatch("disconnected");
   }
 
+  // configure the actual connection management
   const connection = new signalR.HubConnectionBuilder()
     .withAutomaticReconnect([0, 500, 2000, 5000, 5000, 5000, 5000, 15000, 15000, 15000, 15000, 30000])
     .withUrl("/api/fe/hub")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
-  (window as any).ws = connection;
-
   connection
     .start()
     .then(() => {
-      connected = true;
-      webSocketStore.connect();
+      setConnected();
     })
     .catch((err) => document.write(err));
-  connection.onreconnecting(() => setConnected(false));
-  connection.onreconnected(() => setConnected(true));
-  connection.onclose(() => setConnected(false));
+  connection.onreconnecting(() => setDisconnected());
+  connection.onreconnected(() => setConnected());
+  connection.onclose(() => setDisconnected());
 
+  // make the connection available
+  webSocketStore.initializeConnection(connection);
+
+  // temp - add to window for debugging
+  (window as any).ws = connection;
+
+  // close connection on navigation away
   onDestroy(async () => {
+    webSocketStore.clearConnection();
     await connection.stop().then(() => {
-      setConnected(false);
+      setDisconnected();
     });
   });
 </script>

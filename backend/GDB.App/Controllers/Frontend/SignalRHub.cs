@@ -32,32 +32,40 @@ namespace GDB.App.Controllers.Frontend
 
         private static ConcurrentDictionary<string, List<string>> _connectionRegistrations = new ConcurrentDictionary<string, List<string>>();
 
+        private static ConcurrentDictionary<string, List<string>> _topicRegistrations = new ConcurrentDictionary<string, List<string>>();
+
         public SignalRHub(ILogger<SignalRHub> logger)
         {
             _logger = logger;
         }
 
-        //public async Task JoinGroup(string gameId)
-        //{
-        //    // TODO validate user is allowed to access this game id [ch926] or [ch993]
+        public async Task<string> RegisterForTopic(UpdateScope updateType, string gameId = "")
+        {
+            // TODO validate user is allowed to access this game id [ch926] or [ch993]
+            var topic = MapToGroup(updateType, gameId);
+            _logger.LogInformation($"Client connected to topic '{topic}': {Context.ConnectionId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, topic);
+            _topicRegistrations.AddOrUpdate(Context.ConnectionId, new List<string> { topic }, (k, list) =>
+            {
+                list.Add(topic);
+                return list;
+            });
+            return topic;
+        }
 
-        //    _logger.LogInformation($"Client connected to '{gameId}': {Context.ConnectionId}");
-        //    if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
-        //    {
-        //        await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
-        //    }
-        //    _connectionGroupAssignments.AddOrUpdate(Context.ConnectionId, gameId, (key, old) => gameId);
-        //    await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        //}
+        public async Task UnregisterForTopic(UpdateScope updateType, string gameId = "")
+        {
+            var topic = MapToGroup(updateType, gameId);
 
-        //public async Task LeaveGroups()
-        //{
-        //    _logger.LogInformation($"Client leaving groups': {Context.ConnectionId}");
-        //    if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
-        //    {
-        //        await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
-        //    }
-        //}
+            if (_topicRegistrations.TryGetValue(Context.ConnectionId, out var list))
+            {
+                _logger.LogInformation($"Client unregistered from topic '{topic}': {Context.ConnectionId}");
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, topic);
+                var newList = list.Where(s => s != topic).ToList();
+                _connectionRegistrations.TryUpdate(Context.ConnectionId, newList, list);
+            }
+        }
+
 
         public async Task<string> RegisterForUpdates(UpdateScope updateType, string id = "")
         {
@@ -107,14 +115,14 @@ namespace GDB.App.Controllers.Frontend
             return SignalRSender.GetSignalRGroupName(auth, updateType, id);
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
-        {
-            _logger.LogInformation($"Client disconnected': {Context.ConnectionId}");
-            if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
-            {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
-            }
-        }
+        //public override async Task OnDisconnectedAsync(Exception exception)
+        //{
+        //    _logger.LogInformation($"Client disconnected': {Context.ConnectionId}");
+        //    if (_connectionGroupAssignments.TryGetValue(Context.ConnectionId, out var oldGroup))
+        //    {
+        //        await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldGroup);
+        //    }
+        //}
 
         private UserAuthContext GetUserAuthContext()
         {
@@ -130,6 +138,9 @@ namespace GDB.App.Controllers.Frontend
 
     public interface ISignalRHub
     {
+        Task<string> RegisterForTopic(UpdateScope updateType);
+        Task UnregisterForTopic(UpdateScope updateType);
+
         Task<string> RegisterForUpdates(UpdateScope updateType);
         Task UnregisterForUpdates(UpdateScope updateType);
     }

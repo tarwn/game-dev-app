@@ -196,7 +196,7 @@
 </style>
 
 <WebSocketChannel
-  updateScope={UpdateScope.GameTasks}
+  scope={UpdateScope.GameTasks}
   gameId={initializedId}
   on:receive={() => openTasksStore.load(initializedId)} />
 

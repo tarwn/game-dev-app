@@ -162,7 +162,7 @@
 </style>
 
 <WebSocketChannel
-  updateScope={UpdateScope.GameBusinessModel}
+  scope={UpdateScope.GameBusinessModel}
   gameId={id}
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);

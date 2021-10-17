@@ -76,7 +76,7 @@
   }
 </style>
 
-<WebSocketChannel updateScope={UpdateScope.StudioUserList} on:receive={() => usersStore.load()} />
+<WebSocketChannel scope={UpdateScope.StudioUserList} on:receive={() => usersStore.load()} />
 
 <PageTop name="Settings / Studio" />
 <div class="gdb-content">

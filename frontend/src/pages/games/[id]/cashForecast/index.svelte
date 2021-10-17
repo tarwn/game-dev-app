@@ -368,7 +368,7 @@
 </div>
 
 <WebSocketChannel
-  updateScope={UpdateScope.GameCashforecast}
+  scope={UpdateScope.GameCashforecast}
   gameId={id}
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);

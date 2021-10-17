@@ -66,7 +66,7 @@
   }
 </style>
 
-<WebSocketChannel updateScope={UpdateScope.AssignedGameTask} gameId={id} on:receive={() => activeTaskStore.load(id)} />
+<WebSocketChannel scope={UpdateScope.AssignedGameTask} gameId={id} on:receive={() => activeTaskStore.load(id)} />
 
 {#if game}
   <div class="gdp-page">

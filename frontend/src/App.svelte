@@ -31,6 +31,6 @@
 </Modal>
 <ErrorReporter on:dismiss={reloadApp} />
 <WebSocketManager />
-<WebSocketChannel updateScope={UpdateScope.StudioRecord} on:receive={() => studioStore.load()} />
-<WebSocketChannel updateScope={UpdateScope.StudioGameList} on:receive={() => gamesStore.load()} />
-<WebSocketChannel updateScope={UpdateScope.CurrentUserRecord} on:receive={() => profileStore.load()} />
+<WebSocketChannel scope={UpdateScope.StudioRecord} on:receive={() => studioStore.load()} />
+<WebSocketChannel scope={UpdateScope.StudioGameList} on:receive={() => gamesStore.load()} />
+<WebSocketChannel scope={UpdateScope.CurrentUserRecord} on:receive={() => profileStore.load()} />

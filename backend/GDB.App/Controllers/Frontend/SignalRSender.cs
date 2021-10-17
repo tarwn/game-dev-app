@@ -50,8 +50,9 @@ namespace GDB.App.Controllers.Frontend
         }
     }
 
-    public interface ISignalRSender { 
-    
+    public interface ISignalRSender
+    {
+
         Task SendAsync(UserAuthContext user, UpdateScope scope, string gameId, object change);
         Task SendAsync(UserAuthContext user, UpdateScope scope, object change);
     }

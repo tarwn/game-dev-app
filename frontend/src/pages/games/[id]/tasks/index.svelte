@@ -119,7 +119,7 @@
 </style>
 
 <WebSocketChannel
-  updateScope={UpdateScope.GameTasks}
+  scope={UpdateScope.GameTasks}
   gameId={id}
   on:receive={(e) => {
     log("WebSocketChannel-GameTasks", e.detail);

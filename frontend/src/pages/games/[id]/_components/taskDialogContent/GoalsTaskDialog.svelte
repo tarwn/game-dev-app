@@ -2,7 +2,7 @@
 </script>
 
 <p>
-  What do you need for this game to be successful? If you're not solo, what do other team membes (and the studio) need?
+  What do you need for this game to be successful? If you're not solo, what do other team members (and the studio) need?
 </p>
 <p>
   Goals can be financial, can reflect a desire to learn, build exposure, or achieve a lifelong dream of shipping a game.
