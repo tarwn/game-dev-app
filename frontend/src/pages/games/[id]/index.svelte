@@ -48,9 +48,23 @@
   });
 
   // Cash forecast data
-  //  this is a bit brute force, I don't expect to keep it live so we really only need latest DTO?
+  // load once initially, then listen for events to load again
+  //  I'm not sure how hardcore this will be if someone else is making a lot of edits,
+  //  may need to introduce a debounce?
   let cashForecast = null as ICashForecast | null;
   let projectedCashForecast = getEmptyProjection();
+  function refreshCashForecast() {
+    cashForecastApi.get(id, { skipCreate: true }).then((data) => {
+      if (initializedId != id) return;
+      cashForecast = data.payload;
+      // if a cashforecast wasn't loaded, we want an empty projection
+      if (cashForecast?.forecastMonthCount.value != null) {
+        projectedCashForecast = calculate(cashForecast, projectedCashForecast, cashForecast.forecastMonthCount.value);
+      } else {
+        projectedCashForecast = getEmptyProjection();
+      }
+    });
+  }
   $: {
     if (id != null && id != initializedId) {
       initializedId = id;
@@ -58,17 +72,7 @@
       game = games.find((g) => g.globalId == initializedId) ?? null;
 
       openTasksStore.load(initializedId);
-
-      cashForecastApi.get(id, { skipCreate: true }).then((data) => {
-        if (initializedId != id) return;
-        cashForecast = data.payload;
-        // if a cashforecast wasn't loaded, we want an empty projection
-        if (cashForecast?.forecastMonthCount.value != null) {
-          projectedCashForecast = calculate(cashForecast, projectedCashForecast, cashForecast.forecastMonthCount.value);
-        } else {
-          projectedCashForecast = getEmptyProjection();
-        }
-      });
+      refreshCashForecast();
     }
   }
 
@@ -199,6 +203,7 @@
   scope={UpdateScope.GameTasks}
   gameId={initializedId}
   on:receive={() => openTasksStore.load(initializedId)} />
+<WebSocketChannel scope={UpdateScope.GameCashforecast} gameId={id} on:receive={() => refreshCashForecast()} />
 
 <ScreenTitle title="Dashboard">
   {#if latestProfile}

@@ -4,8 +4,10 @@ import type { UpdateScope } from './UpdateScope';
 
 // How this works:
 //  1. The Socket Manager component is root scoped: manages the connection, displays the toast for connection status
-//  2. The Socket Channel is how a page registers that it cares about certain events and gets the message topic/group name, but it reads messages from the general store on filters on that topic
-//  3. The Store manages registering and deregistering from the server groups/topics, re-doing this on reconnects, and putting messages in the store for propagation
+//  2. The Socket Channel is how a page registers that it cares about certain events and gets the message topic/group name,
+//    but it reads messages from the general store on filters on that topic
+//  3. The Store manages registering and deregistering from the server groups/topics, re-doing this on reconnects, and putting
+//    messages in the store for propagation
 
 
 // Q: Are the ws.on(...) events singular or stackable: singular, it's intended to be an RPC call
@@ -13,9 +15,11 @@ import type { UpdateScope } from './UpdateScope';
 
 // option 1:
 //  client controls call this to say "I wanted to listen to events for this scope/game id"
-//  it's added to local collection, callback event is added for OnSignalREvent if it's not present in list yet, + event name (fully defined scope string) is sent back somehow (async)
+//  it's added to local collection, callback event is added for OnSignalREvent if it's not present in list yet, + event name
+//    (fully defined scope string) is sent back somehow (async)
 //  On SignalR Event(fqscope, evt): set({ fqscope, evt })
-//  client deconstruct calls this "I don't need this scope any more" and we remove it from the local collection, possibly also tell the server we don't need it anymore if no remaning clients interested
+//  client deconstruct calls this "I don't need this scope any more" and we remove it from the local collection, possibly also
+//    tell the server we don't need it anymore if no remaning clients interested
 
 // on reconnect: re-register all scopes in list, should not need to rewire anything
 
@@ -52,6 +56,7 @@ function createWebSocketStore() {
     return connection.invoke("registerForTopic", scope, gameId)
       .then(topic => {
         registeredScopes[scopeKey].push(channelId);
+        log("SignalR:registerForScope(progress)", { channelId, scope, gameId, items: [...registeredScopes[scopeKey]] });
 
         connection.on(topic, (args: any) => {
           // log("SignalR: receive", { topic, args });
@@ -67,12 +72,20 @@ function createWebSocketStore() {
     if (!registeredScopes[scopeKey]) {
       throw new Error(`Unregistered from SignalR topic prior to registration. Scope=${scope}, GameId=${gameId}, channelId: ${channelId}`);
     }
+    // log("SignalR:unregisterForScope(before)", { channelId, scope, gameId, items: [...registeredScopes[scopeKey]] });
+
     // remove this channel from registrations, if none listening to this topic then unsubscribe on the server
     registeredScopes[scopeKey] = registeredScopes[scopeKey].filter(c => c !== channelId);
-    if (registeredScopes[scopeKey].length == 0) {
-      log("SignalR:UnregisterForScope", { channelId, scope, gameId });
-      connection.invoke("unregisterForTopic", scope, gameId);
-    }
+
+    // delay the deregistration - a page change could be registering + deregistering at the same time
+    //  and we want this check to lose the race
+    setTimeout(() => {
+      // log("SignalR:unregisterForScope(after)", { channelId, scope, gameId, items: [...registeredScopes[scopeKey]] });
+      if (registeredScopes[scopeKey].length == 0) {
+        log("SignalR:UnregisterForScope", { channelId, scope, gameId });
+        connection.invoke("unregisterForTopic", scope, gameId);
+      }
+    }, 3000);
   };
 
   return {

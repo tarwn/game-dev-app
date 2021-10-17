@@ -167,15 +167,7 @@
   on:receive={({ detail }) => {
     log("WebSocketChannel.on:receiveUpdate", detail);
     businessModelEventStore.receiveEvent(detail.gameId, detail.event);
-  }}
-  on:connect={({ detail }) =>
-    log("WebSocketChannel.on:channelConnected", {
-      channel: detail,
-    })}
-  on:disconnect={({ detail }) =>
-    log("WebSocketChannel.on:channelDisconnected", {
-      channel: detail,
-    })} />
+  }} />
 
 <ScreenTitle title="Business Model">
   <SaveMessage {hasUnsaved} {lastSaved} />
