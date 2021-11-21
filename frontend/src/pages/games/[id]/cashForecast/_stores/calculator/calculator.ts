@@ -2,7 +2,13 @@ import produce from "immer";
 import { enableMapSet } from "immer";
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { getUtcDate, monthDiff } from "../../../../../../utilities/date";
-import { AdditionalEmployeeExpenseType, EstimatedRevenueDelay, ExpenseCategory, FundingRepaymentType, ICashForecast } from "../../_types/cashForecast";
+import {
+  AdditionalEmployeeExpenseType,
+  EstimatedRevenueDelay,
+  ExpenseCategory,
+  FundingRepaymentType,
+  ICashForecast
+} from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
 import { applyLoansIn } from "./inLoans";

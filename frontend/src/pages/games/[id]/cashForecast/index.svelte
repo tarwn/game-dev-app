@@ -97,7 +97,6 @@
     }
     cashForecast = update;
     projectedCashFlowStore.updateForecast(update);
-    log("debug: cashForecast", { cashForecast });
     if (cashForecast && isLoading) {
       isLoading = false;
       if (cashForecast == null && update != null) {
@@ -115,7 +114,6 @@
   });
   const unsubscribe3 = projectedCashFlowStore.subscribe((update) => {
     projectedCashForecast = update;
-    log("debug: projectedCashForecast", { projectedCashForecast });
   });
   let latestProfile: null | UserProfile = null;
   var unsubscribe4 = profileStore.subscribe((p) => {
