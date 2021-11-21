@@ -8,9 +8,9 @@
   export let lastUpdated: Date | null;
   export let disabled: boolean = false;
 
-  const title = getModuleName(module);
-  const imgHref = getModuleImageHref(module);
-  const path = getModuleUrl(module, id);
+  $: title = getModuleName(module);
+  $: imgHref = getModuleImageHref(module);
+  $: path = getModuleUrl(module, id);
 
   $: actuallyDisabled = disabled || id == null;
 </script>

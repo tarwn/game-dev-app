@@ -6,8 +6,8 @@ interface NumberHelper {
   locale: string;
   decimalScale: number;
   parts: {
-    groupSeperator: string;
-    decimalSeperator: string;
+    groupSeparator: string;
+    decimalSeparator: string;
   };
   parseValue: (string) => number;
   formatValue: (number) => string;
@@ -38,7 +38,7 @@ export const getNumberHelper = (locale: string, decimalScale: number): NumberHel
       (s, p) => {
         switch (p.type) {
           case "group":
-            s.groupSeperator = p.value;
+            s.groupSeparator = p.value;
             return s;
           case "decimal":
             s.decimalSeparator = p.value;
@@ -47,7 +47,7 @@ export const getNumberHelper = (locale: string, decimalScale: number): NumberHel
         return s;
       },
       {
-        groupSeperator: "",
+        groupSeparator: "",
         decimalSeparator: ""
       }
     );
@@ -56,7 +56,7 @@ export const getNumberHelper = (locale: string, decimalScale: number): NumberHel
   const parts = getParts();
 
   function parseValue(rawValue: string) {
-    const strip = new RegExp(`\\${parts.groupSeperator}`, "gi");
+    const strip = new RegExp(`\\${parts.groupSeparator}`, "gi");
     const decimal = new RegExp(`\\${parts.decimalSeparator}`, "gi");
     const standardizedValue = rawValue.replace(strip, "").replace(decimal, ".");
     const num = parseFloat(standardizedValue);
@@ -89,7 +89,7 @@ export const getNumberHelper = (locale: string, decimalScale: number): NumberHel
       "8",
       "9",
       "-",
-      parts.groupSeperator,
+      parts.groupSeparator,
       parts.decimalSeparator,
       "Backspace",
       "Delete",

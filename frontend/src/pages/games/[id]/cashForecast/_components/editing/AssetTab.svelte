@@ -23,7 +23,7 @@
     <col span="1" style="width: 2rem;" />
     <col span="1" style="width: 14rem;" />
     <col span="1" style="width: 12rem;" />
-    <col span="1" style="width: 11rem;" />
+    <col span="1" style="width: 12rem;" />
     <col span="1" style="width: 10rem;" />
     <col span="1" style="width: 10rem;" />
     <col span="1" style="width: 13rem;" />

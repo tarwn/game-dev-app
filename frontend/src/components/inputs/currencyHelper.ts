@@ -7,8 +7,8 @@ interface CurrencyHelper {
   currency: string;
   decimalScale: number;
   currencyParts: {
-    groupSeperator: string;
-    decimalSeperator: string;
+    groupSeparator: string;
+    decimalSeparator: string;
     currencySymbol: string;
   };
   parseValue: (rawValue: string) => number;
@@ -34,7 +34,7 @@ export const getCurrencyHelper = (locale: string, currency: string, decimalScale
       (s, p) => {
         switch (p.type) {
           case "group":
-            s.groupSeperator = p.value;
+            s.groupSeparator = p.value;
             return s;
           case "decimal":
             s.decimalSeparator = p.value;
@@ -46,7 +46,7 @@ export const getCurrencyHelper = (locale: string, currency: string, decimalScale
         return s;
       },
       {
-        groupSeperator: "",
+        groupSeparator: "",
         decimalSeparator: "",
         currencySymbol: "",
       }
@@ -56,7 +56,7 @@ export const getCurrencyHelper = (locale: string, currency: string, decimalScale
   const currencyParts = getCurrencyParts(formatter);
 
   function parseValue(rawValue: string) {
-    const strip = new RegExp(`[\\${currencyParts.groupSeperator}\\${currencyParts.currencySymbol}]`, "gi");
+    const strip = new RegExp(`[\\${currencyParts.groupSeparator}\\${currencyParts.currencySymbol}]`, "gi");
     const decimal = new RegExp(`\\${currencyParts.decimalSeparator}`, "gi");
     const standardizedValue = rawValue.replace(strip, "").replace(decimal, ".");
     const num = parseFloat(standardizedValue);
@@ -90,7 +90,7 @@ export const getCurrencyHelper = (locale: string, currency: string, decimalScale
       "8",
       "9",
       "-",
-      currencyParts.groupSeperator,
+      currencyParts.groupSeparator,
       currencyParts.decimalSeparator,
       currencyParts.currencySymbol,
       "Backspace",

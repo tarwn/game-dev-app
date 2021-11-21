@@ -6,8 +6,8 @@ interface PercentHelper {
   locale: string;
   decimalScale: number;
   parts: {
-    groupSeperator: string;
-    decimalSeperator: string;
+    groupSeparator: string;
+    decimalSeparator: string;
     percentSymbol: string;
   };
   parseValue: (string) => number;
@@ -32,7 +32,7 @@ export const getPercentHelper = (locale: string, decimalScale: number): PercentH
       (s, p) => {
         switch (p.type) {
           case "group":
-            s.groupSeperator = p.value;
+            s.groupSeparator = p.value;
             return s;
           case "decimal":
             s.decimalSeparator = p.value;
@@ -44,7 +44,7 @@ export const getPercentHelper = (locale: string, decimalScale: number): PercentH
         return s;
       },
       {
-        groupSeperator: "",
+        groupSeparator: "",
         decimalSeparator: "",
         percentSymbol: "",
       }
@@ -54,7 +54,7 @@ export const getPercentHelper = (locale: string, decimalScale: number): PercentH
   const parts = getParts(formatter);
 
   function parseValue(rawValue: string) {
-    const strip = new RegExp(`[\\${parts.groupSeperator}\\${parts.percentSymbol}]`, "gi");
+    const strip = new RegExp(`[\\${parts.groupSeparator}\\${parts.percentSymbol}]`, "gi");
     const decimal = new RegExp(`\\${parts.decimalSeparator}`, "gi");
     const standardizedValue = rawValue.replace(strip, "").replace(decimal, ".");
     const num = parseFloat(standardizedValue) / 100;
@@ -87,7 +87,7 @@ export const getPercentHelper = (locale: string, decimalScale: number): PercentH
       "8",
       "9",
       "-",
-      parts.groupSeperator,
+      parts.groupSeparator,
       parts.decimalSeparator,
       parts.percentSymbol,
       "Backspace",
