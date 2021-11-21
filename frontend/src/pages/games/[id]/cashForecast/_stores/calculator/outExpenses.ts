@@ -44,6 +44,7 @@ function applyExpensesOut(
     if (isRelevant(expense.category.value)) {
       const detail = subTotalDetails.get(expense.globalId)[i];
       detail.amount = 0;
+
       const endDate = (expense.until.value == ExpenseUntil.Date
         ? expense.endDate.value
         : forecast.launchDate.value

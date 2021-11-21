@@ -1832,6 +1832,32 @@ describe("calculate", () => {
       expect(initialProjection.GrossProfit[25].amount).toBe(0);
     });
 
+    it("(bug sc-1246) calculates corrected end date for employee pay correctly", () => {
+      // during sc-1246
+      const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2015, 5, 1));
+      forecast.employees.list.push(
+        createEmployee(forecast.employees, ExpenseCategory.DirectExpenses, getUtcDate(2015, 5, 1), getUtcDate(2019, 5, 1), 1000.00, 0)
+      );
+      // continue setup - ensure our base assumption is correct and month 0, 12, 24 are all negative
+      const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
+      const detail = initialProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(detail).not.toBeUndefined();
+      expect(detail[0].amount).toBe(-1000);
+      expect(detail[12].amount).toBe(-1000);
+      expect(detail[24].amount).toBe(-1000);
+
+
+      // act - update the employee to an earlier end date + re-project
+      forecast.employees.list[0].endDate.value = getUtcDate(2015, 6, 1);
+      const updatedProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES);
+      const updatedDetail = updatedProjection.details.get(SubTotalType.GrossProfit_DirectEmployees)
+        .get(forecast.employees.list[0].globalId);
+      expect(updatedDetail[0].amount).toBe(-1000);
+      expect(updatedDetail[12].amount).toBe(0);
+      expect(updatedDetail[24].amount).toBe(0);
+    });
+
     it("applies direct employee benefits to gross profit", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.employees.list.push(

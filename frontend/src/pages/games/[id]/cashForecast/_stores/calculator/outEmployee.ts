@@ -48,6 +48,7 @@ function applyEmployeesOut(
   forecast.employees.list.forEach(employee => {
     if (isRelevant(employee.category.value)) {
       const detail = subTotalDetails.get(employee.globalId)[i];
+      detail.amount = 0;
 
       if (employee.startDate.value < monthEnd && employee.endDate.value >= monthStart) {
         const proRate = getProRate(monthStart, monthEnd, employee.startDate.value, employee.endDate.value);

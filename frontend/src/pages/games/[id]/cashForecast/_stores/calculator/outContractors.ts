@@ -44,6 +44,7 @@ function applyContractorsOut(
     if (isRelevant(contractor.category.value)) {
       const detail = subTotalDetails.get(contractor.globalId)[i];
       detail.amount = 0;
+
       contractor.payments.list.forEach(payment => {
         if (contractor.frequency.value == ContractorExpenseFrequency.Custom) {
           // one-time payments based on the month of the start date
