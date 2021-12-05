@@ -335,8 +335,8 @@
               <ul>
                 <li>
                   Role ideas: <a
-                    href="https://www.gamasutra.com/blogs/AlistairDoulin/20100107/86323/Building_A_Strong_Indie_Game_Development_Team.php"
-                    target="_blank">"Building A Strong Indie Game Development Team", Gamasutra</a>
+                    href="https://www.gamedeveloper.com/disciplines/building-a-strong-indie-game-development-team"
+                    target="_blank">"Building A Strong Indie Game Development Team", GameDeveloper.com</a>
                   <i>(consider whether some of these will be partners/contractors too)</i>
                 </li>
                 <li>

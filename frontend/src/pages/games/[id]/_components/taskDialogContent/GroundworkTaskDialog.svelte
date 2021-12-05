@@ -8,7 +8,7 @@
   starting plan for a number of things can be quick while still buying you back future development time.
 </p>
 <p style="clear: both;" />
-<p>If you're working solo, the parts that are rleevant will help you clear space to start going faster.</p>
+<p>If you're working solo, the parts that are relevant will help you clear space to start going faster.</p>
 <p>
   If you're working with a team, starting with an agreed setup means you can make small adjustments later instead of
   trying to set things up 3 days after they have derailed.

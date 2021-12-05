@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { params, metatags, url } from "@sveltech/routify";
+  import { params, metatags, url, goto } from "@sveltech/routify";
   import { onDestroy } from "svelte";
   import { gamesStore } from "../../_stores/gamesStore";
   import Tile from "./_components/Tile.svelte";
@@ -33,17 +33,45 @@
 
   $: id = $params.id;
   let initializedId = null;
+  let games = [] as Array<Game>;
+
+  // initialization
+  function initialize() {
+    game = games.find((g) => g.globalId == id) ?? null;
+
+    if (game) {
+      initializedId = id;
+      openTasksStore.load(initializedId);
+      refreshCashForecast();
+    } else {
+      log("NOT FOUND", {
+        game,
+        games,
+        id,
+        initializedId,
+      });
+      $goto($url("/notfound"));
+    }
+  }
+
+  $: {
+    if (id != null && id != initializedId && games.length > 0) {
+      initialize();
+    }
+  }
 
   // game data
-  let games = [] as Array<Game>;
   let game = null as Game;
   const unsubscribe = gamesStore.subscribe((g) => {
     games = g ?? [];
-    let prevGame = game;
-    game = games.find((g) => g.globalId == initializedId) ?? null;
-    // see if anything significant has changed
-    if (prevGame && game && prevGame.status != game.status) {
-      openTasksStore.load(initializedId);
+    // if we've already initialized, see if the game has changed status + needs a task refresh
+    if (initializedId) {
+      let prevGame = game;
+      game = games.find((g) => g.globalId == initializedId) ?? null;
+      // see if anything significant has changed
+      if (prevGame && game && prevGame.status != game.status) {
+        openTasksStore.load(initializedId);
+      }
     }
   });
 
@@ -64,16 +92,6 @@
         projectedCashForecast = getEmptyProjection();
       }
     });
-  }
-  $: {
-    if (id != null && id != initializedId) {
-      initializedId = id;
-
-      game = games.find((g) => g.globalId == initializedId) ?? null;
-
-      openTasksStore.load(initializedId);
-      refreshCashForecast();
-    }
   }
 
   // user profile data

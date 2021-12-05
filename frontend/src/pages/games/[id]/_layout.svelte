@@ -23,7 +23,11 @@
   $: {
     if (id != activeTask.gameId) {
       if (id != null) {
-        activeTaskStore.load(id);
+        activeTaskStore.load(id).catch((e) => {
+          // assume the page catches and deals with this error
+          //  the game was not found
+          console.log("Active task for game not found");
+        });
       }
     }
   }
