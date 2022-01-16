@@ -135,7 +135,6 @@
     on:keydown={filterKeyDown}
     on:focusout={handleFocusOut}
     on:input={handleInput}
-    role="textbox"
     {disabled}
     tabIndex={disabled ? -1 : 0}
     aria-label={ariaLabel} />
