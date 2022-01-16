@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IBusinessModel } from "../../_types/businessModel";
   import EntrySummaryList from "./components/EntrySummaryList.svelte";
   import SummarySection from "./components/SummarySection.svelte";
@@ -54,7 +54,7 @@
 {#if businessModel != null}
   <div>
     {#each businessModel.customers.list as customer (customer.globalId)}
-      <SummarySection label={customer.name.value || 'Unnamed Customer'}>
+      <SummarySection label={customer.name.value || "Unnamed Customer"}>
         <div class="gdb-customer-section-summary">
           <div class="gdb-summary-name" />
           <ul class="gdb-customer-summary">

@@ -163,7 +163,6 @@
   }
 
   onMount(() => {
-    console.log("mount");
     const svg = d3.select(el);
 
     // TODO - trying to add a background fill to red area for visual contrast other than color

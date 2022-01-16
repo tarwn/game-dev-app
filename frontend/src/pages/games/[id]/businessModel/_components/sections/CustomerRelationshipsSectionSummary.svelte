@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IBusinessModel } from "../../_types/businessModel";
   import EntrySummaryList from "./components/EntrySummaryList.svelte";
   import SummarySection from "./components/SummarySection.svelte";
@@ -17,8 +17,7 @@
   <div>
     {#if businessModel.customerRelationships.entries.list.length > 0}
       <SummarySection label="">
-        <EntrySummaryList
-          entries={businessModel.customerRelationships.entries} />
+        <EntrySummaryList entries={businessModel.customerRelationships.entries} />
       </SummarySection>
     {/if}
   </div>

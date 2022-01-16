@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IBusinessModel } from "../../_types/businessModel";
   import EntrySummaryList from "./components/EntrySummaryList.svelte";
   import SummarySection from "./components/SummarySection.svelte";

@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   export let label: string = "";
 </script>
 
@@ -20,7 +20,7 @@
 </style>
 
 <div class="gdb-section-summary">
-  {#if label !== ''}
+  {#if label !== ""}
     <div class="gdb-section-summary-name">{label}</div>
   {/if}
   <slot />

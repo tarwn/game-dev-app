@@ -12,7 +12,7 @@
   let isNew = false;
   const unsubscribe = gamesStore.subscribe((games) => {
     if (games != null && games.length > 0 && !redirected) {
-      console.log({ games });
+      // console.log({ games });
       const game = games.find((g) => g.isFavorite) ?? games[0];
       redirected = true;
       $goto("../games/:id", { id: game.globalId });

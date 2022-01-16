@@ -1,8 +1,5 @@
-<script type="ts">
-  import type {
-    IBusinessModel,
-    IBusinessModelCost,
-  } from "../../_types/businessModel";
+<script lang="ts">
+  import type { IBusinessModel, IBusinessModelCost } from "../../_types/businessModel";
   import SummarySection from "./components/SummarySection.svelte";
 
   export let businessModel: IBusinessModel | null;
@@ -79,8 +76,7 @@
           {#each businessModel.costStructure.list as cost (cost.globalId)}
             <li class="gdb-summary-cost-list-li">
               <span class="gdb-summary-cost-pp">{summarizePrePost(cost)}</span>
-              <span
-                class="gdb-summary-cost-type">{summarizeType(cost.type.value)}</span>
+              <span class="gdb-summary-cost-type">{summarizeType(cost.type.value)}</span>
               <span class="gdb-summary-cost-summary">{cost.summary.value}</span>
             </li>
           {/each}

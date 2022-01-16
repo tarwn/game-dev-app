@@ -12,5 +12,5 @@
   "emmet.excludeLanguages": [
     "markdown",
     "svelte"
-  ]
+  ],
 }

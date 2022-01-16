@@ -1,0 +1,12 @@
+{
+  "ignorePaths": [
+    "node_modules", // this will ignore anything the node_modules directory
+    ".git", // Ignore the .git directory
+    "package.json"
+  ],
+  "words": [
+    "immer",
+    "sveltech",
+    "routify"
+  ]
+}

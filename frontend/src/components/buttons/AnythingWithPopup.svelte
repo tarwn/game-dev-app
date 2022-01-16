@@ -59,7 +59,7 @@
       // trap focus
       const nodes = visibleModal.querySelectorAll("*") as Array<any>;
       const tabbable = Array.from(nodes).filter((node) => node.tabIndex >= 0 && !node.disabled);
-      console.log(tabbable);
+      // console.log(tabbable);
       let index = tabbable.indexOf(document.activeElement);
       if (index === -1 && event.shiftKey) index = 0;
       index += tabbable.length + (event.shiftKey ? -1 : 1);
