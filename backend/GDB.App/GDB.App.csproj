@@ -1,59 +1,61 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp5.0</TargetFramework>
-    <SpaRoot>..\..\frontend\</SpaRoot>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp6.0</TargetFramework>
+		<SpaRoot>..\..\frontend\</SpaRoot>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>GDB.App</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.0.3" />
-    <PackageReference Include="Azure.Identity" Version="1.4.0" />
-    <PackageReference Include="CorrelationId" Version="3.0.0" />
-    <PackageReference Include="FluentEmail.Razor" Version="3.0.0" />
-    <PackageReference Include="FluentEmail.Smtp" Version="3.0.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.7" />
-    <PackageReference Include="Sentry" Version="3.6.1" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.6.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
+		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
+		<PackageReference Include="Azure.Identity" Version="1.5.0" />
+		<PackageReference Include="CorrelationId" Version="3.0.1" />
+		<PackageReference Include="FluentEmail.Razor" Version="3.0.0" />
+		<PackageReference Include="FluentEmail.Smtp" Version="3.0.0" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.1" />
+		<PackageReference Include="Sentry" Version="3.13.0" />
+		<PackageReference Include="Sentry.AspNetCore" Version="3.13.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\GDB.Business\GDB.Business.csproj" />
-    <ProjectReference Include="..\GDB.Common\GDB.Common.csproj" />
-    <ProjectReference Include="..\GDB.EmailSending\GDB.EmailSending.csproj" />
-    <ProjectReference Include="..\GDB.Persistence\GDB.Persistence.csproj" />
-    <ProjectReference Include="..\GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\GDB.Business\GDB.Business.csproj" />
+		<ProjectReference Include="..\GDB.Common\GDB.Common.csproj" />
+		<ProjectReference Include="..\GDB.EmailSending\GDB.EmailSending.csproj" />
+		<ProjectReference Include="..\GDB.Persistence\GDB.Persistence.csproj" />
+		<ProjectReference Include="..\GDB.Tools.DatabaseMigration\GDB.Tools.DatabaseMigration.csproj" />
+	</ItemGroup>
 
-  <!-- SPA Static Files linked in -->
-  <ItemGroup>
-    <!-- Copy all SPA dist files to ClientApp for use by SPA after auth -->
-    <Content Include="$(SpaRoot)dist\**" Link="ClientApp\dist\%(RecursiveDir)%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
+	<!-- SPA Static Files linked in -->
+	<ItemGroup>
+		<!-- Copy all SPA dist files to ClientApp for use by SPA after auth -->
+		<Content Include="$(SpaRoot)dist\**" Link="ClientApp\dist\%(RecursiveDir)%(Filename)%(Extension)">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\" />
+	</ItemGroup>
 
-  <!-- SPA Build Steps -->
-  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And '$(NCrunch)' != '1'">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+	<!-- SPA Build Steps -->
+	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And '$(NCrunch)' != '1'">
+		<!-- Ensure Node.js is installed -->
+		<Exec Command="node --version" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+		</Exec>
+		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
 
-    <!-- Ensure yarn is installed -->
-    <Exec Command="yarn --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCodeYarn" />
-    </Exec>
-    <Error Condition="'$(ErrorCodeYarn)' != '0'" Text="Yarn is required to build and run this project. To continue, please install yarn from https://yarnpkg.com/, and then restart your command prompt or IDE." />
+		<!-- Ensure yarn is installed -->
+		<Exec Command="yarn --version" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCodeYarn" />
+		</Exec>
+		<Error Condition="'$(ErrorCodeYarn)' != '0'" Text="Yarn is required to build and run this project. To continue, please install yarn from https://yarnpkg.com/, and then restart your command prompt or IDE." />
 
-    <Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
-  </Target>
+		<Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install --prefer-offline --no-audit" />
+	</Target>
 
 </Project>

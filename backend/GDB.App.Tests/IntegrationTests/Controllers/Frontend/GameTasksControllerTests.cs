@@ -62,8 +62,8 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var resultList = AssertResponseIs<OkObjectResult, List<TaskModel>>(result);
             resultList.Should().HaveCount(4);
-            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(TaskType.Concept, TaskType.Groundwork, TaskType.Goals, TaskType.BusinessModel);
-            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(TaskState.Open);
+            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(new TaskType[] { TaskType.Concept, TaskType.Groundwork, TaskType.Goals, TaskType.BusinessModel });
+            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(new TaskState[] { TaskState.Open });
         }
 
         [Test]
@@ -77,8 +77,8 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var resultList = AssertResponseIs<OkObjectResult, List<TaskModel>>(result);
             resultList.Should().HaveCount(4 - 1);
-            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(/*TaskType.Concept, */TaskType.Groundwork, TaskType.Goals, TaskType.BusinessModel);
-            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(TaskState.Open);
+            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(new TaskType[] {/*TaskType.Concept, */TaskType.Groundwork, TaskType.Goals, TaskType.BusinessModel });
+            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(new TaskState[] { TaskState.Open });
         }
 
         [Test]
@@ -107,8 +107,8 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var resultList = AssertResponseIs<OkObjectResult, List<TaskModel>>(result);
             resultList.Should().HaveCount(6);
-            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(TaskType.RiskAnalysis, TaskType.ProjectPlan, TaskType.CostForecast, TaskType.Comparables, TaskType.ProfitForecast, TaskType.MarketingStrategy);
-            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(TaskState.Open);
+            resultList.Select(r => r.TaskType).Should().BeEquivalentTo(new TaskType[] { TaskType.RiskAnalysis, TaskType.ProjectPlan, TaskType.CostForecast, TaskType.Comparables, TaskType.ProfitForecast, TaskType.MarketingStrategy });
+            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(new TaskState[] { TaskState.Open });
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var resultList = AssertResponseIs<OkObjectResult, List<TaskModel>>(result);
             resultList.Should().HaveCount(10);
-            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(TaskState.Open);
+            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(new TaskState[] { TaskState.Open });
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
 
             var resultList = AssertResponseIs<OkObjectResult, List<TaskModel>>(result);
             resultList.Should().HaveCount(10);
-            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(TaskState.Open, TaskState.ClosedComplete);
+            resultList.Select(r => r.TaskState).Distinct().Should().BeEquivalentTo(new TaskState[] { TaskState.Open, TaskState.ClosedComplete });
         }
 
         [Test]

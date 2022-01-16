@@ -117,7 +117,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.Frontend
             output.Access.Should().Be(StudioUserAccess.PendingActivation);
             output.InvitedBy.Should().NotBeNull();
             output.InvitedOn.Should().NotBeNull();
-            output.InviteGoodThrough.Should().BeCloseTo(goodThrough);
+            output.InviteGoodThrough.Should().BeCloseTo(goodThrough, TimeSpan.FromMilliseconds(100));
         }
 
 

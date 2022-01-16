@@ -44,7 +44,7 @@ namespace GDB.Business.Tests.BusinessLogic.Settings
 
             result.StudioId.Should().Be(FakeStudioId);
             result.CreatedBy.Should().Be(FakeUserId);
-            result.CreatedOn.Should().BeCloseTo(DateTime.UtcNow, 200);
+            result.CreatedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(200));
             result.Status.Should().Be(GameStatus.Idea);
             _persistenceMock.GamesMock.Verify(g => g.CreateAsync(It.IsAny<GameDTO>()), Times.Once());
             _persistenceMock.TasksMock.Verify(t => t.CreateInitialTasksAsync(gameId, FakeUserId, It.IsAny<DateTime>()), Times.Once());

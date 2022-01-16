@@ -17,7 +17,7 @@ import {
   Versioned
 } from "../types";
 
-// fake store with lots of diferent types to experiment on
+// fake store with lots of different types to experiment on
 export type FakeModel = Versioned & {
   globalId: string,
   parentId: string,

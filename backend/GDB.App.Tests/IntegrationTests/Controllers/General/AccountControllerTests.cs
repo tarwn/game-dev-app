@@ -467,7 +467,7 @@ namespace GDB.App.Tests.IntegrationTests.Controllers.General
             using (var conn = Database.GetConnection())
             {
                 var reset = conn.QuerySingle<PasswordResetToken>("SELECT * FROM PasswordResetToken WHERE Id = @Id", token);
-                reset.UsedOn.Should().BeCloseTo(DateTime.UtcNow);
+                reset.UsedOn.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(100));
 
                 var history = conn.Query<string>("SELECT PasswordHash FROM PasswordHistory WHERE UserId = @Id", user);
                 history.Should().Contain(_fakeCrypto.HashPassword("ABCD1234"));
