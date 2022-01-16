@@ -73,7 +73,7 @@ jobs:
           name: Build for Release
           command: |
             cd backend
-            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=$VERSION_NUMBER -o ../app-publish --runtime win-x64
+            dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=$VERSION_NUMBER -o ../app-publish --runtime win-x64 --no-self-contained
             dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=$VERSION_NUMBER -o ../app-migrate --self-contained -r linux-musl-x64
             cd ../app-publish
             zip -r ../app-publish.zip *
