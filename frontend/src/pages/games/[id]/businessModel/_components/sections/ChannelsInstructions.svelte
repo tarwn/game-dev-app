@@ -2,7 +2,7 @@
   import Instructions from "./components/Instructions.svelte";
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 
   .gdb-instructions-list {
@@ -26,9 +26,8 @@
   title="Communications and Purchase Channels"
   href="https://www.launchready.co/blog/define-your-business-model/?utm_source=inapp&medium=inapp&name=inapp#section-3-channels">
   <p>
-    Where will players first see information about the game (awareness), dig in
-    to learn more (consideration), buy it (purchase), and, if needed, request
-    support (post-purchase)?
+    Where will players first see information about the game (awareness), dig in to learn more (consideration), buy it
+    (purchase), and, if needed, request support (post-purchase)?
   </p>
   <ul class="gdb-instructions-list">
     <li>
@@ -70,8 +69,7 @@
       <ul class="gdb-instructions-sublist">
         <li>
           <strong>Where do they buy it?</strong>
-          PC Marketplaces, console stores, mobile app stores, physical stores?
-          Which one(s)?
+          PC Marketplaces, console stores, mobile app stores, physical stores? Which one(s)?
         </li>
       </ul>
     </li>

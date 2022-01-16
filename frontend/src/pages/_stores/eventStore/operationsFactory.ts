@@ -1,4 +1,5 @@
-import { Identified, IEvent, IEventOperation, IEventStore, IIdentifiedPrimitive, OperationType, ValueType, Versioned } from "./types";
+import { OperationType, ValueType } from "./types";
+import type { Identified, IEvent, IEventOperation, IEventStore, IIdentifiedPrimitive, Versioned } from "./types";
 
 type IdentifiedValueUpdate<T> = Identified & { value: T };
 

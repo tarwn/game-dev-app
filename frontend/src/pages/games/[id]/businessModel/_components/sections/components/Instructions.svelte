@@ -3,13 +3,12 @@
   export let href: string = "";
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../../styles/_variables.scss";
 </style>
 
 <div>
   <h3>{title}</h3>
-  <em><a {href} title="Longer instruction for this section" target="_blank">Read
-      longer instructions</a></em>
+  <em><a {href} title="Longer instruction for this section" target="_blank">Read longer instructions</a></em>
   <slot />
 </div>

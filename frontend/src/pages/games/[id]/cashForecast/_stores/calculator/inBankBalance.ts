@@ -1,6 +1,7 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import type { ICashForecast } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 export function applyBankBalance(
   draftState: WritableDraft<IProjectedCashFlowData>,

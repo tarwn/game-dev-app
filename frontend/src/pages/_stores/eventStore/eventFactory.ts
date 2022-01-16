@@ -1,4 +1,5 @@
-import { Identified, IEvent, IEventOperation, IEventStore, OperationType, ValueType, Versioned } from "./types";
+import { OperationType, ValueType } from "./types";
+import type { Identified, IEvent, IEventOperation, IEventStore, Versioned } from "./types";
 
 interface IEventFactory<TModel extends Versioned> {
   createPropUpdate: <TType>(eventName: string, valueType: ValueType) => ((target: Identified, value: TType) => IEvent<TModel>);

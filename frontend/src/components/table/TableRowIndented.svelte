@@ -4,7 +4,7 @@
   export let isBottom: boolean = false;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../styles/_variables.scss";
 
   $border-color: $cs-grey-0;

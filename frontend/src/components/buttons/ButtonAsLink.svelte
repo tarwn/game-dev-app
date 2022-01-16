@@ -4,7 +4,7 @@
   export let small: boolean = false;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../styles/_variables.scss";
 
   .gdb-button-as-link {

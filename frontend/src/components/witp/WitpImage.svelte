@@ -4,7 +4,7 @@
   export let caption: string | undefined = undefined;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../styles/_variables.scss";
 
   img {

@@ -5,20 +5,15 @@
   import LabeledInput from "../../../../../../../components/inputs/LabeledInput.svelte";
   import Row from "../../../../../../../components/inputs/Row.svelte";
   import type { Identified } from "../../../../../../_stores/eventStore/types";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../../_stores/businessModelStore";
 
   import type { IBusinessModelCustomer } from "../../../_types/businessModel";
   import EntryList from "./EntryList.svelte";
 
   export let customer: IBusinessModelCustomer;
 
-  $: hasPlayerType =
-    customer.type.value == "both" || customer.type.value == "player";
-  $: hasCustomerType =
-    customer.type.value == "both" || customer.type.value == "customer";
+  $: hasPlayerType = customer.type.value == "both" || customer.type.value == "player";
+  $: hasCustomerType = customer.type.value == "both" || customer.type.value == "customer";
 
   function init(el: any) {
     el.focus();
@@ -69,21 +64,15 @@
   }
 
   function handleOnNewCharacteristic(createEventArgs: any) {
-    businessModelEventStore.addEvent(
-      events.AddCustomerEntry(createEventArgs.detail)
-    );
+    businessModelEventStore.addEvent(events.AddCustomerEntry(createEventArgs.detail));
   }
 
   function handleCharacteristicUpdate(updateEventArgs: any) {
-    businessModelEventStore.addEvent(
-      events.UpdateCustomerEntry(updateEventArgs.detail)
-    );
+    businessModelEventStore.addEvent(events.UpdateCustomerEntry(updateEventArgs.detail));
   }
 
   function handleCharacteristicDelete(deleteEventArgs: any) {
-    businessModelEventStore.addEvent(
-      events.DeleteCustomerEntry(deleteEventArgs.detail)
-    );
+    businessModelEventStore.addEvent(events.DeleteCustomerEntry(deleteEventArgs.detail));
   }
 
   function handleCustomerDelete(customer: Identified) {
@@ -96,7 +85,7 @@
   }
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../../styles/_variables.scss";
 
   .gdb-customer-section {

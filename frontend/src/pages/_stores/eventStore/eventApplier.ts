@@ -1,7 +1,8 @@
 import produce from "immer";
 import { log } from "../../../utilities/logger";
 import { createIdentifiedPrimitive, createObjectList } from "./helpers";
-import { Identified, IEvent, IEventApplier, OperationType, ValueType, Versioned } from "./types";
+import type { Identified, IEvent, IEventApplier, Versioned } from "./types";
+import { OperationType, ValueType } from "./types";
 
 type MutableEventReducer<T extends Versioned> = (model: T, event: IEvent<T>) => void;
 

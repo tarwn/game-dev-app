@@ -7,7 +7,7 @@
   const params = { id: id };
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../styles/_variables.scss";
 
   $base-main-background: $color-background-white;
@@ -98,10 +98,7 @@
   }
 </style>
 
-<a
-  class="gdb-nav-game"
-  href={$url('./games/:id', params)}
-  class:active={$isActive(`./games/${id}`)}>
+<a class="gdb-nav-game" href={$url("./games/:id", params)} class:active={$isActive(`./games/${id}`)}>
   <div class="gdb-nav-game-icon"><i class={icon} /></div>
   <div class="gdb-nav-game-name">{name}</div>
 </a>

@@ -1,10 +1,17 @@
 import { getUtcDate } from "../../../../../../../utilities/date";
 import { createObjectList } from "../../../../../../_stores/eventStore/helpers";
-import { BasicDateOption, FundingRepaymentType, IEstimatedRevenuePlatform, IFundingItem, LoanType } from "../../../_types/cashForecast";
+import { BasicDateOption, FundingRepaymentType, LoanType } from "../../../_types/cashForecast";
+import type { IEstimatedRevenuePlatform, IFundingItem } from "../../../_types/cashForecast";
 import { calculateFundingShareOutflow, calculatePublisherOutflow } from "../outRevenueShares";
-import { createEstRevPlatform, createEstRevShare, createFunding, createFundingRepaymentCashOut, createFundingRepaymentTerms } from "../../../../../../../testUtils/helpers";
+import {
+  createEstRevPlatform,
+  createEstRevShare,
+  createFunding,
+  createFundingRepaymentCashOut,
+  createFundingRepaymentTerms
+} from "../../../../../../../testUtils/helpers";
 
-describe("outRevenuShare", () => {
+describe("outRevenueShare", () => {
   describe("calculateFundingShareOutflow", () => {
     it("calculates a basic share correctly", () => {
       const fundings = createObjectList<IFundingItem>("p", "g");

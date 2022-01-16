@@ -1,6 +1,7 @@
 import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
-import { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive, OperationType, ValueType } from "../../../../_stores/eventStore/types";
+import { OperationType, ValueType } from "../../../../_stores/eventStore/types";
+import type { Identified, IEvent, IEventApplier, IIdentifiedList, IIdentifiedPrimitive } from "../../../../_stores/eventStore/types";
 import type { IBusinessModel } from "../_types/businessModel";
 import { api } from "./businessModelApi";
 import { operations } from "../../../../_stores/eventStore/operationsFactory";

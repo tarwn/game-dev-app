@@ -6,9 +6,9 @@ import {
   AdditionalEmployeeExpenseType,
   EstimatedRevenueDelay,
   ExpenseCategory,
-  FundingRepaymentType,
-  ICashForecast
+  FundingRepaymentType
 } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
 import { applyBankBalance } from "./inBankBalance";
 import { applyFundingIn } from "./inFunding";
 import { applyLoansIn } from "./inLoans";

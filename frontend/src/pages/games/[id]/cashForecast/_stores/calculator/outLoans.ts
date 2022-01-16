@@ -1,7 +1,9 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { getUtcDate } from "../../../../../../utilities/date";
-import { ICashForecast, LoanRepaymentType } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { LoanRepaymentType } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 export function applyLoansOut(
   draftState: WritableDraft<IProjectedCashFlowData>,

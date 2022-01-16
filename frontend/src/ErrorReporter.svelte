@@ -54,7 +54,7 @@
   }
 </script>
 
-<style type="text/scss" global>
+<style lang="scss" global>
   @import "./styles/_variables.scss";
   .gdb-error-reporter {
     position: absolute;

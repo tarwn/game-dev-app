@@ -9,7 +9,7 @@
   $: valueProp = businessModel?.valueProposition;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 
   // IMPORTANT: these styles are in `em` because we change the font size drastically

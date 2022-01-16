@@ -1,7 +1,8 @@
 import { createImmutableEventApplier } from "../pages/_stores/eventStore/eventApplier";
 import { createEventStore } from "../pages/_stores/eventStore/eventStore";
 import { primitiveEventFactory } from "../pages/_stores/eventStore/operationsFactory";
-import { IEventApplier, IEventStateApi, IEventStore, IIdentifiedPrimitive, ValueType, Versioned } from "../pages/_stores/eventStore/types";
+import { ValueType } from "../pages/_stores/eventStore/types";
+import type { IEventApplier, IEventStateApi, IEventStore, IIdentifiedPrimitive, Versioned } from "../pages/_stores/eventStore/types";
 
 export type TestModel = Versioned & {
   globalId: string,

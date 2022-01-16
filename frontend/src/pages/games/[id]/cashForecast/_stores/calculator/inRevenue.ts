@@ -1,8 +1,10 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
 import { getUtcDate } from "../../../../../../utilities/date";
-import { BasicDateOption, EstimatedRevenueDelay, EstimatedSalesCurve, ICashForecast, RevenueModelType } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { BasicDateOption, EstimatedRevenueDelay, EstimatedSalesCurve, RevenueModelType } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 export function applySalesRevenue(
   draftState: WritableDraft<IProjectedCashFlowData>,

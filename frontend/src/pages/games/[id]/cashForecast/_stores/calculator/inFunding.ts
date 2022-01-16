@@ -1,6 +1,8 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
-import { ICashForecast, LoanType } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { LoanType } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 export function applyFundingIn(
   draftState: WritableDraft<IProjectedCashFlowData>,

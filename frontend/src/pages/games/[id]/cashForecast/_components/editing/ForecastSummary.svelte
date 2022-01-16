@@ -10,7 +10,7 @@
   $: forecastLength = ForecastLengths.find((f) => f.id == cashForecast.length.value)?.name;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 
   .gdb-cf-forecast-row {

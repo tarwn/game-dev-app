@@ -1,6 +1,7 @@
 import { log } from "../../../utilities/logger";
 import type { IEvent, Versioned } from "./types";
-import { Readable, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
+import type { Readable } from 'svelte/store';
 
 export type UndoState = { canUndo: boolean; canRedo: boolean; }
 export type ReadableUndoStore = Readable<UndoState>

@@ -1,8 +1,10 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType, ICashForecast } from "../../_types/cashForecast";
+import { AdditionalEmployeeExpenseFrequency, AdditionalEmployeeExpenseType } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
 import { ExpenseCategory } from "../../_types/cashForecast";
-import { ICashValue, IProjectedCashFlowData, SubTotalType } from "./types";
+import { SubTotalType } from "./types";
+import type { ICashValue, IProjectedCashFlowData } from "./types";
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 

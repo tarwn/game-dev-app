@@ -1,6 +1,8 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
-import { ExpenseCategory, ExpenseFrequency, ExpenseUntil, ICashForecast } from "../../_types/cashForecast";
-import { ICashValue, IProjectedCashFlowData, SubTotalType } from "./types";
+import { ExpenseCategory, ExpenseFrequency, ExpenseUntil } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
+import { SubTotalType } from "./types";
+import type { ICashValue, IProjectedCashFlowData } from "./types";
 
 export function applyDirectExpensesOut(
   draftState: WritableDraft<IProjectedCashFlowData>,

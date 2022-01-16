@@ -6,7 +6,7 @@
   $: message = `The ${subject} is coming soon, but is still under development.`;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../styles/_variables.scss";
 
   .gdb-coming-soon {

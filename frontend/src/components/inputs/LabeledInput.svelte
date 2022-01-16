@@ -4,7 +4,7 @@
   export let vertical: boolean = false;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../styles/_variables.scss";
 
   .gdb-label {

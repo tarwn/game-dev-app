@@ -3,20 +3,16 @@
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
   import EntryList from "./components/EntryList.svelte";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../_stores/businessModelStore";
 
   export let businessModel: IBusinessModel;
 
   const publish = businessModelEventStore.addEvent;
 
-  $: hasMinimumInfo =
-    businessModel.customerRelationships.entries.list.length > 0;
+  $: hasMinimumInfo = businessModel.customerRelationships.entries.list.length > 0;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 </style>
 
@@ -28,9 +24,7 @@
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
-  <p>
-    What types of customer relationships do we need to build to be successful?
-  </p>
+  <p>What types of customer relationships do we need to build to be successful?</p>
   <Row>
     <EntryList
       entries={businessModel.customerRelationships.entries}

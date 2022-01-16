@@ -5,8 +5,9 @@
     "package.json"
   ],
   "words": [
+    "duplicative",
     "immer",
-    "sveltech",
-    "routify"
+    "routify",
+    "sveltech"
   ]
 }

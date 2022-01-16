@@ -1,7 +1,9 @@
 import type { WritableDraft } from "immer/dist/types/types-external";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import { ICashForecast, NetIncomeCategory, TaxSchedule } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { NetIncomeCategory, TaxSchedule } from "../../_types/cashForecast";
+import type { ICashForecast } from "../../_types/cashForecast";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 export function applyTaxesOut(
   draftState: WritableDraft<IProjectedCashFlowData>,

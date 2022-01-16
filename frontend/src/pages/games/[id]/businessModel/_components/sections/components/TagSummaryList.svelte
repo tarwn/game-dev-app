@@ -1,13 +1,10 @@
 <script lang="ts">
-  import type {
-    IIdentifiedList,
-    IIdentifiedPrimitive,
-  } from "../../../../../../_stores/eventStore/types";
+  import type { IIdentifiedList, IIdentifiedPrimitive } from "../../../../../../_stores/eventStore/types";
 
   export let entries: IIdentifiedList<IIdentifiedPrimitive<string>>;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../../styles/_variables.scss";
 
   .gdb-summary-list {

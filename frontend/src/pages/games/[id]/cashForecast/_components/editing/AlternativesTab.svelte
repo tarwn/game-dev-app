@@ -19,7 +19,7 @@
   const scenarios = [{ name: "Scenario 1" }, { name: "Scenario 2" }, { name: "Scenario 3" }];
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 </style>
 

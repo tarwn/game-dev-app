@@ -43,7 +43,7 @@
   }
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../../styles/_variables.scss";
 
   .gdb-entry-list {

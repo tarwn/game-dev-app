@@ -6,14 +6,16 @@ import { createAutomaticEventFactory, opsFactory } from "../eventFactory";
 import { createEventStore } from "../eventStore";
 import { createIdentifiedPrimitive, createObjectList } from "../helpers";
 import {
+  OperationType,
+  ValueType
+} from "../types";
+import type {
   IEventApplier,
   IEventStateApi,
   IEventStore,
   IIdentifiedList,
   IIdentifiedObject,
   IIdentifiedPrimitive,
-  OperationType,
-  ValueType,
   Versioned
 } from "../types";
 

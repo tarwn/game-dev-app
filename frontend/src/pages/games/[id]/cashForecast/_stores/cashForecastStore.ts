@@ -1,7 +1,8 @@
 import { createEventStore } from "../../../../_stores/eventStore/eventStore";
 import { createLocalStore } from "../../../../_stores/eventStore/localStore";
 import { createImmutableAutomaticEventApplier } from "../../../../_stores/eventStore/eventApplier";
-import { Identified, IEvent, ValueType } from "../../../../_stores/eventStore/types";
+import { ValueType } from "../../../../_stores/eventStore/types";
+import type { Identified, IEvent } from "../../../../_stores/eventStore/types";
 import {
   AdditionalEmployeeExpenseFrequency,
   AdditionalEmployeeExpenseType,
@@ -13,12 +14,12 @@ import {
   ForecastLength,
   ForecastStage,
   FundingRepaymentType,
-  ICashForecast,
   LoanRepaymentType,
   LoanType,
   NetIncomeCategory,
   TaxSchedule
 } from "../_types/cashForecast";
+import type { ICashForecast } from "../_types/cashForecast";
 import { api } from "./cashForecastApi";
 import { createAutomaticEventFactory, opsFactory } from "../../../../_stores/eventStore/eventFactory";
 

@@ -1,13 +1,13 @@
 import type { WritableDraft } from "immer/dist/internal";
 import { roundCurrency } from "../../../../../../utilities/currency";
-import {
-  FundingRepaymentType,
+import { FundingRepaymentType, SalesRevenueShareType } from "../../_types/cashForecast";
+import type {
   ICashForecast,
   IEstimatedRevenuePlatform,
-  IFundingItem,
-  SalesRevenueShareType
+  IFundingItem
 } from "../../_types/cashForecast";
-import { IProjectedCashFlowData, SubTotalType } from "./types";
+import { SubTotalType } from "./types";
+import type { IProjectedCashFlowData } from "./types";
 
 // shared logic for calculating funding shares + managing tiers
 // eslint-disable-next-line max-len

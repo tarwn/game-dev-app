@@ -16,7 +16,8 @@ import {
 } from "../../../_types/cashForecast";
 import { LoanRepaymentType, LoanType } from "../../../_types/cashForecast";
 import { calculate } from "../calculator";
-import { getEmptyProjection, ICashValue, SubTotalType } from "../types";
+import { getEmptyProjection, SubTotalType } from "../types";
+import type { ICashValue } from "../types";
 import {
   createContractor,
   createContractorPayment,
@@ -324,7 +325,7 @@ describe("calculate", () => {
     });
 
     it("adds monthly loan inflow w/extraneous cashIns on correct dates to loan, subtotal, and total", () => {
-      // this is same as multime test, but expect values to be set only from first item
+      // this is same as multi test, but expect values to be set only from first item
       const initial = getEmptyProjection();
       const forecast = createEmptyCashForecast();
       forecast.forecastStartDate.value = getUtcDate(2015, 5, 1);
@@ -1126,7 +1127,7 @@ describe("calculate", () => {
       forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
         createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
       );
-      const revGlobalid = forecast.revenues.list[0].globalId;
+      const revGlobalId = forecast.revenues.list[0].globalId;
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       forecast.revenues.list.pop();
 
@@ -1134,7 +1135,7 @@ describe("calculate", () => {
 
       {
         const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
-          .get(revGlobalid);
+          .get(revGlobalId);
         let rollingSum = 0;
         [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
           rollingSum += amt;
@@ -1175,7 +1176,7 @@ describe("calculate", () => {
       forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
         createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
       );
-      const revGlobalid = forecast.revenues.list[0].globalId;
+      const revGlobalId = forecast.revenues.list[0].globalId;
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       forecast.revenues.list[0].values.list = [];
 
@@ -1183,7 +1184,7 @@ describe("calculate", () => {
 
       {
         const detail = initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue)
-          .get(revGlobalid);
+          .get(revGlobalId);
         let rollingSum = 0;
         [0, 10000.10, 10000.10, 10000.10, 10000.10, 0].forEach((amt, i) => {
           rollingSum += amt;
@@ -1224,12 +1225,12 @@ describe("calculate", () => {
       forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
         createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
       );
-      const revGlobalid = forecast.revenues.list[0].globalId;
+      const revGlobalId = forecast.revenues.list[0].globalId;
 
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES + 12);
 
-      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalId).length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_SalesRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_PlatformShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(FIVE_YEARS_OF_ENTRIES);
@@ -1239,7 +1240,7 @@ describe("calculate", () => {
       expect(initialProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
       const sixYears = FIVE_YEARS_OF_ENTRIES + 12;
-      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(sixYears);
+      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalId).length).toBe(sixYears);
       expect(secondProjection.GrossRevenue_SalesRevenue.length).toBe(sixYears);
       expect(secondProjection.GrossRevenue_PlatformShares.length).toBe(sixYears);
       expect(secondProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(sixYears);
@@ -1261,12 +1262,12 @@ describe("calculate", () => {
       forecast.revenues.list[0].values.list = Array.from(new Array(numMonths).keys()).map((_, i) =>
         createRevenueValue(forecast.revenues.list[0].values, 10000.10, getUtcDate(2016, 5 + i, 1))
       );
-      const revGlobalid = forecast.revenues.list[0].globalId;
+      const revGlobalId = forecast.revenues.list[0].globalId;
 
       const initialProjection = calculate(forecast, initial, FIVE_YEARS_OF_ENTRIES);
       const secondProjection = calculate(forecast, initialProjection, FIVE_YEARS_OF_ENTRIES - 12);
 
-      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(FIVE_YEARS_OF_ENTRIES);
+      expect(initialProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalId).length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_SalesRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_PlatformShares.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(FIVE_YEARS_OF_ENTRIES);
@@ -1276,7 +1277,7 @@ describe("calculate", () => {
       expect(initialProjection.GrossRevenue_RevenueAfterPublisher.length).toBe(FIVE_YEARS_OF_ENTRIES);
       expect(initialProjection.GrossRevenue.length).toBe(FIVE_YEARS_OF_ENTRIES);
       const fourYears = FIVE_YEARS_OF_ENTRIES - 12;
-      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalid).length).toBe(fourYears);
+      expect(secondProjection.details.get(SubTotalType.GrossRevenue_SalesRevenue).get(revGlobalId).length).toBe(fourYears);
       expect(secondProjection.GrossRevenue_SalesRevenue.length).toBe(fourYears);
       expect(secondProjection.GrossRevenue_PlatformShares.length).toBe(fourYears);
       expect(secondProjection.GrossRevenue_RevenueAfterPlatform.length).toBe(fourYears);
@@ -1913,7 +1914,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           333.33,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 5, 1))
       );
 
@@ -1944,7 +1945,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           333.33,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 3, 1))
       );
 
@@ -1967,7 +1968,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusPercentAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           0.10,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 5, 1))
       );
       const bonus = 1234.56 * 12 * 0.10;
@@ -1999,7 +2000,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           0.10,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 3, 1))
       );
 
@@ -2158,7 +2159,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsOnce,
           AdditionalEmployeeExpenseFrequency.Launch,
           333.33,
-          // purpusefully picked earlier month - we verify below it is not this date and is launch date
+          // purposefully picked earlier month - we verify below it is not this date and is launch date
           getUtcDate(2017, 4, 1))
       );
 
@@ -2338,7 +2339,7 @@ describe("calculate", () => {
       expect(initialProjection.GrossProfit[25].amount).toBe(0);
     });
 
-    it("applies monthly direct expense to gross profit (end on launchdate)", () => {
+    it("applies monthly direct expense to gross profit (end on launch date)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2017, 6, 30);
       forecast.expenses.list.push(
@@ -2362,11 +2363,11 @@ describe("calculate", () => {
       expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
     });
 
-    it("applies monthly direct expense to gross profit (end on launchdate even if manual date is different)", () => {
+    it("applies monthly direct expense to gross profit (end on launch date even if manual date is different)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2017, 6, 30);
       forecast.expenses.list.push(
-        // explicitly set a manual date also, it shodl be ignored and launch date from forecast used
+        // explicitly set a manual date also, it should be ignored and launch date from forecast used
         createExpense(forecast.expenses, ExpenseCategory.DirectExpenses, ExpenseFrequency.Monthly,
           1234.56, getUtcDate(2017, 5, 1), ExpenseUntil.Launch, getUtcDate(2017, 5, 1))
       );
@@ -2387,7 +2388,7 @@ describe("calculate", () => {
       expect(initialProjection.GrossProfit[25].amount).toBe(-1234.56);
     });
 
-    it("does not apply monthly direct expense to gross profit when startDate is after launchdate (launchdate)", () => {
+    it("does not apply monthly direct expense to gross profit when startDate is after launch date (launchDate)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2015, 6, 30);
       forecast.expenses.list.push(
@@ -2624,7 +2625,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           333.33,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 5, 1))
       );
 
@@ -2655,7 +2656,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           333.33,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 3, 1))
       );
 
@@ -2678,7 +2679,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusPercentAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           0.10,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 5, 1))
       );
       const bonus = 1234.56 * 12 * 0.10;
@@ -2710,7 +2711,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsAnnual,
           AdditionalEmployeeExpenseFrequency.Date,
           0.10,
-          // purpusefully picking an earlier year for recurring math
+          // purposefully picking an earlier year for recurring math
           getUtcDate(2015, 3, 1))
       );
 
@@ -2869,7 +2870,7 @@ describe("calculate", () => {
           AdditionalEmployeeExpenseType.BonusDollarsOnce,
           AdditionalEmployeeExpenseFrequency.Launch,
           333.33,
-          // purpusefully picked earlier month - we verify below it is not this date and is launch date
+          // purposefully picked earlier month - we verify below it is not this date and is launch date
           getUtcDate(2017, 4, 1))
       );
 
@@ -3049,7 +3050,7 @@ describe("calculate", () => {
       expect(initialProjection.NetProfit[25].amount).toBe(0);
     });
 
-    it("applies monthly indirect expense to net profit (end on launchdate)", () => {
+    it("applies monthly indirect expense to net profit (end on launchDate)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2017, 6, 30);
       forecast.expenses.list.push(
@@ -3073,7 +3074,7 @@ describe("calculate", () => {
       expect(initialProjection.NetProfit[25].amount).toBe(-1234.56);
     });
 
-    it("does not apply monthly indirect expense to net profit when startDate is after launchdate (launchdate)", () => {
+    it("does not apply monthly indirect expense to net profit when startDate is after launch date (launchDate)", () => {
       const forecast = setupForecastWithRevenue(10000.10, getUtcDate(2017, 5, 1));
       forecast.launchDate.value = getUtcDate(2015, 6, 30);
       forecast.expenses.list.push(

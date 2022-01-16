@@ -30,7 +30,7 @@
   }
 </script>
 
-<style type="text/scss" global>
+<style lang="scss" global>
   @import "../../../../../styles/_variables.scss";
   @import "../../../../../styles/mixins/_loadingPulse.scss";
   @import "../../../../../styles/mixins/_scrollbar.scss";

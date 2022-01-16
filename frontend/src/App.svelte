@@ -20,7 +20,7 @@
   profileStore.load();
 </script>
 
-<style type="text/scss" global>
+<style lang="scss" global>
   // @import "normalize.css";
   @import "./styles/base.scss";
   @import "./styles/app.scss";

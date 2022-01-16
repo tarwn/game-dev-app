@@ -1,4 +1,5 @@
-import { createFakeStore, TestModel } from "../../../../testUtils/testEventStore";
+import { createFakeStore } from "../../../../testUtils/testEventStore";
+import type { TestModel } from "../../../../testUtils/testEventStore";
 import type { Versioned } from "../types";
 import { createUndoStore } from "../undoStore";
 

@@ -1,5 +1,7 @@
-import { createFakeStore, TestModel } from "../../../../testUtils/testEventStore";
-import { IEventStoreState, ReceiveDecision } from "../types";
+import { createFakeStore } from "../../../../testUtils/testEventStore";
+import type { TestModel } from "../../../../testUtils/testEventStore";
+import { ReceiveDecision } from "../types";
+import type { IEventStoreState } from "../types";
 
 describe("eventStore", () => {
   describe("initialize", () => {

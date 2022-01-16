@@ -3,10 +3,7 @@
   import InputPanel from "../InputPanel.svelte";
   import Row from "../../../../../../components/inputs/Row.svelte";
   import EntryList from "./components/EntryList.svelte";
-  import {
-    businessModelEventStore,
-    events,
-  } from "../../_stores/businessModelStore";
+  import { businessModelEventStore, events } from "../../_stores/businessModelStore";
 
   export let businessModel: IBusinessModel;
 
@@ -15,7 +12,7 @@
   $: hasMinimumInfo = businessModel.keyPartners.entries.list.length > 0;
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../../styles/_variables.scss";
 </style>
 
@@ -27,10 +24,7 @@
   canFullscreen={true}
   on:clickFullscreen
   on:clickNext>
-  <p>
-    What or who are the key partners we identified in earlier sections to make
-    this game successful?
-  </p>
+  <p>What or who are the key partners we identified in earlier sections to make this game successful?</p>
   <Row>
     <EntryList
       entries={businessModel.keyPartners.entries}

@@ -2,7 +2,7 @@
   import WitpImage from "../../../../../components/witp/WitpImage.svelte";
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @import "../../../../../styles/_variables.scss";
   p {
     max-width: 800px;

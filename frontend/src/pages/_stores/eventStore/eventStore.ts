@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 import produce from "immer";
 import { log } from '../../../utilities/logger';
-import { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs, ReceiveDecision } from './types';
-
+import { ReceiveDecision } from './types';
+import type { Versioned, Identified, IEvent, IEventApplier, IEventStateApi, IEventStore, VersionEventArgs } from './types';
 
 export function createEventStore<T extends Versioned & Identified>(api: IEventStateApi<T>, eventApplier: IEventApplier<T>): IEventStore<T> {
   // api args and id to skip stale API calls coming back
