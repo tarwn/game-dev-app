@@ -5,11 +5,11 @@ orbs:
 
 jobs:
   build-application:
-    docker: 
+    docker:
       # Using special pkg per https://github.com/NuGet/Announcements/issues/49
       # later switch back to:
       # - image: mcr.microsoft.com/dotnet/sdk:5.0
-      - image: mcr.microsoft.com/dotnet/sdk:5.0.102-ca-patch-buster-slim
+      - image: mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim
     environment:
       VERSION_NUMBER: 0.0.0.<< pipeline.number >>
       JEST_JUNIT_OUTPUT_DIR: "../../reports/"
@@ -20,10 +20,9 @@ jobs:
       JEST_JUNIT_TITLE: "{classname} > {title}"
     steps:
       - checkout
-      - run: 
+      - run:
           name: Install Build/System Dependencies
-          command:
-            |
+          command: |
             apt-get update -yq \
               && apt-get install curl gnupg -yq \
               && curl -sL https://deb.nodesource.com/setup_14.x | bash \
@@ -33,29 +32,26 @@ jobs:
             apt update && apt install yarn -yq
             apt install zip -yq
 
-      - run: 
+      - run:
           name: Front-end Test
-          environment: 
+          environment:
             JEST_JUNIT_OUTPUT: "./frontend.xml"
-          command: 
-            |
+          command: |
             cd frontend
             yarn install
             yarn run ci:validate
             yarn run ci:lint --output-file ~/reports/eslint.xml
             yarn run ci:test
 
-      - run: 
+      - run:
           name: Front-end Build
-          command: 
-            |
+          command: |
             cd frontend
             yarn run build
 
       - run:
           name: Back-end Test
-          command:
-            |
+          command: |
             cd backend
             cp ./GDB.App.Tests/appsettings.none.json ./GDB.App.Tests/appsettings.json
             dotnet test --filter "TestCategory!=Database-Tests" -l trx -l console -v m -r ~/reports/
@@ -63,22 +59,19 @@ jobs:
       - run:
           name: Back-end Test Results
           when: always
-          command:
-            |
+          command: |
             dotnet tool install -g trx2junit
             export PATH="$PATH:/root/.dotnet/tools"
             trx2junit ~/reports/*.trx
 
-                  
       - store_test_results:
           path: ~/reports
       - store_artifacts:
-          path: ~/reports  
+          path: ~/reports
 
       - run:
           name: Build for Release
-          command: 
-            |
+          command: |
             cd backend
             dotnet publish ./GDB.App/GDB.App.csproj -c Release /property:Version=$VERSION_NUMBER -o ../app-publish --runtime win-x64
             dotnet publish ./GDB.Tools.DatabaseMigration/GDB.Tools.DatabaseMigration.csproj -c Release /property:Version=$VERSION_NUMBER -o ../app-migrate --self-contained -r linux-musl-x64
@@ -109,20 +102,18 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
 
-      - run: 
+      - run:
           name: Install Dependencies
-          command:
-            |
+          command: |
             # dependencies to run dotnet db migration tool
             apk add libc6-compat
             ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
             # dependencies for monitoring health checkout
-            apk add nodejs           
-          
-      - run: 
+            apk add nodejs
+
+      - run:
           name: Azure Staging Deploy
-          command:
-            |
+          command: |
             cd /tmp/workspace
             ls -l
             # Deploy to staging slot
@@ -135,8 +126,7 @@ jobs:
 
       - run:
           name: Database Migration
-          command: 
-            |
+          command: |
             ip=$(curl -s https://api.ipify.org)
             echo "Adding firewall rule for: $ip"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
@@ -146,18 +136,16 @@ jobs:
 
       - run:
           name: Database Migration - Firewall Cleanup
-          command: 
-            |
+          command: |
             ip=$(curl -s https://api.ipify.org)
             echo "Removing firewall rule for: $ip"
             az login --service-principal -u http://${AzureServicePrincipal} -p ${AzurePassword} --tenant ${AzureTenant}
             az sql server firewall-rule delete --subscription ${AzureSubscription} -s ${AzureSqlServerName} -g ${AzureResourceGroup} -n CircleCI-Job-$CIRCLE_JOB
           when: always
 
-      - run: 
+      - run:
           name: Azure Production Swap
-          command:
-            |
+          command: |
             # Poll health endpoint, 500ms intervals, 15s timeout
             cd /tmp/workspace/tools/PollHealthcheck
             node index.js ${AzureStagingUrl}/health 500 15000
@@ -166,7 +154,6 @@ jobs:
             az webapp deployment slot swap -g ${AzureResourceGroup} -n  ${AzureWebApp} -s staging --target-slot production
             # Shutdown old version
             az webapp stop -g ${AzureResourceGroup} -n ${AzureWebApp} -s staging
-
 
       - discord/status:
           fail_only: true
@@ -186,6 +173,6 @@ workflows:
       - deploy-application:
           requires:
             - build-application
-          filters: 
+          filters:
             branches:
               only: main
