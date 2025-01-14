@@ -19,6 +19,7 @@ jobs:
       JEST_JUNIT_CLASSNAME: "{classname}"
       JEST_JUNIT_TITLE: "{classname} > {title}"
     steps:
+      - run: apt-get update && apt-get install -y openssh-client git
       - checkout
       - run:
           name: Install Build/System Dependencies
