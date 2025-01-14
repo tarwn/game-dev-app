@@ -74,6 +74,7 @@ Additionally, we're using immutable data properties to ensure we're only doing t
 The math for the cash forecast is particularly intense, modelling assets, expenses, taxes, revenue, plus complex waterfalls of loan pay back, revenue sharing, and more.
 
 ![Example of how customizeable the funding agreements can be to match realwork funding examples](https://www.tiernok.com/images/projects/launchready-igd/App-Publisher-Funding.png)
+_Modeled from a real publisher agreement: 100% of gross after distribution until their initial investment is matched, then a smaller percentage of the next $10MM_
 
 * [calculator.calculate](./frontend/src/pages/games/[id]/cashForecast/_stores/calculator/calculator.ts): the top-level driver of calculating the balance sheet and forecasting
 * [calculator.test.ts](./frontend/src/pages/games/[id]/cashForecast/_stores/calculator/__tests__/calculator.test.ts): the first 3,400 lines of test code for the math
