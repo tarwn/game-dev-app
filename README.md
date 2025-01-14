@@ -1,7 +1,7 @@
 This is an archive of the source code behind [LaunchReady](https://www.tiernok.com/projects/launchready-igd), a software product
 I founded and launched, but shuttered a few years ago so I could focus on another role that had come my way.
 
-**Licensing:** This software is licensed for non-commercial use only. Shared for portfolio and educational purposes.
+**Licensing:** This software is shared for portfolio and educational purposes. All rights to modify, reuse, or redistribute the code are reserved. I am open to individual licenses, reach out to me to chat.
 
 ![Dashboard screenshot from LaunchReady](https://www.tiernok.com/images/projects/launchready-igd/App-Dashboard.png)
 
