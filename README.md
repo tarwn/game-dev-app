@@ -15,6 +15,7 @@ I founded and launched, but shuttered a few years ago so I could focus on anothe
 This is a startup codebase, so it's not as polished as it would be if things were further along, but if you've built as many CI/CD pipelines, overhauled as many brownfield products, etc. as I have, you tend to wire in some things even at an early stage that may be missing in other 0-to-1 projects.
 
 1. **CI/CD**: The `.circleci` and `database` folders (plus `backend/GDB.Tools.DatabaseMigration` using [DbUp](https://github.com/DbUp/DbUp)) are the only way this code touched production
+    * _Note: this had working CI/CD with labels on the commits, but CircleCI not only made changes they also somehow no longer display status on all the historical commits 🤷‍♀️🤷‍♂️_
 2. **Deploy one service**: this is designed to all run on one (horizontally scalable) web service, so the build process and backend are built to bundle up the front-end and host both
 3. **Fast**: [Svelte](https://svelte.dev/) on the frontend, websockets and CRDTs for realtime collaborative edits, [.Net Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core) and pretty clean DB and queries for storage
 4. **Developer Experience**: This is a one developer startup, I don't have time to wade through a mess, so 
